@@ -1,0 +1,43 @@
+body{
+  /*텍스트 선택 불가*/
+  -webkit-user-select: none !important; 
+  -moz-user-select: -moz-none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
+  -webkit-tap-highlight-color: transparent; 
+  /* background-color: #F1F3F5; */
+  overflow: hidden scroll;
+}
+
+#root{
+  margin: auto;
+  max-width: 500px;
+  background-color: white;
+}
+
+#root > div{
+  background-color: white;
+}
+
+a { 
+  -webkit-tap-highlight-color:transparent; 
+  -webkit-user-drag: none;
+  text-decoration: none;
+  color:black;
+}
+
+
+img {
+  -webkit-user-drag: none;
+}
+
+div {
+  -webkit-user-drag: none;
+}
+
+img:not([src]),
+img[src=""] {
+  display: none;
+}
+
