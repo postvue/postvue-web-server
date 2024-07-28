@@ -1,6 +1,8 @@
 const mainColor = {
   SkyBlue0: '#88C7F5',
+  SkyBlue1: '#54A1D9',
   White: '#FFFFFF',
+  Black: '#000000',
 };
 
 const grey = {
@@ -47,6 +49,8 @@ const fontSizes = {
     '500 14px/1.4 Pretendard-Medium; letter-spacing: -0.6px; line-height: 140%;',
   Label:
     '300 14px/1.4 Pretendard-Medium; letter-spacing: -0.6px; line-height: 140%;',
+  Element1:
+    '300 14px/1.4 Pretendard-Regular; letter-spacing: -0.6px; line-height: 140%;',
 };
 
 const paddings = {
