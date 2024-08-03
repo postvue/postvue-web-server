@@ -1,0 +1,23 @@
+import { api } from '..';
+import { PostComment } from '../../global/interface/post';
+import { COMMENT_LIST_PATH, POST_LIST_PATH } from '../appApiPath';
+
+interface GetPostCommentsRsp {
+  cursorId: string;
+  snsPostCommentRspList: PostComment[];
+}
+
+export const getPostComments = (
+  postId: string,
+  cursorId: string,
+): Promise<GetPostCommentsRsp> => {
+  return api
+    .get(`${POST_LIST_PATH}/${postId}${COMMENT_LIST_PATH}?cursor=${cursorId}`)
+    .then((res) => {
+      console.log(res.data);
+      return res.data.data;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
