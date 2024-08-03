@@ -4,13 +4,14 @@ import styled from 'styled-components';
 import { useInView } from 'react-intersection-observer';
 // import CopyRightFooter from '../conponents/CopyRightFooter';
 
-import { useRecoilState, useSetRecoilState } from 'recoil';
+import { useRecoilState } from 'recoil';
 import { getFollowForMeListByParam } from '../services/home/getFollowForMeList';
 import {
   cursorIdAtomByFollowForMe,
-  followForMeListAtom,
+  followForMeHashMapAtom,
   pageNumAtomByFollowForMe,
 } from '../states/FollowForMeAtom';
+import { systemPostRspHashMapAtom } from '../states/SystemConfigAtom';
 
 const FollowForMeInfiniteScroll: React.FC = () => {
   const [cursorNum, setCursorNum] = useRecoilState(cursorIdAtomByFollowForMe);
@@ -18,16 +19,29 @@ const FollowForMeInfiniteScroll: React.FC = () => {
 
   const [ref, inView] = useInView();
 
-  const setSnsPostList = useSetRecoilState(followForMeListAtom);
+  const [snsPostHashMap, setSnsPostHashMap] = useRecoilState(
+    followForMeHashMapAtom,
+  );
+  const [systemPostHashMap, setSystemPostHashMap] = useRecoilState(
+    systemPostRspHashMapAtom,
+  );
 
   const callback = () => {
-    console.log('커서:', cursorNum, '페이지 번호:', pageNum);
     getFollowForMeListByParam(cursorNum)
       .then((res) => {
         if (res.snsPostRspList.length > 0) {
-          setSnsPostList((prev) => [...prev, ...res.snsPostRspList]);
+          const newSnsPostHashMap = new Map(snsPostHashMap);
+          const newSystemPostHashMap = new Map(systemPostHashMap);
+          res.snsPostRspList.forEach((post) => {
+            newSnsPostHashMap.set(post.postId, post);
+            newSystemPostHashMap.set(post.postId, post);
+          });
+
+          setSnsPostHashMap(newSnsPostHashMap);
+          setSystemPostHashMap(newSystemPostHashMap);
           setPageNum(pageNum + 1);
         }
+
         setCursorNum(res.cursorId);
       })
       .catch((err) => {

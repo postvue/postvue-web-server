@@ -1,0 +1,2 @@
+export const UPLOAD_IMG_MAX_WIDTH = 2048;
+export const UPLOAD_IMG_MAX_HEIGHT = 2048;

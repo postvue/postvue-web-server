@@ -3,12 +3,17 @@ import { INIT_SCROLL_POSITION } from '../const/AttributeConst';
 import { INIT_CURSOR_ID, PAGE_NUM } from '../const/PageConfigConst';
 import { PostRsp } from '../global/interface/post';
 
-export const followForMeListAtom = atom<PostRsp[]>({
-  key: 'followForMeList',
-  default: [],
+// export const followForMeListAtom = atom<PostRsp[]>({
+//   key: 'followForMeList',
+//   default: [],
+// });
+
+export const followForMeHashMapAtom = atom<Map<string, PostRsp>>({
+  key: 'followForMeHashMap',
+  default: new Map(),
 });
 
-export const cursorIdAtomByFollowForMe = atom<number>({
+export const cursorIdAtomByFollowForMe = atom<string>({
   key: 'cursorIdByFollowForMe',
   default: INIT_CURSOR_ID,
 });

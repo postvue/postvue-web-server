@@ -230,8 +230,9 @@ const TabBar: React.FC = () => {
 };
 
 const Container = styled.div`
+  z-index: 10;
   position: fixed;
-  max-width: 800px;
+  max-width: ${({ theme }) => theme.appDisplaySize};
   bottom: 0;
   left: 0;
   right: 0;

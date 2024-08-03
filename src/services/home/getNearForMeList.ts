@@ -1,6 +1,6 @@
 import { api } from '..';
 import { PostRsp } from '../../global/interface/post';
-import { POST_API_PATH } from '../appApiPath';
+import { POST_LIST_PATH } from '../appApiPath';
 
 export const getNearForMeListByCursor = (
   cursor: number,
@@ -9,7 +9,7 @@ export const getNearForMeListByCursor = (
 ): Promise<PostRsp[]> => {
   return api
     .get(
-      `${POST_API_PATH}/near_for_me?cursor=${cursor}&lat=${latitude}&lon=${longitude}`,
+      `${POST_LIST_PATH}/near_for_me?cursor=${cursor}&lat=${latitude}&lon=${longitude}`,
     )
     .then((res) => {
       console.log(res.data);
@@ -25,7 +25,7 @@ export const getNearForMeList = (
   longitude: number,
 ): Promise<PostRsp[]> => {
   return api
-    .get(`${POST_API_PATH}/near_for_me?lat=${latitude}&lon=${longitude}`)
+    .get(`${POST_LIST_PATH}/near_for_me?lat=${latitude}&lon=${longitude}`)
     .then((res) => {
       console.log(res.data);
       return res.data.data;

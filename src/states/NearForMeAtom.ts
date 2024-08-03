@@ -7,7 +7,7 @@ export const nearForMeListAtom = atom<PostRsp[]>({
   default: [],
 });
 
-export const curosrNumAtom = atom<number>({
+export const curosrNumAtom = atom<string>({
   key: 'pageNumByMainPage',
   default: INIT_CURSOR_ID,
 });

@@ -1,8 +1,10 @@
 import React, { useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import { HomePostRsp } from '../../global/interface/post';
 
 interface MasonryLayoutProps {
-  snsPostUrlList: string[];
+  snsPostUrlList: HomePostRsp[];
 }
 
 const MasonryLayout: React.FC<MasonryLayoutProps> = ({ snsPostUrlList }) => {
@@ -39,14 +41,16 @@ const MasonryLayout: React.FC<MasonryLayoutProps> = ({ snsPostUrlList }) => {
 
   return (
     <MasonryContainer ref={containerRef}>
-      {snsPostUrlList.map((url, index) => (
+      {snsPostUrlList.map((v, index) => (
         <MasonryItem className="masonry-item" key={index}>
-          <PseudoImg
-            className="pseudo-img"
-            src={url}
-            alt={`Image ${index + 1}`}
-            onLoad={masonryLayout}
-          />
+          <Link to={`/${v.userId}/p/${v.postId}`}>
+            <PseudoImg
+              className="pseudo-img"
+              src={v.postContent}
+              alt={`Image ${index + 1}`}
+              onLoad={masonryLayout}
+            />
+          </Link>
         </MasonryItem>
       ))}
     </MasonryContainer>
