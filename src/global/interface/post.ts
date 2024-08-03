@@ -10,8 +10,8 @@ interface PostContent {
 }
 
 export interface PostRsp {
-  postId: number;
-  userId: number;
+  postId: string;
+  userId: string;
   profilePath: string;
   location: Location;
   tags: string[];
@@ -25,4 +25,40 @@ export interface PostRsp {
   postContents: PostContent[];
   postCategory: string;
   postedAt: string;
+}
+
+export interface HomePostRsp {
+  postId: string;
+  userId: string;
+  postContent: string;
+}
+
+export interface PostLikeGsp {
+  isLike: boolean;
+}
+
+export interface PostClipGsp {
+  isClipped: boolean;
+}
+
+export interface PostComment {
+  postCommentId: string;
+  commentUserId: string;
+  postCommentType: string;
+  postCommentContent: string;
+  isLiked: boolean;
+  likeCount: number;
+  commentCount: number;
+  username: string;
+  profilePath: string;
+  postedAt: string;
+}
+
+export interface PostProfileInfoRsp {
+  useId: string;
+  username: string;
+  nickname: string;
+  profilePath: string;
+  isFollowed: boolean;
+  isMe: boolean;
 }
