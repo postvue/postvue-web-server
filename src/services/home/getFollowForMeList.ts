@@ -1,17 +1,18 @@
 import { api } from '..';
+import { FOLLOW_FOR_ME_PATH } from '../../const/PathConst';
 import { PostRsp } from '../../global/interface/post';
-import { POST_API_PATH } from '../appApiPath';
+import { POST_LIST_PATH } from '../appApiPath';
 
 interface GetTasteForMeListRsp {
-  cursorId: number;
+  cursorId: string;
   snsPostRspList: PostRsp[];
 }
 
 export const getFollowForMeListByParam = (
-  cursorId: number,
+  cursorId: string,
 ): Promise<GetTasteForMeListRsp> => {
   return api
-    .get(`${POST_API_PATH}/follow_for_me?cursorId=${cursorId}`)
+    .get(`${POST_LIST_PATH}${FOLLOW_FOR_ME_PATH}?cursorId=${cursorId}`)
     .then((res) => {
       console.log(res.data);
       return res.data.data;
@@ -23,7 +24,7 @@ export const getFollowForMeListByParam = (
 
 export const getFollowForMeList = (): Promise<PostRsp[]> => {
   return api
-    .get(`${POST_API_PATH}/follow_for_me`)
+    .get(`${POST_LIST_PATH}${FOLLOW_FOR_ME_PATH}`)
     .then((res) => {
       console.log(res.data);
       return res.data.data;

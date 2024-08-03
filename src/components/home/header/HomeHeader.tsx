@@ -137,7 +137,7 @@ const HomeTabContainer = styled.div`
 `;
 
 const TabItem = styled.div`
-  font: ${({ theme }) => theme.fontSizes.Subhead2};
+  font: ${({ theme }) => theme.fontSizes.Headline1};
   color: ${({ theme }) => theme.grey.Grey4};
   cursor: pointer;
 

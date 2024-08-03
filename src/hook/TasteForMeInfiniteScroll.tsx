@@ -4,12 +4,13 @@ import styled from 'styled-components';
 import { useInView } from 'react-intersection-observer';
 // import CopyRightFooter from '../conponents/CopyRightFooter';
 
-import { useRecoilState, useSetRecoilState } from 'recoil';
+import { useRecoilState } from 'recoil';
 import { getTasteForMeListByParam } from '../services/home/getTasteForMeList';
+import { systemPostRspHashMapAtom } from '../states/SystemConfigAtom';
 import {
   cursorIdAtomByTasteForMe,
   pageNumAtomByTasteForMe,
-  tasteForMeListAtom,
+  tasteForMeHashMapAtom,
 } from '../states/TasteForMeAtom';
 
 const TasteForMeInfiniteScroll: React.FC = () => {
@@ -18,14 +19,26 @@ const TasteForMeInfiniteScroll: React.FC = () => {
 
   const [ref, inView] = useInView();
 
-  const setSnsPostList = useSetRecoilState(tasteForMeListAtom);
+  const [snsPostHashMap, setSnsPostHashMap] = useRecoilState(
+    tasteForMeHashMapAtom,
+  );
+  const [systemPostHashMap, setSystemPostHashMap] = useRecoilState(
+    systemPostRspHashMapAtom,
+  );
 
   const callback = () => {
-    console.log('커서:', cursorNum, '페이지 번호:', pageNum);
     getTasteForMeListByParam(cursorNum, pageNum)
       .then((res) => {
         if (res.snsPostRspList.length > 0) {
-          setSnsPostList((prev) => [...prev, ...res.snsPostRspList]);
+          const newSnsPostHashMap = new Map(snsPostHashMap);
+          const newSystemPostHashMap = new Map(systemPostHashMap);
+          res.snsPostRspList.forEach((post) => {
+            newSnsPostHashMap.set(post.postId, post);
+            newSystemPostHashMap.set(post.postId, post);
+          });
+          setSnsPostHashMap(newSnsPostHashMap);
+          setSystemPostHashMap(newSystemPostHashMap);
+
           setPageNum(pageNum + 1);
         }
         setCursorNum(res.cursorId);

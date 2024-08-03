@@ -3,12 +3,17 @@ import { INIT_SCROLL_POSITION } from '../const/AttributeConst';
 import { INIT_CURSOR_ID, PAGE_NUM } from '../const/PageConfigConst';
 import { PostRsp } from '../global/interface/post';
 
-export const tasteForMeListAtom = atom<PostRsp[]>({
-  key: 'tasteForMeList',
-  default: [],
+// export const tasteForMeListAtom = atom<PostRsp[]>({
+//   key: 'tasteForMeList',
+//   default: [],
+// });
+
+export const tasteForMeHashMapAtom = atom<Map<string, PostRsp>>({
+  key: 'tasteForMeHashMap',
+  default: new Map(),
 });
 
-export const cursorIdAtomByTasteForMe = atom<number>({
+export const cursorIdAtomByTasteForMe = atom<string>({
   key: 'cursorIdByTasteForMe',
   default: INIT_CURSOR_ID,
 });
