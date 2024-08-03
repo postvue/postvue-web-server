@@ -60,6 +60,8 @@ const paddings = {
   small: '8px',
   base: '7%',
 };
+
+const appDisplaySize = '540px';
 const theme = {
   mainColor,
   grey,
@@ -68,6 +70,7 @@ const theme = {
   errorColor,
   fontSizes,
   paddings,
+  appDisplaySize,
 };
 
 export default theme;

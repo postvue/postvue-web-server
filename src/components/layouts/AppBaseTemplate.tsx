@@ -35,6 +35,7 @@ const Main = styled.div`
   display: block;
   width: 100%;
   max-width: 800px;
+  max-width: ${({ theme }) => theme.appDisplaySize};
 `;
 
 export default AppBaseTemplate;
