@@ -2,6 +2,7 @@ const mainColor = {
   SkyBlue0: '#88C7F5',
   SkyBlue1: '#54A1D9',
   Blue: '#1D77FF',
+  Red: '#FF5E3A',
   White: '#FFFFFF',
   Black: '#000000',
 };
@@ -30,30 +31,42 @@ const errorColor = {
 };
 
 const fontSizes = {
-  Display5: '500 40px/1.4 Pretendard-Bold; letter-spacing: -0.6px;',
-  Display4: '500 36px/1.4 Pretendard-Bold; letter-spacing: -0.6px;',
-  Display3: '500 32px/1.4 Pretendard-Bold; letter-spacing: -0.6px;',
-  Display2: '500 28px/1.4 Pretendard-Bold; letter-spacing: -0.6px;',
-  Display1: '500 24px/1.4 Pretendard-Bold; letter-spacing: -0.6px;',
-  Headline: '500 20px/1.4 Pretendard-Bold; letter-spacing: -0.6px;',
-  Subhead4: '500 22px/1.4 Pretendard-Bold; letter-spacing: -0.6px;',
-  Subhead3: '500 20px/1.4 Pretendard-Bold; letter-spacing: -0.6px;',
+  Display5:
+    '700 40px/1.4 Pretendard-Bold; letter-spacing: -0.6px; font-style: normal;',
+  Display4:
+    '700 36px/1.4 Pretendard-Bold; letter-spacing: -0.6px; font-style: normal;',
+  Display3:
+    '700 32px/1.4 Pretendard-Bold; letter-spacing: -0.6px; font-style: normal;',
+  Display2:
+    '700 28px/1.4 Pretendard-Bold; letter-spacing: -0.6px; font-style: normal;',
+  Display1:
+    '700 24px/1.4 Pretendard-Bold; letter-spacing: -0.6px; font-style: normal;',
+  Headline3:
+    '600 22px/1.4 Pretendard-SemiBold; letter-spacing: -0.6px; font-style: normal;',
+  Headline2:
+    '600 20px/1.4 Pretendard-SemiBold; letter-spacing: -0.6px; font-style: normal;',
+  Headline1:
+    '600 18px/1.4 Pretendard-SemiBold; letter-spacing: -0.6px; font-style: normal;',
+  Subhead3:
+    '600 16px/1.4 Pretendard-SemiBold; letter-spacing: -0.6px; font-style: normal;',
   Subhead2:
-    '600 18px/1.4 Pretendard; letter-spacing: -0.6px; font-style: normal',
-  Subhead1: '500 16px/1.4 Pretendard-Bold; letter-spacing: -0.6px;',
-  Body4: '500 20px/1.4 Pretendard-Medium',
+    '600 14px/1.4 Pretendard-SemiBold; letter-spacing: -0.6px; font-style: normal;',
+  Subhead1:
+    '600 12px/1.4 Pretendar-SemiBold; letter-spacing: -0.6px; font-style: normal;',
+  Body4:
+    '500 16px/1.6 Pretendard-Medium; letter-spacing: -0.35px; font-style: normal;',
   Body3:
-    '500 18px/1.4 Pretendard-Medium; letter-spacing: -0.6px; line-height: 140%;',
+    '500 14px/1.4 Pretendard-Medium; letter-spacing: -0.35px; line-height: 140%; font-style: normal;',
   Body2:
-    '500 15px/1.4 Pretendard-Medium; letter-spacing: -0.6px; line-height: 140%;',
+    '400 14px/1.4 Pretendard-Regular; letter-spacing: -0.325px; line-height: 140%; font-style: normal;',
   Body1:
-    '500 14px/1.4 Pretendard-Medium; letter-spacing: -0.6px; line-height: 140%;',
-  Label:
-    '300 14px/1.4 Pretendard-Medium; letter-spacing: -0.6px; line-height: 140%;',
-  Label1:
-    '400 14px/1.4 Pretendard-Medium; letter-spacing: -0.6px; line-height: 140%;',
-  Element1:
-    '300 14px/1.4 Pretendard-Regular; letter-spacing: -0.6px; line-height: 140%;',
+    '400 12px/1.4 Pretendard-Regular; letter-spacing: -0.3px; line-height: 140%; font-style: normal;',
+  BoxText:
+    '600 12px/1.4 Pretendard-SemiBold; letter-spacing: -0.6px; line-height: 140%; font-style: normal;',
+  Location2:
+    '500 10px/1.4 Pretendard-Medium; letter-spacing: -0.25px; line-height: 140%; font-style: normal;',
+  Location1:
+    '500 9px/1.4 Pretendard-Medium; letter-spacing: -0.225px; line-height: 140%; font-style: normal;',
 };
 
 const paddings = {
