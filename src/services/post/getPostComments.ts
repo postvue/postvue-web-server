@@ -1,6 +1,7 @@
 import { api } from '..';
 import { PostComment } from '../../global/interface/post';
 import { COMMENT_LIST_PATH, POST_LIST_PATH } from '../appApiPath';
+import { CURSOR_PARAM } from '../appApiQueryParam';
 
 interface GetPostCommentsRsp {
   cursorId: string;
@@ -12,7 +13,9 @@ export const getPostComments = (
   cursorId: string,
 ): Promise<GetPostCommentsRsp> => {
   return api
-    .get(`${POST_LIST_PATH}/${postId}${COMMENT_LIST_PATH}?cursor=${cursorId}`)
+    .get(
+      `${POST_LIST_PATH}/${postId}${COMMENT_LIST_PATH}?${CURSOR_PARAM}${cursorId}`,
+    )
     .then((res) => {
       console.log(res.data);
       return res.data.data;
