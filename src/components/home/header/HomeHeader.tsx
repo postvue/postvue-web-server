@@ -12,7 +12,7 @@ import {
 } from '../../../const/TabConfigConst';
 import { scrollPositionAtomByFollowForMe } from '../../../states/FollowForMeAtom';
 import { homeTabIdAtom } from '../../../states/HomePageAtom';
-import { scrollPositionAtomByasteForMe } from '../../../states/TasteForMeAtom';
+import { scrollPositionAtomByTasteForMe } from '../../../states/TasteForMeAtom';
 
 const HomeHeader: React.FC = () => {
   const [mainTabId, setMainTabId] = useRecoilState(homeTabIdAtom);
@@ -20,7 +20,7 @@ const HomeHeader: React.FC = () => {
     scrollPositionAtomByFollowForMe,
   );
   const [scrollPositionByTaste, setScrollPositionByTaste] = useRecoilState(
-    scrollPositionAtomByasteForMe,
+    scrollPositionAtomByTasteForMe,
   );
 
   const mainTabList = [

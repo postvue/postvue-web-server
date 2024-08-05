@@ -10,3 +10,4 @@ export const PROFILE_POST_LIST_PATH = `${PROFILE_PATH}/p/:post_id`;
 export const TASTE_FOR_ME_PATH = '/taste_for_me';
 export const FOLLOW_FOR_ME_PATH = '/follow_for_me';
 export const TAG_SEARCH_PATH = '/tagged';
+export const SEARCH_POST_PATH = `${SEARCH_PATH}/:search_word`;

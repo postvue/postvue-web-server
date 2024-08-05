@@ -23,7 +23,7 @@ export const pageNumAtomByTasteForMe = atom<number>({
   default: PAGE_NUM,
 });
 
-export const scrollPositionAtomByasteForMe = atom<number>({
-  key: 'scrollPositionByasteForMe',
+export const scrollPositionAtomByTasteForMe = atom<number>({
+  key: 'scrollPositionByTasteForMe',
   default: INIT_SCROLL_POSITION,
 });
