@@ -38,6 +38,7 @@ const ProfilePage: React.FC = () => {
     isPostReactionPopupAtom,
   );
   const resetIsPostReactionPopup = useResetRecoilState(isPostReactionPopupAtom);
+  const resetSnsPost = useResetRecoilState(postRspAtom);
 
   useEffect(() => {
     window.scrollTo({ top: INIT_SCROLL_POSITION });
@@ -58,6 +59,7 @@ const ProfilePage: React.FC = () => {
 
     return () => {
       resetIsPostReactionPopup();
+      resetSnsPost();
     };
   }, []);
 

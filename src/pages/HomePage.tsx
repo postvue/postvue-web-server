@@ -1,6 +1,5 @@
 import React from 'react';
 
-import styled from 'styled-components';
 import TabBar from '../components/BottomNavBar';
 import HomeBody from '../components/home/body/HomeBody';
 import HomeHeader from '../components/home/header/HomeHeader';
@@ -20,12 +19,5 @@ const HomePage: React.FC = () => {
     </AppBaseTemplate>
   );
 };
-
-const PostContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-`;
 
 export default HomePage;
