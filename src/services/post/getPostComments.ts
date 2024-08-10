@@ -14,7 +14,7 @@ export const getPostComments = (
 ): Promise<GetPostCommentsRsp> => {
   return api
     .get(
-      `${POST_LIST_PATH}/${postId}${COMMENT_LIST_PATH}?${CURSOR_PARAM}${cursorId}`,
+      `${POST_LIST_PATH}/${postId}${COMMENT_LIST_PATH}?${CURSOR_PARAM}=${cursorId}`,
     )
     .then((res) => {
       console.log(res.data);

@@ -200,11 +200,11 @@ const ProfilePage: React.FC = () => {
 
       <PostContentContainer>
         <ProfileWrap>
-          <Link to={`/${snsPost?.userId}`}>
+          <Link to={`/${snsPost?.username}`}>
             <ProfileLinkDiv>
               <ProfileImg src={snsPost?.profilePath} />
               <ProfileUserNameFollowWrap>
-                <ProfileUserName>{snsPost?.userId}</ProfileUserName>
+                <ProfileUserName>{snsPost?.username}</ProfileUserName>
                 <ProfilePosition>성수동 I 1km</ProfilePosition>
               </ProfileUserNameFollowWrap>
             </ProfileLinkDiv>

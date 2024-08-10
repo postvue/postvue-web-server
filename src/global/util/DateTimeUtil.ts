@@ -56,3 +56,12 @@ export const convertDiffrenceDate = (dateTimeString: string): string => {
     return NOT_DATE_TIME;
   }
 };
+
+export const convertDate = (dateTimeString: string): Date => {
+  return new Date(dateTimeString);
+};
+
+export const groupFormatDate = (dateTimeString: string): string => {
+  const date = new Date(dateTimeString);
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+};

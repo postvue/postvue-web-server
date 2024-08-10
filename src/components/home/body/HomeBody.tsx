@@ -36,6 +36,7 @@ const HomeBody: React.FC = () => {
                   postId: v.postId,
                   userId: v.userId,
                   postContent: imageContent,
+                  username: v.username,
                 };
 
                 return homePostRsp;
@@ -59,6 +60,7 @@ const HomeBody: React.FC = () => {
                   postId: v.postId,
                   userId: v.userId,
                   postContent: imageContent,
+                  username: v.username,
                 };
 
                 return homePostRsp;

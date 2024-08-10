@@ -192,10 +192,4 @@ const DeleteSearchIcon = styled.svg`
   cursor: pointer;
 `;
 
-// const PointText = styled.span`
-//   padding-left: 5px;
-//   font: ${({ theme }) => theme.fontSizes.Subhead2};
-//   color: ${({ theme }) => theme.mainColor.Orange5};
-// `;
-
 export default SearchHeader;

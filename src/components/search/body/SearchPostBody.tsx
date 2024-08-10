@@ -43,6 +43,7 @@ const SearchPostBody: React.FC = () => {
             postId: v.postId,
             userId: v.userId,
             postContent: imageContent,
+            username: v.username,
           };
 
           return homePostRsp;

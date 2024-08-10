@@ -6,6 +6,7 @@ export const postRspAtom = atom<PostRsp>({
   default: {
     postId: '',
     userId: '',
+    username: '',
     profilePath: '',
     location: { latitude: 0, longitude: 0 },
     tags: [],

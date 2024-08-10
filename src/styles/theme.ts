@@ -21,13 +21,13 @@ const grey = {
 };
 
 const successColor = {
-  Success_green: '#27C82E',
+  Green: '#27C82E',
 };
 const warningColor = {
-  Warning_yellow: '#FCDC0E',
+  Yellow: '#FCDC0E',
 };
 const errorColor = {
-  Error_red: '#FF3636',
+  Red: '#FF0404',
 };
 
 const fontSizes = {

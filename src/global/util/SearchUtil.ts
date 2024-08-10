@@ -63,7 +63,6 @@ export const deleteRecentlyKeyword = (
   if (index !== -1) {
     recentlyKeywordList[index].isExposed = true;
     recentlyKeywordList.splice(index, 1);
-    console.log(recentlyKeywordList);
   }
 
   localStorage.setItem(
@@ -78,12 +77,5 @@ export const removeRecentlyKeywordList = (): void => {
   localStorage.setItem(
     RECENTLY_SEARCH_WORD_LIST_LOCAL_STORAGE,
     LOCAL_STORAGE_LIST_INIT_VALUE,
-  );
-};
-
-const initRecentlyKeywordListState = (): void => {
-  const recentylKeywordList: SearchRecentKeywordInterface[] = JSON.parse(
-    localStorage.getItem(RECENTLY_SEARCH_WORD_LIST_LOCAL_STORAGE) ||
-      LOCAL_STORAGE_LIST_INIT_VALUE,
   );
 };

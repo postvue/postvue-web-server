@@ -13,7 +13,7 @@ export const getPostSearch = (
   cursorId: string,
 ): Promise<GetSearchPostsRsp> => {
   return api
-    .get(`${POST_LIST_PATH}${SEARCH_PATH}?${CURSOR_PARAM}${cursorId}`, {
+    .get(`${POST_LIST_PATH}${SEARCH_PATH}?${CURSOR_PARAM}=${cursorId}`, {
       params: {
         srch_qry: searchWord,
       },

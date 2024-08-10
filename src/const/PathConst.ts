@@ -1,6 +1,9 @@
 export const HOME_PATH = '/';
 export const SEARCH_PATH = '/search';
-export const MESSAGE_INBOX_PATH = '/message/inbox';
+export const MESSAGE_PATH = '/messages';
+export const CONVERSTAION_PATH = '/conversation';
+export const MESSAGE_INBOX_PATH = `${MESSAGE_PATH}/inbox`;
+export const MESSAGE_CONVERSTAION_PATH = `${MESSAGE_PATH}/:user_id${CONVERSTAION_PATH}`;
 export const MAP_PATH = '/maps';
 export const ACCOUNT_PATH = '/:user_id';
 export const NEAR_FOR_ME = '/near_for_me';

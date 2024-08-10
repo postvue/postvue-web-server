@@ -43,7 +43,7 @@ const MasonryLayout: React.FC<MasonryLayoutProps> = ({ snsPostUrlList }) => {
     <MasonryContainer ref={containerRef}>
       {snsPostUrlList.map((v, index) => (
         <MasonryItem className="masonry-item" key={index}>
-          <Link to={`/${v.userId}/p/${v.postId}`}>
+          <Link to={`/${v.username}/p/${v.postId}`}>
             <PseudoImg
               className="pseudo-img"
               src={v.postContent}

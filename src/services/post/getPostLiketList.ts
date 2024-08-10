@@ -14,7 +14,7 @@ export const getPostLikeList = (
 ): Promise<GetRePostsRsp> => {
   return api
     .get(
-      `${POST_LIST_PATH}/${postId}${LIKE_LIST_PATH}?${CURSOR_PARAM}${cursorId}`,
+      `${POST_LIST_PATH}/${postId}${LIKE_LIST_PATH}?${CURSOR_PARAM}=${cursorId}`,
     )
     .then((res) => {
       console.log(res.data);

@@ -12,6 +12,7 @@ interface PostContent {
 export interface PostRsp {
   postId: string;
   userId: string;
+  username: string;
   profilePath: string;
   location: Location;
   tags: string[];
@@ -31,6 +32,7 @@ export interface HomePostRsp {
   postId: string;
   userId: string;
   postContent: string;
+  username: string;
 }
 
 export interface PostLikeGsp {

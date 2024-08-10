@@ -1,8 +1,6 @@
 import React, { useEffect } from 'react';
-import styled from 'styled-components';
-// import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { useInView } from 'react-intersection-observer';
-// import CopyRightFooter from '../conponents/CopyRightFooter';
+import styled from 'styled-components';
 
 import { useRecoilState } from 'recoil';
 import { getPostLikeList } from '../services/post/getPostLiketList';

@@ -40,45 +40,49 @@ const SearchBody: React.FC = () => {
     <>
       <TagRecommContainer>
         <SearchRecentWordContainer>
-          <SearchRelatedTitle>최근 검색어</SearchRelatedTitle>
-          <RecentSearchWordContainer>
-            {recentSearchWordList &&
-              recentSearchWordList
-                .slice(0)
-                .reverse()
-                .map((v, i) => (
-                  <RecentSearchWordItemWrap key={i}>
-                    <RecenSearchWordItemDeletedWrap>
-                      <RecentSearchWordItem>{v.name}</RecentSearchWordItem>
-                      <RecentDeleteButtonWrap
-                        onClick={() => onClickDeleteSearchWord(v.name)}
-                      >
-                        <RecentSearchWordDeleteButton
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="16"
-                          viewBox="0 0 16 16"
-                          fill="none"
-                        >
-                          <g clipPath="url(#clip0_193_2900)">
-                            <path
-                              d="M3.99997 4.00003L11.9999 12M3.99997 12L11.9999 4.00003"
-                              stroke="#9199A1"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                          </g>
-                          <defs>
-                            <clipPath id="clip0_193_2900">
-                              <rect width="16" height="16" fill="white" />
-                            </clipPath>
-                          </defs>
-                        </RecentSearchWordDeleteButton>
-                      </RecentDeleteButtonWrap>
-                    </RecenSearchWordItemDeletedWrap>
-                  </RecentSearchWordItemWrap>
-                ))}
-          </RecentSearchWordContainer>
+          {recentSearchWordList.length > 0 && (
+            <>
+              <SearchRelatedTitle>최근 검색어</SearchRelatedTitle>
+              <RecentSearchWordContainer>
+                {recentSearchWordList &&
+                  recentSearchWordList
+                    .slice(0)
+                    .reverse()
+                    .map((v, i) => (
+                      <RecentSearchWordItemWrap key={i}>
+                        <RecenSearchWordItemDeletedWrap>
+                          <RecentSearchWordItem>{v.name}</RecentSearchWordItem>
+                          <RecentDeleteButtonWrap
+                            onClick={() => onClickDeleteSearchWord(v.name)}
+                          >
+                            <RecentSearchWordDeleteButton
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="16"
+                              height="16"
+                              viewBox="0 0 16 16"
+                              fill="none"
+                            >
+                              <g clipPath="url(#clip0_193_2900)">
+                                <path
+                                  d="M3.99997 4.00003L11.9999 12M3.99997 12L11.9999 4.00003"
+                                  stroke="#9199A1"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </g>
+                              <defs>
+                                <clipPath id="clip0_193_2900">
+                                  <rect width="16" height="16" fill="white" />
+                                </clipPath>
+                              </defs>
+                            </RecentSearchWordDeleteButton>
+                          </RecentDeleteButtonWrap>
+                        </RecenSearchWordItemDeletedWrap>
+                      </RecentSearchWordItemWrap>
+                    ))}
+              </RecentSearchWordContainer>
+            </>
+          )}
         </SearchRecentWordContainer>
 
         <SearchTagRecommContainer>
