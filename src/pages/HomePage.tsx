@@ -1,6 +1,6 @@
 import React from 'react';
 
-import TabBar from '../components/BottomNavBar';
+import BottomNavBar from '../components/BottomNavBar';
 import HomeBody from '../components/home/body/HomeBody';
 import HomeHeader from '../components/home/header/HomeHeader';
 import AppBaseTemplate from '../components/layouts/AppBaseTemplate';
@@ -15,7 +15,7 @@ const HomePage: React.FC = () => {
           <PostComponent />
         </PostContainer> */}
       <HomeBody />
-      <TabBar />
+      <BottomNavBar />
     </AppBaseTemplate>
   );
 };

@@ -13,7 +13,7 @@ import {
   MESSAGE_INBOX_PATH,
 } from '../const/PathConst';
 
-const TabBar: React.FC = () => {
+const BottomNavBar: React.FC = () => {
   const [selectedPath, setSelectedPath] = useState<string>();
 
   return (
@@ -281,4 +281,4 @@ const PostWritingButtonIcon = styled.svg`
   margin: auto auto;
 `;
 
-export default TabBar;
+export default BottomNavBar;

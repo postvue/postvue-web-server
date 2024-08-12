@@ -7,7 +7,7 @@ import styled from 'styled-components';
 import 'swiper/css';
 import { FreeMode, Navigation, Pagination, Thumbs } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
-import TabBar from '../components/BottomNavBar';
+import BottomNavBar from '../components/BottomNavBar';
 import AppBaseTemplate from '../components/layouts/AppBaseTemplate';
 import PostReactionPopup from '../components/popups/PostReactionPopup';
 import ToastMsgPopup, { notify } from '../components/popups/ToastMsgPopup';
@@ -362,7 +362,7 @@ const ProfilePostPage: React.FC = () => {
       {isPostReactionPopup && <PostReactionPopup />}
 
       <ToastMsgPopup />
-      <TabBar />
+      <BottomNavBar />
     </AppBaseTemplate>
   );
 };
