@@ -11,7 +11,7 @@ import {
 import HomePage from './pages/HomePage';
 import MessageConversationPage from './pages/MessageConversationPage';
 import MessageInboxPage from './pages/MessageInboxPage';
-import ProfilePage from './pages/ProfilePage';
+import ProfilePostPage from './pages/ProfilePostPage';
 import SearchPage from './pages/SearchPage';
 import SearchPostPage from './pages/SearchPostPage';
 
@@ -20,7 +20,7 @@ const AppRouter: React.FC = (): JSX.Element => {
     <BrowserRouter>
       <Routes>
         <Route path={HOME_PATH} element={<HomePage />} />
-        <Route path={PROFILE_POST_LIST_PATH} element={<ProfilePage />} />
+        <Route path={PROFILE_POST_LIST_PATH} element={<ProfilePostPage />} />
         <Route path={SEARCH_PATH} element={<SearchPage />} />
         <Route path={SEARCH_POST_PATH} element={<SearchPostPage />} />
         <Route path={MESSAGE_INBOX_PATH} element={<MessageInboxPage />} />
