@@ -1,30 +1,26 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useRecoilState, useResetRecoilState } from 'recoil';
 
-import anime from 'animejs';
 import styled from 'styled-components';
 import 'swiper/css';
 import { FreeMode, Navigation, Pagination, Thumbs } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import BottomNavBar from '../components/BottomNavBar';
+import PostReactionSingleElement from '../components/common/posts/body/PostReactionSingleElement';
+import PostTextContent from '../components/common/posts/body/PostTextContent';
 import AppBaseTemplate from '../components/layouts/AppBaseTemplate';
 import PostReactionPopup from '../components/popups/PostReactionPopup';
 import ToastMsgPopup, { notify } from '../components/popups/ToastMsgPopup';
 import PrevButton from '../components/PrevButton';
 import { INIT_SCROLL_POSITION } from '../const/AttributeConst';
-import { TAG_SEARCH_PATH } from '../const/PathConst';
 import { POST_TEXTFIELD_TYPE } from '../const/PostContentTypeConst';
 import { PROFILE_URL_CLIP_BOARD_TEXT } from '../const/SystemPhraseConst';
-import { convertDtStrToDTStr } from '../global/util/DateTimeUtil';
 import { getPost } from '../services/post/getPost';
-import { putPostClip } from '../services/post/putPostClip';
-import { putPostLike } from '../services/post/putPostLike';
 import { postRspAtom } from '../states/PostAtom';
 import { isPostReactionPopupAtom } from '../states/PostReactionAtom';
 import { systemPostRspHashMapAtom } from '../states/SystemConfigAtom';
 import { animationStyle } from '../styles/animations';
-import theme from '../styles/theme';
 
 const ProfilePostPage: React.FC = () => {
   const param = useParams();
@@ -62,60 +58,6 @@ const ProfilePostPage: React.FC = () => {
       resetSnsPost();
     };
   }, []);
-
-  const heartRef = useRef(null);
-  const onClickHeartButton = () => {
-    if (postId) {
-      putPostLike(postId)
-        .then((value) => {
-          const newSnsPostCommentHashMap = new Map(snsSystemPostHashMap);
-          const snsPostComment = newSnsPostCommentHashMap.get(postId);
-          if (snsPostComment !== undefined) {
-            newSnsPostCommentHashMap.set(postId, {
-              ...snsPostComment,
-              isLiked: value.isLike,
-            });
-          }
-          setSnsSystemPostHashMap(newSnsPostCommentHashMap);
-
-          setSnsPost((prev) => ({ ...prev, isLiked: value.isLike }));
-          if (value.isLike) {
-            anime({
-              targets: heartRef.current,
-              scale: [1, 1.5],
-              duration: 300,
-              easing: 'easeInOutQuad',
-              direction: 'alternate',
-            });
-          }
-        })
-        .catch((err) => {
-          throw err;
-        });
-    }
-  };
-
-  const clipRef = useRef(null);
-  const onClickClipButton = () => {
-    if (postId) {
-      putPostClip(postId)
-        .then((value) => {
-          setSnsPost((prev) => ({ ...prev, isClipped: value.isClipped }));
-          if (value.isClipped) {
-            anime({
-              targets: clipRef.current,
-              scale: [1, 1.5],
-              duration: 300,
-              easing: 'easeInOutQuad',
-              direction: 'alternate',
-            });
-          }
-        })
-        .catch((err) => {
-          throw err;
-        });
-    }
-  };
 
   const onClickSettingButton = () => {
     setIsSettingActive(true);
@@ -179,9 +121,6 @@ const ProfilePostPage: React.FC = () => {
         <Swiper
           spaceBetween={0}
           slidesPerView={1}
-          loop={true}
-          speed={700}
-          autoplay={{ delay: 5000, disableOnInteraction: false }}
           modules={[Pagination, Navigation, FreeMode, Navigation, Thumbs]}
         >
           {snsPost?.postContents.map((value, index) => {
@@ -206,6 +145,7 @@ const ProfilePostPage: React.FC = () => {
               <ProfileUserNameFollowWrap>
                 <ProfileUserName>{snsPost?.username}</ProfileUserName>
                 <ProfilePosition>성수동 I 1km</ProfilePosition>
+                {/**@REFER: 수정 */}
               </ProfileUserNameFollowWrap>
             </ProfileLinkDiv>
           </Link>
@@ -216,120 +156,21 @@ const ProfilePostPage: React.FC = () => {
           )}
         </ProfileWrap>
 
-        <ReactionContainer>
-          <HrtMsgShrReactionContainer>
-            <HeartButton onClick={onClickHeartButton}>
-              <svg
-                ref={heartRef}
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill={snsPost?.isLiked ? theme.mainColor.Red : 'none'}
-              >
-                <path
-                  d="M19.4998 12.5722L11.9998 20.0002L4.49981 12.5722C4.00512 12.0908 3.61546 11.5122 3.35536 10.8728C3.09527 10.2334 2.97037 9.54713 2.98855 8.85711C3.00673 8.16709 3.16758 7.48831 3.46097 6.86351C3.75436 6.23871 4.17395 5.68143 4.6933 5.22676C5.21265 4.77208 5.82052 4.42987 6.47862 4.22166C7.13673 4.01345 7.83082 3.94376 8.51718 4.01698C9.20354 4.0902 9.86731 4.30473 10.4667 4.64708C11.0661 4.98943 11.5881 5.45218 11.9998 6.00618C12.4133 5.4562 12.9359 4.9975 13.5349 4.65878C14.1339 4.32007 14.7963 4.10863 15.4807 4.0377C16.1652 3.96677 16.8569 4.03787 17.5126 4.24657C18.1683 4.45526 18.7738 4.79705 19.2914 5.25054C19.8089 5.70403 20.2272 6.25946 20.5202 6.88207C20.8132 7.50468 20.9746 8.18106 20.9941 8.86889C21.0137 9.55671 20.8911 10.2412 20.6339 10.8794C20.3768 11.5177 19.9907 12.096 19.4998 12.5782"
-                  stroke={
-                    snsPost?.isLiked ? theme.mainColor.Red : theme.grey.Grey7
-                  }
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </HeartButton>
-            <MsgButton
-              onClick={() => {
-                setIsPostReactionPopup(true);
-              }}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-              >
-                <path
-                  d="M8 9H16M8 13H14M9 18H6C5.20435 18 4.44129 17.6839 3.87868 17.1213C3.31607 16.5587 3 15.7956 3 15V7C3 6.20435 3.31607 5.44129 3.87868 4.87868C4.44129 4.31607 5.20435 4 6 4H18C18.7956 4 19.5587 4.31607 20.1213 4.87868C20.6839 5.44129 21 6.20435 21 7V15C21 15.7956 20.6839 16.5587 20.1213 17.1213C19.5587 17.6839 18.7956 18 18 18H15L12 21L9 18Z"
-                  stroke="#535B63"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </MsgButton>
-            <ShareButton
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 20 20"
-              fill="none"
-            >
-              <g clipPath="url(#clip0_149_3173)">
-                <path
-                  d="M18.3332 1.6665L9.1665 10.8332"
-                  stroke="#535B63"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M18.3332 1.6665L12.4998 18.3332L9.1665 10.8332L1.6665 7.49984L18.3332 1.6665Z"
-                  stroke="#535B63"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </g>
-              <defs>
-                <clipPath id="clip0_149_3173">
-                  <rect width="20" height="20" fill="white" />
-                </clipPath>
-              </defs>
-            </ShareButton>
-          </HrtMsgShrReactionContainer>
-          <ClipButton onClick={onClickClipButton}>
-            <svg
-              ref={clipRef}
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill={snsPost?.isClipped ? theme.grey.Grey6 : 'none'}
-            >
-              <path
-                d="M18 7V19.1315C18 19.9302 17.1099 20.4066 16.4453 19.9635L12 17L7.5547 19.9635C6.89014 20.4066 6 19.9302 6 19.1315V7C6 5.93913 6.42143 4.92172 7.17157 4.17157C7.92172 3.42143 8.93913 3 10 3H14C15.0609 3 16.0783 3.42143 16.8284 4.17157C17.5786 4.92172 18 5.93913 18 7Z"
-                stroke={theme.grey.Grey6}
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </ClipButton>
-        </ReactionContainer>
+        {postId && (
+          <PostReactionSingleElement
+            postId={postId}
+            postRspAtom={postRspAtom}
+          />
+        )}
 
-        {snsPost?.postContents.map((value, index) => {
-          if (value.postContentType === POST_TEXTFIELD_TYPE) {
-            return (
-              <PostTextContent key={index}>{value.content}</PostTextContent>
-            );
-          }
-        })}
-        <PostDateTime>
-          {convertDtStrToDTStr(snsPost?.postedAt || '')}
-        </PostDateTime>
-        <PostTagWrap>
-          {snsPost?.tags.map((v, i) => (
-            <Link to={`${TAG_SEARCH_PATH}/${v}`} key={i}>
-              <PostTag>#{v}</PostTag>
-            </Link>
-          ))}
-        </PostTagWrap>
+        <PostTextContent
+          postContents={snsPost.postContents}
+          postedAt={snsPost.postedAt}
+          tags={snsPost.tags}
+        />
 
         {/* <div>{snsPost?.location.latitude}</div>
         <div>{snsPost?.location.longitude}</div> */}
-        <div>{snsPost?.isClipped}</div>
       </PostContentContainer>
       <BoundaryBarStick />
       <RelatedPostContainer>
@@ -359,7 +200,9 @@ const ProfilePostPage: React.FC = () => {
           </SettingPopupWrap>
         </SettingPopupContainer>
       )}
-      {isPostReactionPopup && <PostReactionPopup />}
+      {isPostReactionPopup && (
+        <PostReactionPopup postId={isPostReactionPopup} />
+      )}
 
       <ToastMsgPopup />
       <BottomNavBar />
@@ -380,6 +223,7 @@ const PostImgDiv = styled.div<{ src: string }>`
   background:
     linear-gradient(180deg, rgba(0, 0, 0, 0.2) 0.15%, rgba(0, 0, 0, 0) 49.86%),
     url(${(props) => props.src}) center center / cover;
+  border-radius: 30px 30px 0px 0px;
 `;
 
 const PostImageWrap = styled.div`
@@ -424,26 +268,6 @@ const ProfilePosition = styled.div`
   color: ${({ theme }) => theme.grey.Grey6};
 `;
 
-const PostTextContent = styled.div`
-  font: ${({ theme }) => theme.fontSizes.Body2};
-`;
-const PostDateTime = styled.div`
-  font: ${({ theme }) => theme.fontSizes.Body1};
-  color: ${({ theme }) => theme.grey.Grey6};
-  margin: 15px 0 15px 0;
-`;
-
-const ReactionContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin: 17px 14px 8px 0;
-`;
-
-const HrtMsgShrReactionContainer = styled.div`
-  display: flex;
-  gap: 9px;
-`;
-
 const BoundaryBarStick = styled.div`
   background-color: ${({ theme }) => theme.grey.Grey1};
   height: 1px;
@@ -452,34 +276,6 @@ const BoundaryBarStick = styled.div`
 const RelatedPostContainer = styled.div`
   padding: 14px 0 0 22px;
   font: ${({ theme }) => theme.fontSizes.Subhead3};
-`;
-
-const HeartButton = styled.div`
-  cursor: pointer;
-`;
-
-const MsgButton = styled.div`
-  cursor: pointer;
-`;
-
-const ShareButton = styled.svg`
-  margin: auto 0;
-`;
-
-const ClipButton = styled.div`
-  cursor: pointer;
-`;
-
-const PostTagWrap = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-  margin-bottom: 10px;
-`;
-const PostTag = styled.div`
-  font: ${({ theme }) => theme.fontSizes.Body1};
-  color: ${({ theme }) => theme.grey.Grey5};
-  cursor: pointer;
 `;
 
 const RelatedTitle = styled.div``;
@@ -500,7 +296,7 @@ const SettingButton = styled.div`
 `;
 
 const SettingPopupContainer = styled.div`
-  max-width: ${({ theme }) => theme.appDisplaySize};
+  max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
   position: fixed;
   z-index: 999;
   bottom: 0px;
