@@ -11,4 +11,7 @@ export const MSG_CONVERSATION_LIST_PATH = '/conversations';
 export const MSG_INBOX_FOLLOW_LIST_PATH = `${MSG_INBOX_PATH}/follows`;
 export const PROFILE_LIST_PATH = '/profiles';
 export const FOLLOW_PATH = '/follow';
+export const MY_PATH = '/me';
 export const INFO_PATH = '/info';
+export const SCRAP_LIST_PATH = '/scraps';
+export const CLIP_LIST_PATH = '/clips';

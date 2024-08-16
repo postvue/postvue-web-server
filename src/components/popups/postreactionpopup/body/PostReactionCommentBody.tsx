@@ -412,7 +412,7 @@ const BoundaryStickBar = styled.div`
 `;
 
 const PostCommentMsgComponent = styled.div`
-  max-width: ${({ theme }) => theme.appDisplaySize};
+  max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
   width: 100%;
   position: fixed;
   bottom: 0;

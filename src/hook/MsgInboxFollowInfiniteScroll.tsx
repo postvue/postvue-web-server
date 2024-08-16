@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { useInView } from 'react-intersection-observer';
 // import CopyRightFooter from '../conponents/CopyRightFooter';
 
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useResetRecoilState } from 'recoil';
 import { getMsgInboxMessages } from '../services/message/getMsgInboxMessages';
 import {
   msgInboxMessageHashMapAtom,
@@ -18,6 +18,12 @@ const MsgInboxFollowInfiniteScroll: React.FC = () => {
 
   const [msgInboxMessageHashMap, setMsgInboxMessageHashMap] = useRecoilState(
     msgInboxMessageHashMapAtom,
+  );
+  const resetMsgInboxMessageHashMap = useResetRecoilState(
+    msgInboxMessageHashMapAtom,
+  );
+  const restPageNumByMsgInbox = useResetRecoilState(
+    pageNumAtomByMsgInboxMessage,
   );
 
   const callback = () => {
@@ -46,6 +52,13 @@ const MsgInboxFollowInfiniteScroll: React.FC = () => {
       callback();
     }
   }, [inView]);
+
+  useEffect(() => {
+    return () => {
+      resetMsgInboxMessageHashMap();
+      restPageNumByMsgInbox();
+    };
+  }, []);
 
   return (
     <ScrollBottomContainer ref={ref}>

@@ -34,7 +34,7 @@ const SideBar = styled.div`
 const Main = styled.div`
   display: block;
   width: 100%;
-  max-width: ${({ theme }) => theme.appDisplaySize};
+  max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
   margin-bottom: 86px;
 `;
 

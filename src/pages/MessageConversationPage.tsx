@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import BodyFixScrollElement from '../components/BodyFixScrollElement';
 import AppBaseTemplate from '../components/layouts/AppBaseTemplate';
 import MsgConversationBody from '../components/messageconversation/MsgConversationBody';
@@ -10,7 +10,6 @@ import { FollowProfileInfo } from '../global/interface/profile';
 import msgConversationWsService from '../services/message/MsgConversationWsService';
 import { getProfileFollowInfo } from '../services/profile/getProfileFollowInfo';
 import {
-  cursorIdAtomByMsgConversation,
   followInfoByMsgAtom,
   msgConversationListAtom,
   msgInboxMessageHashMapAtom,
@@ -24,11 +23,6 @@ const MessageConversationPage: React.FC = () => {
     msgConversationListAtom,
   );
   const [followInfo, setFollowInfo] = useRecoilState(followInfoByMsgAtom);
-
-  const resetMsgConversation = useResetRecoilState(msgConversationListAtom);
-  const resetCursorIdByMsgConversation = useResetRecoilState(
-    cursorIdAtomByMsgConversation,
-  );
 
   useEffect(() => {
     if (followUsername) {
@@ -76,9 +70,8 @@ const MessageConversationPage: React.FC = () => {
         });
       }
     }
+
     return () => {
-      resetMsgConversation();
-      resetCursorIdByMsgConversation();
       msgConversationWsService.disconnect();
     };
   }, []);

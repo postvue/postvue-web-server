@@ -1,0 +1,45 @@
+import React from 'react';
+import { RecoilState } from 'recoil';
+import { PostRsp } from '../../../global/interface/post';
+import HeartButtonListFactory from './heartbutton/HeartButtonListFactory';
+import HeartButtonSingleFactory from './heartbutton/HeartButtonSingleFactory';
+
+interface HeartButtonFactoryProps {
+  postId: string;
+  listState?: RecoilState<Map<string, PostRsp>>;
+  singleState?: RecoilState<PostRsp>;
+  isList: boolean;
+}
+
+const HeartButtonFactory: React.FC<HeartButtonFactoryProps> = ({
+  postId,
+  listState,
+  singleState,
+  isList,
+}) => {
+  return (
+    <>
+      {isList ? (
+        <>
+          {listState && (
+            <HeartButtonListFactory
+              postId={postId}
+              postRspHashMapAtom={listState}
+            />
+          )}
+        </>
+      ) : (
+        <>
+          {singleState && (
+            <HeartButtonSingleFactory
+              postId={postId}
+              postRspAtom={singleState}
+            />
+          )}
+        </>
+      )}
+    </>
+  );
+};
+
+export default HeartButtonFactory;

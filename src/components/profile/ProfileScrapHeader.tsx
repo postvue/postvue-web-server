@@ -1,0 +1,63 @@
+import React from 'react';
+import styled from 'styled-components';
+import theme from '../../styles/theme';
+import PrevButton from '../PrevButton';
+
+const ProfileScrapHeader: React.FC = () => {
+  return (
+    <ProfileScrapBodyContainer>
+      <ProfileScrapBodyWrap>
+        <PrevButtonWrap>
+          <PrevButton strokeColor={theme.mainColor.Black} />
+        </PrevButtonWrap>
+        <ShareButtonWrap>
+          <ShareButtonIcon
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+          >
+            <path
+              d="M11 5H4.77778C4.30628 5 3.8541 5.1873 3.5207 5.5207C3.1873 5.8541 3 6.30628 3 6.77778V19.2222C3 19.6937 3.1873 20.1459 3.5207 20.4793C3.8541 20.8127 4.30628 21 4.77778 21H17.2222C17.6937 21 18.1459 20.8127 18.4793 20.4793C18.8127 20.1459 19 19.6937 19 19.2222V13"
+              stroke="black"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M21 9L21 5C21 4.46957 20.7893 3.96086 20.4142 3.58579C20.0391 3.21071 19.5304 3 19 3L15 3"
+              stroke="black"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M13 11L20 4"
+              stroke="black"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </ShareButtonIcon>
+        </ShareButtonWrap>
+      </ProfileScrapBodyWrap>
+    </ProfileScrapBodyContainer>
+  );
+};
+
+const ProfileScrapBodyContainer = styled.div`
+  padding: 14px 15px 12px 15px;
+`;
+const ProfileScrapBodyWrap = styled.div`
+  display: flex;
+  justify-content: space-between;
+`;
+
+const PrevButtonWrap = styled.div``;
+
+const ShareButtonWrap = styled.div``;
+
+const ShareButtonIcon = styled.svg``;
+
+export default ProfileScrapHeader;

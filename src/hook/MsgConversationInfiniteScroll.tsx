@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 import styled from 'styled-components';
 
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useResetRecoilState } from 'recoil';
 import { getMsgConversationList } from '../services/message/getMsgConversationList';
 import {
   cursorIdAtomByMsgConversation,
@@ -22,6 +22,11 @@ const MsgConversationInfiniteScroll: React.FC<
 
   const [msgConversationList, setMsgConversationList] = useRecoilState(
     msgConversationListAtom,
+  );
+
+  const resetMsgConversation = useResetRecoilState(msgConversationListAtom);
+  const resetCursorIdByMsgConversation = useResetRecoilState(
+    cursorIdAtomByMsgConversation,
   );
 
   const callback = () => {
@@ -44,6 +49,13 @@ const MsgConversationInfiniteScroll: React.FC<
       callback();
     }
   }, [inView]);
+
+  useEffect(() => {
+    return () => {
+      resetMsgConversation();
+      resetCursorIdByMsgConversation();
+    };
+  }, []);
 
   return (
     <ScrollBottomContainer ref={ref}>

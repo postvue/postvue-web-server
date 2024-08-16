@@ -1,9 +1,9 @@
 import { api } from '..';
-import { PostLikeGsp } from '../../global/interface/post';
+import { PostLikeRsp } from '../../global/interface/post';
 
 import { LIKE_PATH, POST_LIST_PATH } from '../appApiPath';
 
-export const putPostLike = (postId: string): Promise<PostLikeGsp> => {
+export const putPostLike = (postId: string): Promise<PostLikeRsp> => {
   return api
     .put(`${POST_LIST_PATH}/${postId}${LIKE_PATH}`)
     .then((res) => {

@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { INIT_EMPTY_STRING_VALUE } from '../../../const/AttributeConst';
 import { MSG_CONTENT_TEXT_TYPE } from '../../../const/MsgContentTypeConst';
 import { FollowProfileInfo } from '../../../global/interface/profile';
+import { isValidString } from '../../../global/util/\bValidUtil';
 import msgConversationWsService from '../../../services/message/MsgConversationWsService';
 
 interface MsgConversationSendMessageProps {
@@ -29,17 +30,13 @@ const MsgConversationSendMessage: React.FC<MsgConversationSendMessageProps> = ({
   }, [msgConversationTextarea]);
 
   const onClickSendMsg = (followInfo: FollowProfileInfo): void => {
-    if (isActiveSendMsg(msgConversationTextarea)) {
+    if (isValidString(msgConversationTextarea)) {
       msgConversationWsService.sendMessage(followInfo.msgSessionId, {
         msgType: MSG_CONTENT_TEXT_TYPE,
         msgContent: msgConversationTextarea,
       });
       setMsgConversationTextarea('');
     }
-  };
-
-  const isActiveSendMsg = (str: string) => {
-    return str && !/^\s*$/.test(str);
   };
 
   return (
@@ -74,7 +71,7 @@ const MsgConversationSendMessage: React.FC<MsgConversationSendMessageProps> = ({
             />
           </MsgConversationSendTextFieldWrap>
           <MsgSendButtonWrap>
-            {isActiveSendMsg(msgConversationTextarea) && (
+            {isValidString(msgConversationTextarea) && (
               <MsgSendButton onClick={() => onClickSendMsg(followInfo)}>
                 게시
               </MsgSendButton>
@@ -89,7 +86,7 @@ const MsgConversationSendMessage: React.FC<MsgConversationSendMessageProps> = ({
 const MsgConversationSendMessageContainer = styled.div`
   position: fixed;
   width: 100%;
-  max-width: ${({ theme }) => theme.appDisplaySize};
+  max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
   bottom: 0px;
   background-color: ${({ theme }) => theme.mainColor.White};
 
