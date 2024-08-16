@@ -8,7 +8,7 @@ interface PopupLayoutProps {
   popupContainerStyle?: React.CSSProperties;
   popupWrapStyle?: React.CSSProperties;
   popupContentWrapStyle?: React.CSSProperties;
-  setIsPopup: SetterOrUpdater<boolean>;
+  setIsPopup: SetterOrUpdater<string | null>;
 }
 
 const PopupLayout: React.FC<PopupLayoutProps> = ({
@@ -32,7 +32,7 @@ const PopupLayout: React.FC<PopupLayoutProps> = ({
       onClick={() => {
         const bodyElement = document.body;
         bodyElement.style.overflow = 'scroll';
-        setIsPopup(false);
+        setIsPopup(null);
       }}
     >
       <PopupWrap
@@ -50,7 +50,7 @@ const PopupLayout: React.FC<PopupLayoutProps> = ({
 };
 
 const PopupContainer = styled.div`
-  max-width: ${({ theme }) => theme.appDisplaySize};
+  max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
   position: fixed;
   z-index: 999;
   bottom: 0px;

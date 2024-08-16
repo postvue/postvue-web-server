@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 import styled from 'styled-components';
 
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useResetRecoilState } from 'recoil';
 import { getPostSearch } from '../services/post/getPostSearch';
 import {
   cursorIdAtomBySearchPost,
@@ -23,6 +23,10 @@ const SearchPostListInfiniteScroll: React.FC<RepostInfiniteScrollProps> = ({
   const [searchPostHashMap, setSearchPostHashMap] = useRecoilState(
     searchPostHashMapAtom,
   );
+  const resetCursorIdBySearchPost = useResetRecoilState(
+    cursorIdAtomBySearchPost,
+  );
+  const resetSearchPostHashMap = useResetRecoilState(searchPostHashMapAtom);
 
   const callback = () => {
     getPostSearch(searchWord, cursorNum)
@@ -48,6 +52,13 @@ const SearchPostListInfiniteScroll: React.FC<RepostInfiniteScrollProps> = ({
       callback();
     }
   }, [inView, searchWord]);
+
+  useEffect(() => {
+    return () => {
+      resetCursorIdBySearchPost();
+      resetSearchPostHashMap();
+    };
+  }, []);
 
   return (
     <ScrollBottomContainer ref={ref}>
