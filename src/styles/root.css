@@ -43,3 +43,12 @@ img[src=""] {
 img {
   vertical-align: bottom;
 }
+
+/* 모바일 이미지 및 링크 꾹 누를 시 미리보기 방지*/
+a, img {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none;   /* Disable text selection on iOS */
+  -moz-user-select: none;      /* Firefox */
+  -ms-user-select: none;       /* Internet Explorer/Edge */
+  user-select: none;           /* Non-prefixed version, currently supported by Chrome, Edge, Opera and Firefox */
+}
