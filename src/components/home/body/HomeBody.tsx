@@ -3,7 +3,7 @@ import { useRecoilValue } from 'recoil';
 import { NO_IMAGE_DATA_LINK } from '../../../const/DummyDataConst';
 import { POST_TEXTFIELD_TYPE } from '../../../const/PostContentTypeConst';
 import { TASTE_FOR_ME_TAB_ID } from '../../../const/TabConfigConst';
-import { HomePostRsp } from '../../../global/interface/post';
+import { MasonryPostRsp } from '../../../global/interface/post';
 import FollowForMeInfiniteScroll from '../../../hook/FollowForMeInfiniteScroll';
 import TasteForMeInfiniteScroll from '../../../hook/TasteForMeInfiniteScroll';
 
@@ -32,7 +32,7 @@ const HomeBody: React.FC = () => {
                 )?.content;
                 imageContent = imageContent ? imageContent : NO_IMAGE_DATA_LINK;
 
-                const homePostRsp: HomePostRsp = {
+                const homePostRsp: MasonryPostRsp = {
                   postId: v.postId,
                   userId: v.userId,
                   postContent: imageContent,
@@ -56,7 +56,7 @@ const HomeBody: React.FC = () => {
                 )?.content;
                 imageContent = imageContent ? imageContent : NO_IMAGE_DATA_LINK;
 
-                const homePostRsp: HomePostRsp = {
+                const homePostRsp: MasonryPostRsp = {
                   postId: v.postId,
                   userId: v.userId,
                   postContent: imageContent,

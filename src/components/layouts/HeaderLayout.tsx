@@ -14,6 +14,10 @@ const HeaderLayoutContainer = styled.div`
   height: ${theme.systemSize.header.height};
   display: flex;
   width: 100%;
+  position: fixed;
+  z-index: 100;
+  max-width: ${theme.systemSize.appDisplaySize.maxWidth};
+  background-color: white;
 `;
 
 export default HeaderLayout;

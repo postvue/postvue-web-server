@@ -119,8 +119,6 @@ const HomeHeader: React.FC = () => {
 
 const HomeHeaderFilterWrap = styled.div`
   display: flex;
-  justify-content: left;
-  gap: 20px;
 
   padding: 15px 22px 24px 20px;
 
@@ -129,6 +127,7 @@ const HomeHeaderFilterWrap = styled.div`
   background-color: ${({ theme }) => theme.mainColor.White};
   gap: 20px;
   justify-content: space-between;
+  z-index: 1000;
 `;
 
 const HomeTabContainer = styled.div`
