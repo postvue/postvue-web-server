@@ -18,7 +18,10 @@ const ClipButton: React.FC<ClipButtonProps> = ({
 }) => {
   const clipRef = useRef(null);
 
-  const onClickClipButton = () => {
+  const onClickClipButton = (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+  ) => {
+    e.stopPropagation();
     if (postId) {
       putPostClip(postId)
         .then((value) => {
@@ -40,7 +43,7 @@ const ClipButton: React.FC<ClipButtonProps> = ({
   };
 
   return (
-    <ClipButtonWrap onClick={onClickClipButton}>
+    <ClipButtonWrap onClick={(e) => onClickClipButton(e)}>
       <svg
         ref={clipRef}
         xmlns="http://www.w3.org/2000/svg"

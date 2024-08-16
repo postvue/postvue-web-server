@@ -6,25 +6,37 @@ import ClipButtonSingleFactory from './clipbutton/ClipButtonSingleFactory';
 
 interface ClipButtonFactoryProps {
   postId: string;
-  state: RecoilState<Map<string, PostRsp>> | RecoilState<PostRsp>;
+  listState?: RecoilState<Map<string, PostRsp>>;
+  singleState?: RecoilState<PostRsp>;
+  isList: boolean;
 }
 
 const ClipButtonFactory: React.FC<ClipButtonFactoryProps> = ({
   postId,
-  state,
+  isList,
+  listState,
+  singleState,
 }) => {
-  const isMapState = (
-    state: RecoilState<Map<string, PostRsp>> | RecoilState<PostRsp>,
-  ): state is RecoilState<Map<string, PostRsp>> => {
-    return (state as RecoilState<Map<string, PostRsp>>).key !== undefined;
-  };
-
   return (
     <>
-      {isMapState(state) ? (
-        <ClipButtonListFactory postId={postId} postRspHashMapAtom={state} />
+      {isList ? (
+        <>
+          {listState && (
+            <ClipButtonListFactory
+              postId={postId}
+              postRspHashMapAtom={listState}
+            />
+          )}
+        </>
       ) : (
-        <ClipButtonSingleFactory postId={postId} postRspAtom={state} />
+        <>
+          {singleState && (
+            <ClipButtonSingleFactory
+              postId={postId}
+              postRspAtom={singleState}
+            />
+          )}
+        </>
       )}
     </>
   );

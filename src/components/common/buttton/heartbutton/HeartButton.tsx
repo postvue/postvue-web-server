@@ -18,7 +18,10 @@ const HeartButton: React.FC<HeartButtonProps> = ({
 }) => {
   const heartRef = useRef(null);
 
-  const onClickHeartButton = () => {
+  const onClickHeartButton = (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+  ) => {
+    e.stopPropagation();
     if (postId) {
       putPostLike(postId)
         .then((value) => {
@@ -41,7 +44,7 @@ const HeartButton: React.FC<HeartButtonProps> = ({
   };
   return (
     <>
-      <HeartButtonWrap onClick={onClickHeartButton}>
+      <HeartButtonWrap onClick={(e) => onClickHeartButton(e)}>
         <svg
           ref={heartRef}
           xmlns="http://www.w3.org/2000/svg"

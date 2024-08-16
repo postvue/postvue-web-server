@@ -37,7 +37,7 @@ const ClipButtonSingleFactory: React.FC<ClipButtonSingleFactoryProps> = ({
       setSnsSystemPostHashMap(newSnsPostHashMap);
     }
 
-    setSnsPost((prev) => ({ ...prev, isLiked: value.isClipped }));
+    setSnsPost((prev) => ({ ...prev, isClipped: value.isClipped }));
   };
 
   return (
