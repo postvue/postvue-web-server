@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { TAG_SEARCH_PATH } from '../../../const/PathConst';
+import { SEARCH_PATH, TAG_SEARCH_PATH } from '../../../const/PathConst';
 import { SearchRecentKeywordInterface } from '../../../global/interface/localstorage/SearchInterface';
 import {
   deleteRecentlyKeyword,
@@ -17,6 +17,7 @@ const SearchBody: React.FC = () => {
     '태그명',
     '태그명',
   ];
+  const navigate = useNavigate();
 
   const [recentSearchWordList, setRecentSearchWordList] = useState<
     SearchRecentKeywordInterface[]
@@ -51,7 +52,13 @@ const SearchBody: React.FC = () => {
                     .map((v, i) => (
                       <RecentSearchWordItemWrap key={i}>
                         <RecenSearchWordItemDeletedWrap>
-                          <RecentSearchWordItem>{v.name}</RecentSearchWordItem>
+                          <RecentSearchWordItem
+                            onClick={() => {
+                              navigate(`${SEARCH_PATH}/${v.name}`);
+                            }}
+                          >
+                            {v.name}
+                          </RecentSearchWordItem>
                           <RecentDeleteButtonWrap
                             onClick={() => onClickDeleteSearchWord(v.name)}
                           >
@@ -168,6 +175,7 @@ const RecenSearchWordItemDeletedWrap = styled.div`
 
 const RecentSearchWordItem = styled.div`
   font: ${({ theme }) => theme.fontSizes.Body3};
+  cursor: pointer;
 `;
 
 const RecentDeleteButtonWrap = styled.div`

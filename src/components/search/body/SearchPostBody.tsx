@@ -1,13 +1,12 @@
-import React, { useEffect } from 'react';
-import { useRecoilValue, useResetRecoilState } from 'recoil';
+import React from 'react';
+import { useRecoilValue } from 'recoil';
 import { NO_IMAGE_DATA_LINK } from '../../../const/DummyDataConst';
 import { POST_TEXTFIELD_TYPE } from '../../../const/PostContentTypeConst';
-import { HomePostRsp } from '../../../global/interface/post';
+import { MasonryPostRsp } from '../../../global/interface/post';
 
 import styled from 'styled-components';
 import SearchPostListInfiniteScroll from '../../../hook/SearchPostListInfiniteScroll';
 import {
-  cursorIdAtomBySearchPost,
   searchPostHashMapAtom,
   searchWordAtom,
 } from '../../../states/SearchPostAtom';
@@ -16,18 +15,6 @@ import MasonryLayout from '../../layouts/MasonryLayout';
 const SearchPostBody: React.FC = () => {
   const searchPostHashMap = useRecoilValue(searchPostHashMapAtom);
   const searchWord = useRecoilValue(searchWordAtom);
-
-  const resetCursorIdBySearchPost = useResetRecoilState(
-    cursorIdAtomBySearchPost,
-  );
-  const resetSearchPostHashMap = useResetRecoilState(searchPostHashMapAtom);
-
-  useEffect(() => {
-    return () => {
-      resetCursorIdBySearchPost();
-      resetSearchPostHashMap();
-    };
-  }, []);
 
   return (
     <SearchPostBodyContinaer>
@@ -39,7 +26,7 @@ const SearchPostBody: React.FC = () => {
           )?.content;
           imageContent = imageContent ? imageContent : NO_IMAGE_DATA_LINK;
 
-          const homePostRsp: HomePostRsp = {
+          const homePostRsp: MasonryPostRsp = {
             postId: v.postId,
             userId: v.userId,
             postContent: imageContent,
