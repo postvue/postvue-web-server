@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil';
 import styled from 'styled-components';
 import { ACTIVE_CLASS_NAME } from '../../const/ClassNameConst';
@@ -31,9 +30,11 @@ const popupWrapStyle: React.CSSProperties = {
   height: '85%',
 };
 
-const PostReactionPopup: React.FC = () => {
-  const param = useParams();
-  const postId = param.post_id;
+interface PostReactionPopupProps {
+  postId: string;
+}
+
+const PostReactionPopup: React.FC<PostReactionPopupProps> = ({ postId }) => {
   const [isPostReactionPopup, setIsPostReactionPopup] = useRecoilState(
     isPostReactionPopupAtom,
   );
@@ -115,18 +116,14 @@ const PostReactionPopup: React.FC = () => {
       </PostReactionWrap>
 
       {reactionTabId === POST_REACTION_COMMENT_ID ? (
-        <>{postId && <PostReactionCommentBody postId={postId} />}</>
+        <PostReactionCommentBody postId={postId} />
       ) : reactionTabId === POST_REACTION_REPOST_ID ? (
-        <>
-          {postId && (
-            <PostProfileFollowBody
-              postProfileInfoMap={repostHashMap}
-              PostProfileFollowInfiniteScroll={
-                <RepostListInfiniteScroll postId={postId} />
-              }
-            />
-          )}
-        </>
+        <PostProfileFollowBody
+          postProfileInfoMap={repostHashMap}
+          PostProfileFollowInfiniteScroll={
+            <RepostListInfiniteScroll postId={postId} />
+          }
+        />
       ) : reactionTabId === POST_REACTION_LIKE_ID ? (
         <>
           {postId && (
