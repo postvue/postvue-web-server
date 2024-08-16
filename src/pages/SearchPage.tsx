@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 
 import { useResetRecoilState } from 'recoil';
-import BottomNavBar from '../components/BottomNavBar';
+import TabBar from '../components/BottomNavBar';
 import AppBaseTemplate from '../components/layouts/AppBaseTemplate';
 import SearchBody from '../components/search/body/SearchBody';
 import SearchHeader from '../components/search/header/SearchHeader';
@@ -17,7 +17,7 @@ const SearchPage: React.FC = () => {
     <AppBaseTemplate>
       <SearchHeader backToUrl={HOME_PATH} />
       <SearchBody />
-      <BottomNavBar />
+      <TabBar />
     </AppBaseTemplate>
   );
 };

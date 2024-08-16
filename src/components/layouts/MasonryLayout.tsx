@@ -1,10 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { MasonryPostRsp } from '../../global/interface/post';
+import { HomePostRsp } from '../../global/interface/post';
 
 interface MasonryLayoutProps {
-  snsPostUrlList: MasonryPostRsp[];
+  snsPostUrlList: HomePostRsp[];
 }
 
 const MasonryLayout: React.FC<MasonryLayoutProps> = ({ snsPostUrlList }) => {
@@ -71,9 +71,6 @@ const MasonryContainer = styled.div`
 
 const MasonryItem = styled.div`
   margin-bottom: var(--gap);
-  &:hover {
-    filter: brightness(0.7);
-  }
 `;
 
 const PseudoImg = styled.img`

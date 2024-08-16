@@ -138,6 +138,7 @@ const MsgConversationBody: React.FC = () => {
 };
 
 const MsgConversationBodyContainer = styled.div`
+  padding: 0 20px;
   overflow: scroll;
   height: calc(100vh - 58px);
 
@@ -155,7 +156,7 @@ const MsgConversationScrollWrap = styled.div`
 `;
 
 const MsgConversationListWrap = styled.div`
-  padding: 0 20px 100px 20px;
+  padding-bottom: 100px;
 `;
 
 const MsgConversationWrap = styled.div``;

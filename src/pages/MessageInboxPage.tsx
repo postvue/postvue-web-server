@@ -1,5 +1,5 @@
 import React from 'react';
-import BottomNavBar from '../components/BottomNavBar';
+import TabBar from '../components/BottomNavBar';
 import AppBaseTemplate from '../components/layouts/AppBaseTemplate';
 import MessageInboxBody from '../components/messageinbox/body/MessageInboxBody';
 import MessageInboxHeader from '../components/messageinbox/header/MessageInboxHeader';
@@ -9,7 +9,7 @@ const MessageInboxPage: React.FC = () => {
     <AppBaseTemplate>
       <MessageInboxHeader />
       <MessageInboxBody />
-      <BottomNavBar />
+      <TabBar />
     </AppBaseTemplate>
   );
 };

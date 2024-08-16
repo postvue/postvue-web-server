@@ -1,9 +1,9 @@
 import { api } from '..';
-import { PostClipRsp } from '../../global/interface/post';
+import { PostClipGsp } from '../../global/interface/post';
 
 import { CLIP_PATH, POST_LIST_PATH } from '../appApiPath';
 
-export const putPostClip = (postId: string): Promise<PostClipRsp> => {
+export const putPostClip = (postId: string): Promise<PostClipGsp> => {
   return api
     .put(`${POST_LIST_PATH}/${postId}${CLIP_PATH}`)
     .then((res) => {

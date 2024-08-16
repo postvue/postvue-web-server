@@ -1,6 +1,6 @@
 import React from 'react';
 
-import BottomNavBar from '../components/BottomNavBar';
+import TabBar from '../components/BottomNavBar';
 import AppBaseTemplate from '../components/layouts/AppBaseTemplate';
 import SearchPostBody from '../components/search/body/SearchPostBody';
 import SearchHeader from '../components/search/header/SearchHeader';
@@ -11,7 +11,7 @@ const SearchPostPage: React.FC = () => {
     <AppBaseTemplate>
       <SearchHeader backToUrl={SEARCH_PATH} />
       <SearchPostBody />
-      <BottomNavBar />
+      <TabBar />
     </AppBaseTemplate>
   );
 };

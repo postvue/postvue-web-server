@@ -1,16 +1,32 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useResetRecoilState } from 'recoil';
 import styled from 'styled-components';
 import { MSG_CONTENT_TEXT_TYPE } from '../../../const/MsgContentTypeConst';
 import { CONVERSTAION_PATH, MESSAGE_PATH } from '../../../const/PathConst';
 import { MESSAGE_SEARCH_INPUT_PHARSE_TEXT } from '../../../const/SystemPhraseConst';
 import { convertDiffrenceDate } from '../../../global/util/DateTimeUtil';
 import MsgInboxFollowInfiniteScroll from '../../../hook/MsgInboxFollowInfiniteScroll';
-import { msgInboxMessageHashMapAtom } from '../../../states/MessageAtom';
+import {
+  msgInboxMessageHashMapAtom,
+  pageNumAtomByMsgInboxMessage,
+} from '../../../states/MessageAtom';
 
 const MessageInboxBody: React.FC = () => {
   const msgInboxMessageHashMap = useRecoilValue(msgInboxMessageHashMapAtom);
+  const resetMsgInboxMessageHashMap = useResetRecoilState(
+    msgInboxMessageHashMapAtom,
+  );
+  const restPageNumByMsgInbox = useResetRecoilState(
+    pageNumAtomByMsgInboxMessage,
+  );
+
+  useEffect(() => {
+    return () => {
+      resetMsgInboxMessageHashMap();
+      restPageNumByMsgInbox();
+    };
+  }, []);
 
   return (
     <MessageInboxBodyContainer>

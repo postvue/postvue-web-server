@@ -19,7 +19,7 @@ const LongPressReaction: React.FC<LongPressReactionProps> = ({
     setIsPressed(true);
     pressTimerRef.current = window.setTimeout(() => {
       onDownService();
-    }, 500); // 1000ms (1초) 동안 꾹 눌렀을 때 감지
+    }, 1000); // 1000ms (1초) 동안 꾹 눌렀을 때 감지
   };
   const handleMouseEnd = (): void => {
     // 버튼에서 손을 떼면 타이머 취소 및 색상 복구
@@ -48,7 +48,6 @@ const LongPressReactionContainer = styled.div.withConfig({
   shouldForwardProp: (prop) => prop !== 'isPressed',
 })<{ isPressed: boolean }>`
   filter: ${(props) => (props.isPressed ? 'brightness(0.7)' : 'brightness(1)')};
-  cursor: pointer;
 `;
 
 export default LongPressReaction;

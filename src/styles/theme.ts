@@ -48,13 +48,11 @@ const fontSizes = {
   Headline1:
     '600 18px/1.4 Pretendard-SemiBold; letter-spacing: -0.6px; font-style: normal;',
   Subhead3:
-    '600 16px/1.6 Pretendard-SemiBold; letter-spacing: -0.6px; font-style: normal;',
+    '600 16px/1.4 Pretendard-SemiBold; letter-spacing: -0.6px; font-style: normal;',
   Subhead2:
     '600 14px/1.4 Pretendard-SemiBold; letter-spacing: -0.6px; font-style: normal;',
   Subhead1:
     '600 12px/1.4 Pretendar-SemiBold; letter-spacing: -0.6px; font-style: normal;',
-  Body5:
-    '500 18px/1.6 Pretendard-Medium; letter-spacing: -0.35px; font-style: normal;',
   Body4:
     '500 16px/1.6 Pretendard-Medium; letter-spacing: -0.35px; font-style: normal;',
   Body3:
@@ -76,20 +74,7 @@ const paddings = {
   base: '7%',
 };
 
-const systemSize = {
-  appDisplaySize: {
-    maxWidth: '540px',
-  },
-  bottomNavBar: {
-    height: '90px',
-  },
-  header: {
-    height: '50px',
-  },
-};
-
-// const appDisplaySize = '540px';
-// const bottomNavBarHeight = '90px';
+const appDisplaySize = '540px';
 const theme = {
   mainColor,
   grey,
@@ -98,7 +83,7 @@ const theme = {
   errorColor,
   fontSizes,
   paddings,
-  systemSize,
+  appDisplaySize,
 };
 
 export default theme;

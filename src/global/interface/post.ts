@@ -1,9 +1,9 @@
-export interface Location {
+interface Location {
   latitude: number;
   longitude: number;
 }
 
-export interface PostContent {
+interface PostContent {
   postContentType: string;
   content: string;
   ascSortNum: number;
@@ -28,18 +28,18 @@ export interface PostRsp {
   postedAt: string;
 }
 
-export interface MasonryPostRsp {
+export interface HomePostRsp {
   postId: string;
   userId: string;
   postContent: string;
   username: string;
 }
 
-export interface PostLikeRsp {
+export interface PostLikeGsp {
   isLike: boolean;
 }
 
-export interface PostClipRsp {
+export interface PostClipGsp {
   isClipped: boolean;
 }
 

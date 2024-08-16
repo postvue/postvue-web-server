@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -7,19 +7,14 @@ import {
   TABBAR_NAV_CLASS_NAME,
 } from '../const/ClassNameConst';
 import {
+  ACCOUNT_PATH,
   HOME_PATH,
   MAP_PATH,
   MESSAGE_INBOX_PATH,
-  PROFILE_MY_CLIP_LIST_PATH,
-  PROFILE_MY_SCRAP_LIST_PATH,
 } from '../const/PathConst';
 
-const BottomNavBar: React.FC = () => {
+const TabBar: React.FC = () => {
   const [selectedPath, setSelectedPath] = useState<string>();
-
-  useEffect(() => {
-    setSelectedPath(location.pathname);
-  }, [location.pathname]);
 
   return (
     <Container>
@@ -27,6 +22,9 @@ const BottomNavBar: React.FC = () => {
         <NavLink
           to={HOME_PATH}
           className={({ isActive }) => {
+            if (isActive) {
+              setSelectedPath(HOME_PATH);
+            }
             return (
               (isActive ? ACTIVE_CLASS_NAME : '') + ` ${TABBAR_NAV_CLASS_NAME}`
             );
@@ -87,6 +85,9 @@ const BottomNavBar: React.FC = () => {
         <NavLink
           to={MAP_PATH}
           className={({ isActive }) => {
+            if (isActive) {
+              setSelectedPath(MAP_PATH);
+            }
             return (
               (isActive ? ACTIVE_CLASS_NAME : '') + ` ${TABBAR_NAV_CLASS_NAME}`
             );
@@ -145,6 +146,9 @@ const BottomNavBar: React.FC = () => {
         <NavLink
           to={MESSAGE_INBOX_PATH}
           className={({ isActive }) => {
+            if (isActive) {
+              setSelectedPath(MESSAGE_INBOX_PATH);
+            }
             return (
               (isActive ? ACTIVE_CLASS_NAME : '') + ` ${TABBAR_NAV_CLASS_NAME}`
             );
@@ -184,16 +188,8 @@ const BottomNavBar: React.FC = () => {
       </StyleTab>
 
       <StyleTab>
-        <NavLink
-          to={PROFILE_MY_CLIP_LIST_PATH}
-          className={({ isActive }) => {
-            return (
-              (isActive ? ACTIVE_CLASS_NAME : '') + ` ${TABBAR_NAV_CLASS_NAME}`
-            );
-          }}
-        >
-          {selectedPath === PROFILE_MY_CLIP_LIST_PATH ||
-          selectedPath === PROFILE_MY_SCRAP_LIST_PATH ? (
+        <NavLink to={ACCOUNT_PATH} className={TABBAR_NAV_CLASS_NAME}>
+          {selectedPath == ACCOUNT_PATH ? (
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="25"
@@ -236,7 +232,7 @@ const BottomNavBar: React.FC = () => {
 const Container = styled.div`
   z-index: 10;
   position: fixed;
-  max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
+  max-width: ${({ theme }) => theme.appDisplaySize};
   bottom: 0;
   left: 0;
   right: 0;
@@ -285,4 +281,4 @@ const PostWritingButtonIcon = styled.svg`
   margin: auto auto;
 `;
 
-export default BottomNavBar;
+export default TabBar;
