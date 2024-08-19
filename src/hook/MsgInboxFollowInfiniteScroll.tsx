@@ -9,7 +9,7 @@ import { getMsgInboxMessages } from '../services/message/getMsgInboxMessages';
 import {
   msgInboxMessageHashMapAtom,
   pageNumAtomByMsgInboxMessage,
-} from '../states/MessageAtom';
+} from '../states/MsgInboxAtom';
 
 const MsgInboxFollowInfiniteScroll: React.FC = () => {
   const [pageNum, setPageNum] = useRecoilState(pageNumAtomByMsgInboxMessage);

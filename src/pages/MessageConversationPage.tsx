@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import BodyFixScrollElement from '../components/BodyFixScrollElement';
@@ -12,8 +12,8 @@ import { getProfileFollowInfo } from '../services/profile/getProfileFollowInfo';
 import {
   followInfoByMsgAtom,
   msgConversationListAtom,
-  msgInboxMessageHashMapAtom,
 } from '../states/MessageAtom';
+import { msgInboxMessageHashMapAtom } from '../states/MsgInboxAtom';
 
 const MessageConversationPage: React.FC = () => {
   const param = useParams();
@@ -23,6 +23,7 @@ const MessageConversationPage: React.FC = () => {
     msgConversationListAtom,
   );
   const [followInfo, setFollowInfo] = useRecoilState(followInfoByMsgAtom);
+  const [sessionId, setSessionId] = useState<string>('');
 
   useEffect(() => {
     if (followUsername) {
@@ -48,6 +49,7 @@ const MessageConversationPage: React.FC = () => {
                 prev.filter((v) => v.msgId !== messageId),
               );
             },
+            setSessionId,
           );
         }
       } else {
@@ -65,6 +67,7 @@ const MessageConversationPage: React.FC = () => {
                   prev.filter((v) => v.msgId !== messageId),
                 );
               },
+              setSessionId,
             );
           }
         });
@@ -72,7 +75,7 @@ const MessageConversationPage: React.FC = () => {
     }
 
     return () => {
-      msgConversationWsService.disconnect();
+      msgConversationWsService.disconnect(sessionId);
     };
   }, []);
 

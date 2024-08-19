@@ -7,10 +7,15 @@ import { CONVERSTAION_PATH, MESSAGE_PATH } from '../../../const/PathConst';
 import { MESSAGE_SEARCH_INPUT_PHARSE_TEXT } from '../../../const/SystemPhraseConst';
 import { convertDiffrenceDate } from '../../../global/util/DateTimeUtil';
 import MsgInboxFollowInfiniteScroll from '../../../hook/MsgInboxFollowInfiniteScroll';
-import { msgInboxMessageHashMapAtom } from '../../../states/MessageAtom';
+import { msgInboxMessageHashMapAtom } from '../../../states/MsgInboxAtom';
+import { sessionActiveUserInfoHashMapAtom } from '../../../states/SessionAtom';
+import theme from '../../../styles/theme';
 
 const MessageInboxBody: React.FC = () => {
   const msgInboxMessageHashMap = useRecoilValue(msgInboxMessageHashMapAtom);
+  const sessionActiveUserInfoHashMap = useRecoilValue(
+    sessionActiveUserInfoHashMapAtom,
+  );
 
   return (
     <MessageInboxBodyContainer>

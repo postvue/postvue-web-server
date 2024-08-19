@@ -1,17 +1,7 @@
 import { atom } from 'recoil';
-import { INIT_CURSOR_ID, PAGE_NUM } from '../const/PageConfigConst';
-import { MsgConversation, MsgInboxMessage } from '../global/interface/message';
+import { INIT_CURSOR_ID } from '../const/PageConfigConst';
+import { MsgConversation } from '../global/interface/message';
 import { FollowProfileInfo } from '../global/interface/profile';
-
-export const msgInboxMessageHashMapAtom = atom<Map<string, MsgInboxMessage>>({
-  key: 'msgInboxMessageHashMap',
-  default: new Map(),
-});
-
-export const pageNumAtomByMsgInboxMessage = atom<number>({
-  key: 'pageNumByMsgInboxMessage',
-  default: PAGE_NUM,
-});
 
 export const followInfoByMsgAtom = atom<FollowProfileInfo>({
   key: 'followInfoByMsg',
