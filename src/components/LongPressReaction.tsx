@@ -19,7 +19,7 @@ const LongPressReaction: React.FC<LongPressReactionProps> = ({
     setIsPressed(true);
     pressTimerRef.current = window.setTimeout(() => {
       onDownService();
-    }, 500); // 1000ms (1초) 동안 꾹 눌렀을 때 감지
+    }, 400); // 400ms (1초) 동안 꾹 눌렀을 때 감지
   };
   const handleMouseEnd = (): void => {
     // 버튼에서 손을 떼면 타이머 취소 및 색상 복구
