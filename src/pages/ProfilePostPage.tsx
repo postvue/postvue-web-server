@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { useRecoilState, useResetRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil';
 
 import styled from 'styled-components';
 import 'swiper/css';
@@ -16,9 +16,13 @@ import PrevButton from '../components/PrevButton';
 import { INIT_SCROLL_POSITION } from '../const/AttributeConst';
 import { POST_TEXTFIELD_TYPE } from '../const/PostContentTypeConst';
 import { PROFILE_URL_CLIP_BOARD_TEXT } from '../const/SystemPhraseConst';
+import { copyClipBoard } from '../global/util/CopyUtil';
 import { getPost } from '../services/post/getPost';
 import { postRspAtom } from '../states/PostAtom';
-import { isPostReactionPopupAtom } from '../states/PostReactionAtom';
+import {
+  isPostReactionAtom,
+  reactionPostIdAtom,
+} from '../states/PostReactionAtom';
 import { systemPostRspHashMapAtom } from '../states/SystemConfigAtom';
 import { animationStyle } from '../styles/animations';
 
@@ -30,10 +34,12 @@ const ProfilePostPage: React.FC = () => {
   const postId = param.post_id;
   const [snsPost, setSnsPost] = useRecoilState(postRspAtom);
   const [isSettingActive, setIsSettingActive] = useState<boolean>(false);
-  const [isPostReactionPopup, setIsPostReactionPopup] = useRecoilState(
-    isPostReactionPopupAtom,
-  );
-  const resetIsPostReactionPopup = useResetRecoilState(isPostReactionPopupAtom);
+  const [reactionPostId, setReactionPostId] =
+    useRecoilState(reactionPostIdAtom);
+
+  const resetIsPostReactionPopup = useResetRecoilState(reactionPostIdAtom);
+  const isPopupActive = useRecoilValue(isPostReactionAtom);
+
   const resetSnsPost = useResetRecoilState(postRspAtom);
 
   useEffect(() => {
@@ -67,7 +73,8 @@ const ProfilePostPage: React.FC = () => {
   };
   async function onClickClipBoardCopyButton(copyText: string) {
     try {
-      await navigator.clipboard.writeText(copyText);
+      copyClipBoard(copyText);
+
       notify(PROFILE_URL_CLIP_BOARD_TEXT);
     } catch (e) {
       alert(e);
@@ -200,9 +207,7 @@ const ProfilePostPage: React.FC = () => {
           </SettingPopupWrap>
         </SettingPopupContainer>
       )}
-      {isPostReactionPopup && (
-        <PostReactionPopup postId={isPostReactionPopup} />
-      )}
+      {isPopupActive && <PostReactionPopup postId={reactionPostId} />}
 
       <ToastMsgPopup />
       <BottomNavBar />
