@@ -1,12 +1,18 @@
 import React from 'react';
+import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
-import { MsgConversation } from '../../../global/interface/message';
-import { FollowProfileInfo } from '../../../global/interface/profile';
+import { MSG_REACTION_CLASS_NAME } from '../../../const/ClassNameConst';
+import {
+  MsgConversation,
+  MsgReactionInfo,
+} from '../../../global/interface/message';
+import { TargetProfileInfo } from '../../../global/interface/profile';
 import { convertDiffrenceDate } from '../../../global/util/DateTimeUtil';
+import { msgReactionInfoAtom } from '../../../states/MessageAtom';
 import LongPressReaction from '../../LongPressReaction';
 
 interface FollowConversationMsgProps {
-  followInfo: FollowProfileInfo;
+  followInfo: TargetProfileInfo;
   groupData: {
     userId: string;
     group: {
@@ -20,6 +26,28 @@ const FollowConversationMsg: React.FC<FollowConversationMsgProps> = ({
   followInfo,
   groupData,
 }) => {
+  const setMsgReactionInfo = useSetRecoilState(msgReactionInfoAtom);
+
+  const onDownService = (msgId: string) => {
+    const reactionElement = document.getElementById(
+      `${MSG_REACTION_CLASS_NAME}${msgId}`,
+    );
+    if (reactionElement !== null) {
+      const dom = reactionElement.getBoundingClientRect();
+      const body = document.body;
+
+      const msgReactionInfo: MsgReactionInfo = {
+        msgId: msgId,
+        msgHeight: dom.height,
+        y: dom.y,
+        height: body.offsetHeight,
+        isMyMsg: false,
+        msgText: reactionElement?.innerText,
+      };
+      setMsgReactionInfo(msgReactionInfo);
+    }
+  };
+
   return (
     <MsgConversationFollowGroup>
       {groupData.group.length > 0 && (
@@ -32,7 +60,9 @@ const FollowConversationMsg: React.FC<FollowConversationMsgProps> = ({
           <React.Fragment key={msg.msgConversation.msgId}>
             {idx === groupData.group.length - 1 || msg.showDate === true ? (
               <MsgDateWrap key={msg.msgConversation.msgId}>
-                <LongPressReaction onDownService={() => alert('click')}>
+                <LongPressReaction
+                  onDownService={() => onDownService(msg.msgConversation.msgId)}
+                >
                   <MsgConversationFollowItem>
                     {msg.msgConversation.msgContent}
                   </MsgConversationFollowItem>
@@ -42,11 +72,18 @@ const FollowConversationMsg: React.FC<FollowConversationMsgProps> = ({
                 </MsgConversationFollowDate>
               </MsgDateWrap>
             ) : (
-              <LongPressReaction onDownService={() => alert('click')}>
-                <MsgConversationFollowItem key={msg.msgConversation.msgId}>
-                  {msg.msgConversation.msgContent}
-                </MsgConversationFollowItem>
-              </LongPressReaction>
+              <>
+                <LongPressReaction
+                  onDownService={() => onDownService(msg.msgConversation.msgId)}
+                >
+                  <MsgConversationFollowItem
+                    key={msg.msgConversation.msgId}
+                    id={`${MSG_REACTION_CLASS_NAME}${msg.msgConversation.msgId}`}
+                  >
+                    {msg.msgConversation.msgContent}
+                  </MsgConversationFollowItem>
+                </LongPressReaction>
+              </>
             )}
           </React.Fragment>
         ))}

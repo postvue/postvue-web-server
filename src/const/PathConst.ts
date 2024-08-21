@@ -20,3 +20,7 @@ export const PROFILE_MY_CLIP_LIST_PATH = `/profiles/me/clipes`;
 export const PROFILE_MY_SCRAP_PATH = `/profiles/me/scraps/:scrap_id`;
 export const PROFILE_ACCOUNT_PATH = `/profiles/:user_id`;
 export const PROFILE_NEW_SCRAP_PATH = '/new/scrap';
+
+export const MANAGE_PATH = '/manages';
+export const MSG_BLOCK_LIST_MANAGE_PATH = `${MESSAGE_PATH}${MANAGE_PATH}/blocks`;
+export const MSG_HIDDEN_LIST_MANAGE_PATH = `${MESSAGE_PATH}${MANAGE_PATH}/hiddens`;

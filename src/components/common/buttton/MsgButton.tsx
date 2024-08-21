@@ -1,19 +1,24 @@
 import React from 'react';
 import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
-import { isPostReactionPopupAtom } from '../../../states/PostReactionAtom';
+import {
+  isPostReactionAtom,
+  reactionPostIdAtom,
+} from '../../../states/PostReactionAtom';
 
 interface MsgButtonProps {
   postId: string;
 }
 
 const MsgButton: React.FC<MsgButtonProps> = ({ postId }) => {
-  const setIsPostReactionPopup = useSetRecoilState(isPostReactionPopupAtom);
+  const setReactionPostId = useSetRecoilState(reactionPostIdAtom);
+  const setIsPopupActive = useSetRecoilState(isPostReactionAtom);
 
   return (
     <MsgButtonWrap
       onClick={(e) => {
-        setIsPostReactionPopup(postId);
+        setReactionPostId(postId);
+        setIsPopupActive(true);
         e.stopPropagation();
       }}
     >

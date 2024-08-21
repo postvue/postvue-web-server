@@ -1,10 +1,10 @@
 import { api } from '..';
-import { FollowProfileInfo } from '../../global/interface/profile';
+import { TargetProfileInfo } from '../../global/interface/profile';
 import { FOLLOW_PATH, INFO_PATH, PROFILE_LIST_PATH } from '../appApiPath';
 
 export const getProfileFollowInfo = (
   username: string,
-): Promise<FollowProfileInfo> => {
+): Promise<TargetProfileInfo> => {
   return api
     .get(`${PROFILE_LIST_PATH}${FOLLOW_PATH}/${username}${INFO_PATH}`)
     .then((res) => {

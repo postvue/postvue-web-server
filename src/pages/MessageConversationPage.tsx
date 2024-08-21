@@ -1,19 +1,21 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import BodyFixScrollElement from '../components/BodyFixScrollElement';
 import AppBaseTemplate from '../components/layouts/AppBaseTemplate';
 import MsgConversationBody from '../components/messageconversation/MsgConversationBody';
 import MsgConversationHeader from '../components/messageconversation/header/MsgConversationHeader';
+import { MyAccountSettingInterface } from '../global/interface/localstorage/MyAccountSettingInterface';
 import { MsgConversation } from '../global/interface/message';
-import { FollowProfileInfo } from '../global/interface/profile';
+import { TargetProfileInfo } from '../global/interface/profile';
+import { getMyAccountSettingInfo } from '../global/util/MyAccountSettingUtil';
 import msgConversationWsService from '../services/message/MsgConversationWsService';
 import { getProfileFollowInfo } from '../services/profile/getProfileFollowInfo';
 import {
   followInfoByMsgAtom,
   msgConversationListAtom,
-  msgInboxMessageHashMapAtom,
 } from '../states/MessageAtom';
+import { msgInboxMessageHashMapAtom } from '../states/MsgInboxAtom';
 
 const MessageConversationPage: React.FC = () => {
   const param = useParams();
@@ -23,23 +25,26 @@ const MessageConversationPage: React.FC = () => {
     msgConversationListAtom,
   );
   const [followInfo, setFollowInfo] = useRecoilState(followInfoByMsgAtom);
+  const [sessionId, setSessionId] = useState<string>('');
+
+  const myAccountSettingInfo: MyAccountSettingInterface =
+    getMyAccountSettingInfo();
 
   useEffect(() => {
     if (followUsername) {
       const selectedfollowInfo = msgInboxMessageHashMap.get(followUsername);
       let msgSessionId = '';
       if (selectedfollowInfo !== undefined) {
-        const tempFollowInfo: FollowProfileInfo = {
-          followUserId: selectedfollowInfo.followUserId,
+        const tempFollowInfo: TargetProfileInfo = {
+          targetUserId: selectedfollowInfo.targetUserId,
           username: selectedfollowInfo.username,
           profilePath: selectedfollowInfo.profilePath,
-          msgSessionId: selectedfollowInfo.msgSessionId,
+          msgRoomId: selectedfollowInfo.msgRoomId,
         };
-        msgSessionId = selectedfollowInfo.msgSessionId;
+        msgSessionId = selectedfollowInfo.msgRoomId;
         setFollowInfo(tempFollowInfo);
         if (msgSessionId) {
           msgConversationWsService.connect(
-            tempFollowInfo,
             (message: MsgConversation) => {
               setMsgConversationList((prev) => [...[message], ...prev]);
             },
@@ -48,23 +53,27 @@ const MessageConversationPage: React.FC = () => {
                 prev.filter((v) => v.msgId !== messageId),
               );
             },
+            setSessionId,
+            myAccountSettingInfo,
           );
         }
       } else {
         getProfileFollowInfo(followUsername).then((followProfileInfo) => {
           setFollowInfo(followProfileInfo);
-          msgSessionId = followProfileInfo.msgSessionId;
+          msgSessionId = followProfileInfo.msgRoomId;
           if (msgSessionId) {
             msgConversationWsService.connect(
-              followProfileInfo,
               (message: MsgConversation) => {
                 setMsgConversationList((prev) => [...[message], ...prev]);
               },
               (messageId: string) => {
+                console.log(messageId);
                 setMsgConversationList((prev) =>
                   prev.filter((v) => v.msgId !== messageId),
                 );
               },
+              setSessionId,
+              myAccountSettingInfo,
             );
           }
         });
@@ -72,7 +81,7 @@ const MessageConversationPage: React.FC = () => {
     }
 
     return () => {
-      msgConversationWsService.disconnect();
+      msgConversationWsService.disconnect(sessionId);
     };
   }, []);
 

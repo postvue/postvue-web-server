@@ -1,36 +1,27 @@
 import { IMessage } from '@stomp/stompjs';
+import { MyAccountSettingInterface } from '../../global/interface/localstorage/MyAccountSettingInterface';
 import {
   MsgConversation,
   MsgConversationWsCreatePub,
   MsgConversationWsSub,
   MsgConversationWsUpdatePub,
 } from '../../global/interface/message';
-import { FollowProfileInfo } from '../../global/interface/profile';
-import { MESSAGE_PATH } from '../appApiPath';
-import { WebSocketService } from '../WebSocketService';
+import webSocketService from '../WebSocketService';
 import {
-  APP_MESSAGE_CONVERSATIONS_PATH,
-  MESSAGE_BROKER_PATH,
-  WEBSOCKET_APPLICATION_PATH,
+  API_MESSAGES_PATH,
+  MESSAGES_BROKER_PATH,
 } from '../websocketServicePath';
 
-export class MsgConversationWsService extends WebSocketService {
-  constructor() {
-    super();
-  }
-
-  protected getSocketUrl(): string {
-    return `${WEBSOCKET_APPLICATION_PATH}`; // @REFER: 현재 프록시 서버로 주소를 변환해서 연결하기 때문에 느림
-  }
-
+export class MsgConversationWsService {
   connect(
-    followInfo: FollowProfileInfo,
     onMessage: (message: MsgConversation) => void,
     onDeleteMessage: (messageId: string) => void,
+    setSessionId: React.Dispatch<React.SetStateAction<string>>,
+    myAccountSeetingInterface: MyAccountSettingInterface,
   ): void {
-    this.client.onConnect = (frame) => {
-      this.client.subscribe(
-        `${MESSAGE_BROKER_PATH}${APP_MESSAGE_CONVERSATIONS_PATH}/${followInfo.msgSessionId}`,
+    webSocketService.addOnInitializedCallback(() => {
+      webSocketService.setSubscribe(
+        `${MESSAGES_BROKER_PATH}/${myAccountSeetingInterface.myUserId}`,
         (message: IMessage) => {
           const msgConversationSub: MsgConversationWsSub = JSON.parse(
             message.body,
@@ -40,9 +31,9 @@ export class MsgConversationWsService extends WebSocketService {
             onDeleteMessage(msgConversationSub.msgId);
           } else {
             const msgConversation: MsgConversation = {
-              isFollowMsg: !(
-                msgConversationSub.userId !== followInfo.followUserId
-              ),
+              isFollowMsg:
+                msgConversationSub.userId !==
+                myAccountSeetingInterface.myUserId,
               msgId: msgConversationSub.msgId,
               msgType: msgConversationSub.msgType,
               msgContent: msgConversationSub.msgContent,
@@ -54,33 +45,39 @@ export class MsgConversationWsService extends WebSocketService {
             onMessage(msgConversation);
           }
         },
+        setSessionId,
       );
-    };
-    this.client.activate();
+    });
   }
 
-  sendMessage(msgSessionId: string, message: MsgConversationWsCreatePub): void {
-    const destination = `${MESSAGE_PATH}${WEBSOCKET_APPLICATION_PATH}/create${APP_MESSAGE_CONVERSATIONS_PATH}/${msgSessionId}`;
-    this.client.publish({ destination, body: JSON.stringify(message) });
+  sendMessage(targetUserId: string, message: MsgConversationWsCreatePub): void {
+    const destination = `${API_MESSAGES_PATH}/create/${targetUserId}`;
+    webSocketService.publishMessage(destination, JSON.stringify(message));
   }
 
   updateMessage(
     msgSessionId: string,
     message: MsgConversationWsUpdatePub,
   ): void {
-    const destination = `${MESSAGE_PATH}${WEBSOCKET_APPLICATION_PATH}/update${APP_MESSAGE_CONVERSATIONS_PATH}/${msgSessionId}`;
-    this.client.publish({
+    const destination = `${API_MESSAGES_PATH}/update/${msgSessionId}`;
+    webSocketService.publishMessage(
       destination,
-      body: JSON.stringify({ ...message, action: 'update' }),
-    });
+      JSON.stringify({ ...message, action: 'update' }),
+    );
   }
 
-  deleteMessage(msgSessionId: string, msgConversationId: string): void {
-    const destination = `${MESSAGE_PATH}${WEBSOCKET_APPLICATION_PATH}/delete${APP_MESSAGE_CONVERSATIONS_PATH}/${msgSessionId}/${msgConversationId}`;
-    this.client.publish({
+  deleteMessage(targetUserId: string, msgConversationId: string): void {
+    const destination = `${API_MESSAGES_PATH}/delete/${targetUserId}/${msgConversationId}`;
+    webSocketService.publishMessage(
       destination,
-      body: JSON.stringify({ action: 'delete' }),
-    });
+      JSON.stringify({ action: 'delete' }),
+    );
+  }
+
+  disconnect(sessionId: string): void {
+    if (webSocketService.isWebSocketInitialized()) {
+      webSocketService.deleteSubscribe(sessionId);
+    }
   }
 }
 

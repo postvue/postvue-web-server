@@ -1,7 +1,13 @@
 import React from 'react';
+import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
-import { MsgConversation } from '../../../global/interface/message';
+import { MSG_REACTION_CLASS_NAME } from '../../../const/ClassNameConst';
+import {
+  MsgConversation,
+  MsgReactionInfo,
+} from '../../../global/interface/message';
 import { convertDiffrenceDate } from '../../../global/util/DateTimeUtil';
+import { msgReactionInfoAtom } from '../../../states/MessageAtom';
 import LongPressReaction from '../../LongPressReaction';
 
 interface MyConversationMsgProps {
@@ -15,6 +21,28 @@ interface MyConversationMsgProps {
 }
 
 const MyConversationMsg: React.FC<MyConversationMsgProps> = ({ groupData }) => {
+  const setMsgReactionInfo = useSetRecoilState(msgReactionInfoAtom);
+  const onDownService = (msgId: string) => {
+    const reactionElement = document.getElementById(
+      `${MSG_REACTION_CLASS_NAME}${msgId}`,
+    );
+
+    if (reactionElement !== null) {
+      const dom = reactionElement.getBoundingClientRect();
+      const body = document.body;
+
+      const msgReactionInfo: MsgReactionInfo = {
+        msgId: msgId,
+        msgHeight: dom.height,
+        y: dom.y,
+        height: body.offsetHeight,
+        isMyMsg: true,
+        msgText: reactionElement?.innerText,
+      };
+      setMsgReactionInfo(msgReactionInfo);
+    }
+  };
+
   return (
     <MsgConversationMeWrap>
       {groupData.group.map((msg, idx) => (
@@ -24,18 +52,29 @@ const MyConversationMsg: React.FC<MyConversationMsgProps> = ({ groupData }) => {
               <MsgConversationMeDate>
                 {convertDiffrenceDate(msg.msgConversation.sendAt)}
               </MsgConversationMeDate>
-              <LongPressReaction onDownService={() => alert('click')}>
-                <MsgConversationMeItem>
+              <LongPressReaction
+                onDownService={() => onDownService(msg.msgConversation.msgId)}
+              >
+                <MsgConversationMeItem
+                  id={`${MSG_REACTION_CLASS_NAME}${msg.msgConversation.msgId}`}
+                >
                   {msg.msgConversation.msgContent}
                 </MsgConversationMeItem>
               </LongPressReaction>
             </MsgDateWrap>
           ) : (
-            <LongPressReaction onDownService={() => alert('click')}>
-              <MsgConversationMeItem key={msg.msgConversation.msgId}>
-                {msg.msgConversation.msgContent}
-              </MsgConversationMeItem>
-            </LongPressReaction>
+            <>
+              <LongPressReaction
+                onDownService={() => onDownService(msg.msgConversation.msgId)}
+              >
+                <MsgConversationMeItem
+                  key={msg.msgConversation.msgId}
+                  id={`${MSG_REACTION_CLASS_NAME}${msg.msgConversation.msgId}`}
+                >
+                  {msg.msgConversation.msgContent}
+                </MsgConversationMeItem>
+              </LongPressReaction>
+            </>
           )}
         </React.Fragment>
       ))}

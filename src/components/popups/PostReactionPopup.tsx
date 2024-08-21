@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil';
+import {
+  useRecoilState,
+  useRecoilValue,
+  useResetRecoilState,
+  useSetRecoilState,
+} from 'recoil';
 import styled from 'styled-components';
 import { ACTIVE_CLASS_NAME } from '../../const/ClassNameConst';
 import {
@@ -17,10 +22,11 @@ import {
   cursorIdAtomByPostReactionComment,
   cursorIdAtomByPostReactionLike,
   cursorIdAtomByPostReactionRepost,
-  isPostReactionPopupAtom,
+  isPostReactionAtom,
   postReactionCommentHashMapAtom,
   postReactionLikeHashMapAtom,
   postReactionRepostHashMapAtom,
+  reactionPostIdAtom,
 } from '../../states/PostReactionAtom';
 import PopupLayout from '../layouts/PopupLayout';
 import PostProfileFollowBody from './postreactionpopup/body/PostProfileFollowBody';
@@ -35,9 +41,8 @@ interface PostReactionPopupProps {
 }
 
 const PostReactionPopup: React.FC<PostReactionPopupProps> = ({ postId }) => {
-  const [isPostReactionPopup, setIsPostReactionPopup] = useRecoilState(
-    isPostReactionPopupAtom,
-  );
+  const [isPopupActive, setIsPopupActive] = useRecoilState(isPostReactionAtom);
+  const setReactionPostId = useSetRecoilState(reactionPostIdAtom);
   const snsPost = useRecoilValue(postRspAtom);
 
   const [repostHashMap, setRepostHashMap] = useRecoilState(
@@ -93,11 +98,14 @@ const PostReactionPopup: React.FC<PostReactionPopupProps> = ({ postId }) => {
     };
   }, []);
 
+  useEffect(() => {
+    if (!isPopupActive) {
+      setReactionPostId('');
+    }
+  }, [isPopupActive]);
+
   return (
-    <PopupLayout
-      popupWrapStyle={popupWrapStyle}
-      setIsPopup={setIsPostReactionPopup}
-    >
+    <PopupLayout popupWrapStyle={popupWrapStyle} setIsPopup={setIsPopupActive}>
       <ReactionTitle>
         반응 {snsPost.reactionCount ? snsPost.reactionCount : 0} 개
       </ReactionTitle>

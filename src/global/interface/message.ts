@@ -1,5 +1,6 @@
 export interface MsgInboxMessage {
-  followUserId: string;
+  msgRoomId: string;
+  targetUserId: string;
   username: string;
   profilePath: string;
   unreadCount: number;
@@ -7,7 +8,6 @@ export interface MsgInboxMessage {
   msgId: string;
   msgType: string;
   msgContent: string;
-  msgSessionId: string;
 }
 
 export interface MsgConversation {
@@ -46,4 +46,29 @@ export interface MsgConversationWsSub {
   isRead: boolean;
   isDeleted: boolean;
   userId: string;
+}
+
+export interface MsgBlockHiddenUser {
+  targetUserId: string;
+  profilePath: string;
+  username: string;
+}
+
+export interface PutBlockingUserRsp {
+  targetUserId: string;
+  isBlocked: boolean;
+}
+
+export interface PutHiddeningUserRsp {
+  targetUserId: string;
+  isHidden: boolean;
+}
+
+export interface MsgReactionInfo {
+  msgId: string;
+  msgHeight: number;
+  y: number;
+  height: number;
+  isMyMsg: boolean;
+  msgText: string;
 }

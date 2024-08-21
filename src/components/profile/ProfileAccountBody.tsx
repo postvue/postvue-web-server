@@ -4,7 +4,10 @@ import { useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 import { POST_TEXTFIELD_TYPE } from '../../const/PostContentTypeConst';
 import ProfilePostListInfiniteScroll from '../../hook/ProfilePostListInfiniteScroll';
-import { isPostReactionPopupAtom } from '../../states/PostReactionAtom';
+import {
+  isPostReactionAtom,
+  reactionPostIdAtom,
+} from '../../states/PostReactionAtom';
 import { profilePostHashMapAtom } from '../../states/ProfileAtom';
 import theme from '../../styles/theme';
 import PostReactionListElement from '../common/posts/body/PostReactionListElement';
@@ -15,7 +18,8 @@ import ProfileAccountInfo from './profileaccountbody/ProfileAccountInfo';
 const ProfileAccountBody: React.FC = () => {
   const snsPostHashMap = useRecoilValue(profilePostHashMapAtom);
   const navigate = useNavigate();
-  const isPostReactionPopup = useRecoilValue(isPostReactionPopupAtom);
+  const reactionPostId = useRecoilValue(reactionPostIdAtom);
+  const isPopupActive = useRecoilValue(isPostReactionAtom);
 
   return (
     <ProfileAccountBodyContainer>
@@ -57,9 +61,7 @@ const ProfileAccountBody: React.FC = () => {
         })}
         <ProfilePostListInfiniteScroll />
       </ProfilePostListContainer>
-      {isPostReactionPopup && (
-        <PostReactionPopup postId={isPostReactionPopup} />
-      )}
+      {isPopupActive && <PostReactionPopup postId={reactionPostId} />}
     </ProfileAccountBodyContainer>
   );
 };

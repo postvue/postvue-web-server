@@ -7,10 +7,15 @@ import { CONVERSTAION_PATH, MESSAGE_PATH } from '../../../const/PathConst';
 import { MESSAGE_SEARCH_INPUT_PHARSE_TEXT } from '../../../const/SystemPhraseConst';
 import { convertDiffrenceDate } from '../../../global/util/DateTimeUtil';
 import MsgInboxFollowInfiniteScroll from '../../../hook/MsgInboxFollowInfiniteScroll';
-import { msgInboxMessageHashMapAtom } from '../../../states/MessageAtom';
+import { msgInboxMessageHashMapAtom } from '../../../states/MsgInboxAtom';
+import { sessionActiveUserInfoHashMapAtom } from '../../../states/SessionAtom';
+import theme from '../../../styles/theme';
 
 const MessageInboxBody: React.FC = () => {
   const msgInboxMessageHashMap = useRecoilValue(msgInboxMessageHashMapAtom);
+  const sessionActiveUserInfoHashMap = useRecoilValue(
+    sessionActiveUserInfoHashMapAtom,
+  );
 
   return (
     <MessageInboxBodyContainer>
@@ -43,7 +48,15 @@ const MessageInboxBody: React.FC = () => {
             {Array.from(msgInboxMessageHashMap.entries()).map(([i, v]) => (
               <FollowProfileWrap key={i}>
                 <FollowProfileImgNameWrapWrap>
-                  <FollowProfileImg src={v.profilePath} />
+                  <FollowProfileActiveWrap>
+                    <FollowProfileImg src={v.profilePath} />
+                    <FollowActiveState
+                      $sessionState={
+                        sessionActiveUserInfoHashMap.get(v.targetUserId)
+                          ?.sessionState || false
+                      }
+                    />
+                  </FollowProfileActiveWrap>
                   <FollowNameMsgWrap>
                     <Link
                       to={`${MESSAGE_PATH}/${v.username}${CONVERSTAION_PATH}`}
@@ -131,10 +144,28 @@ const FollowProfileImgNameWrapWrap = styled.div`
   width: 100%;
 `;
 
+const FollowProfileActiveWrap = styled.div`
+  position: relative;
+`;
+
 const FollowProfileImg = styled.img`
   width: 59px;
   height: 59px;
   border-radius: 30px;
+  vertical-align: bottom;
+`;
+
+const FollowActiveState = styled.div<{ $sessionState: boolean }>`
+  background: ${(props) =>
+    props.$sessionState ? theme.successColor.Green : theme.grey.Grey2};
+  width: 15px;
+  height: 15px;
+  border-radius: 10px;
+  border: 2px solid white;
+  position: absolute;
+
+  bottom: 0;
+  right: 0px;
 `;
 
 const FollowNameMsgWrap = styled.div`
