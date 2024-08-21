@@ -1,13 +1,17 @@
 import { atom } from 'recoil';
 import { INIT_CURSOR_ID } from '../const/PageConfigConst';
-import { MsgConversation } from '../global/interface/message';
-import { FollowProfileInfo } from '../global/interface/profile';
+import {
+  MsgBlockHiddenUser,
+  MsgConversation,
+  MsgReactionInfo,
+} from '../global/interface/message';
+import { TargetProfileInfo } from '../global/interface/profile';
 
-export const followInfoByMsgAtom = atom<FollowProfileInfo>({
+export const followInfoByMsgAtom = atom<TargetProfileInfo>({
   key: 'followInfoByMsg',
   default: {
-    msgSessionId: '',
-    followUserId: '',
+    msgRoomId: '',
+    targetUserId: '',
     username: '',
     profilePath: '',
   },
