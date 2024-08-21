@@ -67,7 +67,6 @@ const MessageConversationPage: React.FC = () => {
                 setMsgConversationList((prev) => [...[message], ...prev]);
               },
               (messageId: string) => {
-                console.log(messageId);
                 setMsgConversationList((prev) =>
                   prev.filter((v) => v.msgId !== messageId),
                 );
