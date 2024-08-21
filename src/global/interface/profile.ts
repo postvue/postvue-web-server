@@ -1,10 +1,10 @@
 import { Location } from './post';
 
-export interface FollowProfileInfo {
-  followUserId: string;
+export interface TargetProfileInfo {
+  targetUserId: string;
   username: string;
   profilePath: string;
-  msgSessionId: string;
+  msgRoomId: string;
 }
 
 export interface MyProfileInfo {
