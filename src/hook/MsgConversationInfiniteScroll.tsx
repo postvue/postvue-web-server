@@ -2,7 +2,10 @@ import React, { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 import styled from 'styled-components';
 
+import { useNavigate } from 'react-router-dom';
 import { useRecoilState, useResetRecoilState } from 'recoil';
+import { ZERO_CURSOR_ID } from '../const/PageConfigConst';
+import { MESSAGE_INBOX_PATH } from '../const/PathConst';
 import { getMsgConversationList } from '../services/message/getMsgConversationList';
 import {
   cursorIdAtomByMsgConversation,
@@ -16,6 +19,7 @@ interface MsgConversationInfiniteScrollProps {
 const MsgConversationInfiniteScroll: React.FC<
   MsgConversationInfiniteScrollProps
 > = ({ targetUserId }) => {
+  const navigate = useNavigate();
   const [cursorId, setCursorId] = useRecoilState(cursorIdAtomByMsgConversation);
 
   const [ref, inView] = useInView();
@@ -30,20 +34,23 @@ const MsgConversationInfiniteScroll: React.FC<
   );
 
   const callback = () => {
-    getMsgConversationList(cursorId, targetUserId)
-      .then((res) => {
-        if (res.msgConversationRspList.length > 0) {
-          setMsgConversationList((prev) => [
-            ...prev,
-            ...res.msgConversationRspList,
-          ]);
+    if (cursorId !== ZERO_CURSOR_ID) {
+      getMsgConversationList(cursorId, targetUserId)
+        .then((res) => {
+          if (res.msgConversationRspList.length > 0) {
+            setMsgConversationList((prev) => [
+              ...prev,
+              ...res.msgConversationRspList,
+            ]);
+          }
           setCursorId(res.cursorId);
-        }
-      })
-      .catch((err) => {
-        throw err;
-      });
+        })
+        .catch((err) => {
+          navigate(MESSAGE_INBOX_PATH);
+        });
+    }
   };
+
   useEffect(() => {
     if (inView) {
       callback();

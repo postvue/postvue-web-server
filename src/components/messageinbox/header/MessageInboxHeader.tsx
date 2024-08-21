@@ -1,7 +1,16 @@
 import React from 'react';
+import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
+import { isFolloManagePopupByMsgInboxAtom } from '../../../states/MsgInboxAtom';
 
 const MessageInboxHeader: React.FC = () => {
+  const setIsFolloManagePopupByMsgInbox = useSetRecoilState(
+    isFolloManagePopupByMsgInboxAtom,
+  );
+
+  const onClickPopup = () => {
+    setIsFolloManagePopupByMsgInbox(true);
+  };
   return (
     <MessageInboxHeaderContainer>
       <MessageInboxHeaderWrap>
@@ -29,7 +38,7 @@ const MessageInboxHeader: React.FC = () => {
             </MessageWriteButton>
           </MessageWriteButtonWrap>
           <SettingButtonWrap>
-            <SettingButton>
+            <SettingButton onClick={onClickPopup}>
               <SettingButtonIcon
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
@@ -112,6 +121,7 @@ const SettingButtonWrap = styled.div`
 `;
 const SettingButton = styled.div`
   display: flex;
+  cursor: pointer;
 `;
 
 const SettingButtonIcon = styled.svg`

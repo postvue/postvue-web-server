@@ -7,12 +7,12 @@ import { useInView } from 'react-intersection-observer';
 import { useRecoilState, useResetRecoilState } from 'recoil';
 import { getMsgInboxMessages } from '../services/message/getMsgInboxMessages';
 import {
+  cursorIdAtomByMsgInboxMessage,
   msgInboxMessageHashMapAtom,
-  pageNumAtomByMsgInboxMessage,
 } from '../states/MsgInboxAtom';
 
 const MsgInboxFollowInfiniteScroll: React.FC = () => {
-  const [pageNum, setPageNum] = useRecoilState(pageNumAtomByMsgInboxMessage);
+  const [cursorId, setCursorId] = useRecoilState(cursorIdAtomByMsgInboxMessage);
 
   const [ref, inView] = useInView();
 
@@ -22,16 +22,16 @@ const MsgInboxFollowInfiniteScroll: React.FC = () => {
   const resetMsgInboxMessageHashMap = useResetRecoilState(
     msgInboxMessageHashMapAtom,
   );
-  const restPageNumByMsgInbox = useResetRecoilState(
-    pageNumAtomByMsgInboxMessage,
+  const restCursorIdByMsgInbox = useResetRecoilState(
+    cursorIdAtomByMsgInboxMessage,
   );
 
   const callback = () => {
-    getMsgInboxMessages(pageNum)
+    getMsgInboxMessages(cursorId)
       .then((res) => {
-        if (res.length > 0) {
+        if (res.msgInboxMessageList.length > 0) {
           const newMsgInboxMessageHashMap = new Map(msgInboxMessageHashMap);
-          res.forEach((msgInbxMessage) => {
+          res.msgInboxMessageList.forEach((msgInbxMessage) => {
             newMsgInboxMessageHashMap.set(
               msgInbxMessage.username,
               msgInbxMessage,
@@ -40,7 +40,7 @@ const MsgInboxFollowInfiniteScroll: React.FC = () => {
 
           setMsgInboxMessageHashMap(newMsgInboxMessageHashMap);
 
-          setPageNum(pageNum + 1);
+          setCursorId(res.cursorId);
         }
       })
       .catch((err) => {
@@ -56,7 +56,7 @@ const MsgInboxFollowInfiniteScroll: React.FC = () => {
   useEffect(() => {
     return () => {
       resetMsgInboxMessageHashMap();
-      restPageNumByMsgInbox();
+      restCursorIdByMsgInbox();
     };
   }, []);
 
