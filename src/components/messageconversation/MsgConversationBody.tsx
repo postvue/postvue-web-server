@@ -7,17 +7,26 @@ import { convertDate } from '../../global/util/DateTimeUtil';
 import MsgConversationInfiniteScroll from '../../hook/MsgConversationInfiniteScroll';
 import {
   followInfoByMsgAtom,
+  isSettingByMsgConversationAtom,
   msgConversationListAtom,
+  msgReactionInfoAtom,
 } from '../../states/MessageAtom';
 import FollowConversationMsg from './body/FollowConversationMsg';
+import FollowConversationReaction from './body/FollowConversationReaction';
 import MsgConversationSendMessage from './body/MsgConversationSendMessageButton';
 import MyConversationMsg from './body/MyConversationMsg';
+import MsgConversationSettingPopup from './popup/MsgConversationSettingPopup';
 
 const MsgConversationBody: React.FC = () => {
   const followInfo = useRecoilValue(followInfoByMsgAtom);
   const [msgConversationList, setMsgConversationList] = useRecoilState(
     msgConversationListAtom,
   );
+  const [isSettingByMsgConversation, setIsSettingByMsgConversation] =
+    useRecoilState(isSettingByMsgConversationAtom);
+
+  const [msgReactionInfo, setMsgReactionInfo] =
+    useRecoilState(msgReactionInfoAtom);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [msgConversationScrollHeight, setMsgConversationScrollHeight] =
     useState<number>(INIT_SCROLL_POSITION);
@@ -43,7 +52,7 @@ const MsgConversationBody: React.FC = () => {
     let lastUserId: string | null = null;
 
     messages.forEach((message) => {
-      const userId = message.isFollowMsg ? followInfo.followUserId : 'me';
+      const userId = message.isFollowMsg ? followInfo.targetUserId : 'me';
 
       if (lastUserId === null) {
         currentGroup.push({ msgConversation: message, showDate: true });
@@ -107,20 +116,26 @@ const MsgConversationBody: React.FC = () => {
     }
   }, [isInitialLoad, msgConversationList]);
 
+  useEffect(() => {
+    return () => {
+      setIsSettingByMsgConversation(false);
+    };
+  }, []);
+
   return (
     <>
       <MsgConversationBodyContainer ref={MsgConversationBodyContainerRef}>
-        {followInfo.followUserId && (
+        {followInfo.targetUserId && (
           <MsgConversationScrollWrap>
             <MsgConversationInfiniteScroll
-              targetUserId={followInfo.followUserId}
+              targetUserId={followInfo.targetUserId}
             />
           </MsgConversationScrollWrap>
         )}
         <MsgConversationListWrap>
           {groupedMessages.map((groupData, index) => (
             <MsgConversationWrap key={index}>
-              {groupData.userId === followInfo.followUserId ? (
+              {groupData.userId === followInfo.targetUserId ? (
                 <FollowConversationMsg
                   followInfo={followInfo}
                   groupData={groupData}
@@ -132,6 +147,10 @@ const MsgConversationBody: React.FC = () => {
           ))}
         </MsgConversationListWrap>
         <MsgConversationSendMessage followInfo={followInfo} />
+        {isSettingByMsgConversation && (
+          <MsgConversationSettingPopup targetProfileInfo={followInfo} />
+        )}
+        {msgReactionInfo.msgId !== '' && <FollowConversationReaction />}
       </MsgConversationBodyContainer>
     </>
   );

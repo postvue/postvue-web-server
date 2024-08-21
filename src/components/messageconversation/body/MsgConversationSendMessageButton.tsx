@@ -2,12 +2,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { INIT_EMPTY_STRING_VALUE } from '../../../const/AttributeConst';
 import { MSG_CONTENT_TEXT_TYPE } from '../../../const/MsgContentTypeConst';
-import { FollowProfileInfo } from '../../../global/interface/profile';
+import { TargetProfileInfo } from '../../../global/interface/profile';
 import { isValidString } from '../../../global/util/\bValidUtil';
 import msgConversationWsService from '../../../services/message/MsgConversationWsService';
 
 interface MsgConversationSendMessageProps {
-  followInfo: FollowProfileInfo;
+  followInfo: TargetProfileInfo;
 }
 
 const MsgConversationSendMessage: React.FC<MsgConversationSendMessageProps> = ({
@@ -29,9 +29,9 @@ const MsgConversationSendMessage: React.FC<MsgConversationSendMessageProps> = ({
     }
   }, [msgConversationTextarea]);
 
-  const onClickSendMsg = (followInfo: FollowProfileInfo): void => {
+  const onClickSendMsg = (followInfo: TargetProfileInfo): void => {
     if (isValidString(msgConversationTextarea)) {
-      msgConversationWsService.sendMessage(followInfo.msgSessionId, {
+      msgConversationWsService.sendMessage(followInfo.targetUserId, {
         msgType: MSG_CONTENT_TEXT_TYPE,
         msgContent: msgConversationTextarea,
       });
