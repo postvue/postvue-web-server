@@ -7,6 +7,7 @@ import 'swiper/css';
 import { FreeMode, Navigation, Pagination, Thumbs } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import BottomNavBar from '../components/BottomNavBar';
+import FollowButton from '../components/common/buttton/FollowButton';
 import PostReactionSingleElement from '../components/common/posts/body/PostReactionSingleElement';
 import PostTextContent from '../components/common/posts/body/PostTextContent';
 import AppBaseTemplate from '../components/layouts/AppBaseTemplate';
@@ -25,6 +26,7 @@ import {
 } from '../states/PostReactionAtom';
 import { systemPostRspHashMapAtom } from '../states/SystemConfigAtom';
 import { animationStyle } from '../styles/animations';
+import theme from '../styles/theme';
 
 const ProfilePostPage: React.FC = () => {
   const param = useParams();
@@ -156,8 +158,13 @@ const ProfilePostPage: React.FC = () => {
               </ProfileUserNameFollowWrap>
             </ProfileLinkDiv>
           </Link>
-          {snsPost?.isFollowed ? (
-            <ProfileFollowButton>팔로우</ProfileFollowButton>
+          {snsPost?.followable ? (
+            <FollowButton
+              userId={snsPost.userId}
+              fontSize={theme.fontSizes.Subhead1}
+              style={FollowStyle}
+              isFollow={snsPost.isFollowed}
+            />
           ) : (
             <></>
           )}
@@ -262,12 +269,11 @@ const ProfileUserNameFollowWrap = styled.div`
 const ProfileUserName = styled.div`
   font: ${({ theme }) => theme.fontSizes.Subhead3};
 `;
-const ProfileFollowButton = styled.div`
-  font: ${({ theme }) => theme.fontSizes.Subhead1};
-  color: ${({ theme }) => theme.mainColor.Blue};
-  line-height: 190%;
-  cursor: pointer;
-`;
+
+const FollowStyle: React.CSSProperties = {
+  margin: '0',
+};
+
 const ProfilePosition = styled.div`
   font: ${({ theme }) => theme.fontSizes.Location2};
   color: ${({ theme }) => theme.grey.Grey6};
