@@ -1,7 +1,7 @@
 import React from 'react';
 
 import BottomNavBar from '../components/BottomNavBar';
-import HomeBody from '../components/home/body/HomeBody';
+import HomeBody from '../components/home/HomeBody';
 import HomeHeader from '../components/home/header/HomeHeader';
 import AppBaseTemplate from '../components/layouts/AppBaseTemplate';
 

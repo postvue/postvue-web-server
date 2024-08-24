@@ -17,6 +17,7 @@ const ProfileClipListBody: React.FC = () => {
             userId: v.userId,
             postContent: v.postThumbnailImagePath,
             username: v.username,
+            location: v.location,
           };
         })}
       />
