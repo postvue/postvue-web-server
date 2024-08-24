@@ -1,6 +1,7 @@
 import React from 'react';
 import { RecoilState } from 'recoil';
 import { PostRsp } from '../../../global/interface/post';
+import { systemPostRspHashMapAtom } from '../../../states/SystemConfigAtom';
 import HeartButtonListFactory from './heartbutton/HeartButtonListFactory';
 import HeartButtonSingleFactory from './heartbutton/HeartButtonSingleFactory';
 
@@ -25,6 +26,7 @@ const HeartButtonFactory: React.FC<HeartButtonFactoryProps> = ({
             <HeartButtonListFactory
               postId={postId}
               postRspHashMapAtom={listState}
+              systemPostRspHashMapAtom={systemPostRspHashMapAtom}
             />
           )}
         </>
@@ -34,6 +36,7 @@ const HeartButtonFactory: React.FC<HeartButtonFactoryProps> = ({
             <HeartButtonSingleFactory
               postId={postId}
               postRspAtom={singleState}
+              systemPostRspHashMapAtom={systemPostRspHashMapAtom}
             />
           )}
         </>
