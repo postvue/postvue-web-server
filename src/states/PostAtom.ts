@@ -8,7 +8,7 @@ export const postRspAtom = atom<PostRsp>({
     userId: '',
     username: '',
     profilePath: '',
-    location: { latitude: 0, longitude: 0 },
+    location: { latitude: 0, longitude: 0, address: '' },
     tags: [],
     reactionCount: 0,
     isFollowed: false,

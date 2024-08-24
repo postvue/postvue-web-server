@@ -1,6 +1,7 @@
 export interface Location {
   latitude: number;
   longitude: number;
+  address: string;
 }
 
 export interface PostContent {
@@ -33,6 +34,7 @@ export interface MasonryPostRsp {
   userId: string;
   postContent: string;
   username: string;
+  location: Location;
 }
 
 export interface PostLikeRsp {
