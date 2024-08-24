@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
@@ -10,6 +10,11 @@ import {
   TASTE_FOR_ME_TAB_ID,
   TASTE_FOR_ME_TAB_NAME,
 } from '../../../const/TabConfigConst';
+import { HomeHistoryInterface } from '../../../global/interface/localstorage/HomeHistoryInterface';
+import {
+  getHomeHistory,
+  saveMainTabIdByHomeHistory,
+} from '../../../global/util/HomeUtil';
 import { scrollPositionAtomByFollowForMe } from '../../../states/FollowForMeAtom';
 import { homeTabIdAtom } from '../../../states/HomePageAtom';
 import { scrollPositionAtomByTasteForMe } from '../../../states/TasteForMeAtom';
@@ -33,6 +38,11 @@ const HomeHeader: React.FC = () => {
       tabName: FOLLOW_FOR_ME_TAB_NAME,
     },
   ];
+
+  useEffect(() => {
+    const homeHistory: HomeHistoryInterface = getHomeHistory();
+    setMainTabId(homeHistory.mainTabId);
+  }, []);
   return (
     <HomeHeaderFilterWrap>
       <HomeTabContainer>
@@ -48,6 +58,7 @@ const HomeHeader: React.FC = () => {
                 setScrollPositionByTaste(window.scrollY);
                 window.scrollTo({ top: scrollPositionByFollow });
               }
+              saveMainTabIdByHomeHistory(v.tabId);
               setMainTabId(v.tabId);
             }}
           >
