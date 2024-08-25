@@ -124,7 +124,7 @@ const PostReactionPopup: React.FC<PostReactionPopupProps> = ({ postId }) => {
       </PostReactionWrap>
 
       {reactionTabId === POST_REACTION_COMMENT_ID ? (
-        <PostReactionCommentBody postId={postId} />
+        <>{postId !== '' && <PostReactionCommentBody postId={postId} />}</>
       ) : reactionTabId === POST_REACTION_REPOST_ID ? (
         <PostProfileFollowBody
           postProfileInfoMap={repostHashMap}
@@ -138,7 +138,11 @@ const PostReactionPopup: React.FC<PostReactionPopupProps> = ({ postId }) => {
             <PostProfileFollowBody
               postProfileInfoMap={postLikeHashMap}
               PostProfileFollowInfiniteScroll={
-                <PostLikeListInfiniteScroll postId={postId} />
+                <>
+                  {postId !== '' && (
+                    <PostLikeListInfiniteScroll postId={postId} />
+                  )}
+                </>
               }
             />
           )}
