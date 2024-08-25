@@ -66,3 +66,21 @@ export interface PostProfileInfoRsp {
   isFollowed: boolean;
   isMe: boolean;
 }
+
+export interface PostCommentReq {
+  postCommentType: string;
+  postCommentContent: string;
+}
+
+export interface PostCommentRsp {
+  postCommentId: string;
+  commentUserId: string;
+  postCommentType: string;
+  postCommentContent: string;
+  isLiked: boolean;
+  likeCount: number;
+  commentCount: number;
+  username: string;
+  profilePath: string;
+  postedAt: string;
+}

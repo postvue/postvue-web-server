@@ -46,3 +46,15 @@ export interface TargetAudienceInterface {
   displayPhrase: string;
   targetAudienceValue: string;
 }
+
+export interface GetMyProfileScrapPreviewsRsp {
+  scrapBoardId: string;
+  isScraped: boolean;
+  scrapBoardName: string;
+}
+
+export interface PostToScrapRsp {
+  scrapId: string;
+  isScraped: boolean;
+  isClipped: boolean;
+}
