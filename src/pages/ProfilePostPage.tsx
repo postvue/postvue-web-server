@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil';
+import { useRecoilState, useResetRecoilState } from 'recoil';
 
 import styled from 'styled-components';
 import 'swiper/css';
@@ -40,7 +40,7 @@ const ProfilePostPage: React.FC = () => {
     useRecoilState(reactionPostIdAtom);
 
   const resetIsPostReactionPopup = useResetRecoilState(reactionPostIdAtom);
-  const isPopupActive = useRecoilValue(isPostReactionAtom);
+  const [isPopupActive, setIsPopupActive] = useRecoilState(isPostReactionAtom);
 
   const resetSnsPost = useResetRecoilState(postRspAtom);
 
@@ -64,6 +64,7 @@ const ProfilePostPage: React.FC = () => {
     return () => {
       resetIsPostReactionPopup();
       resetSnsPost();
+      setIsPopupActive(false);
     };
   }, []);
 
@@ -153,7 +154,7 @@ const ProfilePostPage: React.FC = () => {
               <ProfileImg src={snsPost?.profilePath} />
               <ProfileUserNameFollowWrap>
                 <ProfileUserName>{snsPost?.username}</ProfileUserName>
-                <ProfilePosition>성수동 I 1km</ProfilePosition>
+                <ProfilePosition>{snsPost.location.address}</ProfilePosition>
                 {/**@REFER: 수정 */}
               </ProfileUserNameFollowWrap>
             </ProfileLinkDiv>
