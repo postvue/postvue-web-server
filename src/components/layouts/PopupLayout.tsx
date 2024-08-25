@@ -61,6 +61,7 @@ const PopupContainer = styled.div`
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
   overflow: hidden;
+  animation: ${animationStyle.fadeIn} 0.2s ease-in forwards;
 `;
 
 const PopupWrap = styled.div`
@@ -70,13 +71,14 @@ const PopupWrap = styled.div`
   width: 100%;
   background: white;
   border-radius: 15px 15px 0 0;
-  animation: ${animationStyle.slideUp} 0.2s ease-in-out;
+  animation: ${animationStyle.slideUp} 0.15s ease-in-out;
 `;
 
 const PopupContentWrap = styled.div`
   display: flex;
   flex-flow: column;
   width: 100%;
+  height: 100%;
 `;
 
 export default PopupLayout;
