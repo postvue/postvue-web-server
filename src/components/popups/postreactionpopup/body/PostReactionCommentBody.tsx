@@ -3,9 +3,13 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
 import { INIT_EMPTY_STRING_VALUE } from '../../../../const/AttributeConst';
+import { POST_COMMENT_TEXT_TYPE } from '../../../../const/PostCommentTypeConst';
+import { PostCommentReq } from '../../../../global/interface/post';
+import { isValidString } from '../../../../global/util/\bValidUtil';
 import { convertDiffrenceDate } from '../../../../global/util/DateTimeUtil';
 import { uploadImgUtil } from '../../../../global/util/ImageInputUtil';
 import PostCommentInfiniteScroll from '../../../../hook/PostCommentInfiniteScroll';
+import { createPostComment } from '../../../../services/post/createPostComment';
 import { putPostCommentLike } from '../../../../services/post/putPostCommentLike';
 import { postReactionCommentHashMapAtom } from '../../../../states/PostReactionAtom';
 import theme from '../../../../styles/theme';
@@ -121,6 +125,20 @@ const PostReactionCommentBody: React.FC<PostReactionCommentBodyProps> = ({
   ) => {
     setPostCommentTextarea(event.target.value);
   };
+
+  const onClickSendTextComment = () => {
+    const postCommentReq: PostCommentReq = {
+      postCommentType: POST_COMMENT_TEXT_TYPE,
+      postCommentContent: postCommentTextarea,
+    };
+    createPostComment(postId, postCommentReq).then((value) => {
+      const newSnsPostCommentHash = new Map(snsPostCommentHashMap);
+      newSnsPostCommentHash.set(value.postCommentId, value);
+      setSnsPostCommentHashMap(newSnsPostCommentHash);
+    });
+    setPostCommentTextarea('');
+  };
+
   useEffect(() => {
     const textarea = postCommentTextareaRef.current;
 
@@ -132,7 +150,7 @@ const PostReactionCommentBody: React.FC<PostReactionCommentBodyProps> = ({
   }, [postCommentTextarea]);
 
   useEffect(() => {
-    if (postCommentTextarea || uploadCommentImgFile) {
+    if (isValidString(postCommentTextarea) || uploadCommentImgFile) {
       setIsActiveUpload(true);
     } else {
       setIsActiveUpload(false);
@@ -140,80 +158,89 @@ const PostReactionCommentBody: React.FC<PostReactionCommentBodyProps> = ({
   }, [postCommentTextarea, uploadCommentImgFile]);
   return (
     <>
-      {Array.from(snsPostCommentHashMap.entries()).map(([k, v]) => {
-        return (
-          <PostContenContainer key={k}>
-            <ProfileWrap>
-              <PorfileImg src={v.profilePath} />
-              <ProfileContentWrap>
-                <ProfileUserNameDateWrap>
-                  <ProfileUsername>{v.username}</ProfileUsername>
-                  <PostCommentDatetime>
-                    {convertDiffrenceDate(v.postedAt)}
-                  </PostCommentDatetime>
-                </ProfileUserNameDateWrap>
-                <PostCommentDiv>{v.postCommentContent}</PostCommentDiv>
-                <PostLikeReplyWrap>
-                  <PostCommentLikeWrap>
-                    <PostCommentLike
-                      onClick={() =>
-                        onClickCommentHeartButton(v.postCommentId, Number(k))
-                      }
-                    >
-                      <PostCommentLikeIcon
-                        ref={(el) => (elementsRef.current[Number(k)] = el)}
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="19"
-                        height="19"
-                        viewBox="0 0 19 19"
-                        fill={v.isLiked ? theme.mainColor.Red : 'none'}
-                      >
-                        <path
-                          d="M15.4375 9.95291L9.50003 15.8334L3.56253 9.95291C3.1709 9.57181 2.86242 9.11376 2.65651 8.60758C2.4506 8.10141 2.35173 7.55808 2.36612 7.01182C2.38051 6.46555 2.50785 5.92819 2.74012 5.43355C2.97239 4.93892 3.30456 4.49774 3.71571 4.13779C4.12686 3.77784 4.60809 3.50692 5.12909 3.34208C5.65009 3.17725 6.19958 3.12208 6.74295 3.18005C7.28632 3.23801 7.8118 3.40785 8.28631 3.67888C8.76082 3.94991 9.17406 4.31625 9.50003 4.75483C9.82742 4.31943 10.2411 3.95629 10.7153 3.68814C11.1895 3.41999 11.7139 3.2526 12.2558 3.19645C12.7976 3.1403 13.3452 3.19659 13.8643 3.36181C14.3834 3.52702 14.8628 3.7976 15.2725 4.15662C15.6822 4.51563 16.0134 4.95535 16.2454 5.44824C16.4773 5.94114 16.605 6.47661 16.6205 7.02114C16.636 7.56567 16.5389 8.10753 16.3354 8.61282C16.1318 9.11811 15.8262 9.57594 15.4375 9.95766"
-                          stroke={
-                            v.isLiked ? theme.mainColor.Red : theme.grey.Grey7
+      <PostContentListContainer>
+        {Array.from(snsPostCommentHashMap.entries())
+          .reverse()
+          .map(([k, v]) => {
+            return (
+              <PostContentWrap key={k}>
+                <ProfileWrap>
+                  <PorfileImg src={v.profilePath} />
+                  <ProfileContentWrap>
+                    <ProfileUserNameDateWrap>
+                      <ProfileUsername>{v.username}</ProfileUsername>
+                      <PostCommentDatetime>
+                        {convertDiffrenceDate(v.postedAt)}
+                      </PostCommentDatetime>
+                    </ProfileUserNameDateWrap>
+                    <PostCommentDiv>{v.postCommentContent}</PostCommentDiv>
+                    <PostLikeReplyWrap>
+                      <PostCommentLikeWrap>
+                        <PostCommentLike
+                          onClick={() =>
+                            onClickCommentHeartButton(
+                              v.postCommentId,
+                              Number(k),
+                            )
                           }
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </PostCommentLikeIcon>
-                    </PostCommentLike>
-                    <PostCommentLikeCount
-                      ref={(el) => (likeCountRef.current[Number(k)] = el)}
-                    >
-                      {v.likeCount}
-                    </PostCommentLikeCount>
-                  </PostCommentLikeWrap>
-                  <PostCommentReplyWrap>
-                    <PostCommentReply>
-                      <PostCommentReplyIcon
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="19"
-                        height="19"
-                        viewBox="0 0 19 19"
-                        fill="none"
-                      >
-                        <path
-                          d="M6.33333 7.12484H12.6667M6.33333 10.2915H11.0833M7.125 14.2498H4.75C4.12011 14.2498 3.51602 13.9996 3.07062 13.5542C2.62522 13.1088 2.375 12.5047 2.375 11.8748V5.5415C2.375 4.91161 2.62522 4.30752 3.07062 3.86213C3.51602 3.41673 4.12011 3.1665 4.75 3.1665H14.25C14.8799 3.1665 15.484 3.41673 15.9294 3.86213C16.3748 4.30752 16.625 4.91161 16.625 5.5415V11.8748C16.625 12.5047 16.3748 13.1088 15.9294 13.5542C15.484 13.9996 14.8799 14.2498 14.25 14.2498H11.875L9.5 16.6248L7.125 14.2498Z"
-                          stroke="#535B63"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </PostCommentReplyIcon>
-                    </PostCommentReply>
-                    <PostCommentReplyCount>
-                      {v.commentCount}
-                    </PostCommentReplyCount>
-                  </PostCommentReplyWrap>
-                </PostLikeReplyWrap>
-              </ProfileContentWrap>
-            </ProfileWrap>
-            <BoundaryStickBar />
-          </PostContenContainer>
-        );
-      })}
+                        >
+                          <PostCommentLikeIcon
+                            ref={(el) => (elementsRef.current[Number(k)] = el)}
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="19"
+                            height="19"
+                            viewBox="0 0 19 19"
+                            fill={v.isLiked ? theme.mainColor.Red : 'none'}
+                          >
+                            <path
+                              d="M15.4375 9.95291L9.50003 15.8334L3.56253 9.95291C3.1709 9.57181 2.86242 9.11376 2.65651 8.60758C2.4506 8.10141 2.35173 7.55808 2.36612 7.01182C2.38051 6.46555 2.50785 5.92819 2.74012 5.43355C2.97239 4.93892 3.30456 4.49774 3.71571 4.13779C4.12686 3.77784 4.60809 3.50692 5.12909 3.34208C5.65009 3.17725 6.19958 3.12208 6.74295 3.18005C7.28632 3.23801 7.8118 3.40785 8.28631 3.67888C8.76082 3.94991 9.17406 4.31625 9.50003 4.75483C9.82742 4.31943 10.2411 3.95629 10.7153 3.68814C11.1895 3.41999 11.7139 3.2526 12.2558 3.19645C12.7976 3.1403 13.3452 3.19659 13.8643 3.36181C14.3834 3.52702 14.8628 3.7976 15.2725 4.15662C15.6822 4.51563 16.0134 4.95535 16.2454 5.44824C16.4773 5.94114 16.605 6.47661 16.6205 7.02114C16.636 7.56567 16.5389 8.10753 16.3354 8.61282C16.1318 9.11811 15.8262 9.57594 15.4375 9.95766"
+                              stroke={
+                                v.isLiked
+                                  ? theme.mainColor.Red
+                                  : theme.grey.Grey7
+                              }
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </PostCommentLikeIcon>
+                        </PostCommentLike>
+                        <PostCommentLikeCount
+                          ref={(el) => (likeCountRef.current[Number(k)] = el)}
+                        >
+                          {v.likeCount}
+                        </PostCommentLikeCount>
+                      </PostCommentLikeWrap>
+                      <PostCommentReplyWrap>
+                        <PostCommentReply>
+                          <PostCommentReplyIcon
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="19"
+                            height="19"
+                            viewBox="0 0 19 19"
+                            fill="none"
+                          >
+                            <path
+                              d="M6.33333 7.12484H12.6667M6.33333 10.2915H11.0833M7.125 14.2498H4.75C4.12011 14.2498 3.51602 13.9996 3.07062 13.5542C2.62522 13.1088 2.375 12.5047 2.375 11.8748V5.5415C2.375 4.91161 2.62522 4.30752 3.07062 3.86213C3.51602 3.41673 4.12011 3.1665 4.75 3.1665H14.25C14.8799 3.1665 15.484 3.41673 15.9294 3.86213C16.3748 4.30752 16.625 4.91161 16.625 5.5415V11.8748C16.625 12.5047 16.3748 13.1088 15.9294 13.5542C15.484 13.9996 14.8799 14.2498 14.25 14.2498H11.875L9.5 16.6248L7.125 14.2498Z"
+                              stroke="#535B63"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </PostCommentReplyIcon>
+                        </PostCommentReply>
+                        <PostCommentReplyCount>
+                          {v.commentCount}
+                        </PostCommentReplyCount>
+                      </PostCommentReplyWrap>
+                    </PostLikeReplyWrap>
+                  </ProfileContentWrap>
+                </ProfileWrap>
+                <BoundaryStickBar />
+              </PostContentWrap>
+            );
+          })}
+        {postId && <PostCommentInfiniteScroll postId={postId} />}
+      </PostContentListContainer>
 
-      {postId && <PostCommentInfiniteScroll postId={postId} />}
       <PostCommentMsgComponent>
         <PostCommentMsgComponentWrap>
           <PostCommentMsgWrap>
@@ -321,7 +348,9 @@ const PostReactionCommentBody: React.FC<PostReactionCommentBodyProps> = ({
             </PostCommentUploadGif>
           </PostCommentUploadTypeTab>
           {isActiveUpload ? (
-            <PostCommentUploadButton>게시</PostCommentUploadButton>
+            <PostCommentUploadButton onClick={onClickSendTextComment}>
+              게시
+            </PostCommentUploadButton>
           ) : (
             <PostCommentUploadDeactiveButton>
               게시
@@ -333,7 +362,12 @@ const PostReactionCommentBody: React.FC<PostReactionCommentBodyProps> = ({
   );
 };
 
-const PostContenContainer = styled.div`
+const PostContentListContainer = styled.div`
+  overflow: scroll;
+  height: calc(100% - 230px);
+`;
+
+const PostContentWrap = styled.div`
   font: ${({ theme }) => theme.fontSizes.Body4};
 `;
 
@@ -416,7 +450,8 @@ const PostCommentMsgComponent = styled.div`
   width: 100%;
   position: fixed;
   bottom: 0;
-  margin-bottom: 50px;
+  padding-bottom: 50px;
+  background-color: ${({ theme }) => theme.mainColor.White};
 `;
 
 const PostCommentMsgComponentWrap = styled.div`
@@ -516,11 +551,12 @@ const PostCommentUploadButton = styled.div`
   margin-right: 10px;
   border-radius: 16px;
   width: 50px;
-  cursor = 'pointer';
+  cursor: pointer;
 `;
 
 const PostCommentUploadDeactiveButton = styled(PostCommentUploadButton)`
   opacity: 50%;
+  cursor: auto;
 `;
 
 export default PostReactionCommentBody;
