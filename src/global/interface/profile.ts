@@ -58,3 +58,12 @@ export interface PostToScrapRsp {
   isScraped: boolean;
   isClipped: boolean;
 }
+
+export interface PostToScrapListReq {
+  scrapIdList: string[];
+}
+
+export interface PostToScrapListRsp {
+  scrapIdList: string[];
+  isClipped: boolean;
+}
