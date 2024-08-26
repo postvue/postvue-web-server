@@ -63,3 +63,8 @@ export const cursorIdByProfilePostListAtom = atom<string>({
   key: 'cursorIdByProfilePostList',
   default: INIT_CURSOR_ID,
 });
+
+export const isActiveScrapViewPopupAtom = atom<boolean>({
+  key: 'isActiveScrapViewPopup',
+  default: false,
+});
