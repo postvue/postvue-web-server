@@ -158,8 +158,6 @@ const ReactionTitle = styled.div`
   text-align: center;
   padding-top: 33px;
   font: ${({ theme }) => theme.fontSizes.Subhead3};
-
-  };
 `;
 
 const PostReactionWrap = styled.div`display: flex;
