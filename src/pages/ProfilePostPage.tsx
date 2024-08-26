@@ -12,6 +12,7 @@ import PostReactionSingleElement from '../components/common/posts/body/PostReact
 import PostTextContent from '../components/common/posts/body/PostTextContent';
 import AppBaseTemplate from '../components/layouts/AppBaseTemplate';
 import PostReactionPopup from '../components/popups/PostReactionPopup';
+import ScrapViewPopup from '../components/popups/ScrapViewPopup';
 import ToastMsgPopup, { notify } from '../components/popups/ToastMsgPopup';
 import PrevButton from '../components/PrevButton';
 import { INIT_SCROLL_POSITION } from '../const/AttributeConst';
@@ -24,6 +25,7 @@ import {
   isPostReactionAtom,
   reactionPostIdAtom,
 } from '../states/PostReactionAtom';
+import { isActiveScrapViewPopupAtom } from '../states/ProfileAtom';
 import { systemPostRspHashMapAtom } from '../states/SystemConfigAtom';
 import { animationStyle } from '../styles/animations';
 import theme from '../styles/theme';
@@ -41,6 +43,9 @@ const ProfilePostPage: React.FC = () => {
 
   const resetIsPostReactionPopup = useResetRecoilState(reactionPostIdAtom);
   const [isPopupActive, setIsPopupActive] = useRecoilState(isPostReactionAtom);
+  const [isActiveScrapView, setIsActiveScrapView] = useRecoilState(
+    isActiveScrapViewPopupAtom,
+  );
 
   const resetSnsPost = useResetRecoilState(postRspAtom);
 
@@ -65,6 +70,7 @@ const ProfilePostPage: React.FC = () => {
       resetIsPostReactionPopup();
       resetSnsPost();
       setIsPopupActive(false);
+      setIsActiveScrapView(false);
     };
   }, []);
 
@@ -83,6 +89,8 @@ const ProfilePostPage: React.FC = () => {
       alert(e);
     }
   }
+
+  const firstPostContent = snsPost?.postContents[0];
 
   return (
     <AppBaseTemplate>
@@ -216,6 +224,13 @@ const ProfilePostPage: React.FC = () => {
         </SettingPopupContainer>
       )}
       {isPopupActive && <PostReactionPopup postId={reactionPostId} />}
+      {isActiveScrapView && postId !== undefined && firstPostContent && (
+        <ScrapViewPopup
+          postId={postId}
+          postContentUrl={firstPostContent.content}
+          postContentType={firstPostContent.postContentType}
+        />
+      )}
 
       <ToastMsgPopup />
       <BottomNavBar />
