@@ -8,7 +8,9 @@ interface PopupLayoutProps {
   popupContainerStyle?: React.CSSProperties;
   popupWrapStyle?: React.CSSProperties;
   popupContentWrapStyle?: React.CSSProperties;
-  setIsPopup: SetterOrUpdater<boolean>;
+  setIsPopup:
+    | SetterOrUpdater<boolean>
+    | React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const PopupLayout: React.FC<PopupLayoutProps> = ({

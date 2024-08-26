@@ -11,6 +11,7 @@ import FollowButton from '../components/common/buttton/FollowButton';
 import PostReactionSingleElement from '../components/common/posts/body/PostReactionSingleElement';
 import PostTextContent from '../components/common/posts/body/PostTextContent';
 import AppBaseTemplate from '../components/layouts/AppBaseTemplate';
+import PopupLayout from '../components/layouts/PopupLayout';
 import PostReactionPopup from '../components/popups/PostReactionPopup';
 import ScrapViewPopup from '../components/popups/ScrapViewPopup';
 import ToastMsgPopup, { notify } from '../components/popups/ToastMsgPopup';
@@ -27,7 +28,6 @@ import {
 } from '../states/PostReactionAtom';
 import { isActiveScrapViewPopupAtom } from '../states/ProfileAtom';
 import { systemPostRspHashMapAtom } from '../states/SystemConfigAtom';
-import { animationStyle } from '../styles/animations';
 import theme from '../styles/theme';
 
 const ProfilePostPage: React.FC = () => {
@@ -201,7 +201,7 @@ const ProfilePostPage: React.FC = () => {
       </RelatedPostContainer>
 
       {isSettingActive && (
-        <SettingPopupContainer onClick={onClickPopupContainer}>
+        <PopupLayout setIsPopup={setIsSettingActive}>
           <SettingPopupWrap
             onClick={(e) => {
               e.stopPropagation();
@@ -221,7 +221,7 @@ const ProfilePostPage: React.FC = () => {
               <SettingPopupContent>사용자 차단</SettingPopupContent>
             </SettingPopupContentWrap>
           </SettingPopupWrap>
-        </SettingPopupContainer>
+        </PopupLayout>
       )}
       {isPopupActive && <PostReactionPopup postId={reactionPostId} />}
       {isActiveScrapView && postId !== undefined && firstPostContent && (
@@ -322,20 +322,6 @@ const SettingButton = styled.div`
   cursor: pointer;
 `;
 
-const SettingPopupContainer = styled.div`
-  max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
-  position: fixed;
-  z-index: 999;
-  bottom: 0px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  overflow: hidden;
-`;
-
 const SettingPopupWrap = styled.div`
   bottom: 0;
   z-index: 20;
@@ -345,7 +331,6 @@ const SettingPopupWrap = styled.div`
   width: 100%;
   background: white;
   border-radius: 15px 15px 0 0;
-  animation: ${animationStyle.slideUp} 0.2s ease-in-out;
 `;
 
 const SettingPopupContentWrap = styled.div`
