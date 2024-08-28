@@ -4,10 +4,18 @@ import theme from '../../styles/theme';
 
 interface HeaderLayoutProps {
   children: ReactNode;
+  HeaderLayoutStyle?: React.CSSProperties;
 }
 
-const HeaderLayout: React.FC<HeaderLayoutProps> = ({ children }) => {
-  return <HeaderLayoutContainer>{children}</HeaderLayoutContainer>;
+const HeaderLayout: React.FC<HeaderLayoutProps> = ({
+  children,
+  HeaderLayoutStyle,
+}) => {
+  return (
+    <HeaderLayoutContainer style={HeaderLayoutStyle}>
+      {children}
+    </HeaderLayoutContainer>
+  );
 };
 
 const HeaderLayoutContainer = styled.div`

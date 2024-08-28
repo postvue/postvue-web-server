@@ -10,11 +10,16 @@ import {
   TASTE_FOR_ME_TAB_ID,
   TASTE_FOR_ME_TAB_NAME,
 } from '../../../const/TabConfigConst';
+import {
+  FOLLOW_STATE_SESSION_VALUE,
+  POPULARITY_STATE_SESSION_VALUE,
+} from '../../../const/UserSettingConst';
 import { HomeHistoryInterface } from '../../../global/interface/localstorage/HomeHistoryInterface';
 import {
   getHomeHistory,
   saveMainTabIdByHomeHistory,
 } from '../../../global/util/HomeUtil';
+import { setCurrentIntertestByUserSettingInfo } from '../../../global/util/UserSettingUtil';
 import { scrollPositionAtomByFollowForMe } from '../../../states/FollowForMeAtom';
 import { homeTabIdAtom } from '../../../states/HomePageAtom';
 import { scrollPositionAtomByTasteForMe } from '../../../states/TasteForMeAtom';
@@ -42,6 +47,12 @@ const HomeHeader: React.FC = () => {
   useEffect(() => {
     const homeHistory: HomeHistoryInterface = getHomeHistory();
     setMainTabId(homeHistory.mainTabId);
+
+    if (homeHistory.mainTabId === TASTE_FOR_ME_TAB_ID) {
+      setCurrentIntertestByUserSettingInfo(POPULARITY_STATE_SESSION_VALUE);
+    } else {
+      setCurrentIntertestByUserSettingInfo(FOLLOW_STATE_SESSION_VALUE);
+    }
   }, []);
   return (
     <HomeHeaderFilterWrap>
@@ -54,9 +65,16 @@ const HomeHeader: React.FC = () => {
               if (v.tabId === TASTE_FOR_ME_TAB_ID) {
                 setScrollPositionByFollow(window.scrollY);
                 window.scrollTo({ top: scrollPositionByTaste });
+
+                setCurrentIntertestByUserSettingInfo(
+                  POPULARITY_STATE_SESSION_VALUE,
+                );
               } else {
                 setScrollPositionByTaste(window.scrollY);
                 window.scrollTo({ top: scrollPositionByFollow });
+                setCurrentIntertestByUserSettingInfo(
+                  FOLLOW_STATE_SESSION_VALUE,
+                );
               }
               saveMainTabIdByHomeHistory(v.tabId);
               setMainTabId(v.tabId);
