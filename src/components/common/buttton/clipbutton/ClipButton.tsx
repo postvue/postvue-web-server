@@ -290,7 +290,6 @@ const ScrapBoardNotClickContainer = styled.div`
   height: 100%;
   z-index: 500;
   position: fixed;
-  max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
   bottom: 0;
   left: 0;
   right: 0;
