@@ -84,3 +84,8 @@ export interface PostCommentRsp {
   profilePath: string;
   postedAt: string;
 }
+
+export interface PostInterested {
+  postId: string;
+  isInterested: boolean;
+}
