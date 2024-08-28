@@ -1,28 +1,32 @@
 import React from 'react';
-import { ToastContainer, toast } from 'react-toastify';
+import { Bounce, ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styled from 'styled-components';
 
 // Notify 함수
 export const notify = (toastMsgText: string): void => {
   toast(toastMsgText, {
-    position: 'top-center',
-    autoClose: 1500,
+    position: 'bottom-center',
+    autoClose: 1000,
     hideProgressBar: true,
-    pauseOnHover: false,
+    closeOnClick: false,
+    pauseOnHover: true,
+    draggable: true,
     progress: undefined,
-    className: 'custom-toast',
-    bodyClassName: 'custom-body',
+    theme: 'light',
+    transition: Bounce,
     closeButton: false,
+    className: 'custom-toast',
+    // bodyClassName: 'custom-body',
   });
 };
 
 // ToastContainer 스타일 정의
 const StyledToastContainer = styled(ToastContainer)`
   &&&.Toastify__toast-container {
-    position: fixed;
-    top: 50px;
-    left: 50%;
+    // position: fixed;
+    // top: 50px;
+    // left: 50%;
     z-index: 100;
     pointer-events: none;
     display: flex;
@@ -37,8 +41,9 @@ const StyledToastContainer = styled(ToastContainer)`
     font: ${({ theme }) => theme.fontSizes.Body4};
     border-radius: 5px;
 
-    width: 80px;
+    // width: 80px;
     min-height: 20px;
+    margin-bottom: 35px;
   }
 
   .custom-body {
