@@ -1,22 +1,55 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { SetterOrUpdater } from 'recoil';
 import styled from 'styled-components';
+import { BOTTOM_ATTRIBUTE, TOP_ATTRIBUTE } from '../../const/AttributeConst';
 import { ContextMenuLayoutInfoInterface } from '../../global/interface/contextmenu/contextmenulayout';
 import { animationStyle } from '../../styles/animations';
 import BodyFixScrollElement from '../BodyFixScrollElement';
 
 interface ContextMenuPopupProps {
-  contextMenuLayoutInfo: ContextMenuLayoutInfoInterface;
   children: React.ReactNode;
   setIsActive:
-    | React.Dispatch<React.SetStateAction<ContextMenuLayoutInfoInterface>>
-    | React.Dispatch<React.SetStateAction<ContextMenuLayoutInfoInterface>>;
+    | SetterOrUpdater<boolean>
+    | React.Dispatch<React.SetStateAction<boolean>>;
+  contextMenuRef: React.RefObject<HTMLElement>;
 }
 
 const ContextMenuPopup: React.FC<ContextMenuPopupProps> = ({
-  contextMenuLayoutInfo,
   children,
+  contextMenuRef,
   setIsActive,
 }) => {
+  const [contextMenuLayoutInfo, setContextMenuLayoutInfo] =
+    useState<ContextMenuLayoutInfoInterface>({
+      positionType: TOP_ATTRIBUTE,
+      positionValue: 0,
+    });
+
+  useEffect(() => {
+    if (contextMenuRef.current) {
+      const body = document.body;
+      const dom = contextMenuRef.current.getBoundingClientRect();
+
+      const clipY = dom.y;
+      const clipHeight = dom.height;
+      const bodyHeight = body.offsetHeight;
+
+      if (clipY + clipHeight / 2 > bodyHeight / 2) {
+        setContextMenuLayoutInfo((prev) => ({
+          ...prev,
+          positionType: BOTTOM_ATTRIBUTE,
+          positionValue: clipHeight + POSTION_MARGIN_GAP,
+        }));
+      } else {
+        setContextMenuLayoutInfo((prev) => ({
+          ...prev,
+          positionType: TOP_ATTRIBUTE,
+          positionValue: clipHeight + POSTION_MARGIN_GAP,
+        }));
+      }
+    }
+  }, []);
+
   return (
     <>
       <BodyFixScrollElement />
@@ -29,15 +62,14 @@ const ContextMenuPopup: React.FC<ContextMenuPopupProps> = ({
       <ScrapBoardNotClickContainer
         onClick={(e) => {
           e.stopPropagation();
-          setIsActive((prev) => ({
-            ...prev,
-            isScrapActive: false,
-          }));
+          setIsActive(false);
         }}
       />
     </>
   );
 };
+
+const POSTION_MARGIN_GAP = 10;
 
 const ContextMenuContainer = styled.div<{
   $positionType: string;
