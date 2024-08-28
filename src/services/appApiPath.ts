@@ -21,3 +21,6 @@ export const SCRAP_LIST_PATH = '/scraps';
 export const CLIP_LIST_PATH = '/clips';
 export const RECOMM_PATH = '/recomm';
 export const PREVIEW_LIST_PATH = '/previews';
+export const RELATION_PATH = '/relation';
+export const INTERESTED = '/interested';
+export const NOT_INTERESTED = `/not${INTERESTED}`;
