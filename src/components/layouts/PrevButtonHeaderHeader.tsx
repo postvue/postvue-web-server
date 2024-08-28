@@ -7,14 +7,16 @@ import HeaderLayout from './HeaderLayout';
 interface PrevButtonHeaderProps {
   titleName: string;
   RightButtonNode?: ReactNode;
+  HeaderLayoutStyle?: React.CSSProperties;
 }
 
 const PrevButtonHeaderHeader: React.FC<PrevButtonHeaderProps> = ({
   titleName,
   RightButtonNode,
+  HeaderLayoutStyle,
 }) => {
   return (
-    <HeaderLayout>
+    <HeaderLayout HeaderLayoutStyle={HeaderLayoutStyle}>
       <PrevButtonHeaderContainer>
         <PrevButtonHeaderHeaderWrap>
           <PrevButtonWrap>
