@@ -58,7 +58,7 @@ const fontSizes = {
   Body4:
     '500 16px/1.6 Pretendard-Medium; letter-spacing: -0.35px; font-style: normal;',
   Body3:
-    '500 14px/1.4 Pretendard-Medium; letter-spacing: -0.35px; line-height: 140%; font-style: normal;',
+    '500 14px/1.7 Pretendard-Medium; letter-spacing: -0.35px; font-style: normal;',
   Body2:
     '400 14px/1.4 Pretendard-Regular; letter-spacing: -0.325px; line-height: 140%; font-style: normal;',
   Body1:
