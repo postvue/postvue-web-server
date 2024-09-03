@@ -145,8 +145,10 @@ const MasonryContainer = styled.div`
 
 const MasonryItem = styled.div`
   margin-bottom: var(--gap);
-  &:hover {
-    filter: brightness(0.7);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      filter: brightness(0.7);
+    }
   }
 `;
 
