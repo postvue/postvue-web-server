@@ -68,3 +68,8 @@ export const isActiveScrapViewPopupAtom = atom<boolean>({
   key: 'isActiveScrapViewPopup',
   default: false,
 });
+
+export const isActiveProfileBlockPopupAtom = atom<boolean>({
+  key: 'isActiveProfileBlockPopup',
+  default: false,
+});
