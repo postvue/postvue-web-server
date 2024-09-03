@@ -22,5 +22,6 @@ export const PROFILE_ACCOUNT_PATH = `/profiles/:user_id`;
 export const PROFILE_NEW_SCRAP_PATH = '/new/scrap';
 
 export const MANAGE_PATH = '/manages';
-export const MSG_BLOCK_LIST_MANAGE_PATH = `${MESSAGE_PATH}${MANAGE_PATH}/blocks`;
+export const BLOCK_LIST = '/blocks';
+export const MSG_BLOCK_LIST_MANAGE_PATH = `${MESSAGE_PATH}${MANAGE_PATH}${BLOCK_LIST}`;
 export const MSG_HIDDEN_LIST_MANAGE_PATH = `${MESSAGE_PATH}${MANAGE_PATH}/hiddens`;

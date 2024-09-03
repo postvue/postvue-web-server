@@ -5,3 +5,5 @@ export const SEARCH_INPUT_PHARSE_TEXT = '관심 있는 태그를 검색해보세
 export const MESSAGE_SEARCH_INPUT_PHARSE_TEXT = '메시지 검색';
 export const MAKE_NEW_SCRAP_INPUT_PHASE_TEXT = '스크랩 제목을 작성하세요.';
 export const FOLLOW_MANAGE_SERACH_INPUT_PHASE_TEXT = '사용자 검색';
+export const POST_COMMENT_INPUT_PLACEHOLDER = '님 게시물에 댓글 달기';
+export const POST_COMMENT_REPLAY_PLACEHOLDER = '님 댓글에 답글 남기기';
