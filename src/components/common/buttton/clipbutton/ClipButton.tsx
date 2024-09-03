@@ -1,9 +1,15 @@
 import anime from 'animejs';
-import React, { useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 import { PostClipRsp } from '../../../../global/interface/post';
-import { putPostClip } from '../../../../services/post/putPostClip';
+import { GetMyProfileScrapPreviewsRsp } from '../../../../global/interface/profile';
+import { createPostToScrap } from '../../../../services/profile/createPostToScrap';
+import { deletePostToScrap } from '../../../../services/profile/deletePostToScrap';
+import { getMyProfileScrapPreviews } from '../../../../services/profile/getMyProfileScrapPreview';
+import { isActiveScrapViewPopupAtom } from '../../../../states/ProfileAtom';
 import theme from '../../../../styles/theme';
+import ContextMenuPopup from '../../../popups/ContextMenuPopup';
 
 interface ClipButtonProps {
   setClipStete: (postClipRsp: PostClipRsp) => void;
@@ -16,16 +22,33 @@ const ClipButton: React.FC<ClipButtonProps> = ({
   postId,
   isClipped,
 }) => {
-  const clipRef = useRef(null);
+  const clipRef = useRef<HTMLDivElement>(null);
+  const [scrapBoardPreviewList, setScrapBoardPreviewList] = useState<
+    GetMyProfileScrapPreviewsRsp[]
+  >([]);
+  const setSsActiveScrapViewPopup = useSetRecoilState(
+    isActiveScrapViewPopupAtom,
+  );
+
+  const [isScrapBoardActive, setIsScrapBoardActive] = useState<boolean>(false);
 
   const onClickClipButton = (
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
   ) => {
     e.stopPropagation();
+    setIsScrapBoardActive(true);
+  };
+
+  const onAddScrap = (scrapId: string) => {
     if (postId) {
-      putPostClip(postId)
+      createPostToScrap(scrapId, postId)
         .then((value) => {
-          setClipStete(value);
+          const postClipRsp: PostClipRsp = {
+            isClipped: value.isClipped,
+          };
+          if (!isClipped) {
+            setClipStete(postClipRsp);
+          }
           if (value.isClipped) {
             anime({
               targets: clipRef.current,
@@ -35,6 +58,19 @@ const ClipButton: React.FC<ClipButtonProps> = ({
               direction: 'alternate',
             });
           }
+
+          setScrapBoardPreviewList((prev) => {
+            const prevCopy = [...prev];
+
+            prev.forEach((prevValue, index) => {
+              if (prevValue.scrapBoardId === scrapId) {
+                prevCopy[index].isScraped = value.isScraped;
+              }
+            });
+            return prevCopy;
+          });
+
+          setIsScrapBoardActive(false);
         })
         .catch((err) => {
           throw err;
@@ -42,30 +78,139 @@ const ClipButton: React.FC<ClipButtonProps> = ({
     }
   };
 
+  const onDeleteScrap = (scrapId: string) => {
+    if (postId) {
+      deletePostToScrap(scrapId, postId)
+        .then((value) => {
+          if (!value.isClipped) {
+            const postClipRsp: PostClipRsp = {
+              isClipped: value.isClipped,
+            };
+            setClipStete(postClipRsp);
+          }
+
+          setScrapBoardPreviewList((prev) => {
+            const prevCopy = [...prev];
+
+            prev.forEach((prevValue, index) => {
+              if (prevValue.scrapBoardId === scrapId) {
+                prevCopy[index].isScraped = value.isScraped;
+              }
+            });
+            return prevCopy;
+          });
+
+          setIsScrapBoardActive(false);
+        })
+        .catch((err) => {
+          throw err;
+        });
+    }
+  };
+
+  const onClickMoveScrapView = () => {
+    setSsActiveScrapViewPopup(true);
+    setIsScrapBoardActive(false);
+  };
+
+  useEffect(() => {
+    getMyProfileScrapPreviews(postId).then((value) => {
+      setScrapBoardPreviewList(value);
+    });
+  }, []);
+
   return (
-    <ClipButtonWrap onClick={(e) => onClickClipButton(e)}>
-      <svg
-        ref={clipRef}
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill={isClipped ? theme.grey.Grey6 : 'none'}
-      >
-        <path
-          d="M18 7V19.1315C18 19.9302 17.1099 20.4066 16.4453 19.9635L12 17L7.5547 19.9635C6.89014 20.4066 6 19.9302 6 19.1315V7C6 5.93913 6.42143 4.92172 7.17157 4.17157C7.92172 3.42143 8.93913 3 10 3H14C15.0609 3 16.0783 3.42143 16.8284 4.17157C17.5786 4.92172 18 5.93913 18 7Z"
-          stroke={theme.grey.Grey6}
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    </ClipButtonWrap>
+    <ClipButtonContainer key={postId}>
+      <ClipButtonWrap onClick={(e) => onClickClipButton(e)} ref={clipRef}>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill={isClipped ? theme.grey.Grey6 : 'none'}
+        >
+          <path
+            d="M18 7V19.1315C18 19.9302 17.1099 20.4066 16.4453 19.9635L12 17L7.5547 19.9635C6.89014 20.4066 6 19.9302 6 19.1315V7C6 5.93913 6.42143 4.92172 7.17157 4.17157C7.92172 3.42143 8.93913 3 10 3H14C15.0609 3 16.0783 3.42143 16.8284 4.17157C17.5786 4.92172 18 5.93913 18 7Z"
+            stroke={theme.grey.Grey6}
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </ClipButtonWrap>
+      {isScrapBoardActive && (
+        <ContextMenuPopup
+          contextMenuRef={clipRef}
+          setIsActive={setIsScrapBoardActive}
+        >
+          {scrapBoardPreviewList.map((value, index) => {
+            return (
+              <React.Fragment key={value.scrapBoardId}>
+                {value.isScraped ? (
+                  <ScrapBoardItem
+                    key={index}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDeleteScrap(value.scrapBoardId);
+                    }}
+                  >
+                    <div>{value.scrapBoardName}</div>
+                    <ScrapBoardRemoveButton>제거</ScrapBoardRemoveButton>
+                  </ScrapBoardItem>
+                ) : (
+                  <ScrapBoardItem
+                    key={index}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onAddScrap(value.scrapBoardId);
+                    }}
+                  >
+                    <div>{value.scrapBoardName}</div>
+                    <ScrapBoardAddButton>추가</ScrapBoardAddButton>
+                  </ScrapBoardItem>
+                )}
+              </React.Fragment>
+            );
+          })}
+          <ScrapBoardMoveItem
+            onClick={(e) => {
+              e.stopPropagation();
+              onClickMoveScrapView();
+            }}
+          >
+            <div>전체 스크랩 보기</div>
+            <div>이동</div>
+          </ScrapBoardMoveItem>
+        </ContextMenuPopup>
+      )}
+    </ClipButtonContainer>
   );
 };
 
+const ClipButtonContainer = styled.div`
+  position: relative;
+`;
+
 const ClipButtonWrap = styled.div`
   cursor: pointer;
+`;
+
+const ScrapBoardItem = styled.div`
+  font: ${({ theme }) => theme.fontSizes.Body3};
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  cursor: pointer;
+`;
+
+const ScrapBoardAddButton = styled.div``;
+
+const ScrapBoardRemoveButton = styled(ScrapBoardAddButton)`
+  color: ${({ theme }) => theme.errorColor.Red};
+`;
+
+const ScrapBoardMoveItem = styled(ScrapBoardItem)`
+  color: ${({ theme }) => theme.mainColor.Blue};
 `;
 
 export default ClipButton;

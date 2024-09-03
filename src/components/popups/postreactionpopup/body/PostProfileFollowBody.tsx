@@ -1,8 +1,9 @@
 import React, { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { FOLLOW_BUTTON_TEXT } from '../../../../const/SystemPhraseConst';
 import { PostProfileInfoRsp } from '../../../../global/interface/post';
+import theme from '../../../../styles/theme';
+import FollowButton from '../../../common/buttton/FollowButton';
 
 interface PostProfileFollowBodyProps {
   PostProfileFollowInfiniteScroll: ReactNode;
@@ -17,7 +18,7 @@ const PostProfileFollowBody: React.FC<PostProfileFollowBodyProps> = ({
     <>
       {Array.from(postProfileInfoMap.entries()).map(([k, v]) => {
         return (
-          <>
+          <React.Fragment key={k}>
             <PostProfileFollowContainer key={k}>
               <PostProfileFollowWrap>
                 <Link to={`/${v.username}`}>
@@ -28,13 +29,19 @@ const PostProfileFollowBody: React.FC<PostProfileFollowBodyProps> = ({
                     </PostProfileFollowUsername>
                   </ProfileImgUsernameWrap>
                 </Link>
-                <PostProfileFollowButton>
-                  {v.isFollowed || v.isMe ? '' : FOLLOW_BUTTON_TEXT}
-                </PostProfileFollowButton>
+                {v.isMe ? (
+                  ''
+                ) : (
+                  <FollowButton
+                    fontSize={theme.fontSizes.Subhead3}
+                    userId={v.useId}
+                    isFollow={v.isFollowed}
+                  />
+                )}
               </PostProfileFollowWrap>
             </PostProfileFollowContainer>
             <RepostBorderStickBar />
-          </>
+          </React.Fragment>
         );
       })}
       {PostProfileFollowInfiniteScroll}
@@ -61,11 +68,6 @@ const PostProfileFollowUsername = styled.div`
   margin: auto 0;
   padding-left: 12px;
   font: ${({ theme }) => theme.fontSizes.Subhead3};
-`;
-const PostProfileFollowButton = styled.div`
-  margin: auto 0;
-  font: ${({ theme }) => theme.fontSizes.Subhead3};
-  color: ${({ theme }) => theme.mainColor.Blue};
 `;
 
 const RepostBorderStickBar = styled.div`

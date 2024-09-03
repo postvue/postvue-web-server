@@ -1,8 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useRecoilState, useResetRecoilState, useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 import { PROFILE_MY_SCRAP_LIST_PATH } from '../../const/PathConst';
+import { POST_IMAGE_TYPE } from '../../const/PostContentTypeConst';
+import {
+  POST_CONTENT_TYPE,
+  POST_CONTENT_URL,
+  POST_ID,
+} from '../../const/QueryParamConst';
 import { TargetAudienceCategory } from '../../const/ScrapConst';
 import { MAKE_NEW_SCRAP_INPUT_PHASE_TEXT } from '../../const/SystemPhraseConst';
 import {
@@ -29,6 +35,12 @@ const ProfileMakeScrapBody: React.FC = () => {
   );
   const [scrapName, setScrapName] = useState<string>('');
 
+  const [serchParams] = useSearchParams();
+
+  const postId = serchParams.get(POST_ID);
+  const postContentUrl = serchParams.get(POST_CONTENT_URL);
+  const postContentType = serchParams.get(POST_CONTENT_TYPE);
+
   useEffect(() => {
     if (scrapTargetAudience !== TargetAudienceCategory.PUBLIC_TARGET_AUDIENCE) {
       setTargetAudience(scrapTargetAudience);
@@ -47,10 +59,13 @@ const ProfileMakeScrapBody: React.FC = () => {
 
   const onClickMakeScrap = () => {
     if (isValidString(scrapName) && targetAudience.targetAudienceValue) {
-      postProfileScrap({
-        scrapName: scrapName,
-        targetAudienceValue: targetAudience.targetAudienceValue,
-      }).then((createProfileScrapRsp) => {
+      postProfileScrap(
+        {
+          scrapName: scrapName,
+          targetAudienceValue: targetAudience.targetAudienceValue,
+        },
+        postId !== null ? postId : '',
+      ).then((createProfileScrapRsp) => {
         const newScrap: MyProfileScrapList = {
           scrapId: createProfileScrapRsp.scrapId,
           scrapName: createProfileScrapRsp.scrapName,
@@ -65,6 +80,11 @@ const ProfileMakeScrapBody: React.FC = () => {
 
   return (
     <ProfileMakeScrapBodyContainer>
+      {postId && postContentUrl && postContentType === POST_IMAGE_TYPE && (
+        <TogetherPostWrap>
+          <TogetherPostImg src={postContentUrl} />
+        </TogetherPostWrap>
+      )}
       <ProfileScrapNameWrap>
         <ProfileScrapNameNameDiv>스크랩 명</ProfileScrapNameNameDiv>
         <ProfileScrapNameWriteInput
@@ -108,6 +128,23 @@ const ProfileMakeScrapBody: React.FC = () => {
 };
 
 const ProfileMakeScrapBodyContainer = styled.div``;
+
+const TogetherPostWrap = styled.div`
+  flex: 0 0 auto;
+  &:hover {
+    filter: brightness(0.7);
+  }
+  cursor: pointer;
+`;
+
+const TogetherPostImg = styled.div<{ src: string }>`
+  width: 30%;
+  vertical-align: bottom;
+  aspect-ratio: 3/4;
+  background: url(${(props) => props.src}) center center / cover;
+  border-radius: 8px;
+  margin: 14px;
+`;
 
 const ProfileScrapNameWrap = styled.div`
   padding: 14px 21px 36px 21px;

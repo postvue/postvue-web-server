@@ -1,21 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
 import { ACTIVE_CLASS_NAME } from '../../const/ClassNameConst';
-import { INIT_MY_ACCOUNT_STRING_VALUE } from '../../const/LocalStorageConst';
 import {
   PROFILE_LIST_PATH,
   PROFILE_MY_CLIP_LIST_PATH,
   PROFILE_MY_SCRAP_LIST_PATH,
 } from '../../const/PathConst';
-import { MyAccountSettingInterface } from '../../global/interface/localstorage/MyAccountSettingInterface';
-import {
-  getMyAccountSettingInfo,
-  initMyAccountSettingInfo,
-} from '../../global/util/MyAccountSettingUtil';
-import { getMyProfileInfo } from '../../services/profile/getMyProfileInfo';
 import { myProfileSettingInfoAtom } from '../../states/ProfileAtom';
+import MyAccountSettingInfoState from '../common/state/MyAccountSettingInfoState';
 const ProfileClipScrapHeader: React.FC = () => {
   const [myAccountSettingInfo, setMyAccountSettingInfo] = useRecoilState(
     myProfileSettingInfoAtom,
@@ -26,22 +20,9 @@ const ProfileClipScrapHeader: React.FC = () => {
   );
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const sessionMyAccountSettingInfo: MyAccountSettingInterface =
-      getMyAccountSettingInfo();
-
-    if (sessionMyAccountSettingInfo.myUserId === INIT_MY_ACCOUNT_STRING_VALUE) {
-      getMyProfileInfo().then((myProfileInfo) => {
-        initMyAccountSettingInfo(myProfileInfo);
-        setMyAccountSettingInfo(myProfileInfo);
-      });
-    } else {
-      setMyAccountSettingInfo(sessionMyAccountSettingInfo);
-    }
-  }, []);
-
   return (
     <ProfileClipScrapHeaderContainer>
+      {!myAccountSettingInfo.username && <MyAccountSettingInfoState />}
       <ProfileClipScrapHeaderWrap>
         <ProfileAccountButton>
           <ProfileAccountButtonImg

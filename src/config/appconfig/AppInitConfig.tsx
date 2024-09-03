@@ -20,7 +20,7 @@ const AppInitConfig: React.FC = () => {
         webSocketService.disconnect();
       }
     };
-  });
+  }, []);
   return <></>;
 };
 

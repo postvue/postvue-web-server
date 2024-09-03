@@ -1,5 +1,7 @@
 import { api } from '..';
+import { isValidString } from '../../global/util/\bValidUtil';
 import { PROFILE_LIST_PATH, SCRAP_LIST_PATH } from '../appApiPath';
+import { POST_ID_PARAM } from '../appApiQueryParam';
 
 interface CreateProfileScrapRsp {
   postImagePathList: string[];
@@ -14,9 +16,14 @@ interface createProfileScrapReq {
 
 export const postProfileScrap = (
   createProfileScrapReq: createProfileScrapReq,
+  postId: string,
 ): Promise<CreateProfileScrapRsp> => {
+  let makeProfileScrapPath = `${PROFILE_LIST_PATH}${SCRAP_LIST_PATH}`;
+  if (isValidString(postId)) {
+    makeProfileScrapPath = `${makeProfileScrapPath}?${POST_ID_PARAM}=${postId}`;
+  }
   return api
-    .post(`${PROFILE_LIST_PATH}${SCRAP_LIST_PATH}`, createProfileScrapReq)
+    .post(makeProfileScrapPath, createProfileScrapReq)
     .then((res) => {
       console.log(res.data);
       return res.data.data;

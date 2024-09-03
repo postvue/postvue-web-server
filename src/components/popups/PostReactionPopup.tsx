@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   useRecoilState,
   useRecoilValue,
@@ -15,6 +15,7 @@ import {
   POST_REACTION_REPOST_ID,
   POST_REACTION_REPOST_NAME,
 } from '../../const/TabConfigConst';
+import { PostCommentReplyMsgInfo } from '../../global/interface/post';
 import PostLikeListInfiniteScroll from '../../hook/PostLikeListInfiniteScroll';
 import RepostListInfiniteScroll from '../../hook/RepostListInfiniteScroll';
 import { postRspAtom } from '../../states/PostAtom';
@@ -28,11 +29,13 @@ import {
   postReactionRepostHashMapAtom,
   reactionPostIdAtom,
 } from '../../states/PostReactionAtom';
+import { activeCommentByPostCommentThreadAtom } from '../../states/PostThreadAtom';
 import PopupLayout from '../layouts/PopupLayout';
+import PostCommentThread from './PostCommentThreadPopup';
 import PostProfileFollowBody from './postreactionpopup/body/PostProfileFollowBody';
 import PostReactionCommentBody from './postreactionpopup/body/PostReactionCommentBody';
 
-const popupWrapStyle: React.CSSProperties = {
+const popupContentWrapStyle: React.CSSProperties = {
   height: '85%',
 };
 
@@ -41,6 +44,19 @@ interface PostReactionPopupProps {
 }
 
 const PostReactionPopup: React.FC<PostReactionPopupProps> = ({ postId }) => {
+  // Ref 관련 변수
+  const likeIconRef = useRef<{ [key: string]: SVGSVGElement | null }>({});
+  const likeCountRef = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  const commentReplyCountRef = useRef<{ [key: string]: HTMLDivElement | null }>(
+    {},
+  );
+  const postCommentTextareaRef = useRef<HTMLTextAreaElement | null>(null);
+
+  // 상태 관리 관련 변수
+  const [replyMsg, setReplyMsg] = useState<PostCommentReplyMsgInfo | null>(
+    null,
+  );
+
   const [isPopupActive, setIsPopupActive] = useRecoilState(isPostReactionAtom);
   const setReactionPostId = useSetRecoilState(reactionPostIdAtom);
   const snsPost = useRecoilValue(postRspAtom);
@@ -54,6 +70,10 @@ const PostReactionPopup: React.FC<PostReactionPopupProps> = ({ postId }) => {
 
   const [reactionTabId, setReactionTabId] = useState<number>(
     POST_REACTION_COMMENT_ID,
+  );
+
+  const activeCommentByPostCommentThread = useRecoilValue(
+    activeCommentByPostCommentThreadAtom,
   );
 
   const reactionTabList = [
@@ -105,48 +125,81 @@ const PostReactionPopup: React.FC<PostReactionPopupProps> = ({ postId }) => {
   }, [isPopupActive]);
 
   return (
-    <PopupLayout popupWrapStyle={popupWrapStyle} setIsPopup={setIsPopupActive}>
-      <ReactionTitle>
-        반응 {snsPost.reactionCount ? snsPost.reactionCount : 0} 개
-      </ReactionTitle>
-      <PostReactionWrap>
-        {reactionTabList.map((v, i) => (
-          <PostReactionTab
-            key={i}
-            className={reactionTabId === v.tabId ? ACTIVE_CLASS_NAME : ''}
-            onClick={() => {
-              setReactionTabId(v.tabId);
-            }}
-          >
-            {v.tabName}
-          </PostReactionTab>
-        ))}
-      </PostReactionWrap>
+    <>
+      <PopupLayout
+        popupWrapStyle={popupContentWrapStyle}
+        setIsPopup={setIsPopupActive}
+      >
+        <ReactionTitle>
+          반응 {snsPost.reactionCount ? snsPost.reactionCount : 0} 개
+        </ReactionTitle>
+        <PostReactionWrap>
+          {reactionTabList.map((v, i) => (
+            <PostReactionTab
+              key={i}
+              className={reactionTabId === v.tabId ? ACTIVE_CLASS_NAME : ''}
+              onClick={() => {
+                setReactionTabId(v.tabId);
+              }}
+            >
+              {v.tabName}
+            </PostReactionTab>
+          ))}
+        </PostReactionWrap>
 
-      {reactionTabId === POST_REACTION_COMMENT_ID ? (
-        <PostReactionCommentBody postId={postId} />
-      ) : reactionTabId === POST_REACTION_REPOST_ID ? (
-        <PostProfileFollowBody
-          postProfileInfoMap={repostHashMap}
-          PostProfileFollowInfiniteScroll={
-            <RepostListInfiniteScroll postId={postId} />
-          }
+        {reactionTabId === POST_REACTION_COMMENT_ID ? (
+          <>
+            {postId !== '' && (
+              <PostReactionCommentBody
+                postId={postId}
+                snsPost={snsPost}
+                postCommentTextareaRef={postCommentTextareaRef}
+                likeIconRef={likeIconRef}
+                likeCountRef={likeCountRef}
+                commentReplyCountRef={commentReplyCountRef}
+                replyMsg={replyMsg}
+                setReplyMsg={setReplyMsg}
+              />
+            )}
+          </>
+        ) : reactionTabId === POST_REACTION_REPOST_ID ? (
+          <PostProfileFollowBody
+            postProfileInfoMap={repostHashMap}
+            PostProfileFollowInfiniteScroll={
+              <RepostListInfiniteScroll postId={postId} />
+            }
+          />
+        ) : reactionTabId === POST_REACTION_LIKE_ID ? (
+          <>
+            {postId && (
+              <PostProfileFollowBody
+                postProfileInfoMap={postLikeHashMap}
+                PostProfileFollowInfiniteScroll={
+                  <>
+                    {postId !== '' && (
+                      <PostLikeListInfiniteScroll postId={postId} />
+                    )}
+                  </>
+                }
+              />
+            )}
+          </>
+        ) : (
+          <></>
+        )}
+      </PopupLayout>
+      {activeCommentByPostCommentThread.isActive && (
+        <PostCommentThread
+          snsPost={snsPost}
+          postCommentTextareaRef={postCommentTextareaRef}
+          replyMsg={replyMsg}
+          setReplyMsg={setReplyMsg}
+          likeIconByCommentRef={likeIconRef}
+          likeCountByCommentRef={likeCountRef}
+          commentCountByCommentRef={commentReplyCountRef}
         />
-      ) : reactionTabId === POST_REACTION_LIKE_ID ? (
-        <>
-          {postId && (
-            <PostProfileFollowBody
-              postProfileInfoMap={postLikeHashMap}
-              PostProfileFollowInfiniteScroll={
-                <PostLikeListInfiniteScroll postId={postId} />
-              }
-            />
-          )}
-        </>
-      ) : (
-        <></>
       )}
-    </PopupLayout>
+    </>
   );
 };
 
@@ -154,8 +207,6 @@ const ReactionTitle = styled.div`
   text-align: center;
   padding-top: 33px;
   font: ${({ theme }) => theme.fontSizes.Subhead3};
-
-  };
 `;
 
 const PostReactionWrap = styled.div`display: flex;

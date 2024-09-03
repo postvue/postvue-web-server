@@ -11,6 +11,15 @@ const slideUp = keyframes`
   }
 `;
 
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+`;
+
 const slideDown = keyframes`
   from {
     transform: translateY(-20%);
@@ -25,4 +34,5 @@ const slideDown = keyframes`
 export const animationStyle = {
   slideUp,
   slideDown,
+  fadeIn,
 };

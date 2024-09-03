@@ -163,8 +163,10 @@ const MyProfileScrapImgListWrap = styled.div`
 const MyProfileScrapImgWrap = styled.div`
   width: 30%;
   flex: 0 0 auto;
-  &:hover {
-    filter: brightness(0.7);
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      filter: brightness(0.7);
+    }
   }
   cursor: pointer;
 `;

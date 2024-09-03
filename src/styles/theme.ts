@@ -32,43 +32,43 @@ const errorColor = {
 
 const fontSizes = {
   Display5:
-    '700 40px/1.4 Pretendard-Bold; letter-spacing: -0.6px; font-style: normal;',
+    '40px/1.4 Pretendard-Bold; letter-spacing: -0.6px; font-style: normal;',
   Display4:
-    '700 36px/1.4 Pretendard-Bold; letter-spacing: -0.6px; font-style: normal;',
+    '36px/1.4 Pretendard-Bold; letter-spacing: -0.6px; font-style: normal;',
   Display3:
-    '700 32px/1.4 Pretendard-Bold; letter-spacing: -0.6px; font-style: normal;',
+    '32px/1.4 Pretendard-Bold; letter-spacing: -0.6px; font-style: normal;',
   Display2:
-    '700 28px/1.4 Pretendard-Bold; letter-spacing: -0.6px; font-style: normal;',
+    '28px/1.4 Pretendard-Bold; letter-spacing: -0.6px; font-style: normal;',
   Display1:
-    '700 24px/1.4 Pretendard-Bold; letter-spacing: -0.6px; font-style: normal;',
+    '24px/1.4 Pretendard-Bold; letter-spacing: -0.6px; font-style: normal;',
   Headline3:
-    '600 22px/1.4 Pretendard-SemiBold; letter-spacing: -0.6px; font-style: normal;',
+    '22px/1.4 Pretendard-SemiBold; letter-spacing: -0.6px; font-style: normal;',
   Headline2:
-    '600 20px/1.4 Pretendard-SemiBold; letter-spacing: -0.6px; font-style: normal;',
+    '20px/1.4 Pretendard-SemiBold; letter-spacing: -0.6px; font-style: normal;',
   Headline1:
-    '600 18px/1.4 Pretendard-SemiBold; letter-spacing: -0.6px; font-style: normal;',
+    '18px/1.4 Pretendard-SemiBold; letter-spacing: -0.6px; font-style: normal;',
   Subhead3:
-    '600 16px/1.6 Pretendard-SemiBold; letter-spacing: -0.6px; font-style: normal;',
+    '16px/1.6 Pretendard-SemiBold; letter-spacing: -0.6px; font-style: normal;',
   Subhead2:
-    '600 14px/1.4 Pretendard-SemiBold; letter-spacing: -0.6px; font-style: normal;',
+    '14px/1.4 Pretendard-SemiBold; letter-spacing: -0.6px; font-style: normal;',
   Subhead1:
-    '600 12px/1.4 Pretendar-SemiBold; letter-spacing: -0.6px; font-style: normal;',
+    '12px/1.4 Pretendar-SemiBold; letter-spacing: -0.6px; font-style: normal;',
   Body5:
-    '500 18px/1.6 Pretendard-Medium; letter-spacing: -0.35px; font-style: normal;',
+    '18px/1.6 Pretendard-Medium; letter-spacing: -0.35px; font-style: normal;',
   Body4:
-    '500 16px/1.6 Pretendard-Medium; letter-spacing: -0.35px; font-style: normal;',
+    '16px/1.6 Pretendard-Medium; letter-spacing: -0.35px; font-style: normal;',
   Body3:
-    '500 14px/1.4 Pretendard-Medium; letter-spacing: -0.35px; line-height: 140%; font-style: normal;',
+    '14px/1.7 Pretendard-Medium; letter-spacing: -0.35px; font-style: normal;',
   Body2:
-    '400 14px/1.4 Pretendard-Regular; letter-spacing: -0.325px; line-height: 140%; font-style: normal;',
+    '14px/1.6 Pretendard-Regular; letter-spacing: -0.325px; font-style: normal;',
   Body1:
-    '400 12px/1.4 Pretendard-Regular; letter-spacing: -0.3px; line-height: 140%; font-style: normal;',
+    '12px/1.4 Pretendard-Regular; letter-spacing: -0.3px; line-height: 140%; font-style: normal;',
   BoxText:
-    '600 12px/1.4 Pretendard-SemiBold; letter-spacing: -0.6px; line-height: 140%; font-style: normal;',
+    '12px/1.4 Pretendard-SemiBold; letter-spacing: -0.6px; line-height: 140%; font-style: normal;',
   Location2:
-    '500 10px/1.4 Pretendard-Medium; letter-spacing: -0.25px; line-height: 140%; font-style: normal;',
+    '10px/1.4 Pretendard-Medium; letter-spacing: -0.25px; line-height: 140%; font-style: normal;',
   Location1:
-    '500 9px/1.4 Pretendard-Medium; letter-spacing: -0.225px; line-height: 140%; font-style: normal;',
+    '9px/1.4 Pretendard-Medium; letter-spacing: -0.225px; line-height: 140%; font-style: normal;',
 };
 
 const paddings = {
