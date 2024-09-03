@@ -126,6 +126,7 @@ const ScrapViewCreateButton = styled.div`
   padding-right: 20px;
   color: ${({ theme }) => theme.mainColor.Blue};
   cursor: pointer;
+  z-index: 30;
 `;
 
 const AddPostToScrapButtonWrap = styled.div`
