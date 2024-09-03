@@ -10,14 +10,22 @@ interface ContextMenuPopupProps {
   children: React.ReactNode;
   setIsActive:
     | SetterOrUpdater<boolean>
-    | React.Dispatch<React.SetStateAction<boolean>>;
+    | React.Dispatch<React.SetStateAction<boolean>>
+    | SetterOrUpdater<boolean | number>
+    | React.Dispatch<React.SetStateAction<boolean | number>>
+    | SetterOrUpdater<boolean | string>
+    | React.Dispatch<React.SetStateAction<boolean | string>>
+    | SetterOrUpdater<boolean | number | string>
+    | React.Dispatch<React.SetStateAction<boolean | number | string>>;
   contextMenuRef: React.RefObject<HTMLElement>;
+  hasFixedActive?: boolean;
 }
 
 const ContextMenuPopup: React.FC<ContextMenuPopupProps> = ({
   children,
   contextMenuRef,
   setIsActive,
+  hasFixedActive = true,
 }) => {
   const [contextMenuLayoutInfo, setContextMenuLayoutInfo] =
     useState<ContextMenuLayoutInfoInterface>({
@@ -52,7 +60,7 @@ const ContextMenuPopup: React.FC<ContextMenuPopupProps> = ({
 
   return (
     <>
-      <BodyFixScrollElement />
+      {hasFixedActive && <BodyFixScrollElement />}
       <ContextMenuContainer
         $positionType={contextMenuLayoutInfo.positionType}
         $positionValue={contextMenuLayoutInfo.positionValue}
