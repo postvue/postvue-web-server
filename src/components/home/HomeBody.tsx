@@ -9,6 +9,7 @@ import TasteForMeInfiniteScroll from '../../hook/TasteForMeInfiniteScroll';
 
 import { homeTabIdAtom } from '../../states/HomePageAtom';
 
+import styled from 'styled-components';
 import { followForMeHashMapAtom } from '../../states/FollowForMeAtom';
 import { tasteForMeHashMapAtom } from '../../states/TasteForMeAtom';
 import MasonryLayout from '../layouts/MasonryLayout';
@@ -21,7 +22,7 @@ const HomeBody: React.FC = () => {
   const snsPostRspHashMapByFollow = useRecoilValue(followForMeHashMapAtom);
 
   return (
-    <>
+    <HomeBodyContainer>
       {mainTabId === TASTE_FOR_ME_TAB_ID ? (
         <>
           <MasonryLayout
@@ -81,8 +82,12 @@ const HomeBody: React.FC = () => {
           <FollowForMeInfiniteScroll />
         </>
       )}
-    </>
+    </HomeBodyContainer>
   );
 };
+
+const HomeBodyContainer = styled.div`
+  padding-top: 62px;
+`;
 
 export default HomeBody;
