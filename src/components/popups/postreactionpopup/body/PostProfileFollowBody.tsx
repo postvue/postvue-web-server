@@ -18,7 +18,7 @@ const PostProfileFollowBody: React.FC<PostProfileFollowBodyProps> = ({
     <>
       {Array.from(postProfileInfoMap.entries()).map(([k, v]) => {
         return (
-          <>
+          <React.Fragment key={k}>
             <PostProfileFollowContainer key={k}>
               <PostProfileFollowWrap>
                 <Link to={`/${v.username}`}>
@@ -41,7 +41,7 @@ const PostProfileFollowBody: React.FC<PostProfileFollowBodyProps> = ({
               </PostProfileFollowWrap>
             </PostProfileFollowContainer>
             <RepostBorderStickBar />
-          </>
+          </React.Fragment>
         );
       })}
       {PostProfileFollowInfiniteScroll}
