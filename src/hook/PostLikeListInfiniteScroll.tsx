@@ -38,8 +38,6 @@ const PostLikeListInfiniteScroll: React.FC<RepostInfiniteScrollProps> = ({
 
           setPostLikeHashMap(newRepostHashMap);
         }
-
-        setCursorNum(res.cursorId);
       })
       .catch((err) => {
         throw err;

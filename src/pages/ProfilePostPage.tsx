@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { useRecoilState, useResetRecoilState } from 'recoil';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil';
 
 import styled from 'styled-components';
 import 'swiper/css';
@@ -10,20 +10,23 @@ import BottomNavBar from '../components/BottomNavBar';
 import FollowButton from '../components/common/buttton/FollowButton';
 import PostReactionSingleElement from '../components/common/posts/body/PostReactionSingleElement';
 import PostTextContent from '../components/common/posts/body/PostTextContent';
+import MyAccountSettingInfoState from '../components/common/state/MyAccountSettingInfoState';
 import AppBaseTemplate from '../components/layouts/AppBaseTemplate';
 import MasonryLayout from '../components/layouts/MasonryLayout';
 import PopupLayout from '../components/layouts/PopupLayout';
 import PrevButtonHeaderHeader from '../components/layouts/PrevButtonHeaderHeader';
+import BlockUserPopup from '../components/popups/BlockUserPopup';
 import PostReactionPopup from '../components/popups/PostReactionPopup';
 import ScrapViewPopup from '../components/popups/ScrapViewPopup';
 import ToastMsgPopup, { notify } from '../components/popups/ToastMsgPopup';
 import PrevButton from '../components/PrevButton';
 import { INIT_SCROLL_POSITION } from '../const/AttributeConst';
 import { NO_IMAGE_DATA_LINK } from '../const/DummyDataConst';
+import { INIT_CURSOR_ID } from '../const/PageConfigConst';
 import { PROFILE_LIST_PATH } from '../const/PathConst';
 import { POST_TEXTFIELD_TYPE } from '../const/PostContentTypeConst';
 import { PROFILE_URL_CLIP_BOARD_TEXT } from '../const/SystemPhraseConst';
-import { MasonryPostRsp } from '../global/interface/post';
+import { MasonryPostRsp, PostRsp } from '../global/interface/post';
 import { isValidString } from '../global/util/\bValidUtil';
 import { copyClipBoard } from '../global/util/CopyUtil';
 import {
@@ -31,6 +34,7 @@ import {
   getHiddenPostIdList,
   removePostByHiddenPostIdList,
 } from '../global/util/HiddenPostIdListUtil';
+import PostRelationInfiniteScroll from '../hook/PostRelationInfiniteScroll';
 import { getPost } from '../services/post/getPost';
 import { getPostRelation } from '../services/post/getPostRelation';
 import { putPostInterested } from '../services/post/putPostInterested';
@@ -40,8 +44,15 @@ import {
   isPostReactionAtom,
   reactionPostIdAtom,
 } from '../states/PostReactionAtom';
-import { postRelationHashMapAtom } from '../states/PostRelation';
-import { isActiveScrapViewPopupAtom } from '../states/ProfileAtom';
+import {
+  cursorIdByPostRelationAtom,
+  postRelationHashMapAtom,
+} from '../states/PostRelation';
+import {
+  isActiveProfileBlockPopupAtom,
+  isActiveScrapViewPopupAtom,
+  myProfileSettingInfoAtom,
+} from '../states/ProfileAtom';
 import { systemPostRspHashMapAtom } from '../states/SystemConfigAtom';
 import theme from '../styles/theme';
 
@@ -51,6 +62,7 @@ const ProfilePostPage: React.FC = () => {
     systemPostRspHashMapAtom,
   );
   const postId = param.post_id;
+  const user_id = param.user_id;
   const [snsPost, setSnsPost] = useRecoilState(postRspAtom);
   const [isSettingActive, setIsSettingActive] = useState<boolean>(false);
   const [reactionPostId, setReactionPostId] =
@@ -62,19 +74,29 @@ const ProfilePostPage: React.FC = () => {
   const [postRelationHashMap, setPostRelationHashMap] = useRecoilState(
     postRelationHashMapAtom,
   );
+  const [cursorIdByPostRelation, setCursorIdByPostRelation] = useRecoilState(
+    cursorIdByPostRelationAtom,
+  );
 
-  const resetIsPostReactionPopup = useResetRecoilState(reactionPostIdAtom);
   const [isPopupActive, setIsPopupActive] = useRecoilState(isPostReactionAtom);
   const [isActiveScrapView, setIsActiveScrapView] = useRecoilState(
     isActiveScrapViewPopupAtom,
   );
+  const [isActiveProfileBlock, setIsActiveProfileBlock] = useRecoilState(
+    isActiveProfileBlockPopupAtom,
+  );
+
+  const myAccountSettingInfo = useRecoilValue(myProfileSettingInfoAtom);
 
   const resetSnsPost = useResetRecoilState(postRspAtom);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     window.scrollTo({ top: INIT_SCROLL_POSITION });
     if (postId) {
       const selectedPost = snsSystemPostHashMap.get(postId);
+
       if (selectedPost) {
         setSnsPost(selectedPost);
       } else {
@@ -82,23 +104,14 @@ const ProfilePostPage: React.FC = () => {
           .then((v) => {
             setSnsPost(v);
           })
-          .catch((err) => {
-            throw err;
+          .catch(() => {
+            if (user_id) {
+              navigate(`${PROFILE_LIST_PATH}/${user_id}`, { replace: true });
+            } else {
+              navigate(-1);
+            }
           });
       }
-      getPostRelation(postId).then((value) => {
-        if (value.snsPostRspList.length > 0) {
-          const newPostRelationHashMap = new Map(postRelationHashMap);
-          const newSystemPostHashMap = new Map(snsSystemPostHashMap);
-          value.snsPostRspList.forEach((post) => {
-            newPostRelationHashMap.set(post.postId, post);
-            newSystemPostHashMap.set(post.postId, post);
-          });
-
-          setPostRelationHashMap(newPostRelationHashMap);
-          setSnsSystemPostHashMap(newSystemPostHashMap);
-        }
-      });
 
       if (hiddenPostIdList.includes(postId)) {
         setIsInterest(false);
@@ -108,13 +121,29 @@ const ProfilePostPage: React.FC = () => {
 
   useEffect(() => {
     return () => {
-      resetIsPostReactionPopup();
+      // resetIsPostReactionPopup();
       resetSnsPost();
       setIsPopupActive(false);
       setIsActiveScrapView(false);
-      setPostRelationHashMap(new Map());
+      setIsActiveProfileBlock(false);
     };
   }, []);
+
+  useEffect(() => {
+    setPostRelationHashMap(new Map());
+    setCursorIdByPostRelation(INIT_CURSOR_ID);
+    if (postId) {
+      getPostRelation(postId, INIT_CURSOR_ID).then((value) => {
+        const tempSnsRelationHashMap: Map<string, PostRsp> = new Map();
+        value.snsPostRspList.forEach((snsPostRsp) => {
+          tempSnsRelationHashMap.set(snsPostRsp.postId, snsPostRsp);
+        });
+        console.log('헤시');
+        setPostRelationHashMap(tempSnsRelationHashMap);
+        setCursorIdByPostRelation(value.cursorId);
+      });
+    }
+  }, [postId]);
 
   const onClickSettingButton = () => {
     setIsSettingActive(true);
@@ -151,10 +180,17 @@ const ProfilePostPage: React.FC = () => {
     }
   };
 
+  const [isBlocked, setIsBlocked] = useState<boolean>(false);
+
+  const onClickActiveBlockUserPopup = () => {
+    setIsActiveProfileBlock(true);
+  };
+
   const firstPostContent = snsPost?.postContents[0];
 
   return (
     <AppBaseTemplate>
+      {!myAccountSettingInfo.username && <MyAccountSettingInfoState />}
       {isIntereset ? (
         <>
           <PostImageWrap>
@@ -283,8 +319,9 @@ const ProfilePostPage: React.FC = () => {
         <RelatedTitle>연관 게시글</RelatedTitle>
         <PostRelationWrap>
           <MasonryLayout
-            snsPostUrlList={Array.from(postRelationHashMap.entries()).map(
-              ([, v]) => {
+            snsPostUrlList={Array.from(postRelationHashMap.entries())
+              .filter(([, v]) => v.postId !== postId)
+              .map(([, v]) => {
                 let imageContent = v.postContents.find(
                   (postContent) =>
                     postContent.postContentType !== POST_TEXTFIELD_TYPE,
@@ -300,14 +337,17 @@ const ProfilePostPage: React.FC = () => {
                 };
 
                 return homePostRsp;
-              },
-            )}
+              })}
           />
+          {postId && <PostRelationInfiniteScroll postId={postId} />}
         </PostRelationWrap>
       </RelatedPostContainer>
 
       {isSettingActive && (
-        <PopupLayout setIsPopup={setIsSettingActive}>
+        <PopupLayout
+          setIsPopup={setIsSettingActive}
+          popupWrapStyle={{ height: 'auto' }}
+        >
           <SettingPopupWrap
             onClick={(e) => {
               e.stopPropagation();
@@ -322,11 +362,21 @@ const ProfilePostPage: React.FC = () => {
               >
                 게시물 링크 복사
               </SettingPopupContent>
-              <SettingPopupContent onClick={onClickPostNotInterest}>
-                관심 없음
-              </SettingPopupContent>
-              <SettingPopupContent>게시물 신고</SettingPopupContent>
-              <SettingPopupContent>사용자 차단</SettingPopupContent>
+              {myAccountSettingInfo.myUserId !== snsPost.userId ? (
+                <>
+                  <SettingPopupContent onClick={onClickPostNotInterest}>
+                    관심 없음
+                  </SettingPopupContent>
+                  <SettingPopupContent>게시물 신고</SettingPopupContent>
+                  <SettingPopupContent onClick={onClickActiveBlockUserPopup}>
+                    {isBlocked ? '차단 해제' : '사용자 차단'}
+                  </SettingPopupContent>
+                </>
+              ) : (
+                <>
+                  <SettingPopupContent>수정 하기</SettingPopupContent>
+                </>
+              )}
             </SettingPopupContentWrap>
           </SettingPopupWrap>
         </PopupLayout>
@@ -337,6 +387,14 @@ const ProfilePostPage: React.FC = () => {
           postId={postId}
           postContentUrl={firstPostContent.content}
           postContentType={firstPostContent.postContentType}
+        />
+      )}
+      {isActiveProfileBlock && (
+        <BlockUserPopup
+          snsPost={snsPost}
+          isBlocked={isBlocked}
+          setIsBlocked={setIsBlocked}
+          setIsSettingPopup={setIsSettingActive}
         />
       )}
 
@@ -436,13 +494,13 @@ const SettingButton = styled.div`
 
 const SettingPopupWrap = styled.div`
   bottom: 0;
-  z-index: 20;
   height: 297px;
 
-  padding-top: 50px;
+  margin-top: 50px;
   width: 100%;
   background: white;
   border-radius: 15px 15px 0 0;
+  z-index: 100;
 `;
 
 const SettingPopupContentWrap = styled.div`
@@ -450,7 +508,7 @@ const SettingPopupContentWrap = styled.div`
   display: flex;
   gap: 34px;
   flex-flow: column;
-  width: 100%;
+  // width: 100%;
 `;
 const SettingPopupContent = styled.div`
   font: ${({ theme }) => theme.fontSizes.Body4};

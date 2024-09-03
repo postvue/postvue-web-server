@@ -56,6 +56,8 @@ export interface PostComment {
   username: string;
   profilePath: string;
   postedAt: string;
+  isReplyMsg: boolean;
+  replyTargetCommentId: string;
 }
 
 export interface PostProfileInfoRsp {
@@ -83,9 +85,22 @@ export interface PostCommentRsp {
   username: string;
   profilePath: string;
   postedAt: string;
+  isReplyMsg: boolean;
+  replyTargetCommentId: string;
 }
 
 export interface PostInterested {
   postId: string;
   isInterested: boolean;
+}
+
+export interface PostCommentReplyMsgInfo {
+  username: string;
+  profilePath: string;
+  userId: string;
+  commentId: string;
+}
+
+export interface PostCommentWithReplies extends PostComment {
+  replies: PostCommentWithReplies[];
 }
