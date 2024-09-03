@@ -8,9 +8,8 @@ import { createPostToScrap } from '../../../../services/profile/createPostToScra
 import { deletePostToScrap } from '../../../../services/profile/deletePostToScrap';
 import { getMyProfileScrapPreviews } from '../../../../services/profile/getMyProfileScrapPreview';
 import { isActiveScrapViewPopupAtom } from '../../../../states/ProfileAtom';
-import { animationStyle } from '../../../../styles/animations';
 import theme from '../../../../styles/theme';
-import BodyFixScrollElement from '../../../BodyFixScrollElement';
+import ContextMenuPopup from '../../../popups/ContextMenuPopup';
 
 interface ClipButtonProps {
   setClipStete: (postClipRsp: PostClipRsp) => void;
@@ -18,18 +17,12 @@ interface ClipButtonProps {
   isClipped: boolean;
 }
 
-interface scrapBoardPositionInterface {
-  positionType: string;
-  positionValue: number;
-  isScrapActive: boolean;
-}
-
 const ClipButton: React.FC<ClipButtonProps> = ({
   setClipStete,
   postId,
   isClipped,
 }) => {
-  const clipRef = useRef<SVGSVGElement>(null);
+  const clipRef = useRef<HTMLDivElement>(null);
   const [scrapBoardPreviewList, setScrapBoardPreviewList] = useState<
     GetMyProfileScrapPreviewsRsp[]
   >([]);
@@ -37,41 +30,13 @@ const ClipButton: React.FC<ClipButtonProps> = ({
     isActiveScrapViewPopupAtom,
   );
 
-  const [scrapBoardPosition, setScrapBoardPosition] =
-    useState<scrapBoardPositionInterface>({
-      positionType: 'top',
-      positionValue: 0,
-      isScrapActive: false,
-    });
+  const [isScrapBoardActive, setIsScrapBoardActive] = useState<boolean>(false);
 
   const onClickClipButton = (
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
   ) => {
     e.stopPropagation();
-
-    if (clipRef.current) {
-      const body = document.body;
-      const dom = clipRef.current.getBoundingClientRect();
-
-      const clipY = dom.y;
-      const clipHeight = dom.height;
-      const bodyHeight = body.offsetHeight;
-
-      if (clipY + clipHeight / 2 > bodyHeight / 2) {
-        setScrapBoardPosition((prev) => ({
-          ...prev,
-          positionType: 'bottom',
-          positionValue: clipHeight + 10,
-        }));
-      } else {
-        setScrapBoardPosition((prev) => ({
-          ...prev,
-          positionType: 'top',
-          positionValue: clipHeight + 10,
-        }));
-      }
-    }
-    setScrapBoardPosition((prev) => ({ ...prev, isScrapActive: true }));
+    setIsScrapBoardActive(true);
   };
 
   const onAddScrap = (scrapId: string) => {
@@ -105,10 +70,7 @@ const ClipButton: React.FC<ClipButtonProps> = ({
             return prevCopy;
           });
 
-          setScrapBoardPosition((prev) => ({
-            ...prev,
-            isScrapActive: false,
-          }));
+          setIsScrapBoardActive(false);
         })
         .catch((err) => {
           throw err;
@@ -138,10 +100,7 @@ const ClipButton: React.FC<ClipButtonProps> = ({
             return prevCopy;
           });
 
-          setScrapBoardPosition((prev) => ({
-            ...prev,
-            isScrapActive: false,
-          }));
+          setIsScrapBoardActive(false);
         })
         .catch((err) => {
           throw err;
@@ -151,10 +110,7 @@ const ClipButton: React.FC<ClipButtonProps> = ({
 
   const onClickMoveScrapView = () => {
     setSsActiveScrapViewPopup(true);
-    setScrapBoardPosition((prev) => ({
-      ...prev,
-      isScrapActive: false,
-    }));
+    setIsScrapBoardActive(false);
   };
 
   useEffect(() => {
@@ -164,10 +120,9 @@ const ClipButton: React.FC<ClipButtonProps> = ({
   }, []);
 
   return (
-    <ClipButtonContainer>
-      <ClipButtonWrap onClick={(e) => onClickClipButton(e)}>
+    <ClipButtonContainer key={postId}>
+      <ClipButtonWrap onClick={(e) => onClickClipButton(e)} ref={clipRef}>
         <svg
-          ref={clipRef}
           xmlns="http://www.w3.org/2000/svg"
           width="24"
           height="24"
@@ -183,62 +138,50 @@ const ClipButton: React.FC<ClipButtonProps> = ({
           />
         </svg>
       </ClipButtonWrap>
-      {scrapBoardPosition.isScrapActive && (
-        <>
-          <ScrapBoardContainer
-            $positionType={scrapBoardPosition.positionType}
-            $positionValue={scrapBoardPosition.positionValue}
-          >
-            {scrapBoardPreviewList.map((value, index) => {
-              return (
-                <>
-                  {value.isScraped ? (
-                    <ScrapBoardItem
-                      key={index}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onDeleteScrap(value.scrapBoardId);
-                      }}
-                    >
-                      <div>{value.scrapBoardName}</div>
-                      <ScrapBoardRemoveButton>제거</ScrapBoardRemoveButton>
-                    </ScrapBoardItem>
-                  ) : (
-                    <ScrapBoardItem
-                      key={index}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onAddScrap(value.scrapBoardId);
-                      }}
-                    >
-                      <div>{value.scrapBoardName}</div>
-                      <ScrapBoardAddButton>추가</ScrapBoardAddButton>
-                    </ScrapBoardItem>
-                  )}
-                </>
-              );
-            })}
-            <ScrapBoardMoveItem
-              onClick={(e) => {
-                e.stopPropagation();
-                onClickMoveScrapView();
-              }}
-            >
-              <div>전체 스크랩 보기</div>
-              <div>이동</div>
-            </ScrapBoardMoveItem>
-            <BodyFixScrollElement />
-          </ScrapBoardContainer>
-          <ScrapBoardNotClickContainer
+      {isScrapBoardActive && (
+        <ContextMenuPopup
+          contextMenuRef={clipRef}
+          setIsActive={setIsScrapBoardActive}
+        >
+          {scrapBoardPreviewList.map((value, index) => {
+            return (
+              <React.Fragment key={value.scrapBoardId}>
+                {value.isScraped ? (
+                  <ScrapBoardItem
+                    key={index}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDeleteScrap(value.scrapBoardId);
+                    }}
+                  >
+                    <div>{value.scrapBoardName}</div>
+                    <ScrapBoardRemoveButton>제거</ScrapBoardRemoveButton>
+                  </ScrapBoardItem>
+                ) : (
+                  <ScrapBoardItem
+                    key={index}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onAddScrap(value.scrapBoardId);
+                    }}
+                  >
+                    <div>{value.scrapBoardName}</div>
+                    <ScrapBoardAddButton>추가</ScrapBoardAddButton>
+                  </ScrapBoardItem>
+                )}
+              </React.Fragment>
+            );
+          })}
+          <ScrapBoardMoveItem
             onClick={(e) => {
               e.stopPropagation();
-              setScrapBoardPosition((prev) => ({
-                ...prev,
-                isScrapActive: false,
-              }));
+              onClickMoveScrapView();
             }}
-          />
-        </>
+          >
+            <div>전체 스크랩 보기</div>
+            <div>이동</div>
+          </ScrapBoardMoveItem>
+        </ContextMenuPopup>
       )}
     </ClipButtonContainer>
   );
@@ -250,22 +193,6 @@ const ClipButtonContainer = styled.div`
 
 const ClipButtonWrap = styled.div`
   cursor: pointer;
-`;
-
-const ScrapBoardContainer = styled.div<{
-  $positionType: string;
-  $positionValue: number;
-}>`
-  position: absolute;
-  width: 198px;
-  right: 0px;
-  z-index: 1000;
-  background-color: white;
-  border-radius: 12px;
-  box-shadow: 0px 0px 32px 0px rgba(0, 0, 0, 0.2);
-  ${(props) => props.$positionType}: ${(props) => props.$positionValue}px;
-  right: 0px;
-  animation: ${animationStyle.fadeIn} 0.1s ease-in forwards;
 `;
 
 const ScrapBoardItem = styled.div`
@@ -284,18 +211,6 @@ const ScrapBoardRemoveButton = styled(ScrapBoardAddButton)`
 
 const ScrapBoardMoveItem = styled(ScrapBoardItem)`
   color: ${({ theme }) => theme.mainColor.Blue};
-`;
-
-const ScrapBoardNotClickContainer = styled.div`
-  height: 100%;
-  z-index: 500;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  width: 100%;
-  margin: 0px auto;
-  cursor: auto;
 `;
 
 export default ClipButton;
