@@ -49,7 +49,6 @@ const PostCommentInfiniteScroll: React.FC<PostCommentInfiniteScrollProps> = ({
       });
   };
   useEffect(() => {
-    // categoryId가 변경되고 이전 categoryId와 다를 때에만 실행
     if (inView) {
       callback();
     }
