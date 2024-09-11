@@ -15,7 +15,10 @@ const BlockHiddenByMsgInboxPopup: React.FC = () => {
   );
 
   return (
-    <PopupLayout setIsPopup={setIsFolloManagePopupByMsgInbox}>
+    <PopupLayout
+      setIsPopup={setIsFolloManagePopupByMsgInbox}
+      popupWrapStyle={PopupWrapStyle}
+    >
       <FollowHiddenManageContainer>
         <FollowHiddenManageWrap>
           <Link to={MSG_HIDDEN_LIST_MANAGE_PATH}>
@@ -30,6 +33,10 @@ const BlockHiddenByMsgInboxPopup: React.FC = () => {
       </FollowHiddenManageContainer>
     </PopupLayout>
   );
+};
+
+const PopupWrapStyle: React.CSSProperties = {
+  height: 'auto',
 };
 
 const FollowHiddenManageContainer = styled.div`

@@ -12,3 +12,9 @@ export interface RecommFollowInfo {
   followingNum: number;
   postPreviewImgUrlList: postContentInfo[];
 }
+
+export interface RecommTagInfo {
+  tagId: string;
+  tagName: string;
+  tagBkgdPath: string;
+}

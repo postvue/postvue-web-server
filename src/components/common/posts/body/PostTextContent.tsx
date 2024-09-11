@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { TAG_SEARCH_PATH } from '../../../../const/PathConst';
+import { SEARCH_PATH } from '../../../../const/PathConst';
 import { POST_TEXTFIELD_TYPE } from '../../../../const/PostContentTypeConst';
 
 import { PostContent } from '../../../../global/interface/post';
@@ -32,7 +32,7 @@ const PostTextContent: React.FC<PostTextContentProps> = ({
       <PostDateTime>{convertDtStrToDTStr(postedAt)}</PostDateTime>
       <PostTagWrap onClick={(e) => e.stopPropagation()}>
         {tags.map((v, i) => (
-          <Link to={`${TAG_SEARCH_PATH}/${v}`} key={i}>
+          <Link to={`${SEARCH_PATH}/${v}`} key={i}>
             <PostTag>#{v}</PostTag>
           </Link>
         ))}

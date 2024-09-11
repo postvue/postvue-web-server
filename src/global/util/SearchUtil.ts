@@ -2,6 +2,7 @@ import {
   LOCAL_STORAGE_LIST_INIT_VALUE,
   RECENTLY_SEARCH_WORD_LIST_LOCAL_STORAGE,
 } from '../../const/LocalStorageConst';
+import { RECENTLY_WORD_LIST_NUM } from '../../const/SearchConst';
 import { SearchRecentKeywordInterface } from '../interface/localstorage/SearchInterface';
 
 export const handleSearch = (searchWord: string): void => {
@@ -33,6 +34,9 @@ const addRecentlyKeywordList = (
     const item = recentlyKeywordList.splice(index, 1)[0];
     recentlyKeywordList.push(item);
   } else {
+    if (recentlyKeywordList.length >= RECENTLY_WORD_LIST_NUM) {
+      recentlyKeywordList.splice(0, 1);
+    }
     recentlyKeywordList.push({ name: searchTerm, isExposed: true });
   }
 

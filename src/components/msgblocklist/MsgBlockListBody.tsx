@@ -37,6 +37,7 @@ const MsgBlockListBody: React.FC = () => {
           onSearchInputChange={onSearchInputChange}
           onClickDelete={onSearchInputDelete}
           value={blockSearchInput}
+          isActiveDeleteButton={blockSearchInput !== ''}
         />
       </MessageSearchContainer>
       <MsgBlockUserListContainer>

@@ -138,7 +138,7 @@ const ProfilePostPage: React.FC = () => {
         value.snsPostRspList.forEach((snsPostRsp) => {
           tempSnsRelationHashMap.set(snsPostRsp.postId, snsPostRsp);
         });
-        console.log('헤시');
+
         setPostRelationHashMap(tempSnsRelationHashMap);
         setCursorIdByPostRelation(value.cursorId);
       });

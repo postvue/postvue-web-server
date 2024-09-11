@@ -31,8 +31,40 @@ const slideDown = keyframes`
   }
 `;
 
+const slideLeft = keyframes`
+  from {
+    transform: translateX(70%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+`;
+
+export const slideRightToLeft = keyframes`
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+`;
+
+export const slideLeftToRight = keyframes`
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+`;
+
 export const animationStyle = {
   slideUp,
   slideDown,
   fadeIn,
+  slideLeft,
+  slideLeftToRight,
+  slideRightToLeft,
 };

@@ -1,0 +1,2 @@
+export const RECENTLY_WORD_LIST_NUM = 20;
+export const SEARCH_RELATION_QUERY_DELAY_MIRCE_TIME = 600; //ms

@@ -39,6 +39,7 @@ const MsgHiddenListBody: React.FC = () => {
           onSearchInputChange={onSearchInputChange}
           onClickDelete={onSearchInputDelete}
           value={hiddenSearchInput}
+          isActiveDeleteButton={hiddenSearchInput !== ''}
         />
       </MessageSearchContainer>
       <MsgHiddenUserListContainer>

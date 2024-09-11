@@ -6,3 +6,6 @@ export const POSITION_FIXED = 'fixed';
 export const POSITION_STATIC = 'static';
 export const TOP_ATTRIBUTE = 'top';
 export const BOTTOM_ATTRIBUTE = 'bottom';
+export const DISPLAY_NONE = 'none';
+export const DISPLAY_STATIC = 'static';
+export const DISPLAY_FLEX = 'flex';

@@ -1,10 +1,27 @@
 import React from 'react';
-import { Bounce, ToastContainer, toast } from 'react-toastify';
+import {
+  Bounce,
+  ToastContainer,
+  ToastTransitionProps,
+  toast,
+} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import styled from 'styled-components';
+import theme from '../../styles/theme';
 
 // Notify 함수
-export const notify = (toastMsgText: string): void => {
+export const notify = (
+  toastMsgText: string,
+  transition: ({
+    children,
+    position,
+    preventExitTransition,
+    done,
+    nodeRef,
+    isIn,
+    playToast,
+  }: ToastTransitionProps) => React.JSX.Element = Bounce,
+): void => {
   toast(toastMsgText, {
     position: 'bottom-center',
     autoClose: 1000,
@@ -14,15 +31,27 @@ export const notify = (toastMsgText: string): void => {
     draggable: true,
     progress: undefined,
     theme: 'light',
-    transition: Bounce,
+    transition: transition,
     closeButton: false,
     className: 'custom-toast',
     // bodyClassName: 'custom-body',
   });
 };
 
+interface ToastPopupProps {
+  backgroundColor?: string;
+}
+
+const ToastPopup: React.FC<ToastPopupProps> = ({
+  backgroundColor = theme.mainColor.Blue,
+}) => {
+  return <StyledToastContainer $backgroundColor={backgroundColor} />;
+};
+
 // ToastContainer 스타일 정의
-const StyledToastContainer = styled(ToastContainer)`
+const StyledToastContainer = styled(ToastContainer)<{
+  $backgroundColor: string;
+}>`
   &&&.Toastify__toast-container {
     // position: fixed;
     // top: 50px;
@@ -35,7 +64,7 @@ const StyledToastContainer = styled(ToastContainer)`
   }
 
   .custom-toast {
-    background-color: ${({ theme }) => theme.mainColor.Blue};
+    background-color: ${(props) => props.$backgroundColor};
     text-align: center;
     color: white;
     font: ${({ theme }) => theme.fontSizes.Body4};
@@ -52,9 +81,5 @@ const StyledToastContainer = styled(ToastContainer)`
     padding: 0px;
   }
 `;
-
-const ToastPopup: React.FC = () => {
-  return <StyledToastContainer />;
-};
 
 export default ToastPopup;
