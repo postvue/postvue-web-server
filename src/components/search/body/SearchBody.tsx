@@ -1,123 +1,119 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
-import { SEARCH_PATH, TAG_SEARCH_PATH } from '../../../const/PathConst';
-import { SearchRecentKeywordInterface } from '../../../global/interface/localstorage/SearchInterface';
+import { useQuery } from '@tanstack/react-query';
 import {
-  deleteRecentlyKeyword,
-  getRecentSearchWordList,
-} from '../../../global/util/SearchUtil';
+  QUERY_STATE_SEARCH_FAVORITE_TERM_LIST,
+  SERACH_FAVORITE_TERMS_STALE_TIME,
+} from 'const/QueryClientConst';
+import { GetFavoriteTermRsp } from 'global/interface/search';
+import React, { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useRecoilState } from 'recoil';
+import styled from 'styled-components';
+import { SEARCH_PATH } from '../../../const/PathConst';
+import { getRecommTagList } from '../../../services/recomm/getRecommTagList';
+import { getFavoriteSearchTerm } from '../../../services/search/getFavoriteSearchTermList';
+import { recommTagListAtom } from '../../../states/TagAtom';
+import theme from '../../../styles/theme';
+import ScrollXMoveButtonContainer from '../../common/buttton/ScrollXMoveButtonContainer';
 
 const SearchBody: React.FC = () => {
-  const tag_name_list = [
-    '태그명',
-    '태그명',
-    '태그명',
-    '태그명',
-    '태그명',
-    '태그명',
-  ];
-  const navigate = useNavigate();
+  const [recommTagList, setRecommTagList] = useRecoilState(recommTagListAtom);
+  const { data } = useQuery<GetFavoriteTermRsp[]>({
+    queryKey: [QUERY_STATE_SEARCH_FAVORITE_TERM_LIST],
+    queryFn: () => getFavoriteSearchTerm(),
+    staleTime: SERACH_FAVORITE_TERMS_STALE_TIME,
+  });
 
-  const [recentSearchWordList, setRecentSearchWordList] = useState<
-    SearchRecentKeywordInterface[]
-  >([]);
+  const [size, setSize] = useState({ width: 0, height: 0 });
 
-  const onClickDeleteSearchWord = (searchWord: string) => {
-    const deletedSearchRecentSearchWordList: SearchRecentKeywordInterface[] =
-      deleteRecentlyKeyword(searchWord);
-
-    setRecentSearchWordList(deletedSearchRecentSearchWordList);
-  };
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setRecentSearchWordList(getRecentSearchWordList());
-    return () => {
-      setRecentSearchWordList([]);
-    };
+    // 태그 리스트 가져오기
+    getRecommTagList().then((value) => {
+      setRecommTagList(value);
+    });
   }, []);
+
+  // ref를 콜백 ref로 변경
+  const handleRef = (element: HTMLDivElement | null) => {
+    if (element) {
+      const { width, height } = element.getBoundingClientRect();
+
+      // 크기가 변경된 경우에만 상태 업데이트
+      if (size.width !== width || size.height !== height) {
+        setSize({ width, height });
+      }
+    }
+  };
 
   return (
     <>
       <TagRecommContainer>
-        <SearchRecentWordContainer>
-          {recentSearchWordList.length > 0 && (
-            <>
-              <SearchRelatedTitle>최근 검색어</SearchRelatedTitle>
-              <RecentSearchWordContainer>
-                {recentSearchWordList &&
-                  recentSearchWordList
-                    .slice(0)
-                    .reverse()
-                    .map((v, i) => (
-                      <RecentSearchWordItemWrap key={i}>
-                        <RecenSearchWordItemDeletedWrap>
-                          <RecentSearchWordItem
-                            onClick={() => {
-                              navigate(`${SEARCH_PATH}/${v.name}`);
-                            }}
-                          >
-                            {v.name}
-                          </RecentSearchWordItem>
-                          <RecentDeleteButtonWrap
-                            onClick={() => onClickDeleteSearchWord(v.name)}
-                          >
-                            <RecentSearchWordDeleteButton
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="16"
-                              height="16"
-                              viewBox="0 0 16 16"
-                              fill="none"
-                            >
-                              <g clipPath="url(#clip0_193_2900)">
-                                <path
-                                  d="M3.99997 4.00003L11.9999 12M3.99997 12L11.9999 4.00003"
-                                  stroke="#9199A1"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />
-                              </g>
-                              <defs>
-                                <clipPath id="clip0_193_2900">
-                                  <rect width="16" height="16" fill="white" />
-                                </clipPath>
-                              </defs>
-                            </RecentSearchWordDeleteButton>
-                          </RecentDeleteButtonWrap>
-                        </RecenSearchWordItemDeletedWrap>
-                      </RecentSearchWordItemWrap>
-                    ))}
-              </RecentSearchWordContainer>
-            </>
-          )}
-        </SearchRecentWordContainer>
+        {data !== undefined && (
+          <SearchFavoriteTermContainer>
+            <FavoriteTermListWrap>
+              <FavoriteTermListTitle>즐겨찾는 검색어</FavoriteTermListTitle>
+              <FavoriteTermListEdit>목록편집</FavoriteTermListEdit>
+            </FavoriteTermListWrap>
+            <ScrollXMoveButtonContainer
+              scrollContainerRef={scrollContainerRef}
+              leftMoveNum={size.width + FavoriteTermListWrapGapNumber}
+            >
+              <SearchFavoriteItemListWrap ref={scrollContainerRef}>
+                {data.map((v, i) => (
+                  <FavoriteTermContainer
+                    key={i}
+                    style={{
+                      width: `${size.width}px`,
+                      height: `${size.height}px`,
+                      marginLeft: i === 0 ? SuggestContainerSideMargin : '0',
+                      marginRight:
+                        i === data.length - 1 ? SuggestContainerSideMargin : '',
+                    }}
+                  >
+                    <Link to={`${SEARCH_PATH}/${v.favoriteTermName}`}>
+                      <TagElementWrap $tagBkgdPath={v.favoriteTermContent}>
+                        <TagNameDiv>{v.favoriteTermName}</TagNameDiv>
+                      </TagElementWrap>
+                    </Link>
+                  </FavoriteTermContainer>
+                ))}
+              </SearchFavoriteItemListWrap>
+            </ScrollXMoveButtonContainer>
+          </SearchFavoriteTermContainer>
+        )}
 
         <SearchTagRecommContainer>
           <SearchRelatedTitle>추천 태그</SearchRelatedTitle>
-          <TagListContainer>
-            <TagListContainerWrap>
-              {tag_name_list &&
-                tag_name_list.map((v, i) => (
-                  <TagElementContainer key={i}>
-                    <Link to={`${TAG_SEARCH_PATH}/${v}`}>
-                      <TagElementWrap>
-                        <TagNameDiv>{v}</TagNameDiv>
+          <SearchSuggestItemListContainer>
+            <SearchSuggestItemListWrap>
+              {recommTagList &&
+                recommTagList.map((v, i) => (
+                  <TagElementContainer key={i} ref={i === 0 ? handleRef : null}>
+                    <Link to={`${SEARCH_PATH}/${v.tagName}`}>
+                      <TagElementWrap $tagBkgdPath={v.tagBkgdPath}>
+                        <TagNameDiv>#{v.tagName}</TagNameDiv>
                       </TagElementWrap>
                     </Link>
                   </TagElementContainer>
                 ))}
-            </TagListContainerWrap>
-          </TagListContainer>
+            </SearchSuggestItemListWrap>
+          </SearchSuggestItemListContainer>
         </SearchTagRecommContainer>
       </TagRecommContainer>
     </>
   );
 };
+const SuggestContainerSideMarginNumber = 21;
+const FavoriteTermListWrapGapNumber = 10;
+const SuggestContainerSideMargin = `${SuggestContainerSideMarginNumber}px`;
 
-const SearchTagRecommContainer = styled.div``;
+const SearchTagRecommContainer = styled.div`
+  margin: 0 ${SuggestContainerSideMargin};
+`;
 
 const TagRecommContainer = styled.div`
-  margin: 40px 10px 0 10px;
+  margin: calc(22px + ${theme.systemSize.header.height}) 0 0 0;
 `;
 
 const SearchRelatedTitle = styled.div`
@@ -125,11 +121,10 @@ const SearchRelatedTitle = styled.div`
   padding-bottom: 12px;
 `;
 
-const TagListContainer = styled.div``;
-const TagListContainerWrap = styled.div`
+const SearchSuggestItemListContainer = styled.div``;
+const SearchSuggestItemListWrap = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
-
   gap: 10px;
 `;
 
@@ -137,54 +132,54 @@ const TagElementContainer = styled.div`
   cursor: pointer;
 `;
 
-const TagElementWrap = styled.div`
+const TagElementWrap = styled.div<{ $tagBkgdPath: string }>`
   text-align: center;
 
-  background-color: ${({ theme }) => theme.grey.Grey7};
   font: ${({ theme }) => theme.fontSizes.Subhead2};
-
-  padding-top: 30px;
-  padding-bottom: 30px;
+  padding: 39px 0px;
   border-radius: 8px;
   margin: 0 auto;
   color: white;
+
+  ${(props) =>
+    props.$tagBkgdPath
+      ? `background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url(${props.$tagBkgdPath}) center center / cover;`
+      : `background-color: ${theme.grey.Grey7};`};
 `;
 
 const TagNameDiv = styled.div``;
 
-const SearchRecentWordContainer = styled.div`
-  margin-bottom: 40px;
+// 즐겨찾기 검색어 컨테이너 부분
+const SearchFavoriteTermContainer = styled.div`
+  margin: 0 0 40px 0;
 `;
 
-const RecentSearchWordContainer = styled.div`
+const FavoriteTermListWrap = styled.div`
   display: flex;
-  gap: 7px;
+  justify-content: space-between;
+  margin: 0 ${SuggestContainerSideMargin};
 `;
 
-const RecentSearchWordItemWrap = styled.div`
-  border-radius: 14px;
-  border: 1px solid var(--Grey1, #f2f3f4);
-  background: #fff;
-  padding: 4px 9px;
-`;
+const FavoriteTermListTitle = styled(SearchRelatedTitle)``;
 
-const RecenSearchWordItemDeletedWrap = styled.div`
-  display: flex;
-  gap: 4px;
-`;
-
-const RecentSearchWordItem = styled.div`
-  font: ${({ theme }) => theme.fontSizes.Body3};
-  cursor: pointer;
-`;
-
-const RecentDeleteButtonWrap = styled.div`
-  display: flex;
-  cursor: pointer;
-`;
-
-const RecentSearchWordDeleteButton = styled.svg`
+const FavoriteTermListEdit = styled.div`
+  font: ${({ theme }) => theme.fontSizes.Subhead1};
   margin: auto 0;
+  text-decoration-line: underline;
+  letter-spacing: -0.3px;
+  text-underline-offset: 2px;
+  font-weight: 600;
+  cursor: pointer;
+`;
+
+const SearchFavoriteItemListWrap = styled.div`
+  display: flex;
+  overflow-x: auto;
+  gap: ${FavoriteTermListWrapGapNumber}px;
+`;
+
+const FavoriteTermContainer = styled(TagElementContainer)`
+  flex: 0 0 auto;
 `;
 
 export default SearchBody;
