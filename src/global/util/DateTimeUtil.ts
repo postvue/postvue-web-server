@@ -65,3 +65,19 @@ export const groupFormatDate = (dateTimeString: string): string => {
   const date = new Date(dateTimeString);
   return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 };
+
+export const getIsRetentionTimeInMinutes = (
+  dateTime: Date,
+  retentionMinutes: number,
+): boolean => {
+  const currentDate: Date = new Date();
+
+  const diffInMillis = currentDate.getTime() - dateTime.getTime();
+  const diffInMinutes = diffInMillis / (1000 * 60);
+
+  if (diffInMinutes < retentionMinutes) {
+    return true;
+  } else {
+    return false;
+  }
+};
