@@ -88,8 +88,6 @@ const systemSize = {
   },
 };
 
-// const appDisplaySize = '540px';
-// const bottomNavBarHeight = '90px';
 const theme = {
   mainColor,
   grey,
