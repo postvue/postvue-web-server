@@ -1,7 +1,25 @@
+import { SEARCH_POST_POPULAR_QUERY_PARAM } from 'const/TabConfigConst';
 import { atom } from 'recoil';
 import { INIT_EMPTY_STRING_VALUE } from '../const/AttributeConst';
 import { INIT_CURSOR_ID } from '../const/PageConfigConst';
 import { PostRsp } from '../global/interface/post';
+import {
+  GetFavoriteTermRsp,
+  SearchPostResultInfoInterface,
+} from '../global/interface/search';
+
+interface PostHashMapBySearchWordInterface {
+  postHashMap: Map<string, PostRsp>;
+  position: number;
+  currentCursorId: string;
+}
+
+export const searchPostHashMapBySearhQueryAtom = atom<
+  Map<string, PostHashMapBySearchWordInterface>
+>({
+  key: 'searchPostHashMapBySearhQuery',
+  default: new Map(),
+});
 
 export const searchPostHashMapAtom = atom<Map<string, PostRsp>>({
   key: 'searchPostHashMap',
@@ -14,6 +32,48 @@ export const cursorIdAtomBySearchPost = atom<string>({
 });
 
 export const searchWordAtom = atom<string>({
-  key: 'seearchWord',
+  key: 'searchWord',
   default: INIT_EMPTY_STRING_VALUE,
+});
+
+export const searchTempWordAtom = atom<string>({
+  key: 'searcTemphWord',
+  default: INIT_EMPTY_STRING_VALUE,
+});
+
+export const isSearchInputActiveAtom = atom<boolean>({
+  key: 'isSearchInputActive',
+  default: false,
+});
+
+export const searchQueryRelationHashMapAtom = atom<Map<string, string[]>>({
+  key: 'searchQueryRelationHashMap',
+  default: new Map(),
+});
+
+export const searchScrollPositionStateAtom = atom<number>({
+  key: 'searchScrollPositionState',
+  default: 0,
+});
+
+export const searchFavoriteTermListAtom = atom<GetFavoriteTermRsp[]>({
+  key: 'searchFavoriteTermList',
+  default: [],
+});
+
+export const searchQueryAndFilterKeyAtom = atom<string>({
+  key: 'searchQueryAndFilterKey',
+  default: SEARCH_POST_POPULAR_QUERY_PARAM,
+});
+
+export const preSearchQueryAndFilterKeyAtom = atom<string>({
+  key: 'preSearchQueryAndFilterKey',
+  default: SEARCH_POST_POPULAR_QUERY_PARAM,
+});
+
+export const searchPostResultInfoAtom = atom<
+  Map<string, SearchPostResultInfoInterface>
+>({
+  key: 'searchPostResultInfo',
+  default: new Map(),
 });
