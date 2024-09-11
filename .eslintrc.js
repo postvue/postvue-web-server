@@ -32,8 +32,9 @@ module.exports = {
       'error',
       { singleQuote: true, semi: true, endOfLine: 'auto' },
     ],
-    'space-before-function-paren': ['error', 'never'],
+    // 'space-before-function-paren': ['error', 'never'],
+    'space-before-function-paren': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
-    '@typescript-eslint/explicit-module-boundary-types': ['error'], //함수 타입 지정
+    '@typescript-eslint/explicit-module-boundary-types': ['error'], //함수 타입 지정,
   },
 };
