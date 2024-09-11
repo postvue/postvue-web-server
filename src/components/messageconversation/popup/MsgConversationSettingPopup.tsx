@@ -39,7 +39,10 @@ const MsgConversationSettingPopup: React.FC<
   };
 
   return (
-    <PopupLayout setIsPopup={setIsSettingByMsgConversation}>
+    <PopupLayout
+      setIsPopup={setIsSettingByMsgConversation}
+      popupWrapStyle={PopupWrapStyle}
+    >
       <MsgSettingContainer>
         <AlarmManageWrap>
           <AlarmManage>알림 끄기</AlarmManage>
@@ -66,6 +69,10 @@ const MsgConversationSettingPopup: React.FC<
       </MsgSettingContainer>
     </PopupLayout>
   );
+};
+
+const PopupWrapStyle: React.CSSProperties = {
+  height: 'auto',
 };
 
 const MsgSettingContainer = styled.div`
