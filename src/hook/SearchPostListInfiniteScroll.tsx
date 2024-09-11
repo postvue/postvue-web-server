@@ -1,68 +1,142 @@
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
+import MasonryLayout from 'components/layouts/MasonryLayout';
+import { NO_IMAGE_DATA_LINK } from 'const/DummyDataConst';
+import { PAGE_NUM } from 'const/PageConfigConst';
+import { POST_TEXTFIELD_TYPE } from 'const/PostContentTypeConst';
+import {
+  SEARCH_POST_LASTEST_QUERY_PARAM,
+  SEARCH_POST_MY_NEAR_QUERY_PARAM,
+} from 'const/TabConfigConst';
+import { MasonryPostRsp } from 'global/interface/post';
+import { GetSearchPostsRsp } from 'global/interface/search';
+import { isValidString } from 'global/util/\bValidUtil';
+import {
+  decodeSearhWordAndFilterKey,
+  isValidSearchWordAndFilterKey,
+} from 'global/util/SearchPostUtil';
 import React, { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
+import { getPostSearchNear } from 'services/post/getPostSearchNear';
+import { getPostSearchPopular } from 'services/post/getPostSearchPopular';
 import styled from 'styled-components';
-
-import { useRecoilState, useResetRecoilState } from 'recoil';
-import { getPostSearch } from '../services/post/getPostSearch';
-import {
-  cursorIdAtomBySearchPost,
-  searchPostHashMapAtom,
-} from '../states/SearchPostAtom';
+import { getPostSearchLive } from '../services/post/getPostSearchLive';
 
 interface RepostInfiniteScrollProps {
-  searchWord: string;
+  searchQueryAndFilterKey: string;
+}
+
+export interface SearchPostQueryInterface {
+  pages: GetSearchPostsRsp[];
+  pageParams: unknown[];
 }
 
 const SearchPostListInfiniteScroll: React.FC<RepostInfiniteScrollProps> = ({
-  searchWord,
+  searchQueryAndFilterKey,
 }) => {
-  const [cursorNum, setCursorNum] = useRecoilState(cursorIdAtomBySearchPost);
+  const { ref, inView } = useInView();
 
-  const [ref, inView] = useInView();
+  const { fetchNextPage, hasNextPage, isFetchingNextPage, data } =
+    useInfiniteQuery<
+      GetSearchPostsRsp,
+      AxiosError,
+      SearchPostQueryInterface,
+      [string]
+    >({
+      queryKey: [searchQueryAndFilterKey], // query key
+      queryFn: async ({ pageParam }) => {
+        // pageParam이 string인지 확인
 
-  const [searchPostHashMap, setSearchPostHashMap] = useRecoilState(
-    searchPostHashMapAtom,
-  );
-  const resetCursorIdBySearchPost = useResetRecoilState(
-    cursorIdAtomBySearchPost,
-  );
-  const resetSearchPostHashMap = useResetRecoilState(searchPostHashMapAtom);
-
-  const callback = () => {
-    getPostSearch(searchWord, cursorNum)
-      .then((res) => {
-        if (res.snsPostRspList.length > 0) {
-          const newRepostHashMap = new Map(searchPostHashMap);
-
-          res.snsPostRspList.forEach((snsPost) => {
-            newRepostHashMap.set(snsPost.postId, snsPost);
-          });
-
-          setSearchPostHashMap(newRepostHashMap);
+        if (
+          typeof pageParam !== 'number' ||
+          !isValidString(searchQueryAndFilterKey) ||
+          !isValidSearchWordAndFilterKey(searchQueryAndFilterKey)
+        ) {
+          // pageParam이 유효하지 않은 경우 빈 결과를 반환하거나 에러를 던집니다.
+          return {
+            snsPostRspList: [],
+            isBookMarkedFavoriteTerm: false,
+            isFetchFavoriteState: false,
+          };
         }
 
-        setCursorNum(res.cursorId);
-      })
-      .catch((err) => {
-        throw err;
-      });
-  };
-  useEffect(() => {
-    if (inView) {
-      callback();
-    }
-  }, [inView, searchWord]);
+        // pageParam이 string인 경우 API 호출을 수행합니다.
+
+        const [searchWord, filterQueryPram] = decodeSearhWordAndFilterKey(
+          searchQueryAndFilterKey,
+        );
+
+        if (filterQueryPram === SEARCH_POST_LASTEST_QUERY_PARAM) {
+          return getPostSearchLive(searchWord, pageParam);
+        } else if (filterQueryPram === SEARCH_POST_MY_NEAR_QUERY_PARAM) {
+          return getPostSearchNear(searchWord, pageParam);
+        } else {
+          return getPostSearchPopular(searchWord, pageParam);
+        }
+      },
+
+      getNextPageParam: (lastPage, allPages) => {
+        // Increment pageParam by 1 for the next page
+
+        return lastPage.snsPostRspList.length > 0 ? allPages.length : undefined;
+      },
+
+      initialPageParam: PAGE_NUM,
+
+      enabled: !!searchQueryAndFilterKey,
+
+      select: (data) => {
+        return {
+          pages: [...data.pages].reverse(),
+          pageParams: [...data.pageParams].reverse(),
+        };
+      },
+    });
 
   useEffect(() => {
-    return () => {
-      resetCursorIdBySearchPost();
-      resetSearchPostHashMap();
-    };
-  }, []);
+    console.log('실행됨', inView, hasNextPage, isFetchingNextPage);
+    if (
+      isValidSearchWordAndFilterKey(searchQueryAndFilterKey) &&
+      inView &&
+      hasNextPage &&
+      !isFetchingNextPage
+    ) {
+      console.log(
+        '미친 놈들이 세계를 바꾼다.',
+        (data?.pages.flatMap.length || 0) <= 0,
+      );
+
+      fetchNextPage();
+    }
+  }, [inView]); //hasNextPage, isFetchingNextPage
 
   return (
-    <ScrollBottomContainer ref={ref}>
-      <div>검색 포스트 테스트</div>
+    <ScrollBottomContainer>
+      {data && (
+        <MasonryLayout
+          snsPostUrlList={data.pages.flatMap((page) =>
+            page.snsPostRspList.map((v) => {
+              let imageContent = v.postContents.find(
+                (postContent) =>
+                  postContent.postContentType !== POST_TEXTFIELD_TYPE,
+              )?.content;
+              imageContent = imageContent ? imageContent : NO_IMAGE_DATA_LINK;
+
+              const homePostRsp: MasonryPostRsp = {
+                postId: v.postId,
+                userId: v.userId,
+                postContent: imageContent,
+                username: v.username,
+                location: v.location,
+              };
+
+              return homePostRsp;
+            }),
+          )}
+        />
+      )}
+
+      <div ref={ref}> 보인다.</div>
     </ScrollBottomContainer>
   );
 };
