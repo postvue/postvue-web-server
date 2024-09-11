@@ -1,0 +1,21 @@
+import { api } from '..';
+import { PutFavoriteSearchTermReq } from '../../global/interface/search';
+
+import { FAVORITE_PATH, SEARCH_PATH, TERM_LIST_PATH } from '../appApiPath';
+
+export const putFavoriteSearchTerm = (
+  putFavoriteSearchTermReq: PutFavoriteSearchTermReq,
+): Promise<boolean> => {
+  return api
+    .put(
+      `${SEARCH_PATH}${FAVORITE_PATH}${TERM_LIST_PATH}`,
+      putFavoriteSearchTermReq,
+    )
+    .then((res) => {
+      console.log(res.data);
+      return res.data.data;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};
