@@ -65,17 +65,23 @@ const HomeHeader: React.FC = () => {
               onClick={() => {
                 if (v.tabId === TASTE_FOR_ME_TAB_ID) {
                   setScrollPositionByFollow(window.scrollY);
-                  window.scrollTo({ top: scrollPositionByTaste });
 
                   setCurrentIntertestByUserSettingInfo(
                     POPULARITY_STATE_SESSION_VALUE,
                   );
+
+                  setTimeout(() => {
+                    window.scrollTo({ top: scrollPositionByTaste });
+                  }, 0);
                 } else {
                   setScrollPositionByTaste(window.scrollY);
-                  window.scrollTo({ top: scrollPositionByFollow });
+
                   setCurrentIntertestByUserSettingInfo(
                     FOLLOW_STATE_SESSION_VALUE,
                   );
+                  setTimeout(() => {
+                    window.scrollTo({ top: scrollPositionByFollow });
+                  }, 0);
                 }
                 saveMainTabIdByHomeHistory(v.tabId);
                 setMainTabId(v.tabId);
@@ -86,7 +92,8 @@ const HomeHeader: React.FC = () => {
           ))}
         </HomeTabContainer>
         <SubTabContainer>
-          <FilterTab>
+          {/* @REFEC: 나중에 추가 될 기능 */}
+          {/* <FilterTab>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -102,8 +109,7 @@ const HomeHeader: React.FC = () => {
                 strokeLinejoin="round"
               />
             </svg>
-          </FilterTab>
-
+          </FilterTab> */}
           <NotificationTab>
             <Link to={NOTIFICATION_PATH}>
               <svg
@@ -130,7 +136,6 @@ const HomeHeader: React.FC = () => {
               </svg>
             </Link>
           </NotificationTab>
-
           <SearchTab>
             <Link to={SEARCH_PATH}>
               <svg
