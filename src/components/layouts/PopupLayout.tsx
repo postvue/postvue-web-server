@@ -8,7 +8,6 @@ import React, {
 } from 'react';
 import styled from 'styled-components';
 import { animationStyle } from '../../styles/animations';
-import BodyFixScrollElement from '../BodyFixScrollElement';
 
 interface PopupLayoutProps {
   children: ReactNode;
@@ -138,7 +137,8 @@ const PopupLayout: React.FC<PopupLayoutProps> = ({
           </PopupContentWrap>
         </PopupWrap>
       </PopupContainer>
-      {hasFixedActive && <BodyFixScrollElement />}
+      {/* @REFER: 현재 주석 처리 했으나 나중에 문제 발생할 수 있으닌 참고 바람 */}
+      {/* {hasFixedActive && <BodyFixScrollElement />} */}
     </PopupLayoutOverlay>
   );
 };
