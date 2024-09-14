@@ -3,7 +3,7 @@ import { MyProfileScrapList } from '../../global/interface/profile';
 import { PROFILE_LIST_PATH, SCRAP_LIST_PATH } from '../appApiPath';
 import { CURSOR_PARAM } from '../appApiQueryParam';
 
-interface GetMyProfileScrapListRsp {
+export interface GetMyProfileScrapListRsp {
   cursorId: string;
   myScrapLists: MyProfileScrapList[];
 }

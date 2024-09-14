@@ -4,15 +4,14 @@ import theme from '../../styles/theme';
 
 interface FloatingActionButtonLayoutProps {
   children: React.ReactNode;
-  FloatingActionAreaRef: React.RefObject<HTMLDivElement>;
 }
 
 const FloatingActionButtonLayout: React.FC<FloatingActionButtonLayoutProps> = ({
   children,
-  FloatingActionAreaRef,
 }) => {
   const prevScrollTopRef = useRef(0);
   const [scrollOpacity, setScrollOpacity] = useState(1);
+
   useEffect(() => {
     let animationFrameId: number;
 
@@ -22,26 +21,23 @@ const FloatingActionButtonLayout: React.FC<FloatingActionButtonLayoutProps> = ({
       }
 
       animationFrameId = requestAnimationFrame(() => {
-        if (FloatingActionAreaRef.current) {
-          const scrollTop = FloatingActionAreaRef.current.scrollTop;
-          const scrollDifference = scrollTop - prevScrollTopRef.current;
+        const scrollTop = window.scrollY;
+        const scrollDifference = scrollTop - prevScrollTopRef.current;
 
-          if (scrollDifference > 50) {
-            setScrollOpacity(0);
-            prevScrollTopRef.current = scrollTop;
-          } else if (scrollDifference < -50) {
-            setScrollOpacity(1);
-            prevScrollTopRef.current = scrollTop;
-          }
+        if (scrollDifference > 50) {
+          setScrollOpacity(0);
+          prevScrollTopRef.current = scrollTop;
+        } else if (scrollDifference < -50) {
+          setScrollOpacity(1);
+          prevScrollTopRef.current = scrollTop;
         }
       });
     };
 
-    const element = FloatingActionAreaRef.current;
-    element?.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll);
 
     return () => {
-      element?.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('scroll', handleScroll);
       if (animationFrameId) {
         cancelAnimationFrame(animationFrameId);
       }
@@ -68,7 +64,7 @@ const FloatingActionWrap = styled.div<{ opacity: number }>`
   cursor: pointer;
 
   background-color: rgba(255, 255, 255, ${(props) => props.opacity});
-  transition: background-color 0.3s ease; /* Smooth transition for background-color change */
+  transition: background-color 0.2s ease;
 `;
 
 export default FloatingActionButtonLayout;

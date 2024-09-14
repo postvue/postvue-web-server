@@ -1,10 +1,10 @@
+import BodyHiddenScrollElement from 'components/BodyHiddenScrollElement';
 import React, { useEffect, useState } from 'react';
 import { SetterOrUpdater } from 'recoil';
 import styled from 'styled-components';
 import { BOTTOM_ATTRIBUTE, TOP_ATTRIBUTE } from '../../const/AttributeConst';
 import { ContextMenuLayoutInfoInterface } from '../../global/interface/contextmenu/contextmenulayout';
 import { animationStyle } from '../../styles/animations';
-import BodyFixScrollElement from '../BodyFixScrollElement';
 
 interface ContextMenuPopupProps {
   children: React.ReactNode;
@@ -60,7 +60,7 @@ const ContextMenuPopup: React.FC<ContextMenuPopupProps> = ({
 
   return (
     <>
-      {hasFixedActive && <BodyFixScrollElement />}
+      {hasFixedActive && <BodyHiddenScrollElement />}
       <ContextMenuContainer
         $positionType={contextMenuLayoutInfo.positionType}
         $positionValue={contextMenuLayoutInfo.positionValue}

@@ -21,7 +21,7 @@ export class MsgConversationWsService {
   ): void {
     webSocketService.addOnInitializedCallback(() => {
       webSocketService.setSubscribe(
-        `${MESSAGES_BROKER_PATH}/${myAccountSeetingInterface.myUserId}`,
+        `${MESSAGES_BROKER_PATH}/${myAccountSeetingInterface.userId}`,
         (message: IMessage) => {
           const msgConversationSub: MsgConversationWsSub = JSON.parse(
             message.body,
@@ -32,8 +32,7 @@ export class MsgConversationWsService {
           } else {
             const msgConversation: MsgConversation = {
               isFollowMsg:
-                msgConversationSub.userId !==
-                myAccountSeetingInterface.myUserId,
+                msgConversationSub.userId !== myAccountSeetingInterface.userId,
               msgId: msgConversationSub.msgId,
               msgType: msgConversationSub.msgType,
               msgContent: msgConversationSub.msgContent,

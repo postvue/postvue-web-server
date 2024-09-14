@@ -1,12 +1,13 @@
 import anime from 'animejs';
+import { QueryStatePostScrapPreviewList } from 'hook/queryhook/QueryStatePostScrapPreviewList';
 import React, { useEffect, useRef, useState } from 'react';
 import { useSetRecoilState } from 'recoil';
+import { reactionPostIdAtom } from 'states/PostReactionAtom';
 import styled from 'styled-components';
 import { PostClipRsp } from '../../../../global/interface/post';
 import { GetMyProfileScrapPreviewsRsp } from '../../../../global/interface/profile';
 import { createPostToScrap } from '../../../../services/profile/createPostToScrap';
 import { deletePostToScrap } from '../../../../services/profile/deletePostToScrap';
-import { getMyProfileScrapPreviews } from '../../../../services/profile/getMyProfileScrapPreview';
 import { isActiveScrapViewPopupAtom } from '../../../../states/ProfileAtom';
 import theme from '../../../../styles/theme';
 import ContextMenuPopup from '../../../popups/ContextMenuPopup';
@@ -32,12 +33,26 @@ const ClipButton: React.FC<ClipButtonProps> = ({
 
   const [isScrapBoardActive, setIsScrapBoardActive] = useState<boolean>(false);
 
+  const { data, isLoading } = QueryStatePostScrapPreviewList(
+    postId,
+    isScrapBoardActive,
+  );
+
+  const setReactionPostId = useSetRecoilState(reactionPostIdAtom);
+
   const onClickClipButton = (
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
   ) => {
     e.stopPropagation();
+
+    setReactionPostId(postId);
     setIsScrapBoardActive(true);
   };
+
+  useEffect(() => {
+    if (!data) return;
+    setScrapBoardPreviewList(data);
+  }, [data]);
 
   const onAddScrap = (scrapId: string) => {
     if (postId) {
@@ -113,12 +128,6 @@ const ClipButton: React.FC<ClipButtonProps> = ({
     setIsScrapBoardActive(false);
   };
 
-  useEffect(() => {
-    getMyProfileScrapPreviews(postId).then((value) => {
-      setScrapBoardPreviewList(value);
-    });
-  }, []);
-
   return (
     <ClipButtonContainer key={postId}>
       <ClipButtonWrap onClick={(e) => onClickClipButton(e)} ref={clipRef}>
@@ -138,7 +147,7 @@ const ClipButton: React.FC<ClipButtonProps> = ({
           />
         </svg>
       </ClipButtonWrap>
-      {isScrapBoardActive && (
+      {isScrapBoardActive && !isLoading && (
         <ContextMenuPopup
           contextMenuRef={clipRef}
           setIsActive={setIsScrapBoardActive}

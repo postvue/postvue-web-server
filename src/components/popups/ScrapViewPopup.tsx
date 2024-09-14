@@ -1,7 +1,10 @@
+import { onClickClipGlobalState } from 'global/globalstateaction/onClickClipGlobalState';
 import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilState, useSetRecoilState } from 'recoil';
+import { postRspAtom } from 'states/PostAtom';
 import styled from 'styled-components';
+import theme from 'styles/theme';
 import { PROFILE_NEW_SCRAP_PATH } from '../../const/PathConst';
 import {
   POST_CONTENT_TYPE,
@@ -12,7 +15,8 @@ import { PostToScrapListReq } from '../../global/interface/profile';
 import { createPostToScrapList } from '../../services/profile/createPostToScrapList';
 import {
   isActiveScrapViewPopupAtom,
-  myProfileScrapListAtom,
+  myProfileClipHashMapAtom,
+  profilePostHashMapAtom,
 } from '../../states/ProfileAtom';
 import ProfileScrapViewBody from '../common/body/ProfileScrapViewBody';
 import PopupLayout from '../layouts/PopupLayout';
@@ -32,13 +36,22 @@ const ScrapViewPopup: React.FC<ScrapViewPopupProps> = ({
   postContentType,
   postContentUrl,
 }) => {
+  // 클립 관련 상태 관리
+  const [profilePostHashMap, setProfilePostHashMap] = useRecoilState(
+    profilePostHashMapAtom,
+  );
+  const [myProfileClipHashMap, setMyProfileClipHashMap] = useRecoilState(
+    myProfileClipHashMapAtom,
+  );
+
+  const [snsPost, setSnsPost] = useRecoilState(postRspAtom);
+
   const navigate = useNavigate();
   const setIsActiveScrapViewPopup = useSetRecoilState(
     isActiveScrapViewPopupAtom,
   );
 
   const ScrapViewBodyRef = useRef<HTMLDivElement>(null);
-  const myProfileScrapList = useRecoilValue(myProfileScrapListAtom);
 
   const [selectedScrapList, setSelectedScrapList] = useState<string[]>([]);
 
@@ -56,6 +69,22 @@ const ScrapViewPopup: React.FC<ScrapViewPopupProps> = ({
     };
     createPostToScrapList(postToScrapListReq, postId).then((value) => {
       setIsActiveScrapViewPopup(false);
+      onClickClipGlobalState(
+        postId,
+        profilePostHashMap,
+        setProfilePostHashMap,
+        myProfileClipHashMap,
+        setMyProfileClipHashMap,
+        !snsPost.isClipped,
+        {
+          location: snsPost.location,
+          postThumbnailContent: snsPost.postContents[0].content,
+          userId: snsPost.userId,
+          username: snsPost.username,
+          postedAt: snsPost.postedAt,
+        },
+      );
+      setSnsPost((prev) => ({ ...prev, isClipped: value.isClipped }));
     });
   };
 
@@ -81,7 +110,6 @@ const ScrapViewPopup: React.FC<ScrapViewPopupProps> = ({
       <ProfileScrapViewBody
         isAddMove={true}
         profileScrapViewRef={ScrapViewBodyRef}
-        profileScrapList={myProfileScrapList}
         onButtonEvent={onSelectScraps}
         mainContainerStyle={ScrapViewPopupContainerStyle}
         scrapIdList={selectedScrapList}
@@ -105,6 +133,8 @@ const ADD_POST_TO_SCRAP_BUTTON_HEIGHT = '96px';
 
 const ScrapViewPopupContainerStyle: React.CSSProperties = {
   marginBottom: ADD_POST_TO_SCRAP_BUTTON_HEIGHT,
+  overflow: 'scroll',
+  height: `calc(100vh - 65px - ${theme.systemSize.bottomNavBar.height})`,
 };
 
 const ScrapViewPopupTitleWrap = styled.div`

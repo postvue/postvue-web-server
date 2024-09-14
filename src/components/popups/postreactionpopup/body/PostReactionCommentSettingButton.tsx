@@ -100,7 +100,7 @@ const PostReactionCommentSettingButton: React.FC<
             hasFixedActive={false}
           >
             <PostCommentSettingItemWrap>
-              {myAccountSettingInfo.myUserId === userId && (
+              {myAccountSettingInfo.userId === userId && (
                 <>
                   <PostCommentSettingItem
                     onClick={() => onClickDeletePostComment(commentId)}

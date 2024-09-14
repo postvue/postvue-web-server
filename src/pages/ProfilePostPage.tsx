@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil';
 
+import PostVideoContentELement from 'components/common/posts/element/PostVideoContentElement';
+import { onClickClipGlobalState } from 'global/globalstateaction/onClickClipGlobalState';
 import styled from 'styled-components';
 import 'swiper/css';
 import { FreeMode, Navigation, Pagination, Thumbs } from 'swiper/modules';
@@ -21,10 +23,13 @@ import ScrapViewPopup from '../components/popups/ScrapViewPopup';
 import ToastMsgPopup, { notify } from '../components/popups/ToastMsgPopup';
 import PrevButton from '../components/PrevButton';
 import { INIT_SCROLL_POSITION } from '../const/AttributeConst';
-import { NO_IMAGE_DATA_LINK } from '../const/DummyDataConst';
 import { INIT_CURSOR_ID } from '../const/PageConfigConst';
 import { PROFILE_LIST_PATH } from '../const/PathConst';
-import { POST_TEXTFIELD_TYPE } from '../const/PostContentTypeConst';
+import {
+  POST_IMAGE_TYPE,
+  POST_TEXTFIELD_TYPE,
+  POST_VIDEO_TYPE,
+} from '../const/PostContentTypeConst';
 import { PROFILE_URL_CLIP_BOARD_TEXT } from '../const/SystemPhraseConst';
 import { MasonryPostRsp, PostRsp } from '../global/interface/post';
 import { isValidString } from '../global/util/\bValidUtil';
@@ -51,12 +56,22 @@ import {
 import {
   isActiveProfileBlockPopupAtom,
   isActiveScrapViewPopupAtom,
+  myProfileClipHashMapAtom,
   myProfileSettingInfoAtom,
+  profilePostHashMapAtom,
 } from '../states/ProfileAtom';
 import { systemPostRspHashMapAtom } from '../states/SystemConfigAtom';
 import theme from '../styles/theme';
 
 const ProfilePostPage: React.FC = () => {
+  // 클립 관련 상태 관리
+  const [profilePostHashMap, setProfilePostHashMap] = useRecoilState(
+    profilePostHashMapAtom,
+  );
+  const [myProfileClipHashMap, setMyProfileClipHashMap] = useRecoilState(
+    myProfileClipHashMapAtom,
+  );
+
   const param = useParams();
   const [snsSystemPostHashMap, setSnsSystemPostHashMap] = useRecoilState(
     systemPostRspHashMapAtom,
@@ -244,9 +259,14 @@ const ProfilePostPage: React.FC = () => {
                 if (value.postContentType !== POST_TEXTFIELD_TYPE) {
                   return (
                     <SwiperSlide key={index}>
-                      <PostImgWrap>
-                        <PostImgDiv src={value.content} />
-                      </PostImgWrap>
+                      {value.postContentType === POST_IMAGE_TYPE && (
+                        <PostImgWrap>
+                          <PostImgDiv src={value.content} />
+                        </PostImgWrap>
+                      )}
+                      {value.postContentType === POST_VIDEO_TYPE && (
+                        <PostVideoContentELement videoSrc={value.content} />
+                      )}
                     </SwiperSlide>
                   );
                 }
@@ -283,6 +303,38 @@ const ProfilePostPage: React.FC = () => {
               <PostReactionSingleElement
                 postId={postId}
                 postRspAtom={postRspAtom}
+                funcHeartState={() => {
+                  const postBySys = snsSystemPostHashMap.get(postId);
+                  if (postBySys) {
+                    const tempProfilePostHashMap = new Map(profilePostHashMap);
+
+                    const tempProfilePost = tempProfilePostHashMap.get(postId);
+                    if (tempProfilePost) {
+                      tempProfilePostHashMap.set(postId, {
+                        ...tempProfilePost,
+                        isLiked: !postBySys.isLiked,
+                      });
+                      setProfilePostHashMap(tempProfilePostHashMap);
+                    }
+                  }
+                }}
+                funcClipState={() => {
+                  onClickClipGlobalState(
+                    postId,
+                    profilePostHashMap,
+                    setProfilePostHashMap,
+                    myProfileClipHashMap,
+                    setMyProfileClipHashMap,
+                    !snsPost.isClipped,
+                    {
+                      location: snsPost.location,
+                      postThumbnailContent: snsPost.postContents[0].content,
+                      userId: snsPost.userId,
+                      username: snsPost.username,
+                      postedAt: snsPost.postedAt,
+                    },
+                  );
+                }}
               />
             )}
 
@@ -322,16 +374,13 @@ const ProfilePostPage: React.FC = () => {
             snsPostUrlList={Array.from(postRelationHashMap.entries())
               .filter(([, v]) => v.postId !== postId)
               .map(([, v]) => {
-                let imageContent = v.postContents.find(
-                  (postContent) =>
-                    postContent.postContentType !== POST_TEXTFIELD_TYPE,
-                )?.content;
-                imageContent = imageContent ? imageContent : NO_IMAGE_DATA_LINK;
+                const postContent = v.postContents[0];
 
                 const homePostRsp: MasonryPostRsp = {
                   postId: v.postId,
                   userId: v.userId,
-                  postContent: imageContent,
+                  postContent: postContent.content,
+                  postContentType: postContent.postContentType,
                   username: v.username,
                   location: v.location,
                 };
@@ -362,7 +411,7 @@ const ProfilePostPage: React.FC = () => {
               >
                 게시물 링크 복사
               </SettingPopupContent>
-              {myAccountSettingInfo.myUserId !== snsPost.userId ? (
+              {myAccountSettingInfo.userId !== snsPost.userId ? (
                 <>
                   <SettingPopupContent onClick={onClickPostNotInterest}>
                     관심 없음
@@ -494,9 +543,10 @@ const SettingButton = styled.div`
 
 const SettingPopupWrap = styled.div`
   bottom: 0;
-  height: 297px;
+  height: auto;
 
   margin-top: 50px;
+  padding-bottom: 100px;
   width: 100%;
   background: white;
   border-radius: 15px 15px 0 0;

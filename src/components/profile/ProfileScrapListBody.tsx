@@ -1,31 +1,27 @@
 import React, { useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 import {
-  PROFILE_MY_SCRAP_LIST_PATH,
   PROFILE_NEW_SCRAP_PATH,
+  PROFILE_SCRAP_LIST_PATH,
 } from '../../const/PathConst';
-import { myProfileScrapListAtom } from '../../states/ProfileAtom';
 import ProfileScrapViewBody from '../common/body/ProfileScrapViewBody';
 import FloatingActionButtonLayout from '../layouts/FloatingActionButtonLayout';
 
 const ProfileScrapListBody: React.FC = () => {
-  const myProfileScrapList = useRecoilValue(myProfileScrapListAtom);
   const navigate = useNavigate();
 
   const MakeScrapScrollRef = useRef<HTMLDivElement>(null);
 
   return (
-    <>
+    <ProfileScrapListBodyContainer>
       <ProfileScrapViewBody
         profileScrapViewRef={MakeScrapScrollRef}
-        profileScrapList={myProfileScrapList}
         onButtonEvent={(scrapId: string) => {
-          navigate(`${PROFILE_MY_SCRAP_LIST_PATH}/${scrapId}`);
+          navigate(`${PROFILE_SCRAP_LIST_PATH}/${scrapId}`);
         }}
       />
-      <FloatingActionButtonLayout FloatingActionAreaRef={MakeScrapScrollRef}>
+      <FloatingActionButtonLayout>
         <Link to={PROFILE_NEW_SCRAP_PATH}>
           <MakeScrapButton>
             <MakeScrapButtonIconWrap>
@@ -48,9 +44,13 @@ const ProfileScrapListBody: React.FC = () => {
           </MakeScrapButton>
         </Link>
       </FloatingActionButtonLayout>
-    </>
+    </ProfileScrapListBodyContainer>
   );
 };
+
+const ProfileScrapListBodyContainer = styled.div`
+  margin-top: ${({ theme }) => theme.systemSize.header.height};
+`;
 
 const MakeScrapButton = styled.div`
   display: flex;

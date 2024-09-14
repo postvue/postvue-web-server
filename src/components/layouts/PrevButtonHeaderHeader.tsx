@@ -50,7 +50,8 @@ const PrevButtonHeaderHeader: React.FC<PrevButtonHeaderProps> = ({
 const PrevButtonHeaderContainer = styled.div`
   margin: auto 0;
   width: 100%;
-  padding: 0 22px 0 15px;
+  padding: 0 ${({ theme }) => theme.systemSize.header.paddingLeftRightMargin} 0
+    15px;
 `;
 
 const PrevButtonHeaderHeaderWrap = styled.div`

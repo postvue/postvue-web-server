@@ -1,29 +1,30 @@
-import React, { useEffect, useState } from 'react';
+import { QueryStateProfileScrapList } from 'hook/queryhook/QueryStateProfileScrapList';
+import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { useRecoilValue } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import styled from 'styled-components';
-import { MyProfileScrapInfo } from '../../global/interface/profile';
 import ProfileScarpInfiniteScroll from '../../hook/ProfileScrapnfiniteScroll';
 import {
   myProfileScrapAtom,
-  myProfileScrapListAtom,
+  myProfileScrapInfoAtom,
 } from '../../states/ProfileAtom';
 import MasonryLayout from '../layouts/MasonryLayout';
 const ProfileScrapBody: React.FC = () => {
   const param = useParams();
   const scrapId = param.scrap_id;
-  const myProfileScrapList = useRecoilValue(myProfileScrapListAtom);
+  const { data } = QueryStateProfileScrapList();
   const myProfileScrap = useRecoilValue(myProfileScrapAtom);
-  const [profileScrapInfo, setProfileScrapInfo] = useState<MyProfileScrapInfo>({
-    scrapListId: '',
-    scrapName: '',
-  });
+  const [profileScrapInfo, setProfileScrapInfo] = useRecoilState(
+    myProfileScrapInfoAtom,
+  );
 
   useEffect(() => {
     if (scrapId) {
-      const myProfileScrapInfo = myProfileScrapList.find(
-        (v) => v.scrapId === scrapId,
-      );
+      const myProfileScrapInfo = data?.pages
+        .flatMap((value) => value.myScrapLists)
+        .flat()
+        .find((v) => v.scrapId === scrapId);
+
       if (myProfileScrapInfo !== undefined) {
         setProfileScrapInfo({
           scrapListId: myProfileScrapInfo.scrapId,
@@ -49,7 +50,8 @@ const ProfileScrapBody: React.FC = () => {
             return {
               postId: v.postId,
               userId: v.userId,
-              postContent: v.postThumbnailImagePath,
+              postContent: v.postThumbnailContent,
+              postContentType: v.postThumbnailContentType,
               username: v.username,
               location: v.location,
             };
@@ -73,7 +75,9 @@ const ProfileScrapBody: React.FC = () => {
   );
 };
 
-const ProfileScrapBodyContainer = styled.div``;
+const ProfileScrapBodyContainer = styled.div`
+  padding-top: ${({ theme }) => theme.systemSize.header.height};
+`;
 
 const ProfileScrapBodyWrap = styled.div``;
 

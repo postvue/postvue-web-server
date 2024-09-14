@@ -1,7 +1,5 @@
 import React from 'react';
 import { useRecoilValue } from 'recoil';
-import { NO_IMAGE_DATA_LINK } from '../../const/DummyDataConst';
-import { POST_TEXTFIELD_TYPE } from '../../const/PostContentTypeConst';
 import { TASTE_FOR_ME_TAB_ID } from '../../const/TabConfigConst';
 import { MasonryPostRsp } from '../../global/interface/post';
 import FollowForMeInfiniteScroll from '../../hook/FollowForMeInfiniteScroll';
@@ -28,16 +26,13 @@ const HomeBody: React.FC = () => {
           <MasonryLayout
             snsPostUrlList={Array.from(snsPostRspHashMapByTaste.entries()).map(
               ([, v]) => {
-                let imageContent = v.postContents.find(
-                  (postContent) =>
-                    postContent.postContentType !== POST_TEXTFIELD_TYPE,
-                )?.content;
-                imageContent = imageContent ? imageContent : NO_IMAGE_DATA_LINK;
+                const postContent = v.postContents[0];
 
                 const homePostRsp: MasonryPostRsp = {
                   postId: v.postId,
                   userId: v.userId,
-                  postContent: imageContent,
+                  postContent: postContent.content,
+                  postContentType: postContent.postContentType,
                   username: v.username,
                   location: v.location,
                 };
@@ -56,18 +51,13 @@ const HomeBody: React.FC = () => {
                 snsPostUrlList={Array.from(
                   snsPostRspHashMapByFollow.entries(),
                 ).map(([, v]) => {
-                  let imageContent = v.postContents.find(
-                    (postContent) =>
-                      postContent.postContentType !== POST_TEXTFIELD_TYPE,
-                  )?.content;
-                  imageContent = imageContent
-                    ? imageContent
-                    : NO_IMAGE_DATA_LINK;
+                  const postContent = v.postContents[0];
 
                   const homePostRsp: MasonryPostRsp = {
                     postId: v.postId,
                     userId: v.userId,
-                    postContent: imageContent,
+                    postContent: postContent.content,
+                    postContentType: postContent.postContentType,
                     username: v.username,
                     location: v.location,
                   };

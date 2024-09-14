@@ -1,9 +1,7 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import MasonryLayout from 'components/layouts/MasonryLayout';
-import { NO_IMAGE_DATA_LINK } from 'const/DummyDataConst';
 import { PAGE_NUM } from 'const/PageConfigConst';
-import { POST_TEXTFIELD_TYPE } from 'const/PostContentTypeConst';
 import {
   SEARCH_POST_LASTEST_QUERY_PARAM,
   SEARCH_POST_MY_NEAR_QUERY_PARAM,
@@ -94,18 +92,12 @@ const SearchPostListInfiniteScroll: React.FC<RepostInfiniteScrollProps> = ({
     });
 
   useEffect(() => {
-    console.log('실행됨', inView, hasNextPage, isFetchingNextPage);
     if (
       isValidSearchWordAndFilterKey(searchQueryAndFilterKey) &&
       inView &&
       hasNextPage &&
       !isFetchingNextPage
     ) {
-      console.log(
-        '미친 놈들이 세계를 바꾼다.',
-        (data?.pages.flatMap.length || 0) <= 0,
-      );
-
       fetchNextPage();
     }
   }, [inView]); //hasNextPage, isFetchingNextPage
@@ -116,16 +108,18 @@ const SearchPostListInfiniteScroll: React.FC<RepostInfiniteScrollProps> = ({
         <MasonryLayout
           snsPostUrlList={data.pages.flatMap((page) =>
             page.snsPostRspList.map((v) => {
-              let imageContent = v.postContents.find(
-                (postContent) =>
-                  postContent.postContentType !== POST_TEXTFIELD_TYPE,
-              )?.content;
-              imageContent = imageContent ? imageContent : NO_IMAGE_DATA_LINK;
+              const postContent = v.postContents[0];
+              // let imageContent = v.postContents.find(
+              //   (postContent) =>
+              //     postContent.postContentType !== POST_TEXTFIELD_TYPE,
+              // )?.content;
+              // imageContent = imageContent ? imageContent : NO_IMAGE_DATA_LINK;
 
               const homePostRsp: MasonryPostRsp = {
                 postId: v.postId,
                 userId: v.userId,
-                postContent: imageContent,
+                postContent: postContent.content,
+                postContentType: postContent.postContentType,
                 username: v.username,
                 location: v.location,
               };

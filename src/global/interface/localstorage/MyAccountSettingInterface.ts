@@ -1,5 +1,5 @@
 export interface MyAccountSettingInterface {
-  myUserId: string;
+  userId: string;
   username: string;
   profilePath: string;
 }

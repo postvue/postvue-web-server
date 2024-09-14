@@ -85,6 +85,7 @@ const systemSize = {
   },
   header: {
     height: '50px',
+    paddingLeftRightMargin: '21px',
   },
 };
 

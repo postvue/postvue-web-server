@@ -84,7 +84,7 @@ const SearchPostBody: React.FC = () => {
                   if (v.tabId !== SEARCH_POST_POPULAR_FILTER_ID) {
                     searchResultPath += `?${SEARCH_POST_FILTER_QUERY_PARAM}=${v.queryParam}`;
                   }
-                  navigate(searchResultPath);
+                  navigate(searchResultPath, { replace: true });
                 }
               }}
             >

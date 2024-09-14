@@ -6,7 +6,7 @@ import { MyAccountSettingInterface } from '../interface/localstorage/MyAccountSe
 
 export const getMyAccountSettingInfo = (): MyAccountSettingInterface => {
   const initMyAccount: MyAccountSettingInterface = {
-    myUserId: INIT_MY_ACCOUNT_STRING_VALUE,
+    userId: INIT_MY_ACCOUNT_STRING_VALUE,
     username: INIT_MY_ACCOUNT_STRING_VALUE,
     profilePath: INIT_MY_ACCOUNT_STRING_VALUE,
   };

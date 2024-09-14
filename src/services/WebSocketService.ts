@@ -126,7 +126,7 @@ export class WebSocketService {
       getMyAccountSettingInfo();
 
     this.client.subscribe(
-      `${API_SESSIONS_PATH}/${myAccountSetting.myUserId}`,
+      `${API_SESSIONS_PATH}/${myAccountSetting.userId}`,
       (message: IMessage) => {
         const sessionActiveUserInfoSubList: SessionActiveUserListSub =
           JSON.parse(message.body) as SessionActiveUserListSub;
@@ -134,7 +134,7 @@ export class WebSocketService {
         this.saveSessionActiveInfo(sessionActiveUserInfoSubList);
 
         this.client.subscribe(
-          `${SESSION_BROKER_PATH}/${myAccountSetting.myUserId}`,
+          `${SESSION_BROKER_PATH}/${myAccountSetting.userId}`,
           (message: IMessage) => {
             const sessionActiveUserInfoSubList: SessionActiveUserListSub =
               JSON.parse(message.body) as SessionActiveUserListSub;

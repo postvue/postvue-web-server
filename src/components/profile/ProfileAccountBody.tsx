@@ -1,14 +1,19 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useRecoilValue } from 'recoil';
+import LongPressToResizeButton from 'components/common/buttton/LongPressToResizeButton';
+import ScrapViewPopup from 'components/popups/ScrapViewPopup';
+import React, { useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 import { POST_TEXTFIELD_TYPE } from '../../const/PostContentTypeConst';
-import ProfilePostListInfiniteScroll from '../../hook/ProfilePostListInfiniteScroll';
+import ProfilePostListInfiniteScroll from '../../hook/ProfilePostListInfiniteScrollBeta';
 import {
   isPostReactionAtom,
   reactionPostIdAtom,
 } from '../../states/PostReactionAtom';
-import { profilePostHashMapAtom } from '../../states/ProfileAtom';
+import {
+  isActiveScrapViewPopupAtom,
+  profilePostHashMapAtom,
+} from '../../states/ProfileAtom';
 import theme from '../../styles/theme';
 import PostReactionListElement from '../common/posts/body/PostReactionListElement';
 import PostTextContent from '../common/posts/body/PostTextContent';
@@ -19,19 +24,33 @@ const ProfileAccountBody: React.FC = () => {
   const snsPostHashMap = useRecoilValue(profilePostHashMapAtom);
   const navigate = useNavigate();
   const reactionPostId = useRecoilValue(reactionPostIdAtom);
-  const isPopupActive = useRecoilValue(isPostReactionAtom);
+  const [isPopupActive, setIsPopupActive] = useRecoilState(isPostReactionAtom);
+
+  const param = useParams();
+  const username = param.username || '';
+
+  const [isActiveScrapViewPopup, setIsActiveScrapViewPopup] = useRecoilState(
+    isActiveScrapViewPopupAtom,
+  );
+
+  useEffect(() => {
+    return () => {
+      // resetIsPostReactionPopup();
+      setIsPopupActive(false);
+      setIsActiveScrapViewPopup(false);
+    };
+  }, []);
 
   return (
     <ProfileAccountBodyContainer>
       <ProfileAccountInfo />
       <ProfilePostListContainer>
         {Array.from(snsPostHashMap.entries()).map(([k, v]) => {
+          //@REFER: 나중에 수정해야 될 부분
           const imageContentList = v.postContents.filter(
             (postContent) =>
               postContent.postContentType !== POST_TEXTFIELD_TYPE,
           );
-
-          imageContentList;
 
           return (
             <ProfilePostContainer
@@ -39,11 +58,13 @@ const ProfileAccountBody: React.FC = () => {
               onClick={() => navigate(`/${v.username}/p/${v.postId}`)}
             >
               <ProfilePostImgListWrap>
-                {imageContentList.map((v, i) => {
+                {imageContentList.map((value, i) => {
                   return (
-                    <ProfilePostImgWrap key={i}>
-                      <ProfilePostImg src={v.content} />
-                    </ProfilePostImgWrap>
+                    <LongPressToResizeButton key={i}>
+                      <ProfilePostImgWrap>
+                        <ProfilePostImg src={value.content} />
+                      </ProfilePostImgWrap>
+                    </LongPressToResizeButton>
                   );
                 })}
               </ProfilePostImgListWrap>
@@ -59,9 +80,23 @@ const ProfileAccountBody: React.FC = () => {
             </ProfilePostContainer>
           );
         })}
-        <ProfilePostListInfiniteScroll />
+        {username && <ProfilePostListInfiniteScroll username={username} />}
       </ProfilePostListContainer>
       {isPopupActive && <PostReactionPopup postId={reactionPostId} />}
+      {isActiveScrapViewPopup &&
+        reactionPostId &&
+        snsPostHashMap.get(reactionPostId)?.postContents !== undefined && (
+          <ScrapViewPopup
+            postId={reactionPostId}
+            postContentUrl={
+              snsPostHashMap.get(reactionPostId)?.postContents[0].content || ''
+            }
+            postContentType={
+              snsPostHashMap.get(reactionPostId)?.postContents[0]
+                .postContentType || ''
+            }
+          />
+        )}
     </ProfileAccountBodyContainer>
   );
 };
@@ -73,6 +108,9 @@ const ProfileAccountBodyContainer = styled.div`
 const ProfilePostListContainer = styled.div`
   padding-top: 26px;
   margin: 0 20px;
+  display: flex;
+  flex-flow: column;
+  gap: 13px;
 `;
 
 const ProfilePostContainer = styled.div`
@@ -90,7 +128,7 @@ const ProfilePostImgWrap = styled.div`
 const ProfilePostImg = styled.div<{ src: string }>`
   width: 100%;
   vertical-align: bottom;
-  aspect-ratio: 3/3;
+  aspect-ratio: 3/3.5;
   background: url(${(props) => props.src}) center center / cover;
   border-radius: 8px;
 `;

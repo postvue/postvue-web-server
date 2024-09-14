@@ -27,3 +27,20 @@ export const SEARCH_POST_LASTEST_QUERY_PARAM = 'live';
 export const SEARCH_POST_MY_NEAR_FILTER_NAME = '내 주변';
 export const SEARCH_POST_MY_NEAR_FILTER_ID = 3;
 export const SEARCH_POST_MY_NEAR_QUERY_PARAM = 'near';
+
+// 내 프로필 팔로우 페이지
+export const PROFILE_FOLLOWING_NAME = '팔로잉';
+export const PROFILE_FOLLOWING_TAB_PARAM = 'following';
+
+export const PROFILE_FOLLOWER_NAME = '팔로워';
+export const PROFILE_FOLLOWER_TAB_PARAM = 'follower';
+
+// 내 계정 설정 페이지
+export const ACCOUNT_SETTING_PROFILE_EDIT_TAB_NAME = '프로필 편집';
+export const ACCOUNT_SETTING_PROFILE_MANAGE_TAB_NAME = '계정 관리';
+export const ACCOUNT_SETTING_PROFILE_BLOCK_LIST_TAB_NAME = '차단 관리';
+export const ACCOUNT_SETTING_PRIVACY_POLICY_TAB_NAME = '개인정보 보호';
+export const ACCOUNT_SETTING_PROFILE_NOTIFICATIONS_TAB_NAME = '알림 설정';
+export const ACCOUNT_SETTING_TERMS_OF_SERVICE_TAB_NAME = '서비스 이용 약관';
+export const ACCOUNT_SETTING_NOTICE_SERVIDE_TAB_NAME = '공지사항';
+export const ACCOUNT_SETTING_CONTACT_TAB_NAME = '문의하기';
