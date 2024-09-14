@@ -1,3 +1,6 @@
+import MyProfileEditPage from 'pages/MyProfileEditPage';
+import ProfileAccountSettingPage from 'pages/ProfileAccountSettingPage';
+import ProfileFollowListPage from 'pages/ProfileFolllowListPage';
 import React from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import {
@@ -7,11 +10,14 @@ import {
   MSG_BLOCK_LIST_MANAGE_PATH,
   MSG_HIDDEN_LIST_MANAGE_PATH,
   PROFILE_ACCOUNT_PATH,
-  PROFILE_MY_CLIP_LIST_PATH,
-  PROFILE_MY_SCRAP_LIST_PATH,
-  PROFILE_MY_SCRAP_PATH,
+  PROFILE_CLIP_LIST_PATH,
+  PROFILE_EDIT_PATH,
+  PROFILE_FOLLOW_LIST_PATH,
   PROFILE_NEW_SCRAP_PATH,
   PROFILE_POST_LIST_PATH,
+  PROFILE_SCRAP_LIST_PATH,
+  PROFILE_SCRAP_PATH,
+  PROFILE_SETTING_PATH,
   SEARCH_PATH,
   SEARCH_POST_PATH,
 } from './const/PathConst';
@@ -46,15 +52,12 @@ const AppRouter: React.FC = (): JSX.Element => {
           path={MESSAGE_CONVERSTAION_PATH}
           element={<MessageConversationPage />}
         />
+        <Route path={PROFILE_CLIP_LIST_PATH} element={<MyProfileClipPage />} />
         <Route
-          path={PROFILE_MY_CLIP_LIST_PATH}
-          element={<MyProfileClipPage />}
-        />
-        <Route
-          path={PROFILE_MY_SCRAP_LIST_PATH}
+          path={PROFILE_SCRAP_LIST_PATH}
           element={<MyProfileScrapListPage />}
         />
-        <Route path={PROFILE_MY_SCRAP_PATH} element={<MyProfileScrap />} />
+        <Route path={PROFILE_SCRAP_PATH} element={<MyProfileScrap />} />
         <Route path={PROFILE_NEW_SCRAP_PATH} element={<MakeScrapPage />} />
         <Route path={PROFILE_ACCOUNT_PATH} element={<ProfileAccountPage />} />
         <Route
@@ -64,6 +67,16 @@ const AppRouter: React.FC = (): JSX.Element => {
         <Route
           path={MSG_HIDDEN_LIST_MANAGE_PATH}
           element={<MsgHiddenListManagePage />}
+        />
+        <Route
+          path={PROFILE_FOLLOW_LIST_PATH}
+          element={<ProfileFollowListPage />}
+        />
+
+        <Route path={PROFILE_EDIT_PATH} element={<MyProfileEditPage />} />
+        <Route
+          path={PROFILE_SETTING_PATH}
+          element={<ProfileAccountSettingPage />}
         />
       </Routes>
     </BrowserRouter>
