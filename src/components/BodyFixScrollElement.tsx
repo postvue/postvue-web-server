@@ -4,7 +4,7 @@ const BodyFixScrollElement: React.FC = () => {
   const scrollY = useRef<number>(0);
   useEffect(() => {
     scrollY.current = window.scrollY;
-    const bodyElement = document.body;
+
     document.body.style.position = 'fixed';
     document.body.style.top = `-${scrollY.current}px`;
     document.body.style.left = '0px';
