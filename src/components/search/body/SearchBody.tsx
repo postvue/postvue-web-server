@@ -66,8 +66,8 @@ const SearchBody: React.FC = () => {
                     style={{
                       width: `${size.width}px`,
                       height: `${size.height}px`,
-                      marginLeft: i === 0 ? SuggestContainerSideMargin : '0',
-                      marginRight:
+                      paddingLeft: i === 0 ? SuggestContainerSideMargin : '0',
+                      paddingRight:
                         i === data.length - 1 ? SuggestContainerSideMargin : '',
                     }}
                   >
@@ -158,9 +158,12 @@ const FavoriteTermListWrap = styled.div`
   display: flex;
   justify-content: space-between;
   margin: 0 ${SuggestContainerSideMargin};
+  padding-bottom: 12px;
 `;
 
-const FavoriteTermListTitle = styled(SearchRelatedTitle)``;
+const FavoriteTermListTitle = styled(SearchRelatedTitle)`
+  padding-bottom: 0px;
+`;
 
 const FavoriteTermListEdit = styled.div`
   font: ${({ theme }) => theme.fontSizes.Subhead1};
