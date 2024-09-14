@@ -10,11 +10,15 @@ import ShareButton from '../../buttton/ShareButton';
 interface PostReactionSingleElementProps {
   postId: string;
   postRspAtom: RecoilState<PostRsp>;
+  funcHeartState?: () => void;
+  funcClipState?: () => void;
 }
 
 const PostReactionSingleElement: React.FC<PostReactionSingleElementProps> = ({
   postId,
   postRspAtom,
+  funcHeartState,
+  funcClipState,
 }) => {
   return (
     <ReactionContainer>
@@ -25,6 +29,7 @@ const PostReactionSingleElement: React.FC<PostReactionSingleElementProps> = ({
               postId={postId}
               isList={false}
               singleState={postRspAtom}
+              funcHeartState={funcHeartState}
             />
             <MsgButton postId={postId} />
           </>
@@ -37,6 +42,7 @@ const PostReactionSingleElement: React.FC<PostReactionSingleElementProps> = ({
           postId={postId}
           isList={false}
           singleState={postRspAtom}
+          funcState={funcClipState}
         />
       )}
     </ReactionContainer>
