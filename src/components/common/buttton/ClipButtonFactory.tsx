@@ -9,6 +9,7 @@ interface ClipButtonFactoryProps {
   listState?: RecoilState<Map<string, PostRsp>>;
   singleState?: RecoilState<PostRsp>;
   isList: boolean;
+  funcState?: () => void;
 }
 
 const ClipButtonFactory: React.FC<ClipButtonFactoryProps> = ({
@@ -16,6 +17,7 @@ const ClipButtonFactory: React.FC<ClipButtonFactoryProps> = ({
   isList,
   listState,
   singleState,
+  funcState,
 }) => {
   return (
     <>
@@ -25,6 +27,7 @@ const ClipButtonFactory: React.FC<ClipButtonFactoryProps> = ({
             <ClipButtonListFactory
               postId={postId}
               postRspHashMapAtom={listState}
+              funcState={funcState}
             />
           )}
         </>
@@ -34,6 +37,7 @@ const ClipButtonFactory: React.FC<ClipButtonFactoryProps> = ({
             <ClipButtonSingleFactory
               postId={postId}
               postRspAtom={singleState}
+              funcState={funcState}
             />
           )}
         </>

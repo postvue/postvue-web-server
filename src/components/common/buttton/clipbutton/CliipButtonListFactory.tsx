@@ -1,29 +1,26 @@
 import React from 'react';
-import { RecoilState, SetterOrUpdater, useRecoilState } from 'recoil';
+import { RecoilState, useRecoilState } from 'recoil';
+import { systemPostRspHashMapAtom } from 'states/SystemConfigAtom';
 import { PostClipRsp, PostRsp } from '../../../../global/interface/post';
 import ClipButton from './ClipButton';
 
 interface ClipButtonListFactoryProps {
   postId: string;
   postRspHashMapAtom: RecoilState<Map<string, PostRsp>>;
-  systemPostRspHashMapAtom?: RecoilState<Map<string, PostRsp>>;
+  funcState?: () => void;
 }
 
 const ClipButtonListFactory: React.FC<ClipButtonListFactoryProps> = ({
   postId,
   postRspHashMapAtom,
-  systemPostRspHashMapAtom,
+  funcState,
 }) => {
   const [snsPostHashMap, setSnsPostHashMap] =
     useRecoilState(postRspHashMapAtom);
-  let snsSystemPostHashMap: Map<string, PostRsp> | null = null;
-  let setSnsSystemPostHashMap: SetterOrUpdater<Map<string, PostRsp>> | null =
-    null;
-  if (systemPostRspHashMapAtom) {
-    [snsSystemPostHashMap, setSnsSystemPostHashMap] = useRecoilState(
-      systemPostRspHashMapAtom,
-    );
-  }
+
+  const [snsSystemPostHashMap, setSnsSystemPostHashMap] = useRecoilState(
+    systemPostRspHashMapAtom,
+  );
 
   const setClipListButtonState = (value: PostClipRsp) => {
     if (snsSystemPostHashMap !== null && setSnsSystemPostHashMap !== null) {
@@ -34,6 +31,9 @@ const ClipButtonListFactory: React.FC<ClipButtonListFactoryProps> = ({
           ...snsPostTemp,
           isClipped: value.isClipped,
         });
+      }
+      if (funcState) {
+        funcState();
       }
       setSnsSystemPostHashMap(newSnsPostHashMap);
     }
