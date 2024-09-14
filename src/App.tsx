@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { QUERY_CACHE_TIME, QUERY_STALE_TIME } from 'const/QueryClientConst';
 import React, { useEffect } from 'react';
+import { HelmetProvider } from 'react-helmet-async';
 import { RecoilRoot } from 'recoil';
 import { ThemeProvider } from 'styled-components';
 import { Reset } from 'styled-reset';
@@ -50,13 +51,15 @@ const App: React.FC = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <RecoilRoot>
-        <ThemeProvider theme={theme}>
-          <Reset />
-          <AppRouter />
-          <AppConfig />
-        </ThemeProvider>
-      </RecoilRoot>
+      <HelmetProvider>
+        <RecoilRoot>
+          <ThemeProvider theme={theme}>
+            <Reset />
+            <AppRouter />
+            <AppConfig />
+          </ThemeProvider>
+        </RecoilRoot>
+      </HelmetProvider>
     </QueryClientProvider>
   );
 };
