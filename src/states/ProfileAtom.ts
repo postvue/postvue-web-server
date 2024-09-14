@@ -2,10 +2,11 @@ import { atom } from 'recoil';
 import { INIT_CURSOR_ID } from '../const/PageConfigConst';
 import { TargetAudienceCategory } from '../const/ScrapConst';
 import { MyAccountSettingInterface } from '../global/interface/localstorage/MyAccountSettingInterface';
-import { PostRsp } from '../global/interface/post';
+import { PostProfileInfoRsp, PostRsp } from '../global/interface/post';
 import {
   MyProfileClip,
   MyProfileScrap,
+  MyProfileScrapInfo,
   MyProfileScrapList,
   TargetAudienceInterface,
 } from '../global/interface/profile';
@@ -13,7 +14,7 @@ import {
 export const myProfileSettingInfoAtom = atom<MyAccountSettingInterface>({
   key: 'myProfileSEttingInfo',
   default: {
-    myUserId: '',
+    userId: '',
     username: '',
     profilePath: '',
   },
@@ -29,9 +30,9 @@ export const cursorIdByScrapListAtom = atom<string>({
   default: INIT_CURSOR_ID,
 });
 
-export const myProfileClipListAtom = atom<MyProfileClip[]>({
-  key: 'myProfileClipList',
-  default: [],
+export const myProfileClipHashMapAtom = atom<Map<string, MyProfileClip>>({
+  key: 'myProfileClipHashMap',
+  default: new Map(),
 });
 
 export const cursorIdByClipListAtom = atom<string>({
@@ -72,4 +73,21 @@ export const isActiveScrapViewPopupAtom = atom<boolean>({
 export const isActiveProfileBlockPopupAtom = atom<boolean>({
   key: 'isActiveProfileBlockPopup',
   default: false,
+});
+
+export const myProfileFollowingHashMapAtom = atom<
+  Map<string, PostProfileInfoRsp>
+>({
+  key: 'myProfileFollowingHashMap',
+  default: new Map(),
+});
+
+export const cursorIdByMyProfileFollowingAtom = atom<string>({
+  key: 'cursorIdByMyProfileFollowingAtom',
+  default: INIT_CURSOR_ID,
+});
+
+export const myProfileScrapInfoAtom = atom<MyProfileScrapInfo>({
+  key: 'myProfileScrapInfo',
+  default: { scrapListId: '', scrapName: '' },
 });
