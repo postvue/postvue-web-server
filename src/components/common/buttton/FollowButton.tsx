@@ -56,7 +56,13 @@ const FollowButton: React.FC<FollowButtonProps> = ({
     });
   };
   return (
-    <ProfileFollowButtonWrap $fontSize={fontSize} style={style}>
+    <ProfileFollowButtonWrap
+      $fontSize={fontSize}
+      style={style}
+      onClick={(e) => {
+        e.stopPropagation();
+      }}
+    >
       {isFollowed ? (
         <ProfileFollowed onClick={onDeleteFollow}>팔로잉</ProfileFollowed>
       ) : (
