@@ -16,7 +16,7 @@ const MyAccountSettingInfoState: React.FC = () => {
     const sessionMyAccountSettingInfo: MyAccountSettingInterface =
       getMyAccountSettingInfo();
 
-    if (sessionMyAccountSettingInfo.myUserId === INIT_MY_ACCOUNT_STRING_VALUE) {
+    if (sessionMyAccountSettingInfo.userId === INIT_MY_ACCOUNT_STRING_VALUE) {
       getMyProfileInfo().then((myProfileInfo) => {
         initMyAccountSettingInfo(myProfileInfo);
         setMyAccountSettingInfo(myProfileInfo);
