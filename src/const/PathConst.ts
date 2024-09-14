@@ -15,10 +15,14 @@ export const TAG_SEARCH_PATH = '/tagged';
 export const SEARCH_POST_PATH = `${SEARCH_PATH}/:search_word`;
 
 export const PROFILE_LIST_PATH = '/profiles';
-export const PROFILE_MY_SCRAP_LIST_PATH = `/profiles/me/scraps`;
-export const PROFILE_MY_CLIP_LIST_PATH = `/profiles/me/clipes`;
-export const PROFILE_MY_SCRAP_PATH = `/profiles/me/scraps/:scrap_id`;
-export const PROFILE_ACCOUNT_PATH = `/profiles/:user_id`;
+export const FOLLOW_LIST_PATH = '/follows';
+export const PROFILE_SCRAP_LIST_PATH = `/profiles/scraps`;
+export const PROFILE_CLIP_LIST_PATH = `/profiles/clipes`;
+export const PROFILE_SCRAP_PATH = `/profiles/scraps/:scrap_id`;
+export const PROFILE_FOLLOW_LIST_PATH = `/profiles/:username${FOLLOW_LIST_PATH}`;
+export const PROFILE_EDIT_PATH = `/profiles/edit`;
+export const PROFILE_SETTING_PATH = `/profiles/settings`;
+export const PROFILE_ACCOUNT_PATH = `/profiles/:username`;
 export const PROFILE_NEW_SCRAP_PATH = '/new/scrap';
 
 export const MANAGE_PATH = '/manages';
