@@ -10,6 +10,7 @@ interface HeartButtonFactoryProps {
   listState?: RecoilState<Map<string, PostRsp>>;
   singleState?: RecoilState<PostRsp>;
   isList: boolean;
+  funcHeartState?: () => void;
 }
 
 const HeartButtonFactory: React.FC<HeartButtonFactoryProps> = ({
@@ -17,6 +18,7 @@ const HeartButtonFactory: React.FC<HeartButtonFactoryProps> = ({
   listState,
   singleState,
   isList,
+  funcHeartState,
 }) => {
   return (
     <>
@@ -37,6 +39,7 @@ const HeartButtonFactory: React.FC<HeartButtonFactoryProps> = ({
               postId={postId}
               postRspAtom={singleState}
               systemPostRspHashMapAtom={systemPostRspHashMapAtom}
+              funcHeartState={funcHeartState}
             />
           )}
         </>

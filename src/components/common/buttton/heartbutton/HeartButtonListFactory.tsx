@@ -7,12 +7,14 @@ interface HeartButtonListFactoryProps {
   postId: string;
   postRspHashMapAtom: RecoilState<Map<string, PostRsp>>;
   systemPostRspHashMapAtom: RecoilState<Map<string, PostRsp>>;
+  funcHeartState?: () => void;
 }
 
 const HeartButtonListFactory: React.FC<HeartButtonListFactoryProps> = ({
   postId,
   postRspHashMapAtom,
   systemPostRspHashMapAtom,
+  funcHeartState,
 }) => {
   const [snsPostHashMap, setSnsPostHashMap] =
     useRecoilState(postRspHashMapAtom);
@@ -24,6 +26,10 @@ const HeartButtonListFactory: React.FC<HeartButtonListFactoryProps> = ({
   const setHeartListButtonState = (value: PostLikeRsp) => {
     const tempSnsPostHashMap = new Map(snsPostHashMap);
     const snsPostTemp = tempSnsPostHashMap.get(postId);
+
+    if (funcHeartState) {
+      funcHeartState();
+    }
     if (snsPostTemp !== undefined) {
       tempSnsPostHashMap.set(postId, {
         ...snsPostTemp,

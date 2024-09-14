@@ -7,12 +7,14 @@ interface HeartButtonSingleFactoryProps {
   postId: string;
   postRspAtom: RecoilState<PostRsp>;
   systemPostRspHashMapAtom: RecoilState<Map<string, PostRsp>>;
+  funcHeartState?: () => void;
 }
 
 const HeartButtonSingleFactory: React.FC<HeartButtonSingleFactoryProps> = ({
   postId,
   postRspAtom,
   systemPostRspHashMapAtom,
+  funcHeartState,
 }) => {
   const [snsPost, setSnsPost] = useRecoilState(postRspAtom);
 
@@ -25,6 +27,10 @@ const HeartButtonSingleFactory: React.FC<HeartButtonSingleFactoryProps> = ({
 
     const newSnsPostHashMap = new Map(snsSystemPostHashMap);
     const snsSysPostHashMapTemp = newSnsPostHashMap.get(postId);
+
+    if (funcHeartState) {
+      funcHeartState();
+    }
     if (snsSysPostHashMapTemp !== undefined) {
       newSnsPostHashMap.set(postId, {
         ...snsSysPostHashMapTemp,
