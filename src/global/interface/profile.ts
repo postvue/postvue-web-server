@@ -7,16 +7,30 @@ export interface TargetProfileInfo {
   msgRoomId: string;
 }
 
-export interface MyProfileInfo {
-  myUserId: string;
+export interface ProfileMyInfo {
+  userId: string;
   username: string;
   profilePath: string;
 }
 
+export interface ProfileInfo {
+  userId: string;
+  username: string;
+  profilePath: string;
+  isMe: boolean;
+  isFollowed: boolean;
+}
+
+export interface myPostScrapPreview {
+  postThumbnailContent: string;
+  postThumbnailContentType: string;
+}
+[];
+
 export interface MyProfileScrapList {
   scrapId: string;
   scrapName: string;
-  postImagePathList: string[];
+  myPostScrapPreviewList: myPostScrapPreview[];
 }
 
 export interface MyProfileScrapInfo {
@@ -27,7 +41,8 @@ export interface MyProfileScrapInfo {
 export interface MyProfileClip {
   postId: string;
   location: Location;
-  postThumbnailImagePath: string;
+  postThumbnailContent: string;
+  postThumbnailContentType: string;
   userId: string;
   username: string;
   postedAt: string;
@@ -36,7 +51,8 @@ export interface MyProfileClip {
 export interface MyProfileScrap {
   postId: string;
   location: Location;
-  postThumbnailImagePath: string;
+  postThumbnailContent: string;
+  postThumbnailContentType: string;
   userId: string;
   username: string;
   postedAt: string;
