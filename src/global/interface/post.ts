@@ -33,6 +33,7 @@ export interface MasonryPostRsp {
   postId: string;
   userId: string;
   postContent: string;
+  postContentType: string;
   username: string;
   location: Location;
 }
