@@ -10,8 +10,8 @@ import {
   HOME_PATH,
   MAP_PATH,
   MESSAGE_INBOX_PATH,
-  PROFILE_MY_CLIP_LIST_PATH,
-  PROFILE_MY_SCRAP_LIST_PATH,
+  PROFILE_CLIP_LIST_PATH,
+  PROFILE_SCRAP_LIST_PATH,
 } from '../const/PathConst';
 
 const BottomNavBar: React.FC = () => {
@@ -185,15 +185,15 @@ const BottomNavBar: React.FC = () => {
 
       <StyleTab>
         <NavLink
-          to={PROFILE_MY_CLIP_LIST_PATH}
+          to={PROFILE_CLIP_LIST_PATH}
           className={({ isActive }) => {
             return (
               (isActive ? ACTIVE_CLASS_NAME : '') + ` ${TABBAR_NAV_CLASS_NAME}`
             );
           }}
         >
-          {selectedPath === PROFILE_MY_CLIP_LIST_PATH ||
-          selectedPath === PROFILE_MY_SCRAP_LIST_PATH ? (
+          {selectedPath === PROFILE_CLIP_LIST_PATH ||
+          selectedPath === PROFILE_SCRAP_LIST_PATH ? (
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="25"

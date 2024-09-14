@@ -106,8 +106,6 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
       retentionMinutes: QUERY_CACHE_TIME,
     });
 
-    console.log(tempSearchPostResultInfo);
-
     setSearchPostResultInfo(tempSearchPostResultInfo);
   };
 
@@ -187,7 +185,6 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
     const handleScroll = () => {
       // 검색어 바뀔 떄 마다 이전 검색 페이지 결과 및 위치 값 기록
       setSearchScrollPositionState(window.scrollY);
-      console.log('위치저장:', searchScrollPositionState);
 
       if (isValidSearchWordAndFilterKey(searchQueryAndFilterKey)) {
         insertSearchPostResultInfo(searchQueryAndFilterKey);
