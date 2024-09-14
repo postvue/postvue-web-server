@@ -1,8 +1,10 @@
+import { queryClient } from 'App';
+import { QUERY_STATE_PROFILE_POST_LIST } from 'const/QueryClientConst';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useRecoilState, useResetRecoilState, useSetRecoilState } from 'recoil';
+import { useRecoilState, useResetRecoilState } from 'recoil';
 import styled from 'styled-components';
-import { PROFILE_MY_SCRAP_LIST_PATH } from '../../const/PathConst';
+import { PROFILE_SCRAP_LIST_PATH } from '../../const/PathConst';
 import { POST_IMAGE_TYPE } from '../../const/PostContentTypeConst';
 import {
   POST_CONTENT_TYPE,
@@ -11,16 +13,10 @@ import {
 } from '../../const/QueryParamConst';
 import { TargetAudienceCategory } from '../../const/ScrapConst';
 import { MAKE_NEW_SCRAP_INPUT_PHASE_TEXT } from '../../const/SystemPhraseConst';
-import {
-  MyProfileScrapList,
-  TargetAudienceInterface,
-} from '../../global/interface/profile';
+import { TargetAudienceInterface } from '../../global/interface/profile';
 import { isValidString } from '../../global/util/\bValidUtil';
 import { postProfileScrap } from '../../services/profile/postProfileScrap';
-import {
-  myProfileScrapListAtom,
-  scrapTargetAudienceAtom,
-} from '../../states/ProfileAtom';
+import { scrapTargetAudienceAtom } from '../../states/ProfileAtom';
 
 const ProfileMakeScrapBody: React.FC = () => {
   const navigate = useNavigate();
@@ -28,7 +24,6 @@ const ProfileMakeScrapBody: React.FC = () => {
     scrapTargetAudienceAtom,
   );
   const resetScrapTargetAudience = useResetRecoilState(scrapTargetAudienceAtom);
-  const setMyProfileScrapList = useSetRecoilState(myProfileScrapListAtom);
 
   const [targetAudience, setTargetAudience] = useState<TargetAudienceInterface>(
     TargetAudienceCategory.PUBLIC_TARGET_AUDIENCE,
@@ -65,15 +60,12 @@ const ProfileMakeScrapBody: React.FC = () => {
           targetAudienceValue: targetAudience.targetAudienceValue,
         },
         postId !== null ? postId : '',
-      ).then((createProfileScrapRsp) => {
-        const newScrap: MyProfileScrapList = {
-          scrapId: createProfileScrapRsp.scrapId,
-          scrapName: createProfileScrapRsp.scrapName,
-          postImagePathList: createProfileScrapRsp.postImagePathList,
-        };
+      ).then(() => {
+        queryClient.invalidateQueries({
+          queryKey: [QUERY_STATE_PROFILE_POST_LIST],
+        });
 
-        setMyProfileScrapList((prev) => [...[newScrap], ...prev]);
-        navigate(PROFILE_MY_SCRAP_LIST_PATH);
+        navigate(PROFILE_SCRAP_LIST_PATH);
       });
     }
   };
