@@ -1,5 +1,6 @@
 import { POST_IMAGE_TYPE, POST_VIDEO_TYPE } from 'const/PostContentTypeConst';
-import ProfileScrapListInfiniteScrollBeta from 'hook/ProfileScrapListInfiniteScrollBeta';
+import { convertDiffrenceDate } from 'global/util/DateTimeUtil';
+import ProfileScrapListInfiniteScroll from 'hook/ProfileScrapListInfiniteScroll';
 import { QueryStateProfileScrapList } from 'hook/queryhook/QueryStateProfileScrapList';
 import React from 'react';
 import styled from 'styled-components';
@@ -20,8 +21,7 @@ const ProfileScrapViewBody: React.FC<ProfileScrapListBodyProps> = ({
   isAddMove = false,
   scrapIdList,
 }) => {
-  const { fetchNextPage, hasNextPage, isFetchingNextPage, data } =
-    QueryStateProfileScrapList();
+  const { data } = QueryStateProfileScrapList();
 
   return (
     <ProfileShowProfileScrapViewBodyContainer
@@ -29,32 +29,53 @@ const ProfileScrapViewBody: React.FC<ProfileScrapListBodyProps> = ({
       style={mainContainerStyle}
     >
       {data?.pages.flatMap((value) =>
-        value.myScrapLists.map((v, i) => (
+        value.map((v, i) => (
           <ProfileScrapWrap key={i}>
             <ProfileScrapImgListWrap>
-              {[...v.myPostScrapPreviewList].reverse().map((value, k) => (
-                <ProfileScrapImgWrap
-                  key={k}
-                  onClick={() => onButtonEvent(v.scrapId)}
-                >
-                  {value.postThumbnailContentType === POST_IMAGE_TYPE && (
-                    <ProfileScrapImg src={value.postThumbnailContent} />
-                  )}
-                  {value.postThumbnailContentType === POST_VIDEO_TYPE && (
-                    <PostContentVideo
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                      webkit-playsinline="true"
-                      src={value.postThumbnailContent}
-                    ></PostContentVideo>
-                  )}
+              {v.myPostScrapPreviewList.length > 0 ? (
+                <>
+                  {[...v.myPostScrapPreviewList].reverse().map((value, k) => (
+                    <ProfileScrapImgWrap
+                      key={k}
+                      onClick={() => onButtonEvent(v.scrapId)}
+                    >
+                      {value.postThumbnailContentType === POST_IMAGE_TYPE && (
+                        <ProfileScrapImg src={value.postThumbnailContent} />
+                      )}
+                      {value.postThumbnailContentType === POST_VIDEO_TYPE && (
+                        <PostContentVideo
+                          autoPlay
+                          muted
+                          loop
+                          playsInline
+                          webkit-playsinline="true"
+                          src={value.postThumbnailContent}
+                        ></PostContentVideo>
+                      )}
+                    </ProfileScrapImgWrap>
+                  ))}
+                </>
+              ) : (
+                <ProfileScrapImgWrap onClick={() => onButtonEvent(v.scrapId)}>
+                  <ProfileScrapImg
+                    src={''}
+                    style={{ backgroundColor: theme.grey.Grey2 }}
+                  />
                 </ProfileScrapImgWrap>
-              ))}
+              )}
             </ProfileScrapImgListWrap>
             <ProfileScrapViewNameActiveWrap>
-              <ProfileScrapViewName>{v.scrapName}</ProfileScrapViewName>
+              <ProfileScrapNameAndSunInfoWrap>
+                <ProfileScrapViewName>{v.scrapName}</ProfileScrapViewName>
+                <ProfileScrapNumDateWrap>
+                  <ProfileScrapNum>
+                    {v.scrapNum.toLocaleString()}개
+                  </ProfileScrapNum>
+                  <ProfileScrapDate>
+                    {convertDiffrenceDate(v.lastPostedAt)}
+                  </ProfileScrapDate>
+                </ProfileScrapNumDateWrap>
+              </ProfileScrapNameAndSunInfoWrap>
               {isAddMove &&
                 scrapIdList !== undefined &&
                 scrapIdList.includes(v.scrapId) && (
@@ -89,7 +110,7 @@ const ProfileScrapViewBody: React.FC<ProfileScrapListBodyProps> = ({
           </ProfileScrapWrap>
         )),
       )}
-      <ProfileScrapListInfiniteScrollBeta />
+      <ProfileScrapListInfiniteScroll />
     </ProfileShowProfileScrapViewBodyContainer>
   );
 };
@@ -114,6 +135,8 @@ const ProfileScrapWrap = styled.div`
 const ProfileScrapViewName = styled.div`
   font: ${({ theme }) => theme.fontSizes.Subhead3};
 `;
+
+const ProfileScrapNameAndSunInfoWrap = styled.div``;
 
 const ProfileScrapImgListWrap = styled.div`
   display: flex;
@@ -169,6 +192,21 @@ const ActiveSelecteScrapdWrap = styled.div`
 
 const ActiveSelecteScrapIcon = styled.svg`
   margin: auto 0px;
+`;
+
+const ProfileScrapNumDateWrap = styled.div`
+  display: flex;
+  gap: 5px;
+`;
+
+const ProfileScrapNum = styled.div`
+  font: ${({ theme }) => theme.fontSizes.Body1};
+  color: ${({ theme }) => theme.grey.Grey8};
+`;
+
+const ProfileScrapDate = styled.div`
+  font: ${({ theme }) => theme.fontSizes.Body1};
+  color: ${({ theme }) => theme.grey.Grey4};
 `;
 
 export default ProfileScrapViewBody;

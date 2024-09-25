@@ -43,7 +43,7 @@ const PostReactionListElement: React.FC<PostReactionListElementProps> = ({
 const ReactionContainer = styled.div`
   display: flex;
   justify-content: space-between;
-  margin: 17px 14px 8px 0;
+  margin: 17px 0px 8px 0;
 `;
 
 const HrtMsgShrReactionContainer = styled.div`

@@ -1,6 +1,7 @@
 import { ReactComponent as AccountShareButtonIcon } from 'assets/images/icon/svg/AccountShareButtonIcon.svg';
-import { handleShareUtil } from 'global/util/shareUtil';
 import React from 'react';
+import { useSetRecoilState } from 'recoil';
+import { isSharePopupAtom } from 'states/ShareAtom';
 import styled from 'styled-components';
 
 interface AccountShareButtonProps {
@@ -14,16 +15,9 @@ const AccountShareButton: React.FC<AccountShareButtonProps> = ({
   text,
   title,
 }) => {
+  const setIsSharePopup = useSetRecoilState(isSharePopupAtom);
   return (
-    <ShareButtonWrap
-      onClick={() =>
-        handleShareUtil({
-          url: url,
-          text: text,
-          title: title,
-        })
-      }
-    >
+    <ShareButtonWrap onClick={() => setIsSharePopup(true)}>
       <AccountShareButtonIcon />
     </ShareButtonWrap>
   );
