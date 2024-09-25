@@ -1,3 +1,4 @@
+import { CURSOR_PARAM } from 'services/appApiQueryParam';
 import { api } from '..';
 import { TASTE_FOR_ME_PATH } from '../../const/PathConst';
 import { PostRsp } from '../../global/interface/post';
@@ -14,7 +15,7 @@ export const getTasteForMeListByParam = (
 ): Promise<GetTasteForMeListRsp> => {
   return api
     .get(
-      `${POST_LIST_PATH}${TASTE_FOR_ME_PATH}?cursorId=${cursorId}&page=${page}`,
+      `${POST_LIST_PATH}${TASTE_FOR_ME_PATH}?${CURSOR_PARAM}=${cursorId}&page=${page}`,
     )
     .then((res) => {
       console.log(res.data);
