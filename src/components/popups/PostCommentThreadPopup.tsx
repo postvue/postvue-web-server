@@ -7,7 +7,7 @@ import {
   PostCommentWithReplies,
   PostRsp,
 } from '../../global/interface/post';
-import { getGroupComments } from '../../global/util/commentUtil';
+import { getGroupComments } from '../../global/util/CommentUtil';
 import PostCommentReplyInfiniteScroll from '../../hook/PostCommentReplyInfiniteScroll';
 import { postReactionCommentHashMapAtom } from '../../states/PostReactionAtom';
 import {

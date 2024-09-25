@@ -1,7 +1,6 @@
 import React from 'react';
 import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
-import { PostRsp } from '../../global/interface/post';
 import { createBlockUser } from '../../services/post/createBlockUser';
 import { deleteBlockUser } from '../../services/post/deleteBlockUser';
 import { isActiveProfileBlockPopupAtom } from '../../states/ProfileAtom';
@@ -12,14 +11,16 @@ const popupWrapStyle: React.CSSProperties = {
 };
 
 interface BlockUserPopupProps {
-  snsPost: PostRsp;
+  userInfo: { username: string; userId: string };
   isBlocked: boolean;
-  setIsBlocked: React.Dispatch<React.SetStateAction<boolean>>;
-  setIsSettingPopup: React.Dispatch<React.SetStateAction<boolean>>;
+  hasTransparentOverLay?: boolean;
+  setIsBlocked?: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsSettingPopup?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 const BlockUserPopup: React.FC<BlockUserPopupProps> = ({
-  snsPost,
+  userInfo,
   isBlocked,
+  hasTransparentOverLay = false,
   setIsBlocked,
   setIsSettingPopup,
 }) => {
@@ -29,17 +30,26 @@ const BlockUserPopup: React.FC<BlockUserPopupProps> = ({
 
   const onClickAddBlockUser = () => {
     if (!isBlocked) {
-      createBlockUser(snsPost.userId).then(() => {
+      createBlockUser(userInfo.userId).then(() => {
         setIsActiveProfileBlock(false);
-        setIsBlocked(!isBlocked);
+        if (setIsBlocked) {
+          setIsBlocked(!isBlocked);
+        }
+
+        window.location.reload();
       });
     } else {
-      deleteBlockUser(snsPost.userId).then(() => {
+      deleteBlockUser(userInfo.userId).then(() => {
         setIsActiveProfileBlock(false);
-        setIsBlocked(!isBlocked);
+        if (setIsBlocked) {
+          setIsBlocked(!isBlocked);
+        }
+        window.location.reload();
       });
     }
-    setIsSettingPopup(false);
+    if (setIsSettingPopup) {
+      setIsSettingPopup(false);
+    }
   };
 
   return (
@@ -47,19 +57,19 @@ const BlockUserPopup: React.FC<BlockUserPopupProps> = ({
       setIsPopup={setIsActiveProfileBlock}
       isTouchScrollBar={true}
       popupWrapStyle={popupWrapStyle}
-      hasTransparentOverLay={true}
-      hasFixedActive={false}
+      hasTransparentOverLay={hasTransparentOverLay}
+      hasFixedActive={true}
     >
       {!isBlocked ? (
         <>
           <ProfileNameBlockWrap>
             <ProfileNameBlockTitle>
-              @{snsPost.username}님을 차단하시나요?
+              @{userInfo.username}님을 차단하시나요?
             </ProfileNameBlockTitle>
           </ProfileNameBlockWrap>
           <ProfileBlockDescWrap>
             <ProfileBlockDescContent>
-              {snsPost.username}님은 회원님의 프로필 또는 콘텐츠를 찾을 수 없게
+              {userInfo.username}님은 회원님의 프로필 또는 콘텐츠를 찾을 수 없게
               됩니다.
             </ProfileBlockDescContent>
             <ProfileBlockDescContent>
@@ -75,12 +85,13 @@ const BlockUserPopup: React.FC<BlockUserPopupProps> = ({
         <>
           <ProfileNameBlockWrap>
             <ProfileNameBlockTitle>
-              @{snsPost.username}님을 차단 해제할까요?
+              @{userInfo.username}님을 차단 해제할까요?
             </ProfileNameBlockTitle>
           </ProfileNameBlockWrap>
           <ProfileBlockDescWrap>
             <ProfileBlockDescContent>
-              {snsPost.username}님이 나를 팔로우하고 내 계시물을 볼 수 있습니다.
+              {userInfo.username}님이 나를 팔로우하고 내 계시물을 볼 수
+              있습니다.
             </ProfileBlockDescContent>
           </ProfileBlockDescWrap>
         </>
