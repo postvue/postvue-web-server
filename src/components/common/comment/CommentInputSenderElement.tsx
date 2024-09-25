@@ -11,10 +11,10 @@ import {
   PostCommentReplyMsgInfo,
   PostCommentReq,
 } from '../../../global/interface/post';
-import { isValidString } from '../../../global/util/\bValidUtil';
 import { animateCount } from '../../../global/util/CommentUtil';
 import { uploadImgUtil } from '../../../global/util/ImageInputUtil';
 import { getMyAccountSettingInfo } from '../../../global/util/MyAccountSettingUtil';
+import { isValidString } from '../../../global/util/ValidUtil';
 import { createPostComment } from '../../../services/post/createPostComment';
 import { createPostCommentReply } from '../../../services/post/createPostCommentReply';
 

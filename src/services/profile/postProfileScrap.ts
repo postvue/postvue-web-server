@@ -1,6 +1,6 @@
 import { myPostScrapPreview } from 'global/interface/profile';
 import { api } from '..';
-import { isValidString } from '../../global/util/\bValidUtil';
+import { isValidString } from '../../global/util/ValidUtil';
 import { PROFILE_LIST_PATH, SCRAP_LIST_PATH } from '../appApiPath';
 import { POST_ID_PARAM } from '../appApiQueryParam';
 

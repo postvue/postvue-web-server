@@ -27,7 +27,7 @@ import {
 } from '../../../const/AttributeConst';
 import { SEARCH_POST_FILTER_QUERY_PARAM } from '../../../const/QueryParamConst';
 import { MAX_DELAY_SETTIMEOUT_TIME } from '../../../const/SystemAttrConst';
-import { isValidString } from '../../../global/util/\bValidUtil';
+import { isValidString } from '../../../global/util/ValidUtil';
 import {
   isSearchInputActiveAtom,
   searchPostResultInfoAtom,

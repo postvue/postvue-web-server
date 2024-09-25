@@ -6,7 +6,7 @@ import BorderCircleButton from 'components/common/buttton/BorderCircleButton';
 import { ACTIVE_CLASS_NAME } from 'const/ClassNameConst';
 import { SEARCH_PATH } from 'const/PathConst';
 import { SEARCH_POST_FILTER_QUERY_PARAM } from 'const/QueryParamConst';
-import { isValidString } from 'global/util/\bValidUtil';
+import { isValidString } from 'global/util/ValidUtil';
 import SearchPostListInfiniteScroll from 'hook/SearchPostListInfiniteScroll';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';

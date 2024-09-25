@@ -16,7 +16,7 @@ import {
 import { TargetAudienceCategory } from '../../const/ScrapConst';
 import { MAKE_NEW_SCRAP_INPUT_PHASE_TEXT } from '../../const/SystemPhraseConst';
 import { TargetAudienceInterface } from '../../global/interface/profile';
-import { isValidString } from '../../global/util/\bValidUtil';
+import { isValidString } from '../../global/util/ValidUtil';
 import { postProfileScrap } from '../../services/profile/postProfileScrap';
 import {
   isActiveProfileScarpTargetAudPopupAtom,

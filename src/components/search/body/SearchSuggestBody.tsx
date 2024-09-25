@@ -5,11 +5,11 @@ import styled from 'styled-components';
 import { SEARCH_PATH } from '../../../const/PathConst';
 import { SEARCH_RELATION_QUERY_DELAY_MIRCE_TIME } from '../../../const/SearchConst';
 import { SearchRecentKeywordInterface } from '../../../global/interface/localstorage/SearchInterface';
-import { isValidString } from '../../../global/util/\bValidUtil';
 import {
   deleteRecentlyKeyword,
   getRecentSearchWordList,
 } from '../../../global/util/SearchUtil';
+import { isValidString } from '../../../global/util/ValidUtil';
 import { getSearchQuery } from '../../../services/search/getSearchQuery';
 import {
   searchQueryRelationHashMapAtom,

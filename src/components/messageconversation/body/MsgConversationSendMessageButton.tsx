@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { INIT_EMPTY_STRING_VALUE } from '../../../const/AttributeConst';
 import { MSG_CONTENT_TEXT_TYPE } from '../../../const/MsgContentTypeConst';
 import { TargetProfileInfo } from '../../../global/interface/profile';
-import { isValidString } from '../../../global/util/\bValidUtil';
+import { isValidString } from '../../../global/util/ValidUtil';
 import msgConversationWsService from '../../../services/message/MsgConversationWsService';
 
 interface MsgConversationSendMessageProps {

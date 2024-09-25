@@ -1,7 +1,7 @@
 import BottomNextButton from 'components/common/buttton/BottomNextButton';
 import BoundaryStickBar from 'components/common/container/BoundaryStickBar';
 import { PROFILE_ACCOUNT_PATH } from 'const/PathConst';
-import { isValidString } from 'global/util/\bValidUtil';
+import { isValidString } from 'global/util/ValidUtil';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRecoilState } from 'recoil';

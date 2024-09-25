@@ -12,7 +12,7 @@ import { POST_IMAGE_TYPE } from 'const/PostContentTypeConst';
 import { MAX_DELAY_SETTIMEOUT_TIME } from 'const/SystemAttrConst';
 import { POST_COMPOSE_LINK_INPUT_PHASE_TEXT } from 'const/SystemPhraseConst';
 import { MasonryPostRsp } from 'global/interface/post';
-import { isValidString } from 'global/util/\bValidUtil';
+import { isValidString } from 'global/util/ValidUtil';
 import { QueryStatePostResourceDocImageList } from 'hook/queryhook/QueryStatePostResourceDocImageList';
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';

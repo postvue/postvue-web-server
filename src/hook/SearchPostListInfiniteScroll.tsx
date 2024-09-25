@@ -8,11 +8,11 @@ import {
 } from 'const/TabConfigConst';
 import { MasonryPostRsp } from 'global/interface/post';
 import { GetSearchPostsRsp } from 'global/interface/search';
-import { isValidString } from 'global/util/\bValidUtil';
 import {
   decodeSearhWordAndFilterKey,
   isValidSearchWordAndFilterKey,
 } from 'global/util/SearchPostUtil';
+import { isValidString } from 'global/util/ValidUtil';
 import React, { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { getPostSearchNear } from 'services/post/getPostSearchNear';
