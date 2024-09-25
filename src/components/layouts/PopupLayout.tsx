@@ -1,3 +1,4 @@
+import { OVERFLOW_DEFAULT, OVERFLOW_HIDDEN } from 'const/AttributeConst';
 import { throttle } from 'lodash';
 import React, {
   ReactNode,
@@ -77,11 +78,15 @@ const PopupLayout: React.FC<PopupLayoutProps> = ({
   };
 
   useEffect(() => {
+    if (!hasFixedActive) return;
     const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    document.body.style.overflow = OVERFLOW_HIDDEN;
 
     return () => {
-      document.body.style.overflow = originalOverflow;
+      console.log(originalOverflow);
+      //@REFER: 참고 바람
+      // document.body.style.overflow = originalOverflow;
+      document.body.style.overflow = OVERFLOW_DEFAULT;
     };
   }, []);
 
@@ -148,7 +153,7 @@ const PopupLayoutOverlay = styled.div<{
   $hasTransparentOverLay: boolean;
 }>`
   position: fixed;
-  z-index: 500;
+  z-index: 1000;
   top: 0;
   left: 0;
   width: 100%;
@@ -219,7 +224,8 @@ const PopupScrollBar = styled.div`
 const PopupTopBodyBottomScrollArea = styled.div`
   z-index: 10;
   position: fixed;
-  height: 80px;
+  height: ${({ theme }) =>
+    theme.systemSize.popupTopBodyBottomScrollArea.height};
   width: 100%;
   max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
 `;

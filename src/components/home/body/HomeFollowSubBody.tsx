@@ -38,18 +38,18 @@ const HomeFollowSubBody: React.FC = () => {
                       {value.username}
                     </RecommFollowUsername>
                     <RecommFollowWrap>
-                      <RecommFollowFollowerNum>
-                        <RecommFollowFollowerTitle>
-                          팔로워
-                        </RecommFollowFollowerTitle>{' '}
-                        {value.followerNum}
-                      </RecommFollowFollowerNum>
                       <RecommFollowFollowingNum>
                         <RecommFollowFollowingTitle>
                           팔로잉
                         </RecommFollowFollowingTitle>{' '}
                         {value.followingNum}
                       </RecommFollowFollowingNum>
+                      <RecommFollowFollowerNum>
+                        <RecommFollowFollowerTitle>
+                          팔로워
+                        </RecommFollowFollowerTitle>{' '}
+                        {value.followerNum}
+                      </RecommFollowFollowerNum>
                     </RecommFollowWrap>
                   </FollowUsernameNumberWrap>
                 </Link>

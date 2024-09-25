@@ -1,7 +1,7 @@
+import { ProfileMyInfo } from 'global/interface/profile';
 import React, { useEffect } from 'react';
 import { useSetRecoilState } from 'recoil';
 import { INIT_MY_ACCOUNT_STRING_VALUE } from '../../../const/LocalStorageConst';
-import { MyAccountSettingInterface } from '../../../global/interface/localstorage/MyAccountSettingInterface';
 import {
   getMyAccountSettingInfo,
   initMyAccountSettingInfo,
@@ -13,7 +13,7 @@ const MyAccountSettingInfoState: React.FC = () => {
   const setMyAccountSettingInfo = useSetRecoilState(myProfileSettingInfoAtom);
 
   useEffect(() => {
-    const sessionMyAccountSettingInfo: MyAccountSettingInterface =
+    const sessionMyAccountSettingInfo: ProfileMyInfo =
       getMyAccountSettingInfo();
 
     if (sessionMyAccountSettingInfo.userId === INIT_MY_ACCOUNT_STRING_VALUE) {

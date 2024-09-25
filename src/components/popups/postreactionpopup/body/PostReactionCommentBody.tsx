@@ -7,7 +7,7 @@ import {
   PostCommentWithReplies,
   PostRsp,
 } from '../../../../global/interface/post';
-import { getGroupComments } from '../../../../global/util/commentUtil';
+import { getGroupComments } from '../../../../global/util/CommentUtil';
 import PostCommentInfiniteScroll from '../../../../hook/PostCommentInfiniteScroll';
 import { postReactionCommentHashMapAtom } from '../../../../states/PostReactionAtom';
 import CommentInputSenderElement from '../../../common/comment/CommentInputSenderElement';
@@ -63,24 +63,22 @@ const PostReactionCommentBody: React.FC<PostReactionCommentBodyProps> = ({
     <>
       <PostContentListContainer>
         {topLevelComments.map((comment) => (
-          <>
-            <PostCommentReplyElement
-              key={comment.postCommentId}
-              postId={postId}
-              commentIdIndex={comment.postCommentId}
-              postComment={comment}
-              snsPostCommentHashMap={snsPostCommentHashMap}
-              setSnsPostCommentHashMap={setSnsPostCommentHashMap}
-              likeIconRef={likeIconRef}
-              likeCountRef={likeCountRef}
-              commentReplyCountRef={commentReplyCountRef}
-              postCommentTextareaRef={postCommentTextareaRef}
-              setReplyMsg={setReplyMsg}
-              neededGroupBar={comment.replies.length > 0}
-              comment={comment}
-              isReplyToReply={false}
-            />
-          </>
+          <PostCommentReplyElement
+            key={comment.postCommentId}
+            postId={postId}
+            commentIdIndex={comment.postCommentId}
+            postComment={comment}
+            snsPostCommentHashMap={snsPostCommentHashMap}
+            setSnsPostCommentHashMap={setSnsPostCommentHashMap}
+            likeIconRef={likeIconRef}
+            likeCountRef={likeCountRef}
+            commentReplyCountRef={commentReplyCountRef}
+            postCommentTextareaRef={postCommentTextareaRef}
+            setReplyMsg={setReplyMsg}
+            neededGroupBar={comment.replies.length > 0}
+            comment={comment}
+            isReplyToReply={false}
+          />
         ))}
 
         {postId && <PostCommentInfiniteScroll postId={postId} />}
