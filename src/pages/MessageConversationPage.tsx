@@ -5,9 +5,8 @@ import BodyFixScrollElement from '../components/BodyFixScrollElement';
 import AppBaseTemplate from '../components/layouts/AppBaseTemplate';
 import MsgConversationBody from '../components/messageconversation/MsgConversationBody';
 import MsgConversationHeader from '../components/messageconversation/header/MsgConversationHeader';
-import { MyAccountSettingInterface } from '../global/interface/localstorage/MyAccountSettingInterface';
 import { MsgConversation } from '../global/interface/message';
-import { TargetProfileInfo } from '../global/interface/profile';
+import { ProfileMyInfo, TargetProfileInfo } from '../global/interface/profile';
 import { getMyAccountSettingInfo } from '../global/util/MyAccountSettingUtil';
 import msgConversationWsService from '../services/message/MsgConversationWsService';
 import { getProfileFollowInfo } from '../services/profile/getProfileFollowInfo';
@@ -27,8 +26,7 @@ const MessageConversationPage: React.FC = () => {
   const [followInfo, setFollowInfo] = useRecoilState(followInfoByMsgAtom);
   const [sessionId, setSessionId] = useState<string>('');
 
-  const myAccountSettingInfo: MyAccountSettingInterface =
-    getMyAccountSettingInfo();
+  const myAccountSettingInfo: ProfileMyInfo = getMyAccountSettingInfo();
 
   useEffect(() => {
     if (followUsername) {

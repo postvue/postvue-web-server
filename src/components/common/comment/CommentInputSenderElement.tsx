@@ -1,3 +1,4 @@
+import { ProfileMyInfo } from 'global/interface/profile';
 import React, { useEffect, useRef, useState } from 'react';
 import { SetterOrUpdater } from 'recoil';
 import styled from 'styled-components';
@@ -5,14 +6,13 @@ import { INIT_EMPTY_STRING_VALUE } from '../../../const/AttributeConst';
 import { THREAD_ID, UPLOAD_COMMENT_IMAGE_ID } from '../../../const/IdNameConst';
 import { POST_COMMENT_TEXT_TYPE } from '../../../const/PostCommentTypeConst';
 import { POST_COMMENT_REPLAY_PLACEHOLDER } from '../../../const/SystemPhraseConst';
-import { MyAccountSettingInterface } from '../../../global/interface/localstorage/MyAccountSettingInterface';
 import {
   PostComment,
   PostCommentReplyMsgInfo,
   PostCommentReq,
 } from '../../../global/interface/post';
 import { isValidString } from '../../../global/util/\bValidUtil';
-import { animateCount } from '../../../global/util/commentUtil';
+import { animateCount } from '../../../global/util/CommentUtil';
 import { uploadImgUtil } from '../../../global/util/ImageInputUtil';
 import { getMyAccountSettingInfo } from '../../../global/util/MyAccountSettingUtil';
 import { createPostComment } from '../../../services/post/createPostComment';
@@ -51,8 +51,7 @@ const CommentInputSenderElement: React.FC<CommentInputSenderElementProps> = ({
   threadCommentId,
   commentSenderRef,
 }) => {
-  const myAccountSettingInfo: MyAccountSettingInterface =
-    getMyAccountSettingInfo();
+  const myAccountSettingInfo: ProfileMyInfo = getMyAccountSettingInfo();
   const imgFileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [uploadCommentImgFile, setUploadCommentImgFile] = useState<File | null>(

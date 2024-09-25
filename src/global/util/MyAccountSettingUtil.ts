@@ -1,17 +1,20 @@
+import { ProfileMyInfo } from 'global/interface/profile';
 import {
   INIT_MY_ACCOUNT_STRING_VALUE,
   MY_ACCOUNT_SETTING_INFO,
 } from '../../const/LocalStorageConst';
-import { MyAccountSettingInterface } from '../interface/localstorage/MyAccountSettingInterface';
 
-export const getMyAccountSettingInfo = (): MyAccountSettingInterface => {
-  const initMyAccount: MyAccountSettingInterface = {
+export const getMyAccountSettingInfo = (): ProfileMyInfo => {
+  const initMyAccount: ProfileMyInfo = {
     userId: INIT_MY_ACCOUNT_STRING_VALUE,
     username: INIT_MY_ACCOUNT_STRING_VALUE,
     profilePath: INIT_MY_ACCOUNT_STRING_VALUE,
+    nickname: INIT_MY_ACCOUNT_STRING_VALUE,
+    introduce: INIT_MY_ACCOUNT_STRING_VALUE,
+    website: INIT_MY_ACCOUNT_STRING_VALUE,
   };
 
-  const myAccountSettingInfo: MyAccountSettingInterface = JSON.parse(
+  const myAccountSettingInfo: ProfileMyInfo = JSON.parse(
     localStorage.getItem(MY_ACCOUNT_SETTING_INFO) ||
       JSON.stringify(initMyAccount),
   );
@@ -19,7 +22,7 @@ export const getMyAccountSettingInfo = (): MyAccountSettingInterface => {
 };
 
 export const initMyAccountSettingInfo = (
-  myAccountSettingInfoData: MyAccountSettingInterface,
+  myAccountSettingInfoData: ProfileMyInfo,
 ): void => {
   localStorage.setItem(
     MY_ACCOUNT_SETTING_INFO,

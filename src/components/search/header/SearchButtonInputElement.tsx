@@ -2,14 +2,15 @@ import SearchButtonInput from 'components/common/input/SearchButtonInput';
 import { SEARCH_INPUT_PHARSE_TEXT } from 'const/SystemPhraseConst';
 import React from 'react';
 
-import { debounce } from 'lodash';
-import { useCallback, useRef } from 'react';
+import { useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { SEARCH_PATH } from '../../../const/PathConst';
-import { SEARCH_RELATION_QUERY_DELAY_MIRCE_TIME } from '../../../const/SearchConst';
 import { isValidString } from '../../../global/util/\bValidUtil';
-import { handleSearch } from '../../../global/util/SearchUtil';
+import {
+  getSearchQueryByDebounce,
+  handleSearch,
+} from '../../../global/util/SearchUtil';
 import { getSearchQuery } from '../../../services/search/getSearchQuery';
 import {
   isSearchInputActiveAtom,
@@ -63,8 +64,8 @@ const SearchButtonInputElement: React.FC<SearchButtonInputElementProps> = ({
     history.replaceState(state, '', location.pathname);
   };
 
-  const debouncedGetSearchQuery = useCallback(
-    debounce((word: string) => {
+  const debouncedGetSearchQuery = getSearchQueryByDebounce(
+    (word: string) => {
       if (!searchQueryRelationHashMap.get(word)) {
         getSearchQuery(word)
           .then((value) => {
@@ -76,9 +77,26 @@ const SearchButtonInputElement: React.FC<SearchButtonInputElementProps> = ({
           })
           .finally(() => setLoading(false));
       }
-    }, SEARCH_RELATION_QUERY_DELAY_MIRCE_TIME), // 디바운스, 600ms
+    },
     [searchQueryRelationHashMap],
   );
+
+  // const debouncedGetSearchQuery = useCallback(
+  //   debounce((word: string) => {
+  //     if (!searchQueryRelationHashMap.get(word)) {
+  //       getSearchQuery(word)
+  //         .then((value) => {
+  //           const tempSearchQueryRelationHashMap = new Map(
+  //             searchQueryRelationHashMap,
+  //           );
+  //           tempSearchQueryRelationHashMap.set(word, value);
+  //           setSearchQueryRelationHashMap(tempSearchQueryRelationHashMap);
+  //         })
+  //         .finally(() => setLoading(false));
+  //     }
+  //   }, SEARCH_RELATION_QUERY_DELAY_MIRCE_TIME), // 디바운스, 600ms
+  //   [searchQueryRelationHashMap],
+  // );
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const word = event.target.value;

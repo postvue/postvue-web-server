@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 import styled from 'styled-components';
 
+import BorderCircleButton from 'components/common/buttton/BorderCircleButton';
 import { ACTIVE_CLASS_NAME } from 'const/ClassNameConst';
 import { SEARCH_PATH } from 'const/PathConst';
 import { SEARCH_POST_FILTER_QUERY_PARAM } from 'const/QueryParamConst';
@@ -69,12 +70,13 @@ const SearchPostBody: React.FC = () => {
       <SearchFilterContainer>
         <SearchFilterWrap>
           {searchPostTabList.map((v, i) => (
-            <SearchFilterItem
+            <BorderCircleButton
               key={v.tabId}
+              contentText={v.tabName}
               className={
                 searchPostFilterTab === v.queryParam ? ACTIVE_CLASS_NAME : ''
               }
-              onClick={() => {
+              onClickFunc={() => {
                 setSearchPostFilterTab(v.queryParam);
                 if (
                   isValidString(searchWord) &&
@@ -87,9 +89,10 @@ const SearchPostBody: React.FC = () => {
                   navigate(searchResultPath, { replace: true });
                 }
               }}
-            >
-              {v.tabName}
-            </SearchFilterItem>
+              deactiveBorderColor={theme.grey.Grey2}
+              activeFontColor={theme.mainColor.Blue}
+              activeBorderColor={theme.mainColor.Blue}
+            />
           ))}
         </SearchFilterWrap>
       </SearchFilterContainer>
@@ -122,19 +125,6 @@ const SearchFilterContainer = styled.div`
 
 const SearchPostContainer = styled.div`
   padding-top: 60px;
-`;
-
-const SearchFilterItem = styled.div`
-  padding: 5px 12px;
-  border-radius: 40px;
-  border: 1px solid ${({ theme }) => theme.grey.Grey2};
-  font: ${({ theme }) => theme.fontSizes.Body2};
-  cursor: pointer;
-
-  &.${ACTIVE_CLASS_NAME} {
-    border-color: ${({ theme }) => theme.mainColor.Blue};
-    color: ${({ theme }) => theme.mainColor.Blue};
-  }
 `;
 
 export default SearchPostBody;

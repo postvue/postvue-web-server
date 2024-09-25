@@ -1,5 +1,6 @@
 import { IMessage } from '@stomp/stompjs';
-import { MyAccountSettingInterface } from '../../global/interface/localstorage/MyAccountSettingInterface';
+
+import { ProfileMyInfo } from 'global/interface/profile';
 import {
   MsgConversation,
   MsgConversationWsCreatePub,
@@ -17,7 +18,7 @@ export class MsgConversationWsService {
     onMessage: (message: MsgConversation) => void,
     onDeleteMessage: (messageId: string) => void,
     setSessionId: React.Dispatch<React.SetStateAction<string>>,
-    myAccountSeetingInterface: MyAccountSettingInterface,
+    myAccountSeetingInterface: ProfileMyInfo,
   ): void {
     webSocketService.addOnInitializedCallback(() => {
       webSocketService.setSubscribe(

@@ -19,6 +19,19 @@ export const postRspAtom = atom<PostRsp>({
     isBookmarked: false,
     postContents: [],
     postCategory: '',
+    postBodyText: '',
+    postTitle: '',
     postedAt: '',
+  },
+});
+
+export const postContentZoomPopupInfoAtom = atom<{
+  isActive: boolean;
+  initIndex: number;
+}>({
+  key: 'postContentZoomPopupInfo',
+  default: {
+    isActive: false,
+    initIndex: 0,
   },
 });

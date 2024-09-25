@@ -7,15 +7,15 @@ import ProfileScrapHeader from '../components/profile/ProfileScrapHeader';
 const MyProfileScrap: React.FC = () => {
   return (
     <AppBaseTemplate>
-      <MyProfileScrapContainer>
+      <ProfileScrapContainer>
         <ProfileScrapHeader />
         <ProfileScrapBody />
         <BottomNavBar />
-      </MyProfileScrapContainer>
+      </ProfileScrapContainer>
     </AppBaseTemplate>
   );
 };
 
-const MyProfileScrapContainer = styled.div``;
+const ProfileScrapContainer = styled.div``;
 
 export default MyProfileScrap;

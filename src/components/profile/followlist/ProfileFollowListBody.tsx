@@ -9,6 +9,7 @@ import {
 } from 'const/TabConfigConst';
 import ProfileFollowerListInfiniteScroll from 'hook/ProfileFollowerListInfiniteScroll';
 import ProfileFollowingListInfiniteScroll from 'hook/ProfileFollowingListInfiniteScroll';
+import { QueryStateProfileInfo } from 'hook/queryhook/QueryStateProfileInfo';
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
@@ -27,12 +28,12 @@ const ProfileFollowListBody: React.FC = () => {
 
   const myProfileFollowTabList = [
     {
-      tabName: PROFILE_FOLLOWING_NAME,
-      param: PROFILE_FOLLOWING_TAB_PARAM,
-    },
-    {
       tabName: PROFILE_FOLLOWER_NAME,
       param: PROFILE_FOLLOWER_TAB_PARAM,
+    },
+    {
+      tabName: PROFILE_FOLLOWING_NAME,
+      param: PROFILE_FOLLOWING_TAB_PARAM,
     },
   ];
 
@@ -43,6 +44,8 @@ const ProfileFollowListBody: React.FC = () => {
       setMyProfileFollowTab(PROFILE_FOLLOWING_TAB_PARAM);
     }
   }, [tabParam]);
+
+  const { data } = QueryStateProfileInfo(username);
 
   return (
     <ProfileFollowListBodyContainer>
@@ -59,7 +62,11 @@ const ProfileFollowListBody: React.FC = () => {
               );
             }}
           >
-            {v.tabName}
+            {`${
+              v.param === PROFILE_FOLLOWING_TAB_PARAM
+                ? data?.followingNum.toLocaleString()
+                : data?.followerNum.toLocaleString()
+            } ${v.tabName}`}
           </ContentTab>
         ))}
       </ProfileFollowTabWrap>

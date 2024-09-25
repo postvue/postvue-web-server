@@ -1,3 +1,4 @@
+import BoundaryStickBar from 'components/common/container/BoundaryStickBar';
 import React, { useEffect, useRef, useState } from 'react';
 import { useRecoilValue, useResetRecoilState } from 'recoil';
 import styled from 'styled-components';
@@ -81,7 +82,7 @@ const FollowConversationReaction: React.FC = () => {
         >
           복사
         </ReactionCopyButton>
-        <ReactionBoundaryStickBar />
+        <BoundaryStickBar />
         <ReactionDeleteButton
           onClick={() =>
             onClickDeleteMsg(followInfo.targetUserId, msgReactionInfo.msgId)
@@ -124,11 +125,6 @@ const MsgReactionPopupWrap = styled.div<{
   border-radius: 12px;
   box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.20);
   background-color:${({ theme }) => theme.mainColor.White}
-`;
-const ReactionBoundaryStickBar = styled.div`
-  width: 100%;
-  height: 1px;
-  background-color: ${({ theme }) => theme.grey.Grey2};
 `;
 
 const ReactionCopyButton = styled.div`

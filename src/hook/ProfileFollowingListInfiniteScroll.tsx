@@ -8,7 +8,7 @@ import { PostProfileInfoRsp } from 'global/interface/post';
 import React, { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { useNavigate } from 'react-router-dom';
-import { getMyProfileFollowingList } from 'services/profile/getMyProfileFollowingList';
+import { getProfileFollowingList } from 'services/profile/getProfileFollowingList';
 import styled from 'styled-components';
 import theme from 'styles/theme';
 
@@ -33,7 +33,7 @@ const ProfileFollowingListInfiniteScroll: React.FC<
           return [];
         }
 
-        return getMyProfileFollowingList(username, pageParam);
+        return getProfileFollowingList(username, pageParam);
       },
 
       getNextPageParam: (lastPage, allPages) => {
@@ -55,34 +55,41 @@ const ProfileFollowingListInfiniteScroll: React.FC<
     <ScrollBottomContainer>
       {data &&
         data.pages.flatMap((page) =>
-          page.map((v, i) => (
-            <React.Fragment key={i}>
-              <PostProfileFollowContainer
-                key={i}
-                onClick={() => navigate(`${PROFILE_LIST_PATH}/${v.username}`)}
-              >
-                <PostProfileFollowWrap>
-                  <ProfileImgUsernameWrap>
-                    <PostProfileFollowImg src={v.profilePath} />
-                    <PostProfileFollowUsername>
-                      {v.username}
-                    </PostProfileFollowUsername>
-                  </ProfileImgUsernameWrap>
+          page
+            .filter((value) => !value.isBlocked)
+            .map((v, i) => (
+              <React.Fragment key={i}>
+                <PostProfileFollowContainer
+                  key={i}
+                  onClick={() => navigate(`${PROFILE_LIST_PATH}/${v.username}`)}
+                >
+                  <PostProfileFollowWrap>
+                    <ProfileImgUsernameWrap>
+                      <PostProfileFollowImg src={v.profilePath} />
+                      <PostProfileFollowNickUsernameWrap>
+                        <PostProfileFollowNickname>
+                          {v.nickname}
+                        </PostProfileFollowNickname>
+                        <PostProfileFollowUsername>
+                          @{v.username}
+                        </PostProfileFollowUsername>
+                      </PostProfileFollowNickUsernameWrap>
+                    </ProfileImgUsernameWrap>
 
-                  {v.isMe ? (
-                    ''
-                  ) : (
-                    <FollowButton
-                      fontSize={theme.fontSizes.Subhead3}
-                      userId={v.useId}
-                      isFollow={v.isFollowed}
-                    />
-                  )}
-                </PostProfileFollowWrap>
-              </PostProfileFollowContainer>
-              <RepostBorderStickBar />
-            </React.Fragment>
-          )),
+                    {v.isMe ? (
+                      ''
+                    ) : (
+                      <FollowButton
+                        fontSize={theme.fontSizes.Subhead3}
+                        userId={v.useId}
+                        isFollow={v.isFollowed}
+                      />
+                    )}
+                  </PostProfileFollowWrap>
+                </PostProfileFollowContainer>
+                <RepostBorderStickBar />
+              </React.Fragment>
+            )),
         )}
 
       <div ref={ref}> 보인다.</div>
@@ -94,7 +101,9 @@ const ScrollBottomContainer = styled.div`
   margin: 0px auto;
 `;
 
-const PostProfileFollowContainer = styled.div``;
+const PostProfileFollowContainer = styled.div`
+  cursor: pointer;
+`;
 const PostProfileFollowWrap = styled.div`
   display: flex;
   justify-content: space-between;
@@ -109,10 +118,20 @@ const PostProfileFollowImg = styled.img`
   flex-shrink: 0;
   border-radius: 30px;
 `;
-const PostProfileFollowUsername = styled.div`
-  margin: auto 0;
+
+const PostProfileFollowNickUsernameWrap = styled.div`
   padding-left: 12px;
+  margin: auto 0;
+`;
+
+const PostProfileFollowNickname = styled.div`
+  color: ${({ theme }) => theme.grey.Grey8};
   font: ${({ theme }) => theme.fontSizes.Subhead3};
+`;
+
+const PostProfileFollowUsername = styled.div`
+  font: ${({ theme }) => theme.fontSizes.Body2};
+  color: ${({ theme }) => theme.grey.Grey6};
 `;
 
 const RepostBorderStickBar = styled.div`

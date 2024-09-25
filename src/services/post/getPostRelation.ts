@@ -3,7 +3,7 @@ import { PostRsp } from '../../global/interface/post';
 import { POST_LIST_PATH, RECOMM_PATH, RELATION_PATH } from '../appApiPath';
 import { CURSOR_PARAM } from '../appApiQueryParam';
 
-interface GetPostRelationRsp {
+export interface GetPostRelationRsp {
   cursorId: string;
   snsPostRspList: PostRsp[];
 }

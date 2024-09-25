@@ -4,7 +4,7 @@ export interface Location {
   address: string;
 }
 
-export interface PostContent {
+export interface PostContentInterface {
   postContentType: string;
   content: string;
   ascSortNum: number;
@@ -24,8 +24,10 @@ export interface PostRsp {
   isClipped: boolean;
   isReposted: boolean;
   isBookmarked: boolean;
-  postContents: PostContent[];
+  postContents: PostContentInterface[];
   postCategory: string;
+  postBodyText: string;
+  postTitle: string;
   postedAt: string;
 }
 
@@ -68,6 +70,7 @@ export interface PostProfileInfoRsp {
   profilePath: string;
   isFollowed: boolean;
   isMe: boolean;
+  isBlocked: boolean;
 }
 
 export interface PostCommentReq {
@@ -104,4 +107,23 @@ export interface PostCommentReplyMsgInfo {
 
 export interface PostCommentWithReplies extends PostComment {
   replies: PostCommentWithReplies[];
+}
+
+export interface PostDocResourceImageRsp {
+  contentUrl: string;
+  contentType: string;
+}
+
+export interface PostComposeUploadResource {
+  contentUrl: string;
+  contentType: string;
+}
+
+export interface PostComposeUploadByResourceLinkReq {
+  latitude: number;
+  longitude: number;
+  postContents: PostContentInterface[];
+  tagList: string[];
+  title: string;
+  bodyText: string;
 }

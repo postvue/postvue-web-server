@@ -1,6 +1,8 @@
 import MyProfileEditPage from 'pages/MyProfileEditPage';
+import PostComposePage from 'pages/PostComposePage';
 import ProfileAccountSettingPage from 'pages/ProfileAccountSettingPage';
 import ProfileFollowListPage from 'pages/ProfileFolllowListPage';
+import SearchFavoriteTermEditPage from 'pages/SearchFavoriteTermEditPage';
 import React from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import {
@@ -9,6 +11,7 @@ import {
   MESSAGE_INBOX_PATH,
   MSG_BLOCK_LIST_MANAGE_PATH,
   MSG_HIDDEN_LIST_MANAGE_PATH,
+  POST_COMPOSE_PATH,
   PROFILE_ACCOUNT_PATH,
   PROFILE_CLIP_LIST_PATH,
   PROFILE_EDIT_PATH,
@@ -18,6 +21,7 @@ import {
   PROFILE_SCRAP_LIST_PATH,
   PROFILE_SCRAP_PATH,
   PROFILE_SETTING_PATH,
+  SEARCH_FAVORITE_LIST_PATH,
   SEARCH_PATH,
   SEARCH_POST_PATH,
 } from './const/PathConst';
@@ -77,6 +81,11 @@ const AppRouter: React.FC = (): JSX.Element => {
         <Route
           path={PROFILE_SETTING_PATH}
           element={<ProfileAccountSettingPage />}
+        />
+        <Route path={POST_COMPOSE_PATH} element={<PostComposePage />} />
+        <Route
+          path={SEARCH_FAVORITE_LIST_PATH}
+          element={<SearchFavoriteTermEditPage />}
         />
       </Routes>
     </BrowserRouter>

@@ -1,3 +1,4 @@
+import { CURSOR_PARAM } from 'services/appApiQueryParam';
 import { api } from '..';
 import { FOLLOW_FOR_ME_PATH } from '../../const/PathConst';
 import { PostRsp } from '../../global/interface/post';
@@ -12,7 +13,7 @@ export const getFollowForMeListByParam = (
   cursorId: string,
 ): Promise<GetTasteForMeListRsp> => {
   return api
-    .get(`${POST_LIST_PATH}${FOLLOW_FOR_ME_PATH}?cursorId=${cursorId}`)
+    .get(`${POST_LIST_PATH}${FOLLOW_FOR_ME_PATH}?${CURSOR_PARAM}=${cursorId}`)
     .then((res) => {
       console.log(res.data);
       return res.data.data;

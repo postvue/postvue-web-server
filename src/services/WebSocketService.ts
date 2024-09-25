@@ -1,7 +1,8 @@
 import { Client, IMessage, StompSubscription } from '@stomp/stompjs';
 import { SetterOrUpdater } from 'recoil';
 import SockJS from 'sockjs-client';
-import { MyAccountSettingInterface } from '../global/interface/localstorage/MyAccountSettingInterface';
+
+import { ProfileMyInfo } from 'global/interface/profile';
 import {
   SessionActiveUserInfoSub,
   SessionActiveUserListSub,
@@ -122,8 +123,7 @@ export class WebSocketService {
 
   private requestInitialData() {
     // Subscribe to the initial data channel
-    const myAccountSetting: MyAccountSettingInterface =
-      getMyAccountSettingInfo();
+    const myAccountSetting: ProfileMyInfo = getMyAccountSettingInfo();
 
     this.client.subscribe(
       `${API_SESSIONS_PATH}/${myAccountSetting.userId}`,

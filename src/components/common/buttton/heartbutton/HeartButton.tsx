@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { PostLikeRsp } from '../../../../global/interface/post';
 import { putPostLike } from '../../../../services/post/putPostLike';
 import theme from '../../../../styles/theme';
+import LongPressToResizeButton from '../LongPressToResizeButton';
 
 interface HeartButtonProps {
   setHeartStete: (postLikeGrp: PostLikeRsp) => void;
@@ -43,7 +44,7 @@ const HeartButton: React.FC<HeartButtonProps> = ({
     }
   };
   return (
-    <>
+    <LongPressToResizeButton resize={0.85} resizeSpeedRate={0.2}>
       <HeartButtonWrap onClick={(e) => onClickHeartButton(e)}>
         <svg
           ref={heartRef}
@@ -62,12 +63,13 @@ const HeartButton: React.FC<HeartButtonProps> = ({
           />
         </svg>
       </HeartButtonWrap>
-    </>
+    </LongPressToResizeButton>
   );
 };
 
 const HeartButtonWrap = styled.div`
   cursor: pointer;
+  display: flex;
 `;
 
 export default HeartButton;

@@ -1,5 +1,14 @@
-import React from 'react';
+import BottomNextButton from 'components/common/buttton/BottomNextButton';
+import BoundaryStickBar from 'components/common/container/BoundaryStickBar';
+import { PROFILE_ACCOUNT_PATH } from 'const/PathConst';
+import { isValidString } from 'global/util/\bValidUtil';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
+import {
+  putMyProfileInfo,
+  PutMyProfileInfoReq,
+} from 'services/profile/putMyProfileInfo';
 import { myProfileSettingInfoAtom } from 'states/ProfileAtom';
 import styled from 'styled-components';
 
@@ -7,6 +16,33 @@ const MyProfileEditBody: React.FC = () => {
   const [myAccountSettingInfo, setMyAccountSettingInfo] = useRecoilState(
     myProfileSettingInfoAtom,
   );
+  const navigate = useNavigate();
+
+  const [userNickname, setUserNickname] = useState<string>('');
+  const [userIntroduce, setUserIntruoduce] = useState<string>('');
+  const [userLink, setUserLink] = useState<string>('');
+
+  const onClickPutProfileInfo = () => {
+    const putMyProfileInfoReq: PutMyProfileInfoReq = {
+      nickname: userNickname,
+      website: userLink,
+      introduce: userIntroduce,
+      profilePath: '',
+    };
+    putMyProfileInfo(putMyProfileInfoReq).then(() => {
+      navigate(PROFILE_ACCOUNT_PATH, { replace: true });
+    });
+  };
+
+  useEffect(() => {
+    setUserNickname(myAccountSettingInfo.nickname);
+    setUserIntruoduce(myAccountSettingInfo.introduce);
+    setUserLink(myAccountSettingInfo.website);
+  }, [myAccountSettingInfo]);
+
+  useEffect(() => {
+    console.log(userNickname);
+  }, [userNickname]);
   return (
     <MyProfileEditBodyContainer>
       <MyProfileImgEditWrap>
@@ -16,6 +52,50 @@ const MyProfileEditBody: React.FC = () => {
           </MyProfileImgEditImg>
         </MyProfileImgEditImgSubWrap>
       </MyProfileImgEditWrap>
+      <ProfileAccountSettingElementWrap>
+        <ProfileAccountSettingElementTitle>
+          이름
+        </ProfileAccountSettingElementTitle>
+        <ProfileNicknameContent
+          value={userNickname}
+          onChange={(e) => setUserNickname(e.target.value)}
+          placeholder={'프로필에 이름을 입력하세요.'}
+        />
+      </ProfileAccountSettingElementWrap>
+      <BoundaryStickBar />
+      <ProfileAccountSettingElementWrap>
+        <ProfileAccountSettingElementTitle>
+          소개
+        </ProfileAccountSettingElementTitle>
+      </ProfileAccountSettingElementWrap>
+      <ProfileIntroduceContentWrap>
+        <ProfileIntroduceTextarea
+          maxLength={150}
+          rows={4}
+          placeholder={`회원님을 소개해 주세요.`}
+          value={userIntroduce}
+          onChange={(e) => setUserIntruoduce(e.target.value)}
+        ></ProfileIntroduceTextarea>
+      </ProfileIntroduceContentWrap>
+      <BoundaryStickBar />
+      <ProfileAccountSettingElementWrap>
+        <ProfileAccountSettingElementTitle>
+          주소
+        </ProfileAccountSettingElementTitle>
+        <ProfileNicknameContent
+          value={userLink}
+          onChange={(e) => setUserLink(e.target.value)}
+        />
+      </ProfileAccountSettingElementWrap>
+      <BoundaryStickBar />
+
+      <BottomNextButton
+        title={'저장'}
+        isActive={isValidString(userNickname)}
+        hasNotActiveElement={true}
+        notActiveTitle={'저장'}
+        actionFunc={onClickPutProfileInfo}
+      />
     </MyProfileEditBodyContainer>
   );
 };
@@ -48,6 +128,46 @@ const MyProfileImgEdit = styled.div`
   text-shadow: 0px 3px 7px ${({ theme }) => theme.mainColor.Black};
   color: ${({ theme }) => theme.mainColor.White};
   font: ${({ theme }) => theme.fontSizes.Body4};
+`;
+
+const ProfileAccountSettingElementWrap = styled.div`
+  display: flex;
+  padding: 10px
+    ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding};
+  cursor: pointer;
+`;
+
+const ProfileAccountSettingElementTitle = styled.div`
+  font: ${({ theme }) => theme.fontSizes.Body4};
+  display: flex;
+  margin: auto 0;
+  white-space: nowrap;
+  padding-right: 10px;
+`;
+
+const ProfileIntroduceContentWrap = styled.div`
+  padding: 0 ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding};
+`;
+
+const ProfileNicknameContent = styled.input`
+  width: 100%;
+  outline: none;
+  color: ${({ theme }) => theme.grey.Grey8};
+  font: ${({ theme }) => theme.fontSizes.Body3};
+  border: 0px;
+
+  &::placeholder {
+    color: ${({ theme }) => theme.errorColor.Red};
+  }
+`;
+
+const ProfileIntroduceTextarea = styled.textarea`
+  resize: none;
+  width: 100%;
+  border: 0px;
+  outline: none;
+  color: ${({ theme }) => theme.grey.Grey8};
+  font: ${({ theme }) => theme.fontSizes.Body3};
 `;
 
 export default MyProfileEditBody;

@@ -30,11 +30,10 @@ const ClipButtonSingleFactory: React.FC<ClipButtonSingleFactoryProps> = ({
         isClipped: value.isClipped,
       });
     }
-    setSnsSystemPostHashMap(newSnsPostHashMap);
-
     if (funcState) {
       funcState();
     }
+    setSnsSystemPostHashMap(newSnsPostHashMap);
 
     setSnsPost((prev) => ({ ...prev, isClipped: value.isClipped }));
   };

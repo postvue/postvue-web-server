@@ -3,7 +3,7 @@ import { PostProfileInfoRsp } from '../../global/interface/post';
 import { FOLLOWER_PATH, PROFILE_LIST_PATH } from '../appApiPath';
 import { PAGE_PARAM } from '../appApiQueryParam';
 
-export const getMyProfileFollowerList = (
+export const getProfileFollowerList = (
   username: string,
   page: number,
 ): Promise<PostProfileInfoRsp[]> => {

@@ -29,3 +29,7 @@ export const MANAGE_PATH = '/manages';
 export const BLOCK_LIST = '/blocks';
 export const MSG_BLOCK_LIST_MANAGE_PATH = `${MESSAGE_PATH}${MANAGE_PATH}${BLOCK_LIST}`;
 export const MSG_HIDDEN_LIST_MANAGE_PATH = `${MESSAGE_PATH}${MANAGE_PATH}/hiddens`;
+
+export const POST_COMPOSE_PATH = '/compose/post';
+
+export const SEARCH_FAVORITE_LIST_PATH = `${SEARCH_PATH}/favorites`;

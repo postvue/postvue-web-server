@@ -1,7 +1,7 @@
+import { ProfileMyInfo } from 'global/interface/profile';
 import React, { useRef, useState } from 'react';
 import { SetterOrUpdater } from 'recoil';
 import styled from 'styled-components';
-import { MyAccountSettingInterface } from '../../../../global/interface/localstorage/MyAccountSettingInterface';
 import { PostComment } from '../../../../global/interface/post';
 import { getMyAccountSettingInfo } from '../../../../global/util/MyAccountSettingUtil';
 import { deletePostComment } from '../../../../services/post/deletePostComment';
@@ -26,8 +26,7 @@ const PostReactionCommentSettingButton: React.FC<
 }) => {
   const postCommentSettingRef = useRef<HTMLDivElement>(null);
 
-  const myAccountSettingInfo: MyAccountSettingInterface =
-    getMyAccountSettingInfo();
+  const myAccountSettingInfo: ProfileMyInfo = getMyAccountSettingInfo();
 
   const [isCommentSettingContextMenu, setIsCommentSettingContextMenu] =
     useState<boolean | string>(false);

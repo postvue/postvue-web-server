@@ -11,14 +11,23 @@ export interface ProfileMyInfo {
   userId: string;
   username: string;
   profilePath: string;
+  nickname: string;
+  website: string;
+  introduce: string;
 }
 
 export interface ProfileInfo {
   userId: string;
+  nickname: string;
   username: string;
+  introduce: string;
   profilePath: string;
+  website: string;
   isMe: boolean;
   isFollowed: boolean;
+  isBlocked: boolean;
+  followerNum: number;
+  followingNum: number;
 }
 
 export interface myPostScrapPreview {
@@ -27,15 +36,12 @@ export interface myPostScrapPreview {
 }
 [];
 
-export interface MyProfileScrapList {
+export interface ProfileScrapList {
   scrapId: string;
   scrapName: string;
   myPostScrapPreviewList: myPostScrapPreview[];
-}
-
-export interface MyProfileScrapInfo {
-  scrapListId: string;
-  scrapName: string;
+  scrapNum: number;
+  lastPostedAt: string;
 }
 
 export interface MyProfileClip {

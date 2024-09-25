@@ -44,3 +44,15 @@ export const ACCOUNT_SETTING_PROFILE_NOTIFICATIONS_TAB_NAME = '알림 설정';
 export const ACCOUNT_SETTING_TERMS_OF_SERVICE_TAB_NAME = '서비스 이용 약관';
 export const ACCOUNT_SETTING_NOTICE_SERVIDE_TAB_NAME = '공지사항';
 export const ACCOUNT_SETTING_CONTACT_TAB_NAME = '문의하기';
+
+// 새 게시물 작성 페이지
+export const POST_COMPOSE_LOCATION_TAB_NAME = '위치';
+export const POST_COMPOSE__TARGET_AUDIENCE_TAB_NAME = '공개 대상';
+
+// 새 게시물 작성 페이지, 공개 여부
+export const POST_COMPOSE_TARGET_AUD_PUBLIC_TAB_NAME = '모든 공개';
+export const POST_COMPOSE_TARGET_AUD_PUBLIC_TAB_ID = 0;
+export const POST_COMPOSE_TARGET_AUD_FOLLOW_TAB_NAME = '팔로우 공개';
+export const POST_COMPOSE_TARGET_AUD_FOLLOW_TAB_ID = 1;
+export const POST_COMPOSE_TARGET_AUD_PRIVATE_TAB_NAME = '비공개';
+export const POST_COMPOSE_TARGET_AUD_PRIVATE_TAB_ID = 2;
