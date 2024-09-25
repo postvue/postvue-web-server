@@ -1,8 +1,13 @@
+import { debounce, DebouncedFunc } from 'lodash';
+import { useCallback } from 'react';
 import {
   LOCAL_STORAGE_LIST_INIT_VALUE,
   RECENTLY_SEARCH_WORD_LIST_LOCAL_STORAGE,
 } from '../../const/LocalStorageConst';
-import { RECENTLY_WORD_LIST_NUM } from '../../const/SearchConst';
+import {
+  RECENTLY_WORD_LIST_NUM,
+  SEARCH_RELATION_QUERY_DELAY_MIRCE_TIME,
+} from '../../const/SearchConst';
 import { SearchRecentKeywordInterface } from '../interface/localstorage/SearchInterface';
 
 export const handleSearch = (searchWord: string): void => {
@@ -81,5 +86,17 @@ export const removeRecentlyKeywordList = (): void => {
   localStorage.setItem(
     RECENTLY_SEARCH_WORD_LIST_LOCAL_STORAGE,
     LOCAL_STORAGE_LIST_INIT_VALUE,
+  );
+};
+
+export const getSearchQueryByDebounce = (
+  func: (searchQuery: string) => void,
+  deps: React.DependencyList,
+): DebouncedFunc<(searchQuery: string) => void> => {
+  return useCallback(
+    debounce((searchQuery: string) => {
+      func(searchQuery);
+    }, SEARCH_RELATION_QUERY_DELAY_MIRCE_TIME), // 디바운스, 600ms
+    deps,
   );
 };
