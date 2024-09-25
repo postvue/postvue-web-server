@@ -1,12 +1,18 @@
 import React, { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 import styled from 'styled-components';
-import { QueryStateProfileScrapList } from './queryhook/QueryStateProfileScrapList';
+import { QueryStateProfileScrap } from './queryhook/QueryStateProfileScrap';
 
-const ProfileScrapListInfiniteScrollBeta: React.FC = () => {
+interface ProfileScrapInfiniteScrollBetaProps {
+  scrapId: string;
+}
+
+const ProfileScrapInfiniteScroll: React.FC<
+  ProfileScrapInfiniteScrollBetaProps
+> = ({ scrapId }) => {
   const { ref, inView } = useInView();
-  const { fetchNextPage, hasNextPage, isFetchingNextPage, data } =
-    QueryStateProfileScrapList();
+  const { fetchNextPage, hasNextPage, isFetchingNextPage } =
+    QueryStateProfileScrap(scrapId);
 
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
@@ -25,4 +31,4 @@ const ScrollBottomContainer = styled.div`
   margin: 0px auto;
 `;
 
-export default ProfileScrapListInfiniteScrollBeta;
+export default ProfileScrapInfiniteScroll;

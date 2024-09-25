@@ -16,7 +16,7 @@ interface ProfilePostListInfiniteScrollProps {
   username: string;
 }
 
-const ProfilePostListInfiniteScroll: React.FC<
+const ProfilePostListInfiniteScrollBeta: React.FC<
   ProfilePostListInfiniteScrollProps
 > = ({ username }) => {
   const navigationType = useNavigationType();
@@ -64,7 +64,7 @@ const ProfilePostListInfiniteScroll: React.FC<
       setSnsPostHashMap(new Map());
       setCursorNum(INIT_CURSOR_ID);
     }
-  }, []);
+  }, [username]);
 
   return (
     <ScrollBottomContainer ref={ref}>
@@ -77,4 +77,4 @@ const ScrollBottomContainer = styled.div`
   margin: 0px auto;
 `;
 
-export default ProfilePostListInfiniteScroll;
+export default ProfilePostListInfiniteScrollBeta;

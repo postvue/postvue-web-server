@@ -1,30 +1,22 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
-import FollowButton from 'components/common/buttton/FollowButton';
 import { PAGE_NUM } from 'const/PageConfigConst';
 import { PROFILE_LIST_PATH } from 'const/PathConst';
-import { QUERY_STATE_PROFILE_FOLLOWING_LIST } from 'const/QueryClientConst';
+import { QUERY_STATE_MY_PROFILE_FOLLOWING_LIST } from 'const/QueryClientConst';
 import { PostProfileInfoRsp } from 'global/interface/post';
 import React, { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { useNavigate } from 'react-router-dom';
-import { getProfileFollowingList } from 'services/profile/getProfileFollowingList';
+import { getMyProfileFollowingList } from 'services/profile/getMyProfileFollowingList';
 import styled from 'styled-components';
-import theme from 'styles/theme';
 
-interface ProfileFollowingListInfiniteScrollProps {
-  username: string;
-}
-
-const ProfileFollowingListInfiniteScroll: React.FC<
-  ProfileFollowingListInfiniteScrollProps
-> = ({ username }) => {
+const ProfileMyFollowingListInfiniteScroll: React.FC = () => {
   const navigate = useNavigate();
   const { ref, inView } = useInView();
 
   const { fetchNextPage, hasNextPage, isFetchingNextPage, data } =
     useInfiniteQuery<PostProfileInfoRsp[], AxiosError>({
-      queryKey: [QUERY_STATE_PROFILE_FOLLOWING_LIST, username], // query key
+      queryKey: [QUERY_STATE_MY_PROFILE_FOLLOWING_LIST], // query key
       queryFn: async ({ pageParam }) => {
         // pageParam이 string인지 확인
 
@@ -33,7 +25,7 @@ const ProfileFollowingListInfiniteScroll: React.FC<
           return [];
         }
 
-        return getProfileFollowingList(username, pageParam);
+        return getMyProfileFollowingList(pageParam);
       },
 
       getNextPageParam: (lastPage, allPages) => {
@@ -56,38 +48,22 @@ const ProfileFollowingListInfiniteScroll: React.FC<
       {data &&
         data.pages.flatMap((page) =>
           page
-            .filter((value) => !value.isBlocked)
+            .filter((value) => value.isFollowed && !value.isBlocked)
             .map((v, i) => (
               <React.Fragment key={i}>
-                <PostProfileFollowContainer
+                <PostProfileMyFollowContainer
                   key={i}
                   onClick={() => navigate(`${PROFILE_LIST_PATH}/${v.username}`)}
                 >
-                  <PostProfileFollowWrap>
+                  <PostProfileMyFollowWrap>
                     <ProfileImgUsernameWrap>
-                      <PostProfileFollowImg src={v.profilePath} />
-                      <PostProfileFollowNickUsernameWrap>
-                        <PostProfileFollowNickname>
-                          {v.nickname}
-                        </PostProfileFollowNickname>
-                        <PostProfileFollowUsername>
-                          @{v.username}
-                        </PostProfileFollowUsername>
-                      </PostProfileFollowNickUsernameWrap>
+                      <PostProfileMyFollowImg src={v.profilePath} />
+                      <PostProfileMyFollowUsername>
+                        {v.username}
+                      </PostProfileMyFollowUsername>
                     </ProfileImgUsernameWrap>
-
-                    {v.isMe ? (
-                      ''
-                    ) : (
-                      <FollowButton
-                        fontSize={theme.fontSizes.Subhead3}
-                        userId={v.useId}
-                        isFollow={v.isFollowed}
-                      />
-                    )}
-                  </PostProfileFollowWrap>
-                </PostProfileFollowContainer>
-                <RepostBorderStickBar />
+                  </PostProfileMyFollowWrap>
+                </PostProfileMyFollowContainer>
               </React.Fragment>
             )),
         )}
@@ -101,37 +77,25 @@ const ScrollBottomContainer = styled.div`
   margin: 0px auto;
 `;
 
-const PostProfileFollowContainer = styled.div`
-  cursor: pointer;
-`;
-const PostProfileFollowWrap = styled.div`
+const PostProfileMyFollowContainer = styled.div``;
+const PostProfileMyFollowWrap = styled.div`
   display: flex;
   justify-content: space-between;
-  padding: 13px 14px 11px 20px;
+  padding: 13px 14px 11px 14px;
 `;
 const ProfileImgUsernameWrap = styled.div`
   display: flex;
 `;
-const PostProfileFollowImg = styled.img`
-  width: 51px;
-  height: 51px;
+const PostProfileMyFollowImg = styled.img`
+  width: 35px;
+  height: 35px;
   flex-shrink: 0;
   border-radius: 30px;
 `;
-
-const PostProfileFollowNickUsernameWrap = styled.div`
-  padding-left: 12px;
+const PostProfileMyFollowUsername = styled.div`
   margin: auto 0;
-`;
-
-const PostProfileFollowNickname = styled.div`
-  color: ${({ theme }) => theme.grey.Grey8};
+  padding-left: 12px;
   font: ${({ theme }) => theme.fontSizes.Subhead3};
-`;
-
-const PostProfileFollowUsername = styled.div`
-  font: ${({ theme }) => theme.fontSizes.Body2};
-  color: ${({ theme }) => theme.grey.Grey6};
 `;
 
 const RepostBorderStickBar = styled.div`
@@ -140,4 +104,4 @@ const RepostBorderStickBar = styled.div`
   height: 1px;
 `;
 
-export default ProfileFollowingListInfiniteScroll;
+export default ProfileMyFollowingListInfiniteScroll;
