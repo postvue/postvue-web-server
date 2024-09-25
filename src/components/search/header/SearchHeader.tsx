@@ -42,6 +42,8 @@ import PrevButton from '../../PrevButton';
 import HeaderLayout from '../../layouts/HeaderLayout';
 import SearchButtonInputElement from './SearchButtonInputElement';
 
+import loadingBarGif from 'assets/images/gif/loadingBar.gif';
+
 interface SearchHeaderProps {
   backToUrl: string;
   navigateType?: string;
@@ -231,7 +233,7 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
       </HeaderLayout>
       {loading && isSearchInputActive && (
         <SearchLoadingWrap>
-          <SearchLoadingGif src="/assets/images/gif/loadingBar.gif" />
+          <SearchLoadingGif src={loadingBarGif} />
         </SearchLoadingWrap>
       )}
     </>
@@ -273,6 +275,7 @@ const SearchLoadingWrap = styled.div`
   top: calc(30%);
   left: 50%;
   transform: translate(-50%, 50%);
+  z-index: 100;
 `;
 
 const SearchLoadingGif = styled.img`

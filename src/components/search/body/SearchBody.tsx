@@ -1,27 +1,21 @@
-import { useQuery } from '@tanstack/react-query';
-import {
-  QUERY_STATE_SEARCH_FAVORITE_TERM_LIST,
-  SERACH_FAVORITE_TERMS_STALE_TIME,
-} from 'const/QueryClientConst';
-import { GetFavoriteTermRsp } from 'global/interface/search';
+import { QueryStateSearchFavoriteTermList } from 'hook/queryhook/QueryStateSearchFavoriteTermList';
 import React, { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
-import { SEARCH_PATH } from '../../../const/PathConst';
+import {
+  SEARCH_FAVORITE_LIST_PATH,
+  SEARCH_PATH,
+} from '../../../const/PathConst';
 import { getRecommTagList } from '../../../services/recomm/getRecommTagList';
-import { getFavoriteSearchTerm } from '../../../services/search/getFavoriteSearchTermList';
 import { recommTagListAtom } from '../../../states/TagAtom';
 import theme from '../../../styles/theme';
 import ScrollXMoveButtonContainer from '../../common/buttton/ScrollXMoveButtonContainer';
 
 const SearchBody: React.FC = () => {
+  const naviate = useNavigate();
   const [recommTagList, setRecommTagList] = useRecoilState(recommTagListAtom);
-  const { data } = useQuery<GetFavoriteTermRsp[]>({
-    queryKey: [QUERY_STATE_SEARCH_FAVORITE_TERM_LIST],
-    queryFn: () => getFavoriteSearchTerm(),
-    staleTime: SERACH_FAVORITE_TERMS_STALE_TIME,
-  });
+  const { data } = QueryStateSearchFavoriteTermList();
 
   const [size, setSize] = useState({ width: 0, height: 0 });
 
@@ -53,7 +47,11 @@ const SearchBody: React.FC = () => {
           <SearchFavoriteTermContainer>
             <FavoriteTermListWrap>
               <FavoriteTermListTitle>즐겨찾는 검색어</FavoriteTermListTitle>
-              <FavoriteTermListEdit>목록편집</FavoriteTermListEdit>
+              <FavoriteTermListEdit
+                onClick={() => naviate(SEARCH_FAVORITE_LIST_PATH)}
+              >
+                목록편집
+              </FavoriteTermListEdit>
             </FavoriteTermListWrap>
             <ScrollXMoveButtonContainer
               scrollContainerRef={scrollContainerRef}
@@ -121,7 +119,9 @@ const SearchRelatedTitle = styled.div`
   padding-bottom: 12px;
 `;
 
-const SearchSuggestItemListContainer = styled.div``;
+const SearchSuggestItemListContainer = styled.div`
+  padding-bottom: 20px;
+`;
 const SearchSuggestItemListWrap = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -166,7 +166,7 @@ const FavoriteTermListTitle = styled(SearchRelatedTitle)`
 `;
 
 const FavoriteTermListEdit = styled.div`
-  font: ${({ theme }) => theme.fontSizes.Subhead1};
+  font: ${({ theme }) => theme.fontSizes.Subhead2};
   margin: auto 0;
   text-decoration-line: underline;
   letter-spacing: -0.3px;

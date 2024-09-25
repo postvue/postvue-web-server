@@ -1,4 +1,6 @@
 import { queryClient } from 'App';
+import BoundaryStickBar from 'components/common/container/BoundaryStickBar';
+import ProfileScrapTargetAudiencePopup from 'components/popups/ProfileScrapTargetAudiencePopup';
 import { QUERY_STATE_PROFILE_POST_LIST } from 'const/QueryClientConst';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -16,7 +18,10 @@ import { MAKE_NEW_SCRAP_INPUT_PHASE_TEXT } from '../../const/SystemPhraseConst';
 import { TargetAudienceInterface } from '../../global/interface/profile';
 import { isValidString } from '../../global/util/\bValidUtil';
 import { postProfileScrap } from '../../services/profile/postProfileScrap';
-import { scrapTargetAudienceAtom } from '../../states/ProfileAtom';
+import {
+  isActiveProfileScarpTargetAudPopupAtom,
+  scrapTargetAudienceAtom,
+} from '../../states/ProfileAtom';
 
 const ProfileMakeScrapBody: React.FC = () => {
   const navigate = useNavigate();
@@ -28,6 +33,12 @@ const ProfileMakeScrapBody: React.FC = () => {
   const [targetAudience, setTargetAudience] = useState<TargetAudienceInterface>(
     TargetAudienceCategory.PUBLIC_TARGET_AUDIENCE,
   );
+
+  const [
+    isActiveProfileScarpTargetAudPopup,
+    setIsActiveProfileScarpTargetAudPopup,
+  ] = useRecoilState(isActiveProfileScarpTargetAudPopupAtom);
+
   const [scrapName, setScrapName] = useState<string>('');
 
   const [serchParams] = useSearchParams();
@@ -53,6 +64,7 @@ const ProfileMakeScrapBody: React.FC = () => {
   };
 
   const onClickMakeScrap = () => {
+    console.log(targetAudience.targetAudienceValue);
     if (isValidString(scrapName) && targetAudience.targetAudienceValue) {
       postProfileScrap(
         {
@@ -71,51 +83,61 @@ const ProfileMakeScrapBody: React.FC = () => {
   };
 
   return (
-    <ProfileMakeScrapBodyContainer>
-      {postId && postContentUrl && postContentType === POST_IMAGE_TYPE && (
-        <TogetherPostWrap>
-          <TogetherPostImg src={postContentUrl} />
-        </TogetherPostWrap>
-      )}
-      <ProfileScrapNameWrap>
-        <ProfileScrapNameNameDiv>스크랩 명</ProfileScrapNameNameDiv>
-        <ProfileScrapNameWriteInput
-          placeholder={MAKE_NEW_SCRAP_INPUT_PHASE_TEXT}
-          value={scrapName}
-          onChange={(e) => {
-            onHandleScrapName(e);
-          }}
-        />
-      </ProfileScrapNameWrap>
-      <BoundaryBarStick />
-      <TargetAudienceWrap>
-        <TargetAudienceName>스크랩 공개 대상</TargetAudienceName>
-        <TargetAudienceButtonWrap>
-          <TargetAudienceButton>
-            {targetAudience.displayPhrase}
-          </TargetAudienceButton>
-          <TargetAudienceIcon
-            xmlns="http://www.w3.org/2000/svg"
-            width="7"
-            height="14"
-            viewBox="0 0 7 14"
-            fill="none"
+    <>
+      <ProfileMakeScrapBodyContainer>
+        {postId && postContentUrl && postContentType === POST_IMAGE_TYPE && (
+          <TogetherPostWrap>
+            <TogetherPostImg src={postContentUrl} />
+          </TogetherPostWrap>
+        )}
+        <ProfileScrapNameWrap>
+          <ProfileScrapNameNameDiv>스크랩 명</ProfileScrapNameNameDiv>
+          <ProfileScrapNameWriteInput
+            placeholder={MAKE_NEW_SCRAP_INPUT_PHASE_TEXT}
+            value={scrapName}
+            onChange={(e) => {
+              onHandleScrapName(e);
+            }}
+          />
+        </ProfileScrapNameWrap>
+        <BoundaryStickBar />
+        <TargetAudienceWrap>
+          <TargetAudienceName>스크랩 공개 대상</TargetAudienceName>
+          <TargetAudienceButtonWrap
+            onClick={() => setIsActiveProfileScarpTargetAudPopup(true)}
           >
-            <path
-              fillRule="evenodd"
-              clipRule="evenodd"
-              d="M0.233236 13.7953C0.490958 14.0682 0.907769 14.0682 1.16486 13.7953L6.61394 8.01075C6.73592 7.88325 6.83304 7.72978 6.89941 7.55969C6.96578 7.3896 7 7.20645 7 7.02135C7 6.83626 6.96578 6.6531 6.89941 6.48301C6.83304 6.31292 6.73592 6.15946 6.61394 6.03195L1.1254 0.204746C1.00084 0.0745156 0.835881 0.00131767 0.664032 1.76173e-05C0.492182 -0.00128244 0.326326 0.0694129 0.200145 0.197746C0.137637 0.261121 0.087623 0.337936 0.0531991 0.423435C0.0187752 0.508934 0.000674706 0.601296 1.85053e-05 0.694801C-0.000637695 0.788307 0.0161644 0.880965 0.0493842 0.967039C0.0826041 1.05311 0.131534 1.13077 0.193145 1.1952L5.21651 6.52683C5.27755 6.59059 5.32615 6.66734 5.35937 6.75242C5.39258 6.83749 5.40971 6.92911 5.40971 7.0217C5.40971 7.11429 5.39258 7.20591 5.35937 7.29099C5.32615 7.37607 5.27755 7.45282 5.21651 7.51658L0.233236 12.8062C0.172216 12.8699 0.123623 12.9466 0.0904164 13.0316C0.05721 13.1166 0.0400853 13.2082 0.0400853 13.3007C0.0400853 13.3933 0.05721 13.4848 0.0904164 13.5699C0.123623 13.6549 0.172216 13.7316 0.233236 13.7953Z"
-              fill="black"
-            />
-          </TargetAudienceIcon>
-        </TargetAudienceButtonWrap>
-      </TargetAudienceWrap>
-      <ScrapMakeButtonWrap>
-        <ScrapMakeButton onClick={onClickMakeScrap}>
-          신규 스크랩 만들기
-        </ScrapMakeButton>
-      </ScrapMakeButtonWrap>
-    </ProfileMakeScrapBodyContainer>
+            <TargetAudienceButton>
+              {targetAudience.displayPhrase}
+            </TargetAudienceButton>
+            <TargetAudienceIcon
+              xmlns="http://www.w3.org/2000/svg"
+              width="7"
+              height="14"
+              viewBox="0 0 7 14"
+              fill="none"
+            >
+              <path
+                fillRule="evenodd"
+                clipRule="evenodd"
+                d="M0.233236 13.7953C0.490958 14.0682 0.907769 14.0682 1.16486 13.7953L6.61394 8.01075C6.73592 7.88325 6.83304 7.72978 6.89941 7.55969C6.96578 7.3896 7 7.20645 7 7.02135C7 6.83626 6.96578 6.6531 6.89941 6.48301C6.83304 6.31292 6.73592 6.15946 6.61394 6.03195L1.1254 0.204746C1.00084 0.0745156 0.835881 0.00131767 0.664032 1.76173e-05C0.492182 -0.00128244 0.326326 0.0694129 0.200145 0.197746C0.137637 0.261121 0.087623 0.337936 0.0531991 0.423435C0.0187752 0.508934 0.000674706 0.601296 1.85053e-05 0.694801C-0.000637695 0.788307 0.0161644 0.880965 0.0493842 0.967039C0.0826041 1.05311 0.131534 1.13077 0.193145 1.1952L5.21651 6.52683C5.27755 6.59059 5.32615 6.66734 5.35937 6.75242C5.39258 6.83749 5.40971 6.92911 5.40971 7.0217C5.40971 7.11429 5.39258 7.20591 5.35937 7.29099C5.32615 7.37607 5.27755 7.45282 5.21651 7.51658L0.233236 12.8062C0.172216 12.8699 0.123623 12.9466 0.0904164 13.0316C0.05721 13.1166 0.0400853 13.2082 0.0400853 13.3007C0.0400853 13.3933 0.05721 13.4848 0.0904164 13.5699C0.123623 13.6549 0.172216 13.7316 0.233236 13.7953Z"
+                fill="black"
+              />
+            </TargetAudienceIcon>
+          </TargetAudienceButtonWrap>
+        </TargetAudienceWrap>
+        <ScrapMakeButtonWrap>
+          <ScrapMakeButton onClick={onClickMakeScrap}>
+            신규 스크랩 만들기
+          </ScrapMakeButton>
+        </ScrapMakeButtonWrap>
+      </ProfileMakeScrapBodyContainer>
+      {isActiveProfileScarpTargetAudPopup && (
+        <ProfileScrapTargetAudiencePopup
+          targetAudValue={targetAudience}
+          setTargetAudValue={setTargetAudience}
+        />
+      )}
+    </>
   );
 };
 
@@ -182,12 +204,6 @@ const TargetAudienceButton = styled.div`
 
 const TargetAudienceIcon = styled.svg`
   margin: auto 0px;
-`;
-
-const BoundaryBarStick = styled.div`
-  width: 100%;
-  height: 1px;
-  background-color: ${({ theme }) => theme.grey.Grey2};
 `;
 
 const ScrapMakeButtonWrap = styled.div`

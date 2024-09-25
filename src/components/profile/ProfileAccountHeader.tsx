@@ -1,25 +1,16 @@
-import { useQuery } from '@tanstack/react-query';
+import AccountOtherSettingButton from 'components/common/buttton/AccountOtherSettingButton';
 import AccountSettingButton from 'components/common/buttton/AccountSettingButton';
-import {
-  QUERY_STATE_PROFILE_ACCOUNT_INFO,
-  SERACH_FAVORITE_TERMS_STALE_TIME,
-} from 'const/QueryClientConst';
-import { ProfileInfo } from 'global/interface/profile';
+import { QueryStateProfileInfo } from 'hook/queryhook/QueryStateProfileInfo';
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import { getProfileInfo } from 'services/profile/getProfileInfo';
 import styled from 'styled-components';
 import PrevButtonHeaderHeader from '../layouts/PrevButtonHeaderHeader';
 
 const ProfileAccountHeader: React.FC = () => {
   const param = useParams();
   const username = param.username || '';
-  const { data, isLoading } = useQuery<ProfileInfo>({
-    queryKey: [QUERY_STATE_PROFILE_ACCOUNT_INFO, username],
-    queryFn: () => getProfileInfo(username),
-    staleTime: SERACH_FAVORITE_TERMS_STALE_TIME,
-  });
 
+  const { data, isLoading } = QueryStateProfileInfo(username);
   return (
     <>
       {!isLoading && username !== '' && data && (
@@ -27,7 +18,11 @@ const ProfileAccountHeader: React.FC = () => {
           titleName={data.username}
           RightButtonNode={
             <ProfileSettingWrap>
-              <AccountSettingButton />
+              {data.isMe ? (
+                <AccountSettingButton />
+              ) : (
+                <AccountOtherSettingButton />
+              )}
             </ProfileSettingWrap>
           }
         />
