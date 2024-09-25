@@ -6,7 +6,7 @@ import {
   SERACH_FAVORITE_TERMS_STALE_TIME,
 } from 'const/QueryClientConst';
 import { PostDocResourceImageRsp } from 'global/interface/post';
-import { isValidString } from 'global/util/\bValidUtil';
+import { isValidString } from 'global/util/ValidUtil';
 import { getPostResourceDocImageList } from 'services/post/getPostResouceDocImageList';
 
 export const QueryStatePostResourceDocImageList = (

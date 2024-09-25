@@ -28,13 +28,13 @@ import {
   POST_VIDEO_TYPE,
 } from '../const/PostContentTypeConst';
 import { PROFILE_URL_CLIP_BOARD_TEXT } from '../const/SystemPhraseConst';
-import { isValidString } from '../global/util/\bValidUtil';
 import { copyClipBoard } from '../global/util/CopyUtil';
 import {
   addPostToHiddenPostIdList,
   getHiddenPostIdList,
   removePostByHiddenPostIdList,
 } from '../global/util/HiddenPostIdListUtil';
+import { isValidString } from '../global/util/ValidUtil';
 import { getPost } from '../services/post/getPost';
 import { putPostInterested } from '../services/post/putPostInterested';
 import { putPostNotInterested } from '../services/post/putPostNotInterested';

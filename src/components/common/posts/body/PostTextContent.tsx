@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { SEARCH_PATH } from '../../../../const/PathConst';
 
-import { isValidString } from 'global/util/\bValidUtil';
+import { isValidString } from 'global/util/ValidUtil';
 import { convertDtStrToDTStr } from '../../../../global/util/DateTimeUtil';
 
 interface PostTextContentProps {

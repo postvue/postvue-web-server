@@ -6,11 +6,11 @@ import { useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { SEARCH_PATH } from '../../../const/PathConst';
-import { isValidString } from '../../../global/util/\bValidUtil';
 import {
   getSearchQueryByDebounce,
   handleSearch,
 } from '../../../global/util/SearchUtil';
+import { isValidString } from '../../../global/util/ValidUtil';
 import { getSearchQuery } from '../../../services/search/getSearchQuery';
 import {
   isSearchInputActiveAtom,

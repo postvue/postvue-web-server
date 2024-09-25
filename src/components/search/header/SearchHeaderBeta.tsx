@@ -31,8 +31,8 @@ import { SEARCH_POST_FILTER_QUERY_PARAM } from '../../../const/QueryParamConst';
 import { SEARCH_RELATION_QUERY_DELAY_MIRCE_TIME } from '../../../const/SearchConst';
 import { MAX_DELAY_SETTIMEOUT_TIME } from '../../../const/SystemAttrConst';
 import { SEARCH_INPUT_PHARSE_TEXT } from '../../../const/SystemPhraseConst';
-import { isValidString } from '../../../global/util/\bValidUtil';
 import { handleSearch } from '../../../global/util/SearchUtil';
+import { isValidString } from '../../../global/util/ValidUtil';
 import { getSearchQuery } from '../../../services/search/getSearchQuery';
 import {
   cursorIdAtomBySearchPost,
