@@ -79,6 +79,7 @@ const paddings = {
 const systemSize = {
   appDisplaySize: {
     maxWidth: '540px',
+    bothSidePadding: '20px',
   },
   bottomNavBar: {
     height: '90px',
@@ -86,6 +87,11 @@ const systemSize = {
   header: {
     height: '50px',
     paddingLeftRightMargin: '21px',
+    //@REFER: 22px 또는 21px로 할 지 결정
+    //paddingLeftRightMargin: '22px',
+  },
+  popupTopBodyBottomScrollArea: {
+    height: '80px',
   },
 };
 
