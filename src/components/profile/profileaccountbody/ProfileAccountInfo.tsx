@@ -1,21 +1,18 @@
-import { useQuery } from '@tanstack/react-query';
+import { ReactComponent as ProfileLinkIcon } from 'assets/images/icon/svg/ProfileLinkIcon.svg';
 import { ACCOUNT_INFO_HEADER_OFFSET_SCROLL_THRESHOLD } from 'const/AccountConst';
 import {
   FOLLOW_LIST_PATH,
   PROFILE_EDIT_PATH,
   PROFILE_LIST_PATH,
 } from 'const/PathConst';
-import {
-  QUERY_STATE_PROFILE_ACCOUNT_INFO,
-  SERACH_FAVORITE_TERMS_STALE_TIME,
-} from 'const/QueryClientConst';
 import { TAB_QUERY_PARAM } from 'const/QueryParamConst';
 import { PROFILE_FOLLOWER_TAB_PARAM } from 'const/TabConfigConst';
-import { ProfileInfo } from 'global/interface/profile';
-import { handleShareUtil } from 'global/util/shareUtil';
+import { QueryStateProfileInfo } from 'hook/queryhook/QueryStateProfileInfo';
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { getProfileInfo } from 'services/profile/getProfileInfo';
+import { useSetRecoilState } from 'recoil';
+import { isActiveProfileBlockPopupAtom } from 'states/ProfileAtom';
+import { isSharePopupAtom } from 'states/ShareAtom';
 import styled from 'styled-components';
 
 const ProfileAccountInfo: React.FC = () => {
@@ -23,16 +20,18 @@ const ProfileAccountInfo: React.FC = () => {
 
   const param = useParams();
   const username = param.username || '';
-  const { data, isLoading } = useQuery<ProfileInfo>({
-    queryKey: [QUERY_STATE_PROFILE_ACCOUNT_INFO, username],
-    queryFn: () => getProfileInfo(username),
-    staleTime: SERACH_FAVORITE_TERMS_STALE_TIME,
-  });
+  const { data, isLoading } = QueryStateProfileInfo(username);
 
   const [prevScrollPos, setPrevScrollPos] = useState(0);
   const [offset, setOffset] = useState(0);
 
   const ProfileAccountInfoRef = useRef<HTMLDivElement>(null);
+
+  const setIsActiveProfileBlockPopup = useSetRecoilState(
+    isActiveProfileBlockPopupAtom,
+  );
+
+  const setIsSharePopup = useSetRecoilState(isSharePopupAtom);
 
   const handleScroll = () => {
     const currentScrollPos = window.pageYOffset;
@@ -53,6 +52,10 @@ const ProfileAccountInfo: React.FC = () => {
     }
   };
 
+  const onClickUnblocking = () => {
+    setIsActiveProfileBlockPopup(true);
+  };
+
   useEffect(() => {
     window.addEventListener('scroll', handleScroll);
 
@@ -71,27 +74,43 @@ const ProfileAccountInfo: React.FC = () => {
           <ProfileLayout1Wrap>
             <ProfileImg src={data.profilePath} />
             <ProfileLayout1SubWrap>
-              <ProfileUserIdWrap>{data.username}</ProfileUserIdWrap>
+              <ProfileUserNicknameWrap>{data.nickname}</ProfileUserNicknameWrap>
+              <ProfileUserIdWrap>@{data.username}</ProfileUserIdWrap>
               <ProfileFollowWrap>
-                <Link
-                  to={`${PROFILE_LIST_PATH}/${username}${FOLLOW_LIST_PATH}`}
-                >
-                  <ProfileFollowingWrap>
-                    <ProfileFollowingTitle>팔로잉</ProfileFollowingTitle>
-                    <ProfileFollowingNum>000</ProfileFollowingNum>
-                  </ProfileFollowingWrap>
-                </Link>
                 <Link
                   to={`${PROFILE_LIST_PATH}/${username}${FOLLOW_LIST_PATH}?${TAB_QUERY_PARAM}=${PROFILE_FOLLOWER_TAB_PARAM}`}
                 >
                   <ProfileFollowerWrap>
                     <ProfileFollowerTitle>팔로워</ProfileFollowerTitle>
-                    <ProfileFollowerNum>000</ProfileFollowerNum>
+                    <ProfileFollowerNum>{data.followerNum}</ProfileFollowerNum>
                   </ProfileFollowerWrap>
+                </Link>
+                <Link
+                  to={`${PROFILE_LIST_PATH}/${username}${FOLLOW_LIST_PATH}`}
+                >
+                  <ProfileFollowingWrap>
+                    <ProfileFollowingTitle>팔로잉</ProfileFollowingTitle>
+                    <ProfileFollowingNum>
+                      {data.followingNum}
+                    </ProfileFollowingNum>
+                  </ProfileFollowingWrap>
                 </Link>
               </ProfileFollowWrap>
             </ProfileLayout1SubWrap>
           </ProfileLayout1Wrap>
+          {data.introduce && (
+            <ProfileIntroduceContent>{data.introduce}</ProfileIntroduceContent>
+          )}
+          {data.website && (
+            <Link to={data.website} target="_blank">
+              <ProfileWebsiteIconContentWrap>
+                <ProfileWebsiteIconWrap>
+                  <ProfileLinkIcon />
+                </ProfileWebsiteIconWrap>
+                <ProfileWebsiteContent>{data.website}</ProfileWebsiteContent>
+              </ProfileWebsiteIconContentWrap>
+            </Link>
+          )}
           {data.isMe ? (
             <ProfileLayout2Wrap>
               <ProfileEditButton
@@ -102,23 +121,27 @@ const ProfileAccountInfo: React.FC = () => {
                 프로필 수정
               </ProfileEditButton>
 
-              <ProfileShareButton
-                onClick={() =>
-                  handleShareUtil({
-                    url: window.location.href,
-                    text: '이것 좀 보세요! 👀',
-                  })
-                }
-              >
+              <ProfileShareButton onClick={() => setIsSharePopup(true)}>
                 프로필 공유
               </ProfileShareButton>
             </ProfileLayout2Wrap>
           ) : (
             <ProfileLayout2Wrap>
-              {data.isFollowed ? (
-                <ProfileAlreedyFollowButton>팔로잉</ProfileAlreedyFollowButton>
-              ) : (
-                <ProfileFollowButton>팔로우</ProfileFollowButton>
+              {data.isBlocked && (
+                <ProfileUnblockingButton onClick={onClickUnblocking}>
+                  차단 해제
+                </ProfileUnblockingButton>
+              )}
+              {!data.isBlocked && (
+                <>
+                  {data.isFollowed ? (
+                    <ProfileAlreedyFollowButton>
+                      팔로잉
+                    </ProfileAlreedyFollowButton>
+                  ) : (
+                    <ProfileFollowButton>팔로우</ProfileFollowButton>
+                  )}
+                </>
               )}
 
               <ProfileMsgSendButton>메시지 보내기</ProfileMsgSendButton>
@@ -159,8 +182,13 @@ const ProfileLayout1SubWrap = styled.div`
   margin: auto 12px auto 12px;
 `;
 
+const ProfileUserNicknameWrap = styled.div`
+  font: ${({ theme }) => theme.fontSizes.Headline1};
+`;
+
 const ProfileUserIdWrap = styled.div`
-  font: ${({ theme }) => theme.fontSizes.Body5};
+  font: ${({ theme }) => theme.fontSizes.Body1};
+  color: ${({ theme }) => theme.grey.Grey6};
 `;
 
 const ProfileFollowWrap = styled.div`
@@ -190,6 +218,30 @@ const ProfileFollowingTitle = styled(ProfileFollowerTitle)``;
 
 const ProfileFollowingNum = styled(ProfileFollowerNum)``;
 
+const ProfileIntroduceContent = styled.div`
+  font: ${({ theme }) => theme.fontSizes.Body2};
+  white-space: pre-line;
+  padding-bottom: 10px;
+`;
+
+const ProfileWebsiteIconContentWrap = styled.div`
+  display: flex;
+  gap: 3px;
+  padding-bottom: 10px;
+`;
+
+const ProfileWebsiteIconWrap = styled.div`
+  width: 10px;
+  height: 10px;
+  display: flex;
+  margin: auto 0px;
+`;
+
+const ProfileWebsiteContent = styled.div`
+  font: ${({ theme }) => theme.fontSizes.Body1};
+  color: ${({ theme }) => theme.grey.Grey7};
+`;
+
 const ProfileLayout2Wrap = styled.div`
   display: flex;
   gap: 7px;
@@ -216,6 +268,8 @@ const ProfileFollowButton = styled(ProfileEditButton)`
   color: ${({ theme }) => theme.mainColor.White};
   border: 0px;
 `;
+
+const ProfileUnblockingButton = styled(ProfileEditButton)``;
 
 const ProfileMsgSendButton = styled(ProfileEditButton)``;
 
