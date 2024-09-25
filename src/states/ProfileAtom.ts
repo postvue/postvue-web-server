@@ -1,26 +1,29 @@
 import { atom } from 'recoil';
+import { GetProfileScrapInfoRsp } from 'services/profile/getProfileScrapInfo';
 import { INIT_CURSOR_ID } from '../const/PageConfigConst';
 import { TargetAudienceCategory } from '../const/ScrapConst';
-import { MyAccountSettingInterface } from '../global/interface/localstorage/MyAccountSettingInterface';
 import { PostProfileInfoRsp, PostRsp } from '../global/interface/post';
 import {
   MyProfileClip,
   MyProfileScrap,
-  MyProfileScrapInfo,
-  MyProfileScrapList,
+  ProfileMyInfo,
+  ProfileScrapList,
   TargetAudienceInterface,
 } from '../global/interface/profile';
 
-export const myProfileSettingInfoAtom = atom<MyAccountSettingInterface>({
+export const myProfileSettingInfoAtom = atom<ProfileMyInfo>({
   key: 'myProfileSEttingInfo',
   default: {
     userId: '',
     username: '',
     profilePath: '',
+    nickname: '',
+    introduce: '',
+    website: '',
   },
 });
 
-export const myProfileScrapListAtom = atom<MyProfileScrapList[]>({
+export const myProfileScrapListAtom = atom<ProfileScrapList[]>({
   key: 'myProfileScrapList',
   default: [],
 });
@@ -87,7 +90,17 @@ export const cursorIdByMyProfileFollowingAtom = atom<string>({
   default: INIT_CURSOR_ID,
 });
 
-export const myProfileScrapInfoAtom = atom<MyProfileScrapInfo>({
+export const profileScrapInfoAtom = atom<GetProfileScrapInfoRsp>({
   key: 'myProfileScrapInfo',
-  default: { scrapListId: '', scrapName: '' },
+  default: { scrapId: '', scrapName: '', scrapNum: 0, lastPostedAt: '' },
+});
+
+export const isActiveProfileScarpTargetAudPopupAtom = atom<boolean>({
+  key: 'isActiveProfileScarpTargetAudPopup',
+  default: false,
+});
+
+export const isActiveProfileAccountPopupAtom = atom<boolean>({
+  key: 'isActiveProfileAccountPopup',
+  default: false,
 });

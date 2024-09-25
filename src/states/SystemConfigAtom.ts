@@ -5,3 +5,8 @@ export const systemPostRspHashMapAtom = atom<Map<string, PostRsp>>({
   key: 'systemPostRspHashMap',
   default: new Map(),
 });
+
+export const isLoadingPopupAtom = atom<boolean>({
+  key: 'isLoadingPopup',
+  default: false,
+});
