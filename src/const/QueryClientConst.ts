@@ -18,4 +18,15 @@ export const QUERY_STATE_PROFILE_POST_LIST = 'profilePostList';
 export const QUERY_STATE_PROFILE_ACCOUNT_INFO = 'profileAccountInfo';
 
 // 프로필 스크랩 리스트(보드)
+export const QUERY_STATE_PROFILE_SCRAP_INFO = 'profileScrapInfo';
 export const QUERY_STATE_PROFILE_SCRAP_LIST = 'profileScrapList';
+
+// 포스트, 스크랩 preview
+export const QUERY_STATE_POST_RESOURCE_DOC_IMAGE_LIST =
+  'postResourceDocImageList';
+
+// 내 팔로잉 리스트
+export const QUERY_STATE_MY_PROFILE_FOLLOWING_LIST = 'profileMyFollowingList';
+
+// 관련 포스트
+export const QUERY_STATE_POST_RELATION_LIST = 'postRelationList';

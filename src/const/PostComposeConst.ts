@@ -1,0 +1,4 @@
+export const MAX_POST_COMPOSE_SOURCE_DELAY_TIME = 5000;
+export const POST_COMPOSEUPLOAD_MAX_NUM = 5;
+
+export const POST_COMPOSE_IMG_RATIO = 4;
