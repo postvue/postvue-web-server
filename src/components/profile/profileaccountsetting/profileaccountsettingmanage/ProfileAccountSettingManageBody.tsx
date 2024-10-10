@@ -3,41 +3,59 @@ import React from 'react';
 import styled from 'styled-components';
 
 import {
-  PROFILE_EDIT_PATH,
-  PROFILE_MANAGE_PATH,
-  PROFILE_PRIVACY_POLICY_PATH,
+  HOME_PATH,
+  PROFILE_BIRTHDATE_EDIT_PATH,
+  PROFILE_DELETE_ACCOUNT_PATH,
+  PROFILE_EMAIL_EDIT_PATH,
+  PROFILE_GENDER_EDIT_PATH,
+  PROFILE_PASSWORD_EDIT_PATH,
 } from 'const/PathConst';
 import {
-  ACCOUNT_SETTING_CONTACT_TAB_NAME,
-  ACCOUNT_SETTING_NOTICE_SERVIDE_TAB_NAME,
-  ACCOUNT_SETTING_PRIVACY_POLICY_TAB_NAME,
-  ACCOUNT_SETTING_PRIVACY_SAFETY_TAB_NAME,
-  ACCOUNT_SETTING_PROFILE_EDIT_TAB_NAME,
-  ACCOUNT_SETTING_PROFILE_MANAGE_TAB_NAME,
-  ACCOUNT_SETTING_PROFILE_NOTIFICATIONS_TAB_NAME,
-  ACCOUNT_SETTING_TERMS_OF_SERVICE_TAB_NAME,
+  ACCOUNT_SETTING_BIRTHDATE_EDIT_TAB_NAME,
+  ACCOUNT_SETTING_DELETE_ACCOUNT_TAB_NAME,
+  ACCOUNT_SETTING_EMAIL_EDIT_TAB_NAME,
+  ACCOUNT_SETTING_GENDER_EDIT_TAB_NAME,
+  ACCOUNT_SETTING_PASSWORD_EDIT_TAB_NAME,
 } from 'const/TabConfigConst';
+import { resetAccountInfoByLogout } from 'global/util/AuthUtil';
 import { useNavigate } from 'react-router-dom';
+import { postAuthLogout } from 'services/auth/postAuthLogout';
 
-const ProfileAccountSettingBody: React.FC = () => {
+const ProfileAccountSettingManageBody: React.FC = () => {
   const navigate = useNavigate();
   const settingTabList = [
-    { tabName: ACCOUNT_SETTING_PROFILE_EDIT_TAB_NAME, url: PROFILE_EDIT_PATH },
     {
-      tabName: ACCOUNT_SETTING_PROFILE_MANAGE_TAB_NAME,
-      url: PROFILE_MANAGE_PATH,
+      tabName: ACCOUNT_SETTING_EMAIL_EDIT_TAB_NAME,
+      url: PROFILE_EMAIL_EDIT_PATH,
     },
     {
-      tabName: ACCOUNT_SETTING_PRIVACY_SAFETY_TAB_NAME,
-      url: PROFILE_PRIVACY_POLICY_PATH,
+      tabName: ACCOUNT_SETTING_BIRTHDATE_EDIT_TAB_NAME,
+      url: PROFILE_BIRTHDATE_EDIT_PATH,
     },
-    { tabName: ACCOUNT_SETTING_PROFILE_NOTIFICATIONS_TAB_NAME, url: '' },
-    { tabName: ACCOUNT_SETTING_PRIVACY_POLICY_TAB_NAME, url: '' },
-    { tabName: ACCOUNT_SETTING_TERMS_OF_SERVICE_TAB_NAME, url: '' },
-    { tabName: ACCOUNT_SETTING_NOTICE_SERVIDE_TAB_NAME, url: '' },
-    { tabName: ACCOUNT_SETTING_CONTACT_TAB_NAME, url: '' },
+    {
+      tabName: ACCOUNT_SETTING_GENDER_EDIT_TAB_NAME,
+      url: PROFILE_GENDER_EDIT_PATH,
+    },
+    {
+      tabName: ACCOUNT_SETTING_PASSWORD_EDIT_TAB_NAME,
+      url: PROFILE_PASSWORD_EDIT_PATH,
+    },
+    {
+      tabName: ACCOUNT_SETTING_DELETE_ACCOUNT_TAB_NAME,
+      url: PROFILE_DELETE_ACCOUNT_PATH,
+    },
   ];
 
+  const onClickLogout = () => {
+    postAuthLogout()
+      .then(() => {
+        resetAccountInfoByLogout();
+        location.href = HOME_PATH;
+      })
+      .catch(() => {
+        alert('오류로 인해 로그아웃에 실패했습니다. 다시 시도해주세요.');
+      });
+  };
   return (
     <ProfileAccountSettingBodyContainer>
       <ProfileAccountSettingBodyWrap>
@@ -57,6 +75,11 @@ const ProfileAccountSettingBody: React.FC = () => {
           </ProfileAccountSettingElementWrap>
         ))}
       </ProfileAccountSettingBodyWrap>
+      <ProfileLogoutButtonWrap>
+        <ProfileLogoutButton onClick={onClickLogout}>
+          로그아웃
+        </ProfileLogoutButton>
+      </ProfileLogoutButtonWrap>
     </ProfileAccountSettingBodyContainer>
   );
 };
@@ -87,4 +110,16 @@ const ProfileAccountSettingArrowButtonWrap = styled.div`
   margin: auto 0;
 `;
 
-export default ProfileAccountSettingBody;
+const ProfileLogoutButtonWrap = styled.div`
+  display: flex;
+  justify-content: center;
+  padding-top: 20px;
+`;
+
+const ProfileLogoutButton = styled.div`
+  font: ${({ theme }) => theme.fontSizes.Body3};
+  color: ${({ theme }) => theme.grey.Grey3};
+  cursor: pointer;
+`;
+
+export default ProfileAccountSettingManageBody;

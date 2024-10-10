@@ -3,44 +3,31 @@ import React from 'react';
 import styled from 'styled-components';
 
 import {
-  PROFILE_EDIT_PATH,
-  PROFILE_MANAGE_PATH,
-  PROFILE_PRIVACY_POLICY_PATH,
+  PROFILE_BLOCKED_ACCOUNT_PATH,
+  PROFILE_PRIVATE_PROFILE_PATH,
 } from 'const/PathConst';
 import {
-  ACCOUNT_SETTING_CONTACT_TAB_NAME,
-  ACCOUNT_SETTING_NOTICE_SERVIDE_TAB_NAME,
-  ACCOUNT_SETTING_PRIVACY_POLICY_TAB_NAME,
-  ACCOUNT_SETTING_PRIVACY_SAFETY_TAB_NAME,
-  ACCOUNT_SETTING_PROFILE_EDIT_TAB_NAME,
-  ACCOUNT_SETTING_PROFILE_MANAGE_TAB_NAME,
-  ACCOUNT_SETTING_PROFILE_NOTIFICATIONS_TAB_NAME,
-  ACCOUNT_SETTING_TERMS_OF_SERVICE_TAB_NAME,
+  ACCOUNT_SETTING_PRIVATE_PROFILE_TAB_NAME,
+  ACCOUNT_SETTING_PROFILE_BLOCK_LIST_TAB_NAME,
 } from 'const/TabConfigConst';
 import { useNavigate } from 'react-router-dom';
 
-const ProfileAccountSettingBody: React.FC = () => {
+const ProfileAccountSettingPrivacyBody: React.FC = () => {
   const navigate = useNavigate();
   const settingTabList = [
-    { tabName: ACCOUNT_SETTING_PROFILE_EDIT_TAB_NAME, url: PROFILE_EDIT_PATH },
     {
-      tabName: ACCOUNT_SETTING_PROFILE_MANAGE_TAB_NAME,
-      url: PROFILE_MANAGE_PATH,
+      tabName: ACCOUNT_SETTING_PRIVATE_PROFILE_TAB_NAME,
+      url: PROFILE_PRIVATE_PROFILE_PATH,
     },
     {
-      tabName: ACCOUNT_SETTING_PRIVACY_SAFETY_TAB_NAME,
-      url: PROFILE_PRIVACY_POLICY_PATH,
+      tabName: ACCOUNT_SETTING_PROFILE_BLOCK_LIST_TAB_NAME,
+      url: PROFILE_BLOCKED_ACCOUNT_PATH,
     },
-    { tabName: ACCOUNT_SETTING_PROFILE_NOTIFICATIONS_TAB_NAME, url: '' },
-    { tabName: ACCOUNT_SETTING_PRIVACY_POLICY_TAB_NAME, url: '' },
-    { tabName: ACCOUNT_SETTING_TERMS_OF_SERVICE_TAB_NAME, url: '' },
-    { tabName: ACCOUNT_SETTING_NOTICE_SERVIDE_TAB_NAME, url: '' },
-    { tabName: ACCOUNT_SETTING_CONTACT_TAB_NAME, url: '' },
   ];
 
   return (
-    <ProfileAccountSettingBodyContainer>
-      <ProfileAccountSettingBodyWrap>
+    <ProfileAccountSettingPrivacyBodyContainer>
+      <ProfileAccountSettingPrivacyBodyWrap>
         {settingTabList.map((value, key) => (
           <ProfileAccountSettingElementWrap
             key={key}
@@ -56,16 +43,16 @@ const ProfileAccountSettingBody: React.FC = () => {
             </ProfileAccountSettingArrowButtonWrap>
           </ProfileAccountSettingElementWrap>
         ))}
-      </ProfileAccountSettingBodyWrap>
-    </ProfileAccountSettingBodyContainer>
+      </ProfileAccountSettingPrivacyBodyWrap>
+    </ProfileAccountSettingPrivacyBodyContainer>
   );
 };
 
-const ProfileAccountSettingBodyContainer = styled.div`
+const ProfileAccountSettingPrivacyBodyContainer = styled.div`
   padding: ${({ theme }) => theme.systemSize.header.height} ${({ theme }) => theme.systemSize.header.paddingLeftRightMargin}; 0 ${({ theme }) => theme.systemSize.header.paddingLeftRightMargin};
 `;
 
-const ProfileAccountSettingBodyWrap = styled.div`
+const ProfileAccountSettingPrivacyBodyWrap = styled.div`
     display: flex;
     flex-flow: column;
     gap: 16px;
@@ -87,4 +74,4 @@ const ProfileAccountSettingArrowButtonWrap = styled.div`
   margin: auto 0;
 `;
 
-export default ProfileAccountSettingBody;
+export default ProfileAccountSettingPrivacyBody;
