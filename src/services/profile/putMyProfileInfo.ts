@@ -1,4 +1,4 @@
-import { api } from '..';
+import { privateApi } from '..';
 import { ProfileMyInfo } from '../../global/interface/profile';
 import { INFO_PATH, MY_PATH, PROFILE_LIST_PATH } from '../appApiPath';
 
@@ -12,7 +12,7 @@ export interface PutMyProfileInfoReq {
 export const putMyProfileInfo = (
   putMyProfileInfoReq: PutMyProfileInfoReq,
 ): Promise<ProfileMyInfo> => {
-  return api
+  return privateApi
     .put(`${PROFILE_LIST_PATH}${MY_PATH}${INFO_PATH}`, putMyProfileInfoReq)
     .then((res) => {
       console.log(res.data);

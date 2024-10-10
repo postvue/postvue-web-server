@@ -1,5 +1,5 @@
 import { myPostScrapPreview } from 'global/interface/profile';
-import { api } from '..';
+import { privateApi } from '..';
 import { isValidString } from '../../global/util/ValidUtil';
 import { PROFILE_LIST_PATH, SCRAP_LIST_PATH } from '../appApiPath';
 import { POST_ID_PARAM } from '../appApiQueryParam';
@@ -23,7 +23,7 @@ export const postProfileScrap = (
   if (isValidString(postId)) {
     makeProfileScrapPath = `${makeProfileScrapPath}?${POST_ID_PARAM}=${postId}`;
   }
-  return api
+  return privateApi
     .post(makeProfileScrapPath, createProfileScrapReq)
     .then((res) => {
       console.log(res.data);

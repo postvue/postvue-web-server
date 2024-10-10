@@ -1,4 +1,4 @@
-import { api } from '..';
+import { optAuthApi } from '..';
 import { PostComment } from '../../global/interface/post';
 import {
   COMMENT_LIST_PATH,
@@ -17,10 +17,7 @@ export const getPostCommentReplies = (
   commentId: string,
   cursorId: string,
 ): Promise<GetPostCommentsRsp> => {
-  console.log(
-    `${POST_LIST_PATH}/${postId}${COMMENT_LIST_PATH}/${commentId}${REPLY_LIST_PATH}?${CURSOR_PARAM}=${cursorId}`,
-  );
-  return api
+  return optAuthApi
     .get(
       `${POST_LIST_PATH}/${postId}${COMMENT_LIST_PATH}/${commentId}${REPLY_LIST_PATH}?${CURSOR_PARAM}=${cursorId}`,
     )

@@ -1,4 +1,4 @@
-import { api } from '..';
+import { optAuthApi } from '..';
 import { PostRsp } from '../../global/interface/post';
 import { POST_LIST_PATH, PROFILE_LIST_PATH } from '../appApiPath';
 import { CURSOR_PARAM } from '../appApiQueryParam';
@@ -12,7 +12,7 @@ export const getProfilePostListByCursor = (
   username: string,
   cursor: string,
 ): Promise<GetProfilePostListRsp> => {
-  return api
+  return optAuthApi
     .get(
       `${PROFILE_LIST_PATH}/${username}${POST_LIST_PATH}?${CURSOR_PARAM}=${cursor}`,
     )

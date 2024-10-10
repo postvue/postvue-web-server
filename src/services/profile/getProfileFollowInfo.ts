@@ -1,10 +1,11 @@
+import { ProfileInfoByDirectMsg } from 'global/interface/profile';
 import { api } from '..';
-import { TargetProfileInfo } from '../../global/interface/profile';
 import { FOLLOW_PATH, INFO_PATH, PROFILE_LIST_PATH } from '../appApiPath';
 
+//@REFER: 현재, controller 상에서 작성 했는 데, 주석 처리 함, 수정 필요
 export const getProfileFollowInfo = (
   username: string,
-): Promise<TargetProfileInfo> => {
+): Promise<ProfileInfoByDirectMsg> => {
   return api
     .get(`${PROFILE_LIST_PATH}${FOLLOW_PATH}/${username}${INFO_PATH}`)
     .then((res) => {

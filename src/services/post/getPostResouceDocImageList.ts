@@ -1,12 +1,12 @@
 import { PostDocResourceImageRsp } from 'global/interface/post';
 import { DOC_RESOURCE_URL } from 'services/appApiQueryParam';
-import { api } from '..';
+import { privateApi } from '..';
 import { DOC_IMAGE_RESOURCE_LIST, POST_LIST_PATH } from '../appApiPath';
 
 export const getPostResourceDocImageList = (
   sourceUrl: string,
 ): Promise<PostDocResourceImageRsp[]> => {
-  return api
+  return privateApi
     .get(
       `${POST_LIST_PATH}${DOC_IMAGE_RESOURCE_LIST}?${DOC_RESOURCE_URL}=${sourceUrl}`,
     )

@@ -1,7 +1,7 @@
 import { CURSOR_PARAM } from 'services/appApiQueryParam';
-import { api } from '..';
-import { PostRsp } from '../../global/interface/post';
-import { POST_LIST_PATH } from '../appApiPath';
+import { api } from '../..';
+import { PostRsp } from '../../../global/interface/post';
+import { POST_LIST_PATH } from '../../appApiPath';
 
 export const getNearForMeListByCursor = (
   cursor: number,

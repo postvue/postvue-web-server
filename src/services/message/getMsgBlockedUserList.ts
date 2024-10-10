@@ -8,7 +8,7 @@ interface GetBlockUserListRsp {
   blockUserList: MsgBlockHiddenUser[];
 }
 
-export const getBlockUserList = (
+export const getMsgBlockedUserList = (
   cursor: string,
 ): Promise<GetBlockUserListRsp> => {
   return api

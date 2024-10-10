@@ -1,13 +1,13 @@
-import { api } from '..';
+import { privateApi } from '..';
 import { PostInterested } from '../../global/interface/post';
 
 import { NOT_INTERESTED, POST_LIST_PATH } from '../appApiPath';
 
-export const putPostNotInterested = (
+export const postPostNotInterested = (
   postId: string,
 ): Promise<PostInterested> => {
-  return api
-    .put(`${POST_LIST_PATH}/${postId}${NOT_INTERESTED}`)
+  return privateApi
+    .post(`${POST_LIST_PATH}/${postId}${NOT_INTERESTED}`)
     .then((res) => {
       console.log(res.data);
       return res.data.data;

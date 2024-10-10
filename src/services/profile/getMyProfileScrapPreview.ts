@@ -1,4 +1,4 @@
-import { api } from '..';
+import { privateApi } from '..';
 import { GetMyProfileScrapPreviewsRsp } from '../../global/interface/profile';
 import {
   PREVIEW_LIST_PATH,
@@ -10,7 +10,7 @@ import { POST_ID_PARAM } from '../appApiQueryParam';
 export const getMyProfileScrapPreviews = (
   postId: string,
 ): Promise<GetMyProfileScrapPreviewsRsp[]> => {
-  return api
+  return privateApi
     .get(
       `${PROFILE_LIST_PATH}${SCRAP_LIST_PATH}${PREVIEW_LIST_PATH}?${POST_ID_PARAM}=${postId}`,
     )

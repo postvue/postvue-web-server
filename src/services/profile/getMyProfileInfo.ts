@@ -1,9 +1,9 @@
-import { api } from '..';
+import { privateApi } from '..';
 import { ProfileMyInfo } from '../../global/interface/profile';
 import { INFO_PATH, MY_PATH, PROFILE_LIST_PATH } from '../appApiPath';
 
 export const getMyProfileInfo = (): Promise<ProfileMyInfo> => {
-  return api
+  return privateApi
     .get(`${PROFILE_LIST_PATH}${MY_PATH}${INFO_PATH}`)
     .then((res) => {
       console.log(res.data);

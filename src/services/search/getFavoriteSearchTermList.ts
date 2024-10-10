@@ -1,10 +1,10 @@
-import { api } from '..';
+import { optAuthApi } from '..';
 import { GetFavoriteTermRsp } from '../../global/interface/search';
 
 import { FAVORITE_PATH, SEARCH_PATH, TERM_LIST_PATH } from '../appApiPath';
 
 export const getFavoriteSearchTerm = (): Promise<GetFavoriteTermRsp[]> => {
-  return api
+  return optAuthApi
     .get(`${SEARCH_PATH}${FAVORITE_PATH}${TERM_LIST_PATH}`)
     .then((res) => {
       console.log(res.data);

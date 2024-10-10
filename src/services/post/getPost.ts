@@ -1,9 +1,9 @@
-import { api } from '..';
+import { optAuthApi } from '..';
 import { PostRsp } from '../../global/interface/post';
 import { POST_LIST_PATH } from '../appApiPath';
 
 export const getPost = (postId: string): Promise<PostRsp> => {
-  return api
+  return optAuthApi
     .get(`${POST_LIST_PATH}/${postId}`)
     .then((res) => {
       console.log(res.data);
