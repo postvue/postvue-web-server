@@ -1,5 +1,5 @@
 import { POST_IMAGE_TYPE, POST_VIDEO_TYPE } from 'const/PostContentTypeConst';
-import { convertDiffrenceDate } from 'global/util/DateTimeUtil';
+import { convertDiffrenceDateTime } from 'global/util/DateTimeUtil';
 import ProfileScrapListInfiniteScroll from 'hook/ProfileScrapListInfiniteScroll';
 import { QueryStateProfileScrapList } from 'hook/queryhook/QueryStateProfileScrapList';
 import React from 'react';
@@ -72,7 +72,7 @@ const ProfileScrapViewBody: React.FC<ProfileScrapListBodyProps> = ({
                     {v.scrapNum.toLocaleString()}개
                   </ProfileScrapNum>
                   <ProfileScrapDate>
-                    {convertDiffrenceDate(v.lastPostedAt)}
+                    {convertDiffrenceDateTime(v.lastPostedAt)}
                   </ProfileScrapDate>
                 </ProfileScrapNumDateWrap>
               </ProfileScrapNameAndSunInfoWrap>

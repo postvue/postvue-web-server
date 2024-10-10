@@ -34,7 +34,7 @@ const ProfileClipListBody: React.FC = () => {
 
 const ProfileClipBodyContainer = styled.div`
   margin-top: calc(${({ theme }) => theme.systemSize.header.height});
-  padding-top: 20px;
+  padding-top: 10px;
   // height: calc(100vh - 65px - ${theme.systemSize.bottomNavBar.height});
   // overflow: scroll;
   & {

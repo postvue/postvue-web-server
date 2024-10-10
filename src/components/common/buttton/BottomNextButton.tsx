@@ -51,9 +51,9 @@ const BottomNextButton: React.FC<BottomNextButtonProps> = ({
 const BottomNextButtonWrapContainer = styled.div<{ $isTransparent: boolean }>`
   position: fixed;
   bottom: 0px;
-  left: 0;
-  right: 0px;
-  margin: 0 auto;
+  // left: 0;
+  // right: 0px;
+  // margin: 0 auto;
   width: 100%;
   max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
   text-align: center;
@@ -67,7 +67,8 @@ const BottomNextButtonWrap = styled.div`
   color: ${({ theme }) => theme.mainColor.White};
   background-color: ${({ theme }) => theme.mainColor.Blue};
   border-radius: 8px;
-  margin: 13px 20px 33px 20px;
+  margin: 13px 20px
+    ${({ theme }) => theme.systemSize.appDisplaySize.bottomButtonMargin} 20px;
   cursor: pointer;
 `;
 

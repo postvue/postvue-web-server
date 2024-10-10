@@ -2,12 +2,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { INIT_EMPTY_STRING_VALUE } from '../../../const/AttributeConst';
 import { MSG_CONTENT_TEXT_TYPE } from '../../../const/MsgContentTypeConst';
-import { TargetProfileInfo } from '../../../global/interface/profile';
+import { ProfileInfoByDirectMsg } from '../../../global/interface/profile';
 import { isValidString } from '../../../global/util/ValidUtil';
 import msgConversationWsService from '../../../services/message/MsgConversationWsService';
 
 interface MsgConversationSendMessageProps {
-  followInfo: TargetProfileInfo;
+  followInfo: ProfileInfoByDirectMsg;
 }
 
 const MsgConversationSendMessage: React.FC<MsgConversationSendMessageProps> = ({
@@ -29,7 +29,7 @@ const MsgConversationSendMessage: React.FC<MsgConversationSendMessageProps> = ({
     }
   }, [msgConversationTextarea]);
 
-  const onClickSendMsg = (followInfo: TargetProfileInfo): void => {
+  const onClickSendMsg = (followInfo: ProfileInfoByDirectMsg): void => {
     if (isValidString(msgConversationTextarea)) {
       msgConversationWsService.sendMessage(followInfo.targetUserId, {
         msgType: MSG_CONTENT_TEXT_TYPE,

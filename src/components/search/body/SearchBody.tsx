@@ -12,7 +12,11 @@ import { recommTagListAtom } from '../../../states/TagAtom';
 import theme from '../../../styles/theme';
 import ScrollXMoveButtonContainer from '../../common/buttton/ScrollXMoveButtonContainer';
 
-const SearchBody: React.FC = () => {
+interface SearchBodyProps {
+  SearchBodyStyle?: React.CSSProperties;
+}
+
+const SearchBody: React.FC<SearchBodyProps> = ({ SearchBodyStyle }) => {
   const naviate = useNavigate();
   const [recommTagList, setRecommTagList] = useRecoilState(recommTagListAtom);
   const { data } = QueryStateSearchFavoriteTermList();
@@ -42,8 +46,8 @@ const SearchBody: React.FC = () => {
 
   return (
     <>
-      <TagRecommContainer>
-        {data !== undefined && (
+      <SearchBodyContainer style={SearchBodyStyle}>
+        {data !== undefined && data.length > 0 && (
           <SearchFavoriteTermContainer>
             <FavoriteTermListWrap>
               <FavoriteTermListTitle>즐겨찾는 검색어</FavoriteTermListTitle>
@@ -89,7 +93,8 @@ const SearchBody: React.FC = () => {
                 recommTagList.map((v, i) => (
                   <TagElementContainer key={i} ref={i === 0 ? handleRef : null}>
                     <Link to={`${SEARCH_PATH}/${v.tagName}`}>
-                      <TagElementWrap $tagBkgdPath={v.tagBkgdPath}>
+                      {/* @REFER: 콘텐츠 타입에 따라 다르게 보이도록 */}
+                      <TagElementWrap $tagBkgdPath={v.tagBkgdContent}>
                         <TagNameDiv>#{v.tagName}</TagNameDiv>
                       </TagElementWrap>
                     </Link>
@@ -98,7 +103,7 @@ const SearchBody: React.FC = () => {
             </SearchSuggestItemListWrap>
           </SearchSuggestItemListContainer>
         </SearchTagRecommContainer>
-      </TagRecommContainer>
+      </SearchBodyContainer>
     </>
   );
 };
@@ -110,7 +115,7 @@ const SearchTagRecommContainer = styled.div`
   margin: 0 ${SuggestContainerSideMargin};
 `;
 
-const TagRecommContainer = styled.div`
+const SearchBodyContainer = styled.div`
   margin: calc(22px + ${theme.systemSize.header.height}) 0 0 0;
 `;
 

@@ -58,7 +58,7 @@ const PostComposeBySourceUrlPopup: React.FC = () => {
 
   const handleElementAction = (ref: HTMLImageElement | HTMLVideoElement) => {
     const isActive = hasClass(ref, ACTIVE_CLASS_NAME);
-    const borderStyle = `${theme.mainColor.White} 0px 0px 0px 0px, ${theme.mainColor.Blue} 0px 0px 0px 3px`; // border style example, modify as needed
+    const borderStyle = `${theme.mainColor.White} 0px 0px 0px 0px, ${theme.mainColor.Blue} 0px 0px 0px 3px`;
     if (isActive) {
       ref.classList.remove(ACTIVE_CLASS_NAME);
       ref.style.boxShadow = '';
@@ -172,7 +172,6 @@ const PostComposeBySourceUrlPopup: React.FC = () => {
   };
 
   useEffect(() => {
-    setUploadResourceLinkList([]);
     return () => {
       setPostComposeBySourceUrlList([]);
     };
@@ -200,8 +199,8 @@ const PostComposeBySourceUrlPopup: React.FC = () => {
       <PostComposePopupContainer>
         <PrevButtonHeaderHeader
           titleName="이미지 고르기"
-          isSetState={true}
-          setState={setIsActivePostComposeBySourceUrlPopup}
+          isActionFunc={true}
+          actionFunc={() => setIsActivePostComposeBySourceUrlPopup(false)}
           preNodeByState={<XButtonIcon />}
           RightButtonNode={
             <PostComposeUploadNumWrap>

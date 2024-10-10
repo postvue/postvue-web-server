@@ -1,5 +1,4 @@
 export interface MsgInboxMessage {
-  msgRoomId: string;
   targetUserId: string;
   username: string;
   profilePath: string;

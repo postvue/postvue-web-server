@@ -49,6 +49,8 @@ interface SearchHeaderProps {
   navigateType?: string;
   isShowFavoriteTermButton?: boolean;
   favoriteTermButton?: React.ReactNode;
+  SearchHeaderContainer?: React.CSSProperties;
+  isPrevButton?: boolean;
 }
 
 const SearchHeader: React.FC<SearchHeaderProps> = ({
@@ -56,6 +58,8 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
   navigateType = NAVIGATION_TO,
   isShowFavoriteTermButton = false,
   favoriteTermButton,
+  SearchHeaderContainer,
+  isPrevButton = true,
 }) => {
   const deleteButtonRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -203,10 +207,10 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
 
   return (
     <>
-      <HeaderLayout>
+      <HeaderLayout HeaderLayoutStyle={SearchHeaderContainer}>
         <SearchHeaderWrap>
           <SearchContainerWrap>
-            {!isSearchInputActive && (
+            {isPrevButton && !isSearchInputActive && (
               <PrevButtonWrap>
                 <PrevButton
                   style={PrevStyle}

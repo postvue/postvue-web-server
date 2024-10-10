@@ -218,6 +218,7 @@ const PostReactionWrap = styled.div`display: flex;
 const PostReactionTab = styled.div`
   width: 100%;
   text-align: center;
+  cursor: pointer;
 
   padding-bottom: 5px;
   font: ${({ theme }) => theme.fontSizes.Subhead2};

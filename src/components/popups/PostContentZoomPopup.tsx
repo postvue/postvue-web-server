@@ -86,13 +86,9 @@ const PostCotentZoomPopup: React.FC<PostCotentZoomPopupProps> = ({
   };
 
   useEffect(() => {
-    const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = OVERFLOW_HIDDEN;
 
     return () => {
-      console.log(originalOverflow);
-      //@REFER: 참고 바람
-      // document.body.style.overflow = originalOverflow;
       document.body.style.overflow = OVERFLOW_DEFAULT;
 
       resetPostContentZoomPopupInfo();

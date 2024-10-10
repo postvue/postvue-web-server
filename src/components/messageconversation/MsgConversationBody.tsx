@@ -6,10 +6,10 @@ import { MsgConversation } from '../../global/interface/message';
 import { convertDate } from '../../global/util/DateTimeUtil';
 import MsgConversationInfiniteScroll from '../../hook/MsgConversationInfiniteScroll';
 import {
-  followInfoByMsgAtom,
   isSettingByMsgConversationAtom,
   msgConversationListAtom,
   msgReactionInfoAtom,
+  profileInfoByDirectMsgAtom,
 } from '../../states/MessageAtom';
 import FollowConversationMsg from './body/FollowConversationMsg';
 import FollowConversationReaction from './body/FollowConversationReaction';
@@ -18,7 +18,7 @@ import MyConversationMsg from './body/MyConversationMsg';
 import MsgConversationSettingPopup from './popup/MsgConversationSettingPopup';
 
 const MsgConversationBody: React.FC = () => {
-  const followInfo = useRecoilValue(followInfoByMsgAtom);
+  const profileInfoByDirectMsg = useRecoilValue(profileInfoByDirectMsgAtom);
   const [msgConversationList, setMsgConversationList] = useRecoilState(
     msgConversationListAtom,
   );
@@ -52,7 +52,9 @@ const MsgConversationBody: React.FC = () => {
     let lastUserId: string | null = null;
 
     messages.forEach((message) => {
-      const userId = message.isFollowMsg ? followInfo.targetUserId : 'me';
+      const userId = message.isFollowMsg
+        ? profileInfoByDirectMsg.targetUserId
+        : 'me';
 
       if (lastUserId === null) {
         currentGroup.push({ msgConversation: message, showDate: true });
@@ -125,19 +127,19 @@ const MsgConversationBody: React.FC = () => {
   return (
     <>
       <MsgConversationBodyContainer ref={MsgConversationBodyContainerRef}>
-        {followInfo.targetUserId && (
+        {profileInfoByDirectMsg.targetUserId && (
           <MsgConversationScrollWrap>
             <MsgConversationInfiniteScroll
-              targetUserId={followInfo.targetUserId}
+              targetUserId={profileInfoByDirectMsg.targetUserId}
             />
           </MsgConversationScrollWrap>
         )}
         <MsgConversationListWrap>
           {groupedMessages.map((groupData, index) => (
             <MsgConversationWrap key={index}>
-              {groupData.userId === followInfo.targetUserId ? (
+              {groupData.userId === profileInfoByDirectMsg.targetUserId ? (
                 <FollowConversationMsg
-                  followInfo={followInfo}
+                  followInfo={profileInfoByDirectMsg}
                   groupData={groupData}
                 />
               ) : (
@@ -146,9 +148,11 @@ const MsgConversationBody: React.FC = () => {
             </MsgConversationWrap>
           ))}
         </MsgConversationListWrap>
-        <MsgConversationSendMessage followInfo={followInfo} />
+        <MsgConversationSendMessage followInfo={profileInfoByDirectMsg} />
         {isSettingByMsgConversation && (
-          <MsgConversationSettingPopup targetProfileInfo={followInfo} />
+          <MsgConversationSettingPopup
+            targetProfileInfo={profileInfoByDirectMsg}
+          />
         )}
         {msgReactionInfo.msgId !== '' && <FollowConversationReaction />}
       </MsgConversationBodyContainer>

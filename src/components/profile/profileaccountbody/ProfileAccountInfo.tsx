@@ -1,7 +1,9 @@
 import { ReactComponent as ProfileLinkIcon } from 'assets/images/icon/svg/ProfileLinkIcon.svg';
 import { ACCOUNT_INFO_HEADER_OFFSET_SCROLL_THRESHOLD } from 'const/AccountConst';
 import {
+  CONVERSTAION_PATH,
   FOLLOW_LIST_PATH,
+  MESSAGE_PATH,
   PROFILE_EDIT_PATH,
   PROFILE_LIST_PATH,
 } from 'const/PathConst';
@@ -144,7 +146,15 @@ const ProfileAccountInfo: React.FC = () => {
                 </>
               )}
 
-              <ProfileMsgSendButton>메시지 보내기</ProfileMsgSendButton>
+              <ProfileMsgSendButton
+                onClick={() => {
+                  navigate(
+                    `${MESSAGE_PATH}/${data.username}${CONVERSTAION_PATH}`,
+                  );
+                }}
+              >
+                메시지 보내기
+              </ProfileMsgSendButton>
             </ProfileLayout2Wrap>
           )}
         </ProfileAccountInfoContainer>

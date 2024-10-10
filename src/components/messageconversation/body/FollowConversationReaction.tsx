@@ -5,8 +5,8 @@ import styled from 'styled-components';
 import { copyClipBoard } from '../../../global/util/CopyUtil';
 import msgConversationWsService from '../../../services/message/MsgConversationWsService';
 import {
-  followInfoByMsgAtom,
   msgReactionInfoAtom,
+  profileInfoByDirectMsgAtom,
 } from '../../../states/MessageAtom';
 
 interface msgReactionPositionInterface {
@@ -18,7 +18,7 @@ interface msgReactionPositionInterface {
 const FollowConversationReaction: React.FC = () => {
   const MsgReactionRef = useRef<HTMLDivElement>(null);
   const msgReactionInfo = useRecoilValue(msgReactionInfoAtom);
-  const followInfo = useRecoilValue(followInfoByMsgAtom);
+  const profileInfoByDirectMsg = useRecoilValue(profileInfoByDirectMsgAtom);
 
   const resetMsgReactionInfo = useResetRecoilState(msgReactionInfoAtom);
 
@@ -85,7 +85,10 @@ const FollowConversationReaction: React.FC = () => {
         <BoundaryStickBar />
         <ReactionDeleteButton
           onClick={() =>
-            onClickDeleteMsg(followInfo.targetUserId, msgReactionInfo.msgId)
+            onClickDeleteMsg(
+              profileInfoByDirectMsg.targetUserId,
+              msgReactionInfo.msgId,
+            )
           }
         >
           삭제

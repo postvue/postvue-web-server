@@ -3,4 +3,8 @@ export const UPLOAD_IMG_MAX_HEIGHT = 2048;
 
 export const MAX_DELAY_SETTIMEOUT_TIME = 30;
 
-export const MEDIA_MOBILE_MAX_WIDTH = '768px';
+export const MEDIA_MOBILE_MAX_WIDTH_NUM = 768;
+export const MEDIA_MOBILE_MAX_WIDTH = `${MEDIA_MOBILE_MAX_WIDTH_NUM}px`;
+
+export const SERVER_PATH = process.env.REACT_APP_SERVER_PATH;
+export const SERVER_API_PATH = process.env.REACT_APP_SERVER_API_URL;

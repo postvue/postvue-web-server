@@ -6,7 +6,7 @@ import {
   PostComment,
   PostCommentReplyMsgInfo,
 } from '../../../../global/interface/post';
-import { convertDiffrenceDate } from '../../../../global/util/DateTimeUtil';
+import { convertDiffrenceDateTime } from '../../../../global/util/DateTimeUtil';
 import { putPostCommentLike } from '../../../../services/post/putPostCommentLike';
 
 import { getPostReplyReplies } from '../../../../services/post/getPostReplyReplies';
@@ -180,7 +180,7 @@ const PostCommentElement: React.FC<PostCommentElementProps> = ({
             <ProfileUserNameDateWrap>
               <ProfileUsername>{postComment.username}</ProfileUsername>
               <PostCommentDatetime>
-                {convertDiffrenceDate(postComment.postedAt)}
+                {convertDiffrenceDateTime(postComment.postedAt)}
               </PostCommentDatetime>
             </ProfileUserNameDateWrap>
             <PostReactionCommentSettingButton

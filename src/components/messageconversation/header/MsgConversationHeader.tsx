@@ -9,8 +9,8 @@ import {
   PROFILE_LIST_PATH,
 } from '../../../const/PathConst';
 import {
-  followInfoByMsgAtom,
   isSettingByMsgConversationAtom,
+  profileInfoByDirectMsgAtom,
 } from '../../../states/MessageAtom';
 import { sessionActiveUserInfoHashMapAtom } from '../../../states/SessionAtom';
 import theme from '../../../styles/theme';
@@ -19,7 +19,7 @@ import PrevButton from '../../PrevButton';
 import { ReactComponent as SettingVerticalDotIcon } from 'assets/images/icon/svg/SettingVerticalDotIcon.svg';
 
 const MsgConversationHeader: React.FC = () => {
-  const followInfo = useRecoilValue(followInfoByMsgAtom);
+  const profileInfoByDirectMsg = useRecoilValue(profileInfoByDirectMsgAtom);
   const sessionActiveUserInfoHashMap = useRecoilValue(
     sessionActiveUserInfoHashMapAtom,
   );
@@ -43,19 +43,22 @@ const MsgConversationHeader: React.FC = () => {
           />
         </PrevButtonWrap>
         <FollowProfileInfoWrap>
-          <Link to={`${PROFILE_LIST_PATH}/${followInfo.username}`}>
+          <Link to={`${PROFILE_LIST_PATH}/${profileInfoByDirectMsg.username}`}>
             <FollowProfileInfoLinkWrap>
               <FolowProfileActiveWrap>
-                <FollowProfileImg src={followInfo.profilePath} />
+                <FollowProfileImg src={profileInfoByDirectMsg.profilePath} />
                 <FollowActive
                   $sessionState={
-                    sessionActiveUserInfoHashMap.get(followInfo.targetUserId)
-                      ?.sessionState || false
+                    sessionActiveUserInfoHashMap.get(
+                      profileInfoByDirectMsg.targetUserId,
+                    )?.sessionState || false
                   }
                 />
               </FolowProfileActiveWrap>
               <FollowProfileNameWrap>
-                <FollowProfileName>{followInfo.username}</FollowProfileName>
+                <FollowProfileName>
+                  {profileInfoByDirectMsg.username}
+                </FollowProfileName>
               </FollowProfileNameWrap>
             </FollowProfileInfoLinkWrap>
           </Link>

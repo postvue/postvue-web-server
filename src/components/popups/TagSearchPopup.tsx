@@ -121,7 +121,7 @@ const TagSearchPopup: React.FC<TagSearchPopupProps> = ({
     >
       <SearchButtonInputHeaderContainer>
         <HeaderLayout>
-          <PostComposeSearchInputWrap>
+          <TagSearchInputWrap>
             <SearchButtonInputWrap>
               <SearchButtonInput
                 searchInputRef={tagSearchInputRef}
@@ -133,7 +133,7 @@ const TagSearchPopup: React.FC<TagSearchPopupProps> = ({
                 isActiveDeleteButton={tagSearchInput !== ''}
               />
             </SearchButtonInputWrap>
-          </PostComposeSearchInputWrap>
+          </TagSearchInputWrap>
         </HeaderLayout>
         {loading ? (
           <SearchLoadingWrap>
@@ -190,7 +190,7 @@ const SearchButtonInputHeaderContainer = styled.div`
   flex: 1;
 `;
 
-const PostComposeSearchInputWrap = styled.div`
+const TagSearchInputWrap = styled.div`
   width: 100%;
   display: flex;
   margin: auto 0;

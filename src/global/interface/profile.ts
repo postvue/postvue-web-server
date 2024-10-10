@@ -1,10 +1,9 @@
 import { Location } from './post';
 
-export interface TargetProfileInfo {
+export interface ProfileInfoByDirectMsg {
   targetUserId: string;
   username: string;
   profilePath: string;
-  msgRoomId: string;
 }
 
 export interface ProfileMyInfo {
@@ -14,6 +13,10 @@ export interface ProfileMyInfo {
   nickname: string;
   website: string;
   introduce: string;
+  email: string;
+  birthdate: string;
+  gender: string;
+  isPrivateProfile: boolean;
 }
 
 export interface ProfileInfo {
@@ -88,4 +91,14 @@ export interface PostToScrapListReq {
 export interface PostToScrapListRsp {
   scrapIdList: string[];
   isClipped: boolean;
+}
+
+export interface ProfileAccessToken {
+  accessToken: string;
+}
+
+export interface ProfileBlockedUserRsp {
+  blockedUserId: string;
+  blockedUserName: string;
+  blockedUserProfilePath: string;
 }

@@ -6,7 +6,7 @@ import {
   MsgConversation,
   MsgReactionInfo,
 } from '../../../global/interface/message';
-import { convertDiffrenceDate } from '../../../global/util/DateTimeUtil';
+import { convertDiffrenceDateTime } from '../../../global/util/DateTimeUtil';
 import { msgReactionInfoAtom } from '../../../states/MessageAtom';
 import LongPressReaction from '../../LongPressReaction';
 
@@ -50,7 +50,7 @@ const MyConversationMsg: React.FC<MyConversationMsgProps> = ({ groupData }) => {
           {idx === groupData.group.length - 1 || msg.showDate === true ? (
             <MsgDateWrap key={msg.msgConversation.msgId}>
               <MsgConversationMeDate>
-                {convertDiffrenceDate(msg.msgConversation.sendAt)}
+                {convertDiffrenceDateTime(msg.msgConversation.sendAt)}
               </MsgConversationMeDate>
               <LongPressReaction
                 onDownService={() => onDownService(msg.msgConversation.msgId)}

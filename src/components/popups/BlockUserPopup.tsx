@@ -1,8 +1,8 @@
 import React from 'react';
 import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
-import { createBlockUser } from '../../services/post/createBlockUser';
-import { deleteBlockUser } from '../../services/post/deleteBlockUser';
+import { createBlockUser } from '../../services/profile/createBlockUser';
+import { deleteBlockUser } from '../../services/profile/deleteBlockUser';
 import { isActiveProfileBlockPopupAtom } from '../../states/ProfileAtom';
 import PopupLayout from '../layouts/PopupLayout';
 
@@ -90,7 +90,7 @@ const BlockUserPopup: React.FC<BlockUserPopupProps> = ({
           </ProfileNameBlockWrap>
           <ProfileBlockDescWrap>
             <ProfileBlockDescContent>
-              {userInfo.username}님이 나를 팔로우하고 내 계시물을 볼 수
+              {userInfo.username}님이 나를 팔로우하고 내 게시물을 볼 수
               있습니다.
             </ProfileBlockDescContent>
           </ProfileBlockDescWrap>
@@ -125,6 +125,7 @@ const ProfileBlockDescWrap = styled.div`
 
 const ProfileBlockDescContent = styled.div`
   font: ${({ theme }) => theme.fontSizes.Body3};
+  text-align: center;
 `;
 
 const ScrapMakeButtonWrap = styled.div`

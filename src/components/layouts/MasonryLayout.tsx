@@ -1,8 +1,14 @@
 import { ReactComponent as LocationSmallIcon } from 'assets/images/icon/svg/LocationSmallIcon.svg';
 import LongPressToResizeButton from 'components/common/buttton/LongPressToResizeButton';
 import { POST_IMAGE_TYPE, POST_VIDEO_TYPE } from 'const/PostContentTypeConst';
+import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSetRecoilState } from 'recoil';
+import {
+  isPostDetailInfoPopupAtom,
+  postDetailInfoPopupAtom,
+} from 'states/PostAtom';
 import styled from 'styled-components';
 import { MasonryPostRsp } from '../../global/interface/post';
 import { getHiddenPostIdList } from '../../global/util/HiddenPostIdListUtil';
@@ -21,6 +27,9 @@ const MasonryLayout: React.FC<MasonryLayoutProps> = ({
   longPressToResizeNum,
 }) => {
   const navigate = useNavigate();
+
+  const setPostDetailInfo = useSetRecoilState(postDetailInfoPopupAtom);
+  const setIsPostDetailInfoPopup = useSetRecoilState(isPostDetailInfoPopupAtom);
 
   const mansoryContentClass = 'masnory-content';
   const containerRef = useRef<HTMLDivElement>(null);
@@ -71,8 +80,27 @@ const MasonryLayout: React.FC<MasonryLayoutProps> = ({
           {!hiddenPostIdList.includes(v.postId) && (
             <PostWrap
               onClick={() => {
-                if (isActiveNavToPost) {
-                  navigate(`/${v.username}/p/${v.postId}`);
+                if (!isActiveNavToPost) return;
+
+                if (window.innerWidth > MEDIA_MOBILE_MAX_WIDTH_NUM) {
+                  // 데스크탑 크기
+                  // url로 이동
+                  navigate(`/${v.username}/${v.postId}`, {
+                    state: { isDetailPopup: true },
+                  });
+                } else {
+                  // 모바일 크기
+                  // url만 바뀌도록 변경
+                  window.history.pushState(
+                    null,
+                    '',
+                    `/${v.username}/${v.postId}`,
+                  );
+                  setIsPostDetailInfoPopup(true);
+                  setPostDetailInfo({
+                    postId: v.postId,
+                    userId: v.username,
+                  });
                 }
               }}
             >

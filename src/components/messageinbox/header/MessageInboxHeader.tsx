@@ -1,11 +1,23 @@
 import { ReactComponent as SettingVerticalDotIcon } from 'assets/images/icon/svg/SettingVerticalDotIcon.svg';
 import BoundaryStickBar from 'components/common/container/BoundaryStickBar';
-import React from 'react';
+import { NOTIFICATION_LIST_PATH } from 'const/PathConst';
+import {
+  getLastNotificationReadAt,
+  getNotificationMsgHashMapByLocalStorage,
+  saveNotificationMsgHashMapByLocalStorage,
+} from 'global/util/NotificationUtil';
+import { QueryStateNotificationMsg } from 'hook/queryhook/QueryStateNotificationMsg';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 import { isFolloManagePopupByMsgInboxAtom } from '../../../states/MsgInboxAtom';
 
+import { ReactComponent as NotificationActiveIcon } from 'assets/images/icon/svg/NotificationActiveIcon.svg';
+import { ReactComponent as NotificationNotActiveIcon } from 'assets/images/icon/svg/NotificationNotActiveIcon.svg';
+
 const MessageInboxHeader: React.FC = () => {
+  const navigate = useNavigate();
   const setIsFolloManagePopupByMsgInbox = useSetRecoilState(
     isFolloManagePopupByMsgInboxAtom,
   );
@@ -13,6 +25,27 @@ const MessageInboxHeader: React.FC = () => {
   const onClickPopup = () => {
     setIsFolloManagePopupByMsgInbox(true);
   };
+
+  const { data: lastNotificationList } = QueryStateNotificationMsg(
+    getLastNotificationReadAt(),
+  );
+
+  const [hasNotification, setHasNotification] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (lastNotificationList) {
+      saveNotificationMsgHashMapByLocalStorage(lastNotificationList);
+    }
+
+    const notificationHashMap = getNotificationMsgHashMapByLocalStorage();
+
+    setHasNotification(
+      Array.from(notificationHashMap.entries()).some(
+        (value) => value[1].isRead === false,
+      ),
+    );
+  }, [lastNotificationList]);
+
   return (
     <MessageInboxHeaderContainer>
       <MessageInboxHeaderWrap>
@@ -20,7 +53,14 @@ const MessageInboxHeader: React.FC = () => {
           <ProfileNameDiv>changminkim-329</ProfileNameDiv>
         </ProfileNameWrap>
         <MessageSettingWrap>
-          <MessageWriteButtonWrap>
+          <NotificationTab onClick={() => navigate(NOTIFICATION_LIST_PATH)}>
+            {hasNotification ? (
+              <NotificationActiveIcon />
+            ) : (
+              <NotificationNotActiveIcon />
+            )}
+          </NotificationTab>
+          {/* <MessageWriteButtonWrap>
             <MessageWriteButton>
               <MessageWriteIcon
                 xmlns="http://www.w3.org/2000/svg"
@@ -38,7 +78,7 @@ const MessageInboxHeader: React.FC = () => {
                 />
               </MessageWriteIcon>
             </MessageWriteButton>
-          </MessageWriteButtonWrap>
+          </MessageWriteButtonWrap> */}
           <SettingButtonWrap>
             <SettingButton onClick={onClickPopup}>
               <SettingVerticalDotIcon />
@@ -69,6 +109,7 @@ const ProfileNameDiv = styled.div`
 
 const MessageSettingWrap = styled.div`
   display: flex;
+  gap: 10px;
 `;
 
 const MessageWriteButtonWrap = styled.div`
@@ -88,6 +129,12 @@ const SettingButton = styled.div`
   display: flex;
   margin: auto 0px;
   cursor: pointer;
+`;
+
+const NotificationTab = styled.div`
+  cursor: pointer;
+  display: flex;
+  margin: auto 0px;
 `;
 
 export default MessageInboxHeader;

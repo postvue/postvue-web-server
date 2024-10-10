@@ -1,3 +1,4 @@
+import { ProfileInfoByDirectMsg } from 'global/interface/profile';
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSetRecoilState } from 'recoil';
@@ -7,15 +8,13 @@ import {
   MSG_HIDDEN_LIST_MANAGE_PATH,
   PROFILE_LIST_PATH,
 } from '../../../const/PathConst';
-
-import { TargetProfileInfo } from '../../../global/interface/profile';
 import { putBlockingUser } from '../../../services/message/putBlockingUser';
 import { putHiddenUser } from '../../../services/message/putHiddenUser';
 import { isSettingByMsgConversationAtom } from '../../../states/MessageAtom';
 import PopupLayout from '../../layouts/PopupLayout';
 
 interface MsgConversationSettingPopupProps {
-  targetProfileInfo: TargetProfileInfo;
+  targetProfileInfo: ProfileInfoByDirectMsg;
 }
 
 const MsgConversationSettingPopup: React.FC<

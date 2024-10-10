@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
+import theme from 'styles/theme';
 import { POST_COMMENT_INPUT_PLACEHOLDER } from '../../const/SystemPhraseConst';
 import {
   PostCommentReplyMsgInfo,
@@ -126,9 +127,12 @@ const PostCommentThread: React.FC<PostCommentThreadProps> = ({
     >
       <PrevButtonHeaderHeader
         titleName="답글 보기"
-        isSetState={true}
-        setState={setIsActiveThreadPopup}
+        isActionFunc={true}
+        actionFunc={() => setIsActiveThreadPopup(false)}
         preNodeByState={<PreHeaderButtonNode>이전</PreHeaderButtonNode>}
+        HeaderLayoutStyle={{
+          maxWidth: theme.systemSize.appDisplaySize.maxWidth,
+        }}
       />
 
       <PostCommentWrap>
