@@ -1,4 +1,4 @@
-import { api } from '..';
+import { optAuthApi } from '..';
 import { PostProfileInfoRsp } from '../../global/interface/post';
 import { FOLLOWER_PATH, PROFILE_LIST_PATH } from '../appApiPath';
 import { PAGE_PARAM } from '../appApiQueryParam';
@@ -7,7 +7,7 @@ export const getProfileFollowerList = (
   username: string,
   page: number,
 ): Promise<PostProfileInfoRsp[]> => {
-  return api
+  return optAuthApi
     .get(
       `${PROFILE_LIST_PATH}/${username}${FOLLOWER_PATH}?${PAGE_PARAM}=${page}`,
     )

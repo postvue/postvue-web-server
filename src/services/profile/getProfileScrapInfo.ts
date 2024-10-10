@@ -1,4 +1,4 @@
-import { api } from '..';
+import { optAuthApi } from '..';
 import { INFO_PATH, PROFILE_LIST_PATH, SCRAP_LIST_PATH } from '../appApiPath';
 
 export interface GetProfileScrapInfoRsp {
@@ -11,7 +11,7 @@ export interface GetProfileScrapInfoRsp {
 export const getProfileScrapInfo = (
   scrapId: string,
 ): Promise<GetProfileScrapInfoRsp> => {
-  return api
+  return optAuthApi
     .get(`${PROFILE_LIST_PATH}${SCRAP_LIST_PATH}/${scrapId}${INFO_PATH}`)
     .then((res) => {
       console.log(res.data);

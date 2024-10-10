@@ -18,7 +18,13 @@ import {
 import theme from '../../../styles/theme';
 import SearchQueryElement from './SearchQueryElement';
 
-const SearchSuggestBody: React.FC = () => {
+interface SearchSuggestBodyProps {
+  SearchSuggestBodyContiainerStyle?: React.CSSProperties;
+}
+
+const SearchSuggestBody: React.FC<SearchSuggestBodyProps> = ({
+  SearchSuggestBodyContiainerStyle,
+}) => {
   const navigate = useNavigate();
 
   const [recentSearchWordList, setRecentSearchWordList] = useState<
@@ -61,92 +67,86 @@ const SearchSuggestBody: React.FC = () => {
   }, []);
 
   return (
-    <>
-      <TagRecommContainer>
-        <SearchRecentWordContainer>
-          {!isValidString(searchTempWord) ? (
-            <>
-              {recentSearchWordList.length > 0 && (
-                <>
-                  <SearchRelatedTitle>최근 검색어</SearchRelatedTitle>
-                  <RecentSearchWordContainer>
-                    {recentSearchWordList &&
-                      recentSearchWordList
-                        .slice(0)
-                        .reverse()
-                        .map((v, i) => (
-                          <React.Fragment key={i}>
-                            <SearchQueryElement
-                              searchQueryWord={v.name}
-                              onClickSearchQueryItem={() => {
-                                navigate(`${SEARCH_PATH}/${v.name}`);
-                              }}
-                            >
-                              <RecentDeleteButtonWrap
-                                onClick={() => onClickDeleteSearchWord(v.name)}
-                              >
-                                <RecentSearchWordDeleteButton
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="16"
-                                  height="16"
-                                  viewBox="0 0 16 16"
-                                  fill="none"
-                                >
-                                  <g clipPath="url(#clip0_193_2900)">
-                                    <path
-                                      d="M3.99997 4.00003L11.9999 12M3.99997 12L11.9999 4.00003"
-                                      stroke="#9199A1"
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                    />
-                                  </g>
-                                  <defs>
-                                    <clipPath id="clip0_193_2900">
-                                      <rect
-                                        width="16"
-                                        height="16"
-                                        fill="white"
-                                      />
-                                    </clipPath>
-                                  </defs>
-                                </RecentSearchWordDeleteButton>
-                              </RecentDeleteButtonWrap>
-                            </SearchQueryElement>
-                          </React.Fragment>
-                        ))}
-                  </RecentSearchWordContainer>
-                </>
-              )}
-            </>
-          ) : (
-            <>
-              {recentSearchWordList.length > 0 && (
-                <>
-                  <RecentSearchWordContainer>
-                    {searchQueryRelationHashMap
-                      .get(searchTempWord)
-                      ?.map((value, index) => (
-                        <React.Fragment key={index}>
+    <SearchSuggestBodyContainer style={SearchSuggestBodyContiainerStyle}>
+      <SearchRecentWordContainer>
+        {!isValidString(searchTempWord) ? (
+          <>
+            {recentSearchWordList.length > 0 && (
+              <>
+                <SearchRelatedTitle>최근 검색어</SearchRelatedTitle>
+                <RecentSearchWordContainer>
+                  {recentSearchWordList &&
+                    recentSearchWordList
+                      .slice(0)
+                      .reverse()
+                      .map((v, i) => (
+                        <React.Fragment key={i}>
                           <SearchQueryElement
-                            searchQueryWord={value}
+                            searchQueryWord={v.name}
                             onClickSearchQueryItem={() => {
-                              navigate(`${SEARCH_PATH}/${value}`);
+                              navigate(`${SEARCH_PATH}/${v.name}`);
                             }}
-                          ></SearchQueryElement>
+                          >
+                            <RecentDeleteButtonWrap
+                              onClick={() => onClickDeleteSearchWord(v.name)}
+                            >
+                              <RecentSearchWordDeleteButton
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="16"
+                                height="16"
+                                viewBox="0 0 16 16"
+                                fill="none"
+                              >
+                                <g clipPath="url(#clip0_193_2900)">
+                                  <path
+                                    d="M3.99997 4.00003L11.9999 12M3.99997 12L11.9999 4.00003"
+                                    stroke="#9199A1"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  />
+                                </g>
+                                <defs>
+                                  <clipPath id="clip0_193_2900">
+                                    <rect width="16" height="16" fill="white" />
+                                  </clipPath>
+                                </defs>
+                              </RecentSearchWordDeleteButton>
+                            </RecentDeleteButtonWrap>
+                          </SearchQueryElement>
                         </React.Fragment>
                       ))}
-                  </RecentSearchWordContainer>
-                </>
-              )}
-            </>
-          )}
-        </SearchRecentWordContainer>
-      </TagRecommContainer>
-    </>
+                </RecentSearchWordContainer>
+              </>
+            )}
+          </>
+        ) : (
+          <>
+            {recentSearchWordList.length > 0 && (
+              <>
+                <RecentSearchWordContainer>
+                  {searchQueryRelationHashMap
+                    .get(searchTempWord)
+                    ?.map((value, index) => (
+                      <React.Fragment key={index}>
+                        <SearchQueryElement
+                          searchQueryWord={value}
+                          onClickSearchQueryItem={() => {
+                            navigate(`${SEARCH_PATH}/${value}`);
+                          }}
+                        ></SearchQueryElement>
+                      </React.Fragment>
+                    ))}
+                </RecentSearchWordContainer>
+              </>
+            )}
+          </>
+        )}
+      </SearchRecentWordContainer>
+    </SearchSuggestBodyContainer>
   );
 };
 
-const TagRecommContainer = styled.div`
+const SearchSuggestBodyContainer = styled.div`
   height: calc(100% - ${theme.systemSize.header.height});
   position: fixed;
   top: ${theme.systemSize.header.height};

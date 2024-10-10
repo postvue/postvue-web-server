@@ -35,3 +35,19 @@ export const postContentZoomPopupInfoAtom = atom<{
     initIndex: 0,
   },
 });
+
+export const isPostDetailInfoPopupAtom = atom<boolean>({
+  key: 'isPostDetailInfoPopup',
+  default: false,
+});
+
+export const postDetailInfoPopupAtom = atom<{
+  postId: string;
+  userId: string;
+}>({
+  key: 'postDetailInfo',
+  default: {
+    postId: '',
+    userId: '',
+  },
+});

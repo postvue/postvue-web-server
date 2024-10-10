@@ -5,8 +5,8 @@ import { useRecoilState } from 'recoil';
 import { isActivPostComposeTargetAudiencePopupAtom } from 'states/PostComposeAtom';
 import styled from 'styled-components';
 
-import { ReactComponent as PostComposeTargetAudNotActiveTabIcon } from 'assets/images/icon/svg/PostComposeTargetAudNotActiveTabIcon.svg';
-import { ReactComponent as PostComposeTargetAudTabIcon } from 'assets/images/icon/svg/PostComposeTargetAudTabIcon.svg';
+import { ReactComponent as PostComposeTargetAudTabIcon } from 'assets/images/icon/svg/CategoryCheckIcon.svg';
+import { ReactComponent as PostComposeTargetAudNotActiveTabIcon } from 'assets/images/icon/svg/CategoryNotCheckIcon.svg';
 
 interface PostComposeTargetAudiencePopupProps {
   targetAudTabList: {

@@ -1,4 +1,4 @@
-import { api } from '..';
+import { optAuthApi } from '..';
 import { PostComment } from '../../global/interface/post';
 import { POST_LIST_PATH, REPLY_LIST_PATH } from '../appApiPath';
 
@@ -6,7 +6,7 @@ export const getPostReplyReplies = (
   postId: string,
   replyCommentId: string,
 ): Promise<PostComment[]> => {
-  return api
+  return optAuthApi
     .get(
       `${POST_LIST_PATH}/${postId}${REPLY_LIST_PATH}/${replyCommentId}${REPLY_LIST_PATH}`,
     )

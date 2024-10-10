@@ -1,26 +1,24 @@
 import BottomNextButton from 'components/common/buttton/BottomNextButton';
 import BoundaryStickBar from 'components/common/container/BoundaryStickBar';
-import { PROFILE_ACCOUNT_PATH } from 'const/PathConst';
+import { PROFILE_LIST_PATH } from 'const/PathConst';
 import { isValidString } from 'global/util/ValidUtil';
+import { QueryMutationPutMyProfileInfo } from 'hook/queryhook/QueryMutationPutMyProfileInfo';
+import { QueryStateMyProfileInfo } from 'hook/queryhook/QueryStateMyProfileInfo';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useRecoilState } from 'recoil';
-import {
-  putMyProfileInfo,
-  PutMyProfileInfoReq,
-} from 'services/profile/putMyProfileInfo';
-import { myProfileSettingInfoAtom } from 'states/ProfileAtom';
+import { PutMyProfileInfoReq } from 'services/profile/putMyProfileInfo';
 import styled from 'styled-components';
 
 const MyProfileEditBody: React.FC = () => {
-  const [myAccountSettingInfo, setMyAccountSettingInfo] = useRecoilState(
-    myProfileSettingInfoAtom,
-  );
+  const { data: myAccountSettingInfo } = QueryStateMyProfileInfo();
   const navigate = useNavigate();
 
   const [userNickname, setUserNickname] = useState<string>('');
   const [userIntroduce, setUserIntruoduce] = useState<string>('');
   const [userLink, setUserLink] = useState<string>('');
+  const [userProfilePath, setUserProfilePath] = useState<string>('');
+
+  const putMyProfileInfoMutation = QueryMutationPutMyProfileInfo();
 
   const onClickPutProfileInfo = () => {
     const putMyProfileInfoReq: PutMyProfileInfoReq = {
@@ -29,25 +27,28 @@ const MyProfileEditBody: React.FC = () => {
       introduce: userIntroduce,
       profilePath: '',
     };
-    putMyProfileInfo(putMyProfileInfoReq).then(() => {
-      navigate(PROFILE_ACCOUNT_PATH, { replace: true });
-    });
+    putMyProfileInfoMutation.mutate(putMyProfileInfoReq);
+
+    if (myAccountSettingInfo?.userId) {
+      navigate(`${PROFILE_LIST_PATH}/${myAccountSettingInfo?.username}`, {
+        replace: true,
+      });
+    }
   };
 
   useEffect(() => {
+    if (!myAccountSettingInfo) return;
     setUserNickname(myAccountSettingInfo.nickname);
     setUserIntruoduce(myAccountSettingInfo.introduce);
     setUserLink(myAccountSettingInfo.website);
+    setUserProfilePath(myAccountSettingInfo.profilePath);
   }, [myAccountSettingInfo]);
 
-  useEffect(() => {
-    console.log(userNickname);
-  }, [userNickname]);
   return (
     <MyProfileEditBodyContainer>
       <MyProfileImgEditWrap>
         <MyProfileImgEditImgSubWrap>
-          <MyProfileImgEditImg $src={myAccountSettingInfo.profilePath}>
+          <MyProfileImgEditImg $src={userProfilePath}>
             <MyProfileImgEdit>수정</MyProfileImgEdit>
           </MyProfileImgEditImg>
         </MyProfileImgEditImgSubWrap>
@@ -80,7 +81,7 @@ const MyProfileEditBody: React.FC = () => {
       <BoundaryStickBar />
       <ProfileAccountSettingElementWrap>
         <ProfileAccountSettingElementTitle>
-          주소
+          링크
         </ProfileAccountSettingElementTitle>
         <ProfileNicknameContent
           value={userLink}

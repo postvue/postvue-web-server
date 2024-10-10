@@ -1,4 +1,5 @@
 import { OVERFLOW_DEFAULT, OVERFLOW_HIDDEN } from 'const/AttributeConst';
+import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
 import { throttle } from 'lodash';
 import React, {
   ReactNode,
@@ -77,6 +78,29 @@ const PopupLayout: React.FC<PopupLayoutProps> = ({
     }
   };
 
+  const [isMobile, setIsMobile] = useState<boolean>(false);
+  useEffect(() => {
+    const checkSize = () => {
+      if (window.innerWidth > MEDIA_MOBILE_MAX_WIDTH_NUM) {
+        // 화면 크기가 768px 이상이면 홈페이지로 리다이렉트
+        setIsMobile(false);
+      } else {
+        setIsMobile(true);
+      }
+    };
+
+    // 페이지 로드시 크기 확인
+    checkSize();
+
+    // 창 크기 변경시 크기 확인
+    window.addEventListener('resize', checkSize);
+
+    // 컴포넌트가 언마운트될 때 이벤트 리스너 제거
+    return () => {
+      window.removeEventListener('resize', checkSize);
+    };
+  }, []);
+
   useEffect(() => {
     if (!hasFixedActive) return;
     const originalOverflow = document.body.style.overflow;
@@ -126,7 +150,7 @@ const PopupLayout: React.FC<PopupLayoutProps> = ({
           }}
         >
           <PopupContentWrap style={popupContentWrapStyle}>
-            {isTouchScrollBar && (
+            {isMobile && isTouchScrollBar && (
               <PopupTopBodyBottomScrollArea
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}

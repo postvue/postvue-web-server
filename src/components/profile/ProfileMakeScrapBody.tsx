@@ -1,4 +1,5 @@
 import { queryClient } from 'App';
+import BottomNextButton from 'components/common/buttton/BottomNextButton';
 import BoundaryStickBar from 'components/common/container/BoundaryStickBar';
 import ProfileScrapTargetAudiencePopup from 'components/popups/ProfileScrapTargetAudiencePopup';
 import { QUERY_STATE_PROFILE_POST_LIST } from 'const/QueryClientConst';
@@ -29,6 +30,12 @@ const ProfileMakeScrapBody: React.FC = () => {
     scrapTargetAudienceAtom,
   );
   const resetScrapTargetAudience = useResetRecoilState(scrapTargetAudienceAtom);
+
+  const targetAudienceList = [
+    TargetAudienceCategory.PUBLIC_TARGET_AUDIENCE,
+    TargetAudienceCategory.PROTECTED_TARGET_AUDIENCE,
+    TargetAudienceCategory.PRIVATE_TARGET_AUDIENCE,
+  ];
 
   const [targetAudience, setTargetAudience] = useState<TargetAudienceInterface>(
     TargetAudienceCategory.PUBLIC_TARGET_AUDIENCE,
@@ -64,7 +71,6 @@ const ProfileMakeScrapBody: React.FC = () => {
   };
 
   const onClickMakeScrap = () => {
-    console.log(targetAudience.targetAudienceValue);
     if (isValidString(scrapName) && targetAudience.targetAudienceValue) {
       postProfileScrap(
         {
@@ -126,9 +132,15 @@ const ProfileMakeScrapBody: React.FC = () => {
           </TargetAudienceButtonWrap>
         </TargetAudienceWrap>
         <ScrapMakeButtonWrap>
-          <ScrapMakeButton onClick={onClickMakeScrap}>
-            신규 스크랩 만들기
-          </ScrapMakeButton>
+          <BottomNextButton
+            isActive={
+              isValidString(scrapName) &&
+              targetAudienceList.includes(targetAudience)
+            }
+            actionFunc={onClickMakeScrap}
+            title={'신규 스크랩 만들기'}
+            notActiveTitle={'신규 스크랩 만들기'}
+          />
         </ScrapMakeButtonWrap>
       </ProfileMakeScrapBodyContainer>
       {isActiveProfileScarpTargetAudPopup && (
@@ -141,7 +153,9 @@ const ProfileMakeScrapBody: React.FC = () => {
   );
 };
 
-const ProfileMakeScrapBodyContainer = styled.div``;
+const ProfileMakeScrapBodyContainer = styled.div`
+  padding-top: ${({ theme }) => theme.systemSize.header.height};
+`;
 
 const TogetherPostWrap = styled.div`
   flex: 0 0 auto;

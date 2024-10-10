@@ -37,6 +37,7 @@ import { ReactComponent as PostComposeDeleteButtonIcon } from 'assets/images/ico
 import { ReactComponent as PostComposeTagDeleteButtonIcon } from 'assets/images/icon/svg/PostComposeTagDeleteButtonIcon.svg';
 import BoundaryStickBar from 'components/common/container/BoundaryStickBar';
 import PostComposeTargetAudiencePopup from 'components/popups/postcompose/PostComposeTargetAudiencePopup';
+import { HOME_PATH } from 'const/PathConst';
 
 const PoseComposeBody: React.FC = () => {
   const [isLoadingPopup, setIsLoadingPopup] =
@@ -123,14 +124,14 @@ const PoseComposeBody: React.FC = () => {
     if (bottomNextButtonRef.current) {
       setBottomNextButtonHeight(bottomNextButtonRef.current.offsetHeight);
     }
-    // if (uploadResourceLinkList.length === 0) {
-    //   navigate(HOME_PATH);
-    // }
-    // return () => {
-    //   setUploadResourceLinkList([]);
-    //   setIsTagSearchPopupAtom(false);
-    //   setIsLoadingPopup(false);
-    // };
+    if (uploadResourceLinkList.length === 0) {
+      navigate(HOME_PATH);
+    }
+    return () => {
+      setUploadResourceLinkList([]);
+      setIsTagSearchPopupAtom(false);
+      setIsLoadingPopup(false);
+    };
   }, []);
 
   useEffect(() => {

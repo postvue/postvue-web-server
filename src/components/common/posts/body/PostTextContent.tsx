@@ -52,8 +52,8 @@ const PostTextContent: React.FC<PostTextContentProps> = ({
         <PostTextFieldContentWrap>
           <PostTextFieldContent
             ref={textRef}
-            isExpanded={isExpanded}
-            maxLines={bodyTextMaxLines}
+            $isExpanded={isExpanded}
+            $maxLines={bodyTextMaxLines}
           >
             {postBodyText}
           </PostTextFieldContent>
@@ -91,8 +91,8 @@ const PostTextFieldContentWrap = styled.div`
 `;
 
 const PostTextFieldContent = styled.div<{
-  isExpanded: boolean;
-  maxLines: number;
+  $isExpanded: boolean;
+  $maxLines: number;
 }>`
   font: ${({ theme }) => theme.fontSizes.Body2};
   color: ${({ theme }) => theme.grey.Grey8};
@@ -100,7 +100,7 @@ const PostTextFieldContent = styled.div<{
 
   display: -webkit-box;
   -webkit-line-clamp: ${(props) =>
-    props.isExpanded ? 'none' : props.maxLines};
+    props.$isExpanded ? 'none' : props.$maxLines};
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;

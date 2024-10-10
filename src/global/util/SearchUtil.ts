@@ -92,11 +92,12 @@ export const removeRecentlyKeywordList = (): void => {
 export const getSearchQueryByDebounce = (
   func: (searchQuery: string) => void,
   deps: React.DependencyList,
+  time = SEARCH_RELATION_QUERY_DELAY_MIRCE_TIME,
 ): DebouncedFunc<(searchQuery: string) => void> => {
   return useCallback(
     debounce((searchQuery: string) => {
       func(searchQuery);
-    }, SEARCH_RELATION_QUERY_DELAY_MIRCE_TIME), // 디바운스, 600ms
+    }, time), // 디바운스, 600ms
     deps,
   );
 };

@@ -21,6 +21,9 @@ export class MsgConversationWsService {
     myAccountSeetingInterface: ProfileMyInfo,
   ): void {
     webSocketService.addOnInitializedCallback(() => {
+      if (!myAccountSeetingInterface.userId)
+        throw new Error('user id is not existed');
+
       webSocketService.setSubscribe(
         `${MESSAGES_BROKER_PATH}/${myAccountSeetingInterface.userId}`,
         (message: IMessage) => {

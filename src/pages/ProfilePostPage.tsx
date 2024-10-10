@@ -12,7 +12,6 @@ import BottomNavBar from '../components/BottomNavBar';
 import FollowButton from '../components/common/buttton/FollowButton';
 import PostReactionSingleElement from '../components/common/posts/body/PostReactionSingleElement';
 import PostTextContent from '../components/common/posts/body/PostTextContent';
-import MyAccountSettingInfoState from '../components/common/state/MyAccountSettingInfoState';
 import AppBaseTemplate from '../components/layouts/AppBaseTemplate';
 import PopupLayout from '../components/layouts/PopupLayout';
 import PrevButtonHeaderHeader from '../components/layouts/PrevButtonHeaderHeader';
@@ -36,8 +35,6 @@ import {
 } from '../global/util/HiddenPostIdListUtil';
 import { isValidString } from '../global/util/ValidUtil';
 import { getPost } from '../services/post/getPost';
-import { putPostInterested } from '../services/post/putPostInterested';
-import { putPostNotInterested } from '../services/post/putPostNotInterested';
 import { postContentZoomPopupInfoAtom, postRspAtom } from '../states/PostAtom';
 import {
   isPostReactionAtom,
@@ -51,7 +48,6 @@ import {
   isActiveProfileBlockPopupAtom,
   isActiveScrapViewPopupAtom,
   myProfileClipHashMapAtom,
-  myProfileSettingInfoAtom,
   profilePostHashMapAtom,
 } from '../states/ProfileAtom';
 import { systemPostRspHashMapAtom } from '../states/SystemConfigAtom';
@@ -59,7 +55,10 @@ import theme from '../styles/theme';
 
 import PostCotentZoomPopup from 'components/popups/PostContentZoomPopup';
 import SnsSharePopup from 'components/popups/SnsSharePopup';
+import { getMyAccountSettingInfo } from 'global/util/MyAccountSettingUtil';
 import PostRelationListInfiniteScroll from 'hook/PostRelationInfiniteScrollBeta';
+import { postPostInterested } from 'services/post/postPostInterested';
+import { postPostNotInterested } from 'services/post/postPostNotInterested';
 import { isSharePopupAtom } from 'states/ShareAtom';
 import 'swiper/css/pagination';
 
@@ -103,7 +102,7 @@ const ProfilePostPage: React.FC = () => {
 
   const isSharePopup = useRecoilValue(isSharePopupAtom);
 
-  const myAccountSettingInfo = useRecoilValue(myProfileSettingInfoAtom);
+  const myAccountSettingInfo = getMyAccountSettingInfo();
 
   const [postContentZoomPopupInfo, setPostContentZoomPopupInfoAtom] =
     useRecoilState(postContentZoomPopupInfoAtom);
@@ -153,7 +152,7 @@ const ProfilePostPage: React.FC = () => {
   //   setPostRelationHashMap(new Map());
   //   setCursorIdByPostRelation(INIT_CURSOR_ID);
   //   if (postId) {
-  //     getPostRelation(postId, INIT_CURSOR_ID).then((value) => {
+  //     getRecommPostRelation(postId, INIT_CURSOR_ID).then((value) => {
   //       const tempSnsRelationHashMap: Map<string, PostRsp> = new Map();
   //       value.snsPostRspList.forEach((snsPostRsp) => {
   //         tempSnsRelationHashMap.set(snsPostRsp.postId, snsPostRsp);
@@ -183,7 +182,7 @@ const ProfilePostPage: React.FC = () => {
 
   const onClickPostNotInterest = () => {
     if (postId && isValidString(postId)) {
-      putPostNotInterested(postId).then((value) => {
+      postPostNotInterested(postId).then((value) => {
         setIsInterest(value.isInterested);
         addPostToHiddenPostIdList(postId);
         setIsSettingActive(false);
@@ -193,7 +192,7 @@ const ProfilePostPage: React.FC = () => {
 
   const onClickPostInterest = () => {
     if (postId && isValidString(postId)) {
-      putPostInterested(postId).then((value) => {
+      postPostInterested(postId).then((value) => {
         setIsInterest(value.isInterested);
         removePostByHiddenPostIdList(postId);
       });
@@ -210,7 +209,6 @@ const ProfilePostPage: React.FC = () => {
 
   return (
     <AppBaseTemplate>
-      {!myAccountSettingInfo.username && <MyAccountSettingInfoState />}
       {isIntereset ? (
         <>
           <PostImageWrap>
@@ -429,7 +427,7 @@ const ProfilePostPage: React.FC = () => {
               >
                 게시물 링크 복사
               </SettingPopupContent>
-              {myAccountSettingInfo.userId !== snsPost.userId ? (
+              {myAccountSettingInfo?.userId !== snsPost.userId ? (
                 <>
                   <SettingPopupContent onClick={onClickPostNotInterest}>
                     관심 없음

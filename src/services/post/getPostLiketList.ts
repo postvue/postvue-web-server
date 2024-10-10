@@ -1,4 +1,4 @@
-import { api } from '..';
+import { optAuthApi } from '..';
 import { PostProfileInfoRsp } from '../../global/interface/post';
 import { LIKE_LIST_PATH, POST_LIST_PATH } from '../appApiPath';
 import { CURSOR_PARAM } from '../appApiQueryParam';
@@ -12,7 +12,7 @@ export const getPostLikeList = (
   postId: string,
   cursorId: string,
 ): Promise<GetRePostsRsp> => {
-  return api
+  return optAuthApi
     .get(
       `${POST_LIST_PATH}/${postId}${LIKE_LIST_PATH}?${CURSOR_PARAM}=${cursorId}`,
     )

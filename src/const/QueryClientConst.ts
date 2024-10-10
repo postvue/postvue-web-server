@@ -30,3 +30,24 @@ export const QUERY_STATE_MY_PROFILE_FOLLOWING_LIST = 'profileMyFollowingList';
 
 // 관련 포스트
 export const QUERY_STATE_POST_RELATION_LIST = 'postRelationList';
+
+// 프로필 계정
+export const QUERY_STATE_PROFILE_EXISTENCE = 'profileExistence';
+
+// 상세 게시글
+export const QUERY_STATE_RECOMM_FAVORITTE_TAG_LIST = 'recommFavoriteTagList';
+
+// 회웑 AUTH 관련
+export const QUERY_STATE_MY_PROFILE_INFO = 'myProfileInfo';
+
+export const MY_PROFILE_STALE_TIME = 60 * 1000 * 120; // 120분
+
+// 설정
+export const QUERY_STATE_PROFILE_ACCOUNT_EMAIL_INFO = 'profileAccountEmailInfo';
+export const QUERY_STATE_PROFILE_ACCOUNT_BIRTHDATE_INFO =
+  'profileAccountBirthdateInfo';
+export const QUERY_STATE_PROFILE_ACCOUNT_GENDER_INFO =
+  'profileAccountGenderInfo';
+
+// 알림
+export const QUERY_STATE_NOTIFICATION_MSG = 'notificationMsg';

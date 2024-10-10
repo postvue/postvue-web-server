@@ -1,45 +1,47 @@
 import React, { ReactNode } from 'react';
-import { SetterOrUpdater } from 'recoil';
 import styled from 'styled-components';
 import theme from '../../styles/theme';
 import PrevButton from '../PrevButton';
 import HeaderLayout from './HeaderLayout';
 
 interface PrevButtonHeaderProps {
-  titleName: string;
+  titleName?: string;
+  hasTitleReactNode?: boolean;
+  titleReactNode?: ReactNode;
   RightButtonNode?: ReactNode;
   HeaderLayoutStyle?: React.CSSProperties;
-  isSetState?: boolean;
+  isActionFunc?: boolean;
   preNodeByState?: ReactNode;
-  setState?:
-    | SetterOrUpdater<boolean>
-    | React.Dispatch<React.SetStateAction<boolean>>;
+  actionFunc?: () => void;
 }
 
 const PrevButtonHeaderHeader: React.FC<PrevButtonHeaderProps> = ({
   titleName,
+  hasTitleReactNode = false,
   RightButtonNode,
   HeaderLayoutStyle,
-  isSetState = false,
-  setState,
+  isActionFunc = false,
+  actionFunc,
   preNodeByState,
+  titleReactNode,
 }) => {
   return (
     <HeaderLayout HeaderLayoutStyle={HeaderLayoutStyle}>
       <PrevButtonHeaderContainer>
         <PrevButtonHeaderHeaderWrap>
           <PrevButtonWrap>
-            {isSetState ? (
+            {isActionFunc ? (
               <>
-                {setState !== undefined && (
-                  <div onClick={() => setState(false)}>{preNodeByState}</div>
-                )}
+                <div onClick={actionFunc}>{preNodeByState}</div>
               </>
             ) : (
               <PrevButton strokeColor={theme.mainColor.Black} />
             )}
           </PrevButtonWrap>
-          <TitleName>{titleName}</TitleName>
+          {titleName && <TitleName>{titleName}</TitleName>}
+          {hasTitleReactNode && (
+            <TitleReactNodeWrap>{titleReactNode}</TitleReactNodeWrap>
+          )}
           {RightButtonNode}
         </PrevButtonHeaderHeaderWrap>
       </PrevButtonHeaderContainer>
@@ -57,6 +59,7 @@ const PrevButtonHeaderContainer = styled.div`
 const PrevButtonHeaderHeaderWrap = styled.div`
   display: flex;
   justify-content: space-between;
+  position: relative;
 `;
 
 const PrevButtonWrap = styled.div`
@@ -65,9 +68,16 @@ const PrevButtonWrap = styled.div`
 
 const TitleName = styled.div`
   font: ${({ theme }) => theme.fontSizes.Subhead3};
+  position: absolute;
+  transform: translate(-50%, 0%);
+  top: 0;
+  left: 50%;
+`;
+
+const TitleReactNodeWrap = styled.div`
   position: fixed;
   transform: translate(-50%, 50%);
-  top: 0;
+
   left: 50%;
 `;
 

@@ -1,4 +1,4 @@
-import { api } from '..';
+import { privateApi } from '..';
 import { PutFavoriteSearchTermReq } from '../../global/interface/search';
 
 import { FAVORITE_PATH, SEARCH_PATH, TERM_LIST_PATH } from '../appApiPath';
@@ -6,7 +6,7 @@ import { FAVORITE_PATH, SEARCH_PATH, TERM_LIST_PATH } from '../appApiPath';
 export const putFavoriteSearchTerm = (
   putFavoriteSearchTermReq: PutFavoriteSearchTermReq,
 ): Promise<boolean> => {
-  return api
+  return privateApi
     .put(
       `${SEARCH_PATH}${FAVORITE_PATH}${TERM_LIST_PATH}`,
       putFavoriteSearchTermReq,

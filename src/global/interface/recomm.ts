@@ -16,5 +16,6 @@ export interface RecommFollowInfo {
 export interface RecommTagInfo {
   tagId: string;
   tagName: string;
-  tagBkgdPath: string;
+  tagBkgdContent: string;
+  tagBkgdContentType: string;
 }

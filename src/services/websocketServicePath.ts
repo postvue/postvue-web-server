@@ -2,7 +2,10 @@ export const WEBSOCKET_APPLICATION_PATH = '/ws';
 export const BROKER_PATH = '/topic';
 export const APPLICATION_PATH = '/app';
 
+export const WEBSOCKET_ENDPOINT_URL = `ws://localhost:8080${WEBSOCKET_APPLICATION_PATH}`;
+
 export const APP_MESSAGE_CONVERSATIONS_PATH = '/conversations';
+export const APP_NOTIFICATIONS_PATH = '/notifications';
 
 // export const SESSION_INIT
 const SESSION_PATH = '/sessions';
@@ -13,3 +16,5 @@ export const API_SESSIONS_PATH = `${APPLICATION_PATH}${SESSION_PATH}`;
 export const MESSAGES_BROKER_PATH = `${BROKER_PATH}${APP_MESSAGE_CONVERSATIONS_PATH}`;
 
 export const API_MESSAGES_PATH = `${APPLICATION_PATH}${APP_MESSAGE_CONVERSATIONS_PATH}`;
+
+export const NOTIFICATIONS_BROKER_PATH = `${BROKER_PATH}${APP_NOTIFICATIONS_PATH}`;

@@ -1,5 +1,5 @@
 import SnsSharePopup from 'components/popups/SnsSharePopup';
-import { convertDiffrenceDate } from 'global/util/DateTimeUtil';
+import { convertDiffrenceDateTime } from 'global/util/DateTimeUtil';
 import ProfileScrapInfiniteScroll from 'hook/ProfileScrapInfiniteScroll';
 import { QueryStateProfileScrap } from 'hook/queryhook/QueryStateProfileScrap';
 import { QueryStateProfileScrapInfo } from 'hook/queryhook/QueryStateProfileScrapInfo';
@@ -47,7 +47,7 @@ const ProfileScrapBody: React.FC = () => {
                   {profileScrapInfo.scrapNum.toLocaleString()}개
                 </ProfileScrapNum>
                 <ProfileScrapDate>
-                  {convertDiffrenceDate(profileScrapInfo.lastPostedAt)}
+                  {convertDiffrenceDateTime(profileScrapInfo.lastPostedAt)}
                 </ProfileScrapDate>
               </ProfileScrapNumDateWrap>
             </ProfileScrapTitleWrap>

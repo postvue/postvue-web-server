@@ -4,8 +4,8 @@ import React from 'react';
 import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
 
-import { ReactComponent as PostComposeTargetAudNotActiveTabIcon } from 'assets/images/icon/svg/PostComposeTargetAudNotActiveTabIcon.svg';
-import { ReactComponent as PostComposeTargetAudTabIcon } from 'assets/images/icon/svg/PostComposeTargetAudTabIcon.svg';
+import { ReactComponent as ScrapComposeTargetAudTabIcon } from 'assets/images/icon/svg/CategoryCheckIcon.svg';
+import { ReactComponent as ScrapComposeTargetAudNotActiveTabIcon } from 'assets/images/icon/svg/CategoryNotCheckIcon.svg';
 import { TargetAudienceCategory } from 'const/ScrapConst';
 import { TargetAudienceInterface } from 'global/interface/profile';
 import { isActiveProfileScarpTargetAudPopupAtom } from 'states/ProfileAtom';
@@ -53,9 +53,9 @@ const ProfileScrapTargetAudiencePopup: React.FC<
               <ProfileScrapTargetAudTabWrap>
                 {targetAudValue.targetAudienceValue ===
                 value.targetAudienceValue ? (
-                  <PostComposeTargetAudTabIcon />
+                  <ScrapComposeTargetAudTabIcon />
                 ) : (
-                  <PostComposeTargetAudNotActiveTabIcon />
+                  <ScrapComposeTargetAudNotActiveTabIcon />
                 )}
               </ProfileScrapTargetAudTabWrap>
             </ProfileScrapTargetWrap>

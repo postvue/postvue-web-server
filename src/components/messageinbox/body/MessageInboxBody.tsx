@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 import { MSG_CONTENT_TEXT_TYPE } from '../../../const/MsgContentTypeConst';
 import { CONVERSTAION_PATH, MESSAGE_PATH } from '../../../const/PathConst';
 import { MESSAGE_SEARCH_INPUT_PHARSE_TEXT } from '../../../const/SystemPhraseConst';
-import { convertDiffrenceDate } from '../../../global/util/DateTimeUtil';
+import { convertDiffrenceDateTime } from '../../../global/util/DateTimeUtil';
 import MsgInboxFollowInfiniteScroll from '../../../hook/MsgInboxFollowInfiniteScroll';
 import { msgInboxMessageHashMapAtom } from '../../../states/MsgInboxAtom';
 import { sessionActiveUserInfoHashMapAtom } from '../../../states/SessionAtom';
@@ -16,6 +16,10 @@ const MessageInboxBody: React.FC = () => {
   const sessionActiveUserInfoHashMap = useRecoilValue(
     sessionActiveUserInfoHashMapAtom,
   );
+
+  useEffect(() => {
+    console.log('변경됨: ', sessionActiveUserInfoHashMap);
+  }, [sessionActiveUserInfoHashMap]);
 
   return (
     <MessageInboxBodyContainer>
@@ -68,17 +72,22 @@ const MessageInboxBody: React.FC = () => {
                         ) : (
                           <FollowRecentMsg>텍스트 아님</FollowRecentMsg>
                         )}
-
-                        <FollowRecentSendTime>
-                          {convertDiffrenceDate(v.sendAt)}
-                        </FollowRecentSendTime>
                       </FollowRecentWrap>
                     </Link>
                   </FollowNameMsgWrap>
                 </FollowProfileImgNameWrapWrap>
-                <FollowUnreadWrap>
-                  <FollowUnreadMsgCount>{v.unreadCount}</FollowUnreadMsgCount>
-                </FollowUnreadWrap>
+                <MsgSubWrap>
+                  {v.unreadCount > 0 && (
+                    <FollowUnreadWrap>
+                      <FollowUnreadMsgCount>
+                        {v.unreadCount}
+                      </FollowUnreadMsgCount>
+                    </FollowUnreadWrap>
+                  )}
+                  <FollowRecentSendTime>
+                    {convertDiffrenceDateTime(v.sendAt)}
+                  </FollowRecentSendTime>
+                </MsgSubWrap>
               </FollowProfileWrap>
             ))}
           </>
@@ -195,10 +204,12 @@ const FollowRecentMsg = styled.div`
 const FollowRecentSendTime = styled.div`
   font: ${({ theme }) => theme.fontSizes.Body3};
   color: ${({ theme }) => theme.grey.Grey7};
+  white-space: nowrap;
 `;
 
 const FollowUnreadWrap = styled.div`
   display: flex;
+  justify-content: end;
 `;
 
 const FollowUnreadMsgCount = styled.div`
@@ -209,6 +220,13 @@ const FollowUnreadMsgCount = styled.div`
   margin: auto 0px;
   padding: 1px 9px;
   border-radius: 30px;
+`;
+
+const MsgSubWrap = styled.div`
+  display: flex;
+  flex-flow: column;
+  justify-content: end;
+  gap: 8px;
 `;
 
 export default MessageInboxBody;

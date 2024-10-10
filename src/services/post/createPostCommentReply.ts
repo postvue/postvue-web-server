@@ -1,4 +1,4 @@
-import { api } from '..';
+import { privateApi } from '..';
 import { PostCommentReq, PostCommentRsp } from '../../global/interface/post';
 
 import { COMMENT_LIST_PATH, POST_LIST_PATH } from '../appApiPath';
@@ -16,7 +16,7 @@ export const createPostCommentReply = (
   }
   console.log(apiPath);
 
-  return api
+  return privateApi
     .post(apiPath, postCommentReq)
     .then((res) => {
       console.log(res.data);

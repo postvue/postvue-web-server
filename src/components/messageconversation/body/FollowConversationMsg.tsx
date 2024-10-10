@@ -1,3 +1,4 @@
+import { ProfileInfoByDirectMsg } from 'global/interface/profile';
 import React from 'react';
 import { useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
@@ -6,13 +7,12 @@ import {
   MsgConversation,
   MsgReactionInfo,
 } from '../../../global/interface/message';
-import { TargetProfileInfo } from '../../../global/interface/profile';
-import { convertDiffrenceDate } from '../../../global/util/DateTimeUtil';
+import { convertDiffrenceDateTime } from '../../../global/util/DateTimeUtil';
 import { msgReactionInfoAtom } from '../../../states/MessageAtom';
 import LongPressReaction from '../../LongPressReaction';
 
 interface FollowConversationMsgProps {
-  followInfo: TargetProfileInfo;
+  followInfo: ProfileInfoByDirectMsg;
   groupData: {
     userId: string;
     group: {
@@ -68,7 +68,7 @@ const FollowConversationMsg: React.FC<FollowConversationMsgProps> = ({
                   </MsgConversationFollowItem>
                 </LongPressReaction>
                 <MsgConversationFollowDate>
-                  {convertDiffrenceDate(msg.msgConversation.sendAt)}
+                  {convertDiffrenceDateTime(msg.msgConversation.sendAt)}
                 </MsgConversationFollowDate>
               </MsgDateWrap>
             ) : (

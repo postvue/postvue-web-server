@@ -1,3 +1,4 @@
+import { ProfileInfoByDirectMsg } from 'global/interface/profile';
 import { atom } from 'recoil';
 import { INIT_CURSOR_ID } from '../const/PageConfigConst';
 import {
@@ -5,12 +6,10 @@ import {
   MsgConversation,
   MsgReactionInfo,
 } from '../global/interface/message';
-import { TargetProfileInfo } from '../global/interface/profile';
 
-export const followInfoByMsgAtom = atom<TargetProfileInfo>({
-  key: 'followInfoByMsg',
+export const profileInfoByDirectMsgAtom = atom<ProfileInfoByDirectMsg>({
+  key: 'profileInfoByDirectMsg',
   default: {
-    msgRoomId: '',
     targetUserId: '',
     username: '',
     profilePath: '',

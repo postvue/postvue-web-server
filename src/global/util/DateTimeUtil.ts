@@ -30,30 +30,74 @@ export const convertDtStrToDTStr = (dateTimeString: string): string => {
   }
 };
 
-export const convertDiffrenceDate = (dateTimeString: string): string => {
-  if (dateTimeString === '') {
+export const convertDiffrenceDateTime = (dateTimeString: string): string => {
+  if (!dateTimeString) {
     return NOT_DATE_TIME;
   }
 
   try {
-    const currentDate: Date = new Date();
-    const postDate: Date = new Date(dateTimeString);
+    const currentDate = new Date();
+    const postDate = new Date(dateTimeString);
 
     const diffInMillis = currentDate.getTime() - postDate.getTime();
-    const diffInHours = diffInMillis / (1000 * 60 * 60);
+    const diffInMinutes = Math.floor(diffInMillis / (1000 * 60));
+    const diffInHours = Math.floor(diffInMillis / (1000 * 60 * 60));
 
-    const diffInDays = Math.floor(diffInHours / 24);
-    const diffInYears = Math.floor(diffInDays / 365);
-
-    if (diffInDays === 0) {
-      return `${Math.floor(diffInHours)}시간 전`;
-    } else if (diffInDays < 365) {
-      return `${diffInDays}일 전`;
-    } else {
-      return `${Math.floor(diffInYears)}년 전`;
+    // 1. 같은 날인 경우 (시간 차이만 보여줌)
+    if (diffInHours < 1) {
+      return `${diffInMinutes}분 전`;
     }
+
+    if (diffInHours < 24) {
+      return `${diffInHours}시간 전`;
+    }
+
+    // 2. 1년 미만일 때는 일 단위로 표시
+    const diffInDays = Math.floor(diffInMillis / (1000 * 60 * 60 * 24));
+    if (diffInDays < 365) {
+      return `${diffInDays}일 전`;
+    }
+
+    // 3. 1년 이상인 경우 정확한 년 차이 계산
+    let diffInYears = currentDate.getFullYear() - postDate.getFullYear();
+    const hasBirthdayPassedThisYear =
+      currentDate.getMonth() > postDate.getMonth() ||
+      (currentDate.getMonth() === postDate.getMonth() &&
+        currentDate.getDate() >= postDate.getDate());
+
+    if (!hasBirthdayPassedThisYear) {
+      diffInYears--;
+    }
+
+    return `${diffInYears}년 전`;
   } catch (e) {
     return NOT_DATE_TIME;
+  }
+};
+
+export const checkAgeDate = (dateString: string, minAge: number): boolean => {
+  if (!dateString) {
+    return false;
+  }
+
+  try {
+    const currentDate = new Date();
+    const birthDate = new Date(dateString);
+
+    let age = currentDate.getFullYear() - birthDate.getFullYear();
+    const hasBirthdayPassedThisYear =
+      currentDate.getMonth() > birthDate.getMonth() ||
+      (currentDate.getMonth() === birthDate.getMonth() &&
+        currentDate.getDate() >= birthDate.getDate());
+
+    // 생일이 지나지 않았으면 나이를 1 줄임
+    if (!hasBirthdayPassedThisYear) {
+      age--;
+    }
+
+    return age >= minAge;
+  } catch (e) {
+    return false;
   }
 };
 
@@ -80,4 +124,16 @@ export const getIsRetentionTimeInMinutes = (
   } else {
     return false;
   }
+};
+
+export const getDateNDaysAgo = (nDay: number): Date => {
+  const today = new Date();
+  const nDaysAgo = new Date(today);
+  nDaysAgo.setDate(today.getDate() - nDay);
+  return nDaysAgo;
+};
+
+export const getDateFormatToServerDateTimeString = (date: Date): string => {
+  const isoString = date.toISOString(); // 2024-10-05T22:55:42.026Z 형태
+  return isoString.split('.')[0];
 };

@@ -1,4 +1,4 @@
-import { api } from '..';
+import { privateApi } from '..';
 import { PostToScrapRsp } from '../../global/interface/profile';
 import {
   POST_LIST_PATH,
@@ -10,7 +10,7 @@ export const createPostToScrap = (
   scrapId: string,
   postId: string,
 ): Promise<PostToScrapRsp> => {
-  return api
+  return privateApi
     .post(
       `${PROFILE_LIST_PATH}${SCRAP_LIST_PATH}/${scrapId}${POST_LIST_PATH}/${postId}`,
     )

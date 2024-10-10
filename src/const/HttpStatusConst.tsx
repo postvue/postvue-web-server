@@ -1,0 +1,6 @@
+export const STATUS_OK_CODE = 200;
+export const STATUS_NOT_FOUND_CODE = 404;
+export const STATUS_BAD_REQUEST_CODE = 400;
+export const STATUS_UNAUTHORIZED_CODE = 401;
+
+export const UNAUTHORIZED_NAME = 'UNAUTHORIZED';

@@ -1,3 +1,4 @@
+import { MSG_BLOCK_LIST_TAB_NAME } from 'const/TabConfigConst';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useSetRecoilState } from 'recoil';
@@ -27,7 +28,7 @@ const BlockHiddenByMsgInboxPopup: React.FC = () => {
         </FollowHiddenManageWrap>
         <MsgBlockListManageWrap>
           <Link to={MSG_BLOCK_LIST_MANAGE_PATH}>
-            <MsgBlockListManage>차단 관리</MsgBlockListManage>
+            <MsgBlockListManage>{MSG_BLOCK_LIST_TAB_NAME}</MsgBlockListManage>
           </Link>
         </MsgBlockListManageWrap>
       </FollowHiddenManageContainer>

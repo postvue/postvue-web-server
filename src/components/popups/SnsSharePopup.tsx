@@ -125,7 +125,7 @@ const SnsSharePopup: React.FC = () => {
     >
       <SearchButtonInputHeaderContainer>
         <HeaderLayout>
-          <PostComposeSearchInputWrap>
+          <SnsShareSearchInputWrap>
             <SearchButtonInputWrap>
               <SearchButtonInput
                 searchInputRef={tagSearchInputRef}
@@ -137,7 +137,7 @@ const SnsSharePopup: React.FC = () => {
                 isActiveDeleteButton={tagSearchInput !== ''}
               />
             </SearchButtonInputWrap>
-          </PostComposeSearchInputWrap>
+          </SnsShareSearchInputWrap>
         </HeaderLayout>
         {loading ? (
           <SearchLoadingWrap>
@@ -254,14 +254,14 @@ const SearchButtonInputHeaderContainer = styled.div`
   flex: 1;
 `;
 
-const PostComposeSearchInputWrap = styled.div`
+const SnsShareSearchInputWrap = styled.div`
   width: 100%;
   display: flex;
   margin: auto 0;
 `;
 
 const SearchButtonInputWrap = styled.div`
-  padding: 0 10px;
+  padding: 0 ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding};
   width: 100%;
 `;
 

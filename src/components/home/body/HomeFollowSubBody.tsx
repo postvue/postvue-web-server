@@ -65,7 +65,7 @@ const HomeFollowSubBody: React.FC = () => {
                 <MyProfileScrapImgWrap
                   key={k}
                   onClick={() => {
-                    navigate(`/${value.username}/p/${image.postId}`);
+                    navigate(`/${value.username}/${image.postId}`);
                   }}
                 >
                   <MyProfileScrapImg src={image.content} />

@@ -55,7 +55,6 @@ const SearchFavoriteTermButton: React.FC<SearchFavoriteTermButtonProps> = ({
         favoriteTermContentType = randomPostContent.postContentType;
       }
     }
-    console.log(searchPostList);
 
     putMutationSearchFavoriteTerm.mutate({
       isFavorite: !isBookMarkedFavoriteTerm,

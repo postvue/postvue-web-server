@@ -1,4 +1,4 @@
-import { api } from '..';
+import { privateApi } from '..';
 import { MsgConversation } from '../../global/interface/message';
 import { MESSAGE_PATH, MSG_CONVERSATION_LIST_PATH } from '../appApiPath';
 import { CURSOR_PARAM, TARGET_USER_ID_PARAM } from '../appApiQueryParam';
@@ -12,7 +12,7 @@ export const getMsgConversationList = (
   cursorId: string,
   targetUserId: string,
 ): Promise<GetMsgConversationsRsp> => {
-  return api
+  return privateApi
     .get(
       `${MESSAGE_PATH}${MSG_CONVERSATION_LIST_PATH}?${TARGET_USER_ID_PARAM}=${targetUserId}&${CURSOR_PARAM}=${cursorId}`,
     )

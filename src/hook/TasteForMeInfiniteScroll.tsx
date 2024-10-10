@@ -3,7 +3,7 @@ import { useInView } from 'react-intersection-observer';
 import styled from 'styled-components';
 
 import { useRecoilState } from 'recoil';
-import { getTasteForMeListByParam } from '../services/home/getTasteForMeList';
+import { getTasteForMeListByParam } from '../services/post/home/getTasteForMeList';
 import { systemPostRspHashMapAtom } from '../states/SystemConfigAtom';
 import {
   cursorIdAtomByTasteForMe,

@@ -5,6 +5,7 @@ export const getSearchQuery = (searchQuery: string): Promise<string[]> => {
   return api
     .get(`${SEARCH_PATH}/${searchQuery}`)
     .then((res) => {
+      console.log(res.data);
       return res.data.data;
     })
     .catch((error) => {

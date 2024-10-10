@@ -1,8 +1,8 @@
-import { api } from '..';
+import { privateApi } from '..';
 import { FOLLOW_PATH, PROFILE_LIST_PATH } from '../appApiPath';
 
 export const postProfilFollow = (followId: string): Promise<boolean> => {
-  return api
+  return privateApi
     .post(`${PROFILE_LIST_PATH}${FOLLOW_PATH}/${followId}`)
     .then((res) => {
       console.log(res.data);

@@ -84,7 +84,7 @@ const ProfileAccountBody: React.FC = () => {
               return (
                 <ProfilePostContent key={k}>
                   <ProfilePostContainer
-                    onClick={() => navigate(`/${v.username}/p/${v.postId}`)}
+                    onClick={() => navigate(`/${v.username}/${v.postId}`)}
                   >
                     <StyledSwiper
                       spaceBetween={0}
