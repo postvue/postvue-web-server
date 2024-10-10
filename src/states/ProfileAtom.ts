@@ -6,22 +6,9 @@ import { PostProfileInfoRsp, PostRsp } from '../global/interface/post';
 import {
   MyProfileClip,
   MyProfileScrap,
-  ProfileMyInfo,
   ProfileScrapList,
   TargetAudienceInterface,
 } from '../global/interface/profile';
-
-export const myProfileSettingInfoAtom = atom<ProfileMyInfo>({
-  key: 'myProfileSEttingInfo',
-  default: {
-    userId: '',
-    username: '',
-    profilePath: '',
-    nickname: '',
-    introduce: '',
-    website: '',
-  },
-});
 
 export const myProfileScrapListAtom = atom<ProfileScrapList[]>({
   key: 'myProfileScrapList',
@@ -102,5 +89,10 @@ export const isActiveProfileScarpTargetAudPopupAtom = atom<boolean>({
 
 export const isActiveProfileAccountPopupAtom = atom<boolean>({
   key: 'isActiveProfileAccountPopup',
+  default: false,
+});
+
+export const isActivePrivateProfileConfirmPopupAtom = atom<boolean>({
+  key: 'isActivePrivateProfileConfirmPopup',
   default: false,
 });
