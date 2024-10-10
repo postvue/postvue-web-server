@@ -1,0 +1,237 @@
+import { ReactComponent as SignupTermOfServiceCheckIcon } from 'assets/images/icon/svg/signup/SignupCheckIcon.svg';
+import { ReactComponent as SignupTermOfServiceNotCheckIcon } from 'assets/images/icon/svg/signup/SignupNotCheckIcon.svg';
+import { ACCESS_TOKEN } from 'const/LocalStorageConst';
+import { HOME_PATH } from 'const/PathConst';
+import React, { useState } from 'react';
+import { useRecoilState } from 'recoil';
+import { postAuthSignup } from 'services/auth/postAuthSignup';
+import { signupInfoAtom } from 'states/SignupAtom';
+import styled from 'styled-components';
+import SignupCompleteButton from '../SignupCompleteButton';
+import SignupHeader from '../SignupHeader';
+
+const SignupTermOfServiceStep: React.FC = () => {
+  const [signupInfo, setSignupInfo] = useRecoilState(signupInfoAtom);
+
+  const onClickSignup = () => {
+    postAuthSignup(signupInfo).then((value) => {
+      localStorage.setItem(ACCESS_TOKEN, value);
+      window.location.href = HOME_PATH;
+    });
+  };
+
+  const [isFullAgreement, setIsFullAgreement] = useState<boolean>(false);
+
+  const onClickFullAgreement = () => {
+    if (isFullAgreement) {
+      setSignupInfo((prev) => ({
+        ...prev,
+        termOfService: {
+          agreeToAgeTerm: false,
+          agreeToServieTerm: false,
+          agreeToPrivacyPolicy: false,
+          agreeToPrivacyPolicyToThirdPaties: false,
+          agreeToMarketingCommunications: false,
+        },
+      }));
+    } else {
+      setSignupInfo((prev) => ({
+        ...prev,
+        termOfService: {
+          agreeToAgeTerm: true,
+          agreeToServieTerm: true,
+          agreeToPrivacyPolicy: true,
+          agreeToPrivacyPolicyToThirdPaties: true,
+          agreeToMarketingCommunications: true,
+        },
+      }));
+    }
+    setIsFullAgreement(!isFullAgreement);
+  };
+
+  return (
+    <>
+      <SignupHeader />
+      <SignupStepTitleWrap>
+        <SignupStepTitle>
+          시각하기 전에,
+          <br />
+          서비스 이용 약관을 확인해주세요.
+        </SignupStepTitle>
+      </SignupStepTitleWrap>
+
+      <SingupTermOsServiceContainer>
+        <SingupTermOsServiceCheckWrap>
+          <SingupTermOsServiceCheckIconWrap onClick={onClickFullAgreement}>
+            {isFullAgreement ? (
+              <SignupTermOfServiceCheckIcon />
+            ) : (
+              <SignupTermOfServiceNotCheckIcon />
+            )}
+          </SingupTermOsServiceCheckIconWrap>
+          <SingupTermOsServiceChecTiele>전체 동의</SingupTermOsServiceChecTiele>
+        </SingupTermOsServiceCheckWrap>
+        <SingupTermOsServiceCheckWrap>
+          <SingupTermOsServiceCheckIconWrap
+            onClick={() => {
+              setSignupInfo((prev) => ({
+                ...prev,
+                termOfService: {
+                  ...signupInfo.termOfService,
+                  agreeToAgeTerm: !signupInfo.termOfService.agreeToAgeTerm,
+                },
+              }));
+            }}
+          >
+            {signupInfo.termOfService.agreeToAgeTerm ? (
+              <SignupTermOfServiceCheckIcon />
+            ) : (
+              <SignupTermOfServiceNotCheckIcon />
+            )}
+          </SingupTermOsServiceCheckIconWrap>
+          <SingupTermOsServiceChecTiele>
+            (필수) 만 14세 이상입니다.*
+          </SingupTermOsServiceChecTiele>
+        </SingupTermOsServiceCheckWrap>
+        <SingupTermOsServiceCheckWrap>
+          <SingupTermOsServiceCheckIconWrap
+            onClick={() => {
+              setSignupInfo((prev) => ({
+                ...prev,
+                termOfService: {
+                  ...signupInfo.termOfService,
+                  agreeToServieTerm:
+                    !signupInfo.termOfService.agreeToServieTerm,
+                },
+              }));
+            }}
+          >
+            {signupInfo.termOfService.agreeToServieTerm ? (
+              <SignupTermOfServiceCheckIcon />
+            ) : (
+              <SignupTermOfServiceNotCheckIcon />
+            )}
+          </SingupTermOsServiceCheckIconWrap>
+          <SingupTermOsServiceChecTiele>
+            (필수) 이용 약관에 동의합니다.*
+          </SingupTermOsServiceChecTiele>
+        </SingupTermOsServiceCheckWrap>
+        <SingupTermOsServiceCheckWrap>
+          <SingupTermOsServiceCheckIconWrap
+            onClick={() => {
+              setSignupInfo((prev) => ({
+                ...prev,
+                termOfService: {
+                  ...signupInfo.termOfService,
+                  agreeToPrivacyPolicy:
+                    !signupInfo.termOfService.agreeToPrivacyPolicy,
+                },
+              }));
+            }}
+          >
+            {signupInfo.termOfService.agreeToPrivacyPolicy ? (
+              <SignupTermOfServiceCheckIcon />
+            ) : (
+              <SignupTermOfServiceNotCheckIcon />
+            )}
+          </SingupTermOsServiceCheckIconWrap>
+          <SingupTermOsServiceChecTiele>
+            (필수) 개인정보 수집 및 이용에 동의합니다.
+          </SingupTermOsServiceChecTiele>
+        </SingupTermOsServiceCheckWrap>
+        <SingupTermOsServiceCheckWrap>
+          <SingupTermOsServiceCheckIconWrap
+            onClick={() => {
+              setSignupInfo((prev) => ({
+                ...prev,
+                termOfService: {
+                  ...signupInfo.termOfService,
+                  agreeToPrivacyPolicyToThirdPaties:
+                    !signupInfo.termOfService.agreeToPrivacyPolicyToThirdPaties,
+                },
+              }));
+            }}
+          >
+            {signupInfo.termOfService.agreeToPrivacyPolicyToThirdPaties ? (
+              <SignupTermOfServiceCheckIcon />
+            ) : (
+              <SignupTermOfServiceNotCheckIcon />
+            )}
+          </SingupTermOsServiceCheckIconWrap>
+          <SingupTermOsServiceChecTiele>
+            (필수) 개인정보의 제 3자 제공에 동의합니다.
+          </SingupTermOsServiceChecTiele>
+        </SingupTermOsServiceCheckWrap>
+        <SingupTermOsServiceCheckWrap>
+          <SingupTermOsServiceCheckIconWrap
+            onClick={() => {
+              setSignupInfo((prev) => ({
+                ...prev,
+                termOfService: {
+                  ...signupInfo.termOfService,
+                  agreeToMarketingCommunications:
+                    !signupInfo.termOfService.agreeToMarketingCommunications,
+                },
+              }));
+            }}
+          >
+            {signupInfo.termOfService.agreeToMarketingCommunications ? (
+              <SignupTermOfServiceCheckIcon />
+            ) : (
+              <SignupTermOfServiceNotCheckIcon />
+            )}
+          </SingupTermOsServiceCheckIconWrap>
+          <SingupTermOsServiceChecTiele>
+            (선택) 마케팅 정보 수신에 동의합니다.
+          </SingupTermOsServiceChecTiele>
+        </SingupTermOsServiceCheckWrap>
+      </SingupTermOsServiceContainer>
+
+      <SignupCompleteButton
+        isActive={
+          signupInfo.termOfService.agreeToAgeTerm &&
+          signupInfo.termOfService.agreeToServieTerm &&
+          signupInfo.termOfService.agreeToPrivacyPolicy &&
+          signupInfo.termOfService.agreeToPrivacyPolicyToThirdPaties
+        }
+        actionFunc={() => {
+          onClickSignup();
+        }}
+      />
+    </>
+  );
+};
+
+const SignupStepTitleWrap = styled.div`
+  padding: calc(30px + ${({ theme }) => theme.systemSize.header.height}) 0px
+    50px 0px;
+`;
+
+const SignupStepTitle = styled.div`
+  font: ${({ theme }) => theme.fontSizes.Headline3};
+  text-align: center;
+  margin-bottom: 10px;
+`;
+
+const SingupTermOsServiceContainer = styled.div`
+  margin: 0 ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding};
+  display: flex;
+  flex-flow: column;
+  gap: 16px;
+`;
+
+const SingupTermOsServiceCheckWrap = styled.div`
+  display: flex;
+  gap: 11px;
+`;
+
+const SingupTermOsServiceCheckIconWrap = styled.div`
+  cursor: pointer;
+`;
+
+const SingupTermOsServiceChecTiele = styled.div`
+  font: ${({ theme }) => theme.fontSizes.Body2};
+  width: 100%;
+`;
+
+export default SignupTermOfServiceStep;
