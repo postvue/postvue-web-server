@@ -6,9 +6,9 @@ import { AxiosError } from 'axios';
 import { INIT_CURSOR_ID, ZERO_CURSOR_ID } from 'const/PageConfigConst';
 import { QUERY_STATE_PROFILE_SCRAP_LIST } from 'const/QueryClientConst';
 import {
-  getMyProfileScrap,
   GetMyProfileScrapRsp,
-} from 'services/profile/getMyProfileScrap';
+  getProfileScrap,
+} from 'services/profile/getProfileScrap';
 
 export interface QueryStateProfileScrapInterface {
   pages: GetMyProfileScrapRsp[];
@@ -36,7 +36,7 @@ export const QueryStateProfileScrap = (
         return { cursorId: ZERO_CURSOR_ID, myScrapPostList: [] };
       }
 
-      return getMyProfileScrap(pageParam, scrapId);
+      return getProfileScrap(pageParam, scrapId);
     },
 
     getNextPageParam: (lastPage) => {
