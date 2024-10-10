@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 import { ZERO_CURSOR_ID } from 'const/PageConfigConst';
 import { useRecoilState } from 'recoil';
-import { getMyProfileClipList } from '../services/profile/getMyProfileClipList';
+import { getMyProfileClipList } from '../services/profile/getProfileClipList';
 import {
   cursorIdByClipListAtom,
   myProfileClipHashMapAtom,

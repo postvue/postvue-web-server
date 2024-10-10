@@ -3,7 +3,7 @@ import { useInView } from 'react-intersection-observer';
 import styled from 'styled-components';
 
 import { useRecoilState } from 'recoil';
-import { getPostRelation } from '../services/post/getPostRelation';
+import { getRecommPostRelation } from '../services/recomm/getRecommPostRelation';
 import {
   cursorIdByPostRelationAtom,
   postRelationHashMapAtom,
@@ -25,7 +25,7 @@ const PostRelationInfiniteScroll: React.FC<PostCommentInfiniteScrollProps> = ({
   );
 
   const callback = () => {
-    getPostRelation(postId, cursorNum)
+    getRecommPostRelation(postId, cursorNum)
       .then((res) => {
         if (res.snsPostRspList.length > 0) {
           const newSnsPostRelationHashMap = new Map(snsPostRelationHashMap);

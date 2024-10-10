@@ -107,7 +107,7 @@ const PostProfileFollowContainer = styled.div`
 const PostProfileFollowWrap = styled.div`
   display: flex;
   justify-content: space-between;
-  padding: 13px 14px 11px 20px;
+  padding: 13px 20px 11px 20px;
 `;
 const ProfileImgUsernameWrap = styled.div`
   display: flex;

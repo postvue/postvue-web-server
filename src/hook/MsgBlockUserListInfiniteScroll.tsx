@@ -5,7 +5,7 @@ import { useInView } from 'react-intersection-observer';
 // import CopyRightFooter from '../conponents/CopyRightFooter';
 
 import { useRecoilState, useResetRecoilState } from 'recoil';
-import { getBlockUserList } from '../services/message/getBlockUserList';
+import { getMsgBlockedUserList } from '../services/message/getMsgBlockedUserList';
 import {
   cursorIdByMsgBlockUserAtom,
   msgBlockUserHashMapAtom,
@@ -25,7 +25,7 @@ const MsgBlockUserListInfiniteScroll: React.FC = () => {
   );
 
   const callback = () => {
-    getBlockUserList(cursorId)
+    getMsgBlockedUserList(cursorId)
       .then((res) => {
         if (res.blockUserList.length > 0) {
           const newMsgBlockUserHashMap = new Map(msgBlockUserHashMap);

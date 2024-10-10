@@ -7,9 +7,9 @@ import { MasonryPostRsp } from 'global/interface/post';
 import React, { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 import {
-  getPostRelation,
-  GetPostRelationRsp,
-} from 'services/post/getPostRelation';
+  getRecommPostRelation,
+  GetRecommPostRelationRsp,
+} from 'services/recomm/getRecommPostRelation';
 import styled from 'styled-components';
 
 interface ProfilePostListInfiniteScrollProps {
@@ -17,7 +17,7 @@ interface ProfilePostListInfiniteScrollProps {
 }
 
 export interface ProfilePostRelationQueryInterface {
-  pages: GetPostRelationRsp[];
+  pages: GetRecommPostRelationRsp[];
   pageParams: unknown[];
 }
 
@@ -28,7 +28,7 @@ const PostRelationListInfiniteScroll: React.FC<
 
   const { fetchNextPage, hasNextPage, isFetchingNextPage, data } =
     useInfiniteQuery<
-      GetPostRelationRsp,
+      GetRecommPostRelationRsp,
       AxiosError,
       ProfilePostRelationQueryInterface,
       [string]
@@ -42,7 +42,7 @@ const PostRelationListInfiniteScroll: React.FC<
           return { cursorId: ZERO_CURSOR_ID, snsPostRspList: [] };
         }
 
-        return getPostRelation(postId, pageParam);
+        return getRecommPostRelation(postId, pageParam);
       },
 
       getNextPageParam: (lastPage) => {

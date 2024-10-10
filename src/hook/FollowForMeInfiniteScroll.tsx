@@ -3,7 +3,7 @@ import { useInView } from 'react-intersection-observer';
 import styled from 'styled-components';
 
 import { useRecoilState } from 'recoil';
-import { getFollowForMeListByParam } from '../services/home/getFollowForMeList';
+import { getFollowForMeListByParam } from '../services/post/home/getFollowForMeList';
 import {
   cursorIdAtomByFollowForMe,
   followForMeHashMapAtom,

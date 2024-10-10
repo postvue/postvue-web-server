@@ -3,7 +3,7 @@ import { useInView } from 'react-intersection-observer';
 import styled from 'styled-components';
 
 import { useRecoilState, useResetRecoilState, useSetRecoilState } from 'recoil';
-import { getMyProfileScrap } from '../services/profile/getMyProfileScrap';
+import { getProfileScrap } from '../services/profile/getProfileScrap';
 import { cursorIdByScrapAtom, myProfileScrapAtom } from '../states/ProfileAtom';
 
 interface ProfileScarpInfiniteScrollProps {
@@ -21,7 +21,7 @@ const ProfileScarpInfiniteScrollBeta: React.FC<
   const resetMyProfileScrap = useResetRecoilState(myProfileScrapAtom);
 
   const callback = () => {
-    getMyProfileScrap(cursorNum, scrapId)
+    getProfileScrap(cursorNum, scrapId)
       .then((res) => {
         if (res.myScrapPostList.length > 0) {
           setMyProfileScrap((prev) => [...prev, ...res.myScrapPostList]);
