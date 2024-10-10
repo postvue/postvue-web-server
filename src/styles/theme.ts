@@ -30,6 +30,12 @@ const errorColor = {
   Red: '#FF0404',
 };
 
+const snsColor = {
+  Kakao: '#FEE500',
+  Naver: '#06C755',
+  Google: '#ffffff',
+};
+
 const fontSizes = {
   Display5:
     '40px/1.4 Pretendard-Bold; letter-spacing: -0.6px; font-style: normal;',
@@ -52,7 +58,7 @@ const fontSizes = {
   Subhead2:
     '14px/1.4 Pretendard-SemiBold; letter-spacing: -0.6px; font-style: normal;',
   Subhead1:
-    '12px/1.4 Pretendar-SemiBold; letter-spacing: -0.6px; font-style: normal;',
+    '12px/1.4 Pretendard-SemiBold; letter-spacing: -0.6px; font-style: normal;',
   Body5:
     '18px/1.6 Pretendard-Medium; letter-spacing: -0.35px; font-style: normal;',
   Body4:
@@ -79,14 +85,16 @@ const paddings = {
 const systemSize = {
   appDisplaySize: {
     maxWidth: '540px',
+
     bothSidePadding: '20px',
+    bottomButtonMargin: '40px',
   },
   bottomNavBar: {
     height: '90px',
   },
   header: {
     height: '50px',
-    paddingLeftRightMargin: '21px',
+    paddingLeftRightMargin: '15px',
     //@REFER: 22px 또는 21px로 할 지 결정
     //paddingLeftRightMargin: '22px',
   },
@@ -104,6 +112,7 @@ const theme = {
   fontSizes,
   paddings,
   systemSize,
+  snsColor,
 };
 
 export default theme;
