@@ -1,14 +1,21 @@
 import anime from 'animejs';
-import React from 'react';
-import { SetterOrUpdater, useSetRecoilState } from 'recoil';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import {
   PostComment,
   PostCommentReplyMsgInfo,
 } from '../../../../global/interface/post';
 import { convertDiffrenceDateTime } from '../../../../global/util/DateTimeUtil';
-import { putPostCommentLike } from '../../../../services/post/putPostCommentLike';
 
+import { queryClient } from 'App';
+import { POST_COMMENT_MEDIA_IMAGE_TYPE } from 'const/PostCommentConst';
+import { QUERY_STATE_POST_COMMENT_REPLY_LIST } from 'const/QueryClientConst';
+import { convertQueryTemplate } from 'global/util/TemplateUtil';
+import { QueryMutationPutPostCommentLike } from 'hook/queryhook/QueryMutationPutPostCommentLike';
+import { QueryMutationPutPostCommentReplyLike } from 'hook/queryhook/QueryMutationPutPostCommentReplyLike';
+import { PostCommetReplyListInfiniteInterface } from 'hook/queryhook/QueryStatePostCommentReplyListInfinite';
+import { useRecoilState } from 'recoil';
+import { GetPostCommentsRsp } from 'services/post/getPostComments';
 import { getPostReplyReplies } from '../../../../services/post/getPostReplyReplies';
 import { activeCommentByPostCommentThreadAtom } from '../../../../states/PostThreadAtom';
 import theme from '../../../../styles/theme';
@@ -18,8 +25,8 @@ interface PostCommentElementProps {
   postId: string;
   commentIdIndex: string;
   postComment: PostComment;
-  snsPostCommentHashMap: Map<string, PostComment>;
-  setSnsPostCommentHashMap: SetterOrUpdater<Map<string, PostComment>>;
+  // snsPostCommentHashMap: Map<string, PostComment>;
+  // setSnsPostCommentHashMap: SetterOrUpdater<Map<string, PostComment>>;
   likeIconRef: React.MutableRefObject<{
     [key: string]: SVGSVGElement | null;
   }>;
@@ -42,8 +49,6 @@ const PostCommentElement: React.FC<PostCommentElementProps> = ({
   postId,
   commentIdIndex,
   postComment,
-  snsPostCommentHashMap,
-  setSnsPostCommentHashMap,
   likeIconRef,
   likeCountRef,
   commentReplyCountRef,
@@ -53,61 +58,70 @@ const PostCommentElement: React.FC<PostCommentElementProps> = ({
   isReplyToReply,
   replyCommentNum,
 }) => {
-  const setActiveCommentByPostCommentThread = useSetRecoilState(
-    activeCommentByPostCommentThreadAtom,
-  );
-  const animateCount = (
+  // 상태관리 변수
+  const [
+    activeCommentByPostCommentThread,
+    setActiveCommentByPostCommentThread,
+  ] = useRecoilState(activeCommentByPostCommentThreadAtom);
+
+  const putPostCommentLikeQuery = QueryMutationPutPostCommentLike();
+  const putPostCommentReplyLikeQuery = QueryMutationPutPostCommentReplyLike();
+
+  const onClickCommentHeartButton = async (
+    commentId: string,
     index: string,
-    to: number,
-    direction: 'up' | 'down',
-    countRef: React.MutableRefObject<{
-      [key: string]: HTMLDivElement | null;
-    }>,
   ) => {
-    const countRefCurrent = countRef.current[index];
-    if (countRefCurrent !== null) {
-      anime({
-        targets: countRefCurrent,
-        translateY: direction === 'up' ? [20, 0] : [-20, 0],
-        opacity: [0, 1],
-        duration: 300,
-        easing: 'easeInOutQuad',
-        begin: () => {
-          countRefCurrent.textContent = to.toString();
-        },
-      });
-    }
-  };
-  const onClickCommentHeartButton = (commentId: string, index: string) => {
-    putPostCommentLike(postId, commentId)
-      .then((value) => {
-        const newSnsPostCommentHashMap = new Map(snsPostCommentHashMap);
-        const selectPostComment = newSnsPostCommentHashMap.get(commentId);
+    // putPostCommentLike(postId, commentId)
+    //   .then((value) => {
+    //     const newSnsPostCommentHashMap = new Map(snsPostCommentHashMap);
+    //     const selectPostComment = newSnsPostCommentHashMap.get(commentId);
 
-        if (selectPostComment) {
-          selectPostComment.isLiked = value.isLike;
-          if (value.isLike) {
-            selectPostComment.likeCount += 1;
-            animateCount(
-              index,
+    //     if (selectPostComment) {
+    //       selectPostComment.isLiked = value.isLike;
+    //       if (value.isLike) {
+    //         selectPostComment.likeCount += 1;
+    //         animateCount(
+    //           index,
+    //           selectPostComment.likeCount,
+    //           'up',
+    //           likeCountRef,
+    //         );
+    //       } else {
+    //         selectPostComment.likeCount -= 1;
+    //         animateCount(
+    //           index,
+    //           selectPostComment.likeCount,
+    //           'down',
+    //           likeCountRef,
+    //         );
+    //       }
 
-              selectPostComment.likeCount,
-              'up',
-              likeCountRef,
-            );
-          } else {
-            selectPostComment.likeCount -= 1;
-            animateCount(
-              index,
-              selectPostComment.likeCount,
-              'down',
-              likeCountRef,
-            );
-          }
+    //       newSnsPostCommentHashMap.set(commentId, selectPostComment);
+    //       setSnsPostCommentHashMap(newSnsPostCommentHashMap);
 
-          newSnsPostCommentHashMap.set(commentId, selectPostComment);
-          setSnsPostCommentHashMap(newSnsPostCommentHashMap);
+    //       if (value.isLike) {
+    //         anime({
+    //           targets: likeIconRef.current[index],
+    //           scale: [1, 1.5],
+    //           duration: 300,
+    //           easing: 'easeInOutQuad',
+    //           direction: 'alternate',
+    //         });
+    //       }
+    //     }
+    //   })
+    //   .catch((err) => {
+    //     throw err;
+    //   });
 
+    if (!isReplyToReply) {
+      await putPostCommentLikeQuery
+        .mutateAsync({
+          postId: postId,
+          commentId: commentId,
+          likeCountRef: likeCountRef,
+        })
+        .then((value) => {
           if (value.isLike) {
             anime({
               targets: likeIconRef.current[index],
@@ -117,11 +131,27 @@ const PostCommentElement: React.FC<PostCommentElementProps> = ({
               direction: 'alternate',
             });
           }
-        }
-      })
-      .catch((err) => {
-        throw err;
-      });
+        });
+    } else {
+      await putPostCommentReplyLikeQuery
+        .mutateAsync({
+          postId: postId,
+          replyCommentId: activeCommentByPostCommentThread.commentId,
+          commentId: commentId,
+          likeCountRef: likeCountRef,
+        })
+        .then((value) => {
+          if (value.isLike) {
+            anime({
+              targets: likeIconRef.current[index],
+              scale: [1, 1.5],
+              duration: 300,
+              easing: 'easeInOutQuad',
+              direction: 'alternate',
+            });
+          }
+        });
+    }
   };
 
   const onClickPostCommentReply = (postComment: PostComment) => {
@@ -137,17 +167,49 @@ const PostCommentElement: React.FC<PostCommentElementProps> = ({
   };
 
   const onClickGetPostReplyMore = () => {
+    console.log('실행?');
     getPostReplyReplies(postId, commentIdIndex).then((value) => {
-      const tempSnsPostCommentHashMap = new Map(snsPostCommentHashMap);
-      value.map((snsPostCommentRsp) => {
-        tempSnsPostCommentHashMap.set(
-          snsPostCommentRsp.postCommentId,
-          snsPostCommentRsp,
-        );
-      });
-      setSnsPostCommentHashMap(tempSnsPostCommentHashMap);
+      console.log(activeCommentByPostCommentThread.commentId);
+      queryClient.setQueryData(
+        [
+          convertQueryTemplate(
+            QUERY_STATE_POST_COMMENT_REPLY_LIST,
+            activeCommentByPostCommentThread.commentId,
+          ),
+        ],
+        (oldData: PostCommetReplyListInfiniteInterface) => {
+          if (!oldData) {
+            return oldData;
+          }
+          console.log('호잇', oldData.pages);
+          const updatedPages = oldData.pages.map((page, index) => {
+            if (index === 0) {
+              // 첫 번째 페이지에 새로운 아이템을 추가
+              return {
+                ...page,
+                snsPostCommentRspList: [
+                  ...value,
+                  ...page.snsPostCommentRspList,
+                ], // 맨 앞에 새로운 아이템 추가
+              } as GetPostCommentsRsp;
+            }
+            return page;
+          });
+
+          console.log('변신', updatedPages);
+
+          return {
+            ...oldData,
+            pages: updatedPages,
+          };
+        },
+      );
     });
   };
+
+  useEffect(() => {
+    console.log('끼욧', postComment);
+  }, [postComment.isLiked]);
 
   return (
     <PostContentWrap
@@ -186,12 +248,21 @@ const PostCommentElement: React.FC<PostCommentElementProps> = ({
             <PostReactionCommentSettingButton
               postId={commentIdIndex}
               userId={postComment.commentUserId}
+              username={postComment.username}
               commentId={postComment.postCommentId}
-              snsPostCommentHashMap={snsPostCommentHashMap}
-              setSnsPostCommentHashMap={setSnsPostCommentHashMap}
             />
           </ProfileNameDateSettingWrap>
-          <PostCommentDiv>{postComment.postCommentContent}</PostCommentDiv>
+          {postComment.commentMediaType === POST_COMMENT_MEDIA_IMAGE_TYPE && (
+            <ImageWrapper>
+              <PostCommentMediaImgContent
+                src={postComment.commentMediaContent}
+              />
+            </ImageWrapper>
+          )}
+          {/* {postComment.commentMediaType === POST_COMMENT_MEDIA_VIDEO_TYPE && (
+            <video src={postComment.commentMediaContent} />
+          )} */}
+          <PostCommentDiv>{postComment.postCommentMsg}</PostCommentDiv>
           <PostLikeReplyWrap>
             <PostCommentLikeWrap>
               <PostCommentLike
@@ -287,7 +358,8 @@ const PostContentWrap = styled.div<{ $isReplyToReply: boolean }>`
 
 const ProfileWrap = styled.div`
   display: flex;
-  padding: 13px 0 0 20px;
+  padding: 13px 0 0
+    ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding};
 `;
 
 const CommentGroupWrap = styled.div`
@@ -318,7 +390,7 @@ const ProfileContentWrap = styled.div`
 const ProfileNameDateSettingWrap = styled.div`
     justify-content: space-between;
     display:flex;
-    padding-right: 20px;
+    padding-right: ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding};
 }`;
 
 const ProfileUserNameDateWrap = styled.div`
@@ -335,8 +407,9 @@ const PostCommentDatetime = styled.div`
 `;
 
 const PostCommentDiv = styled.div`
-  padding: 0px 20px 6px 0;
-  font: ${({ theme }) => theme.fontSizes.Body2};
+  padding: 0px ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding}
+    6px 0;
+  font: ${({ theme }) => theme.fontSizes.Body3};
 `;
 
 const PostLikeReplyWrap = styled.div`
@@ -400,6 +473,25 @@ const ShowMoreReplyTitle = styled.div`
   padding: 0 7px;
   color: ${({ theme }) => theme.grey.Grey5};
   font: ${({ theme }) => theme.fontSizes.Body1};
+`;
+
+const PostCommentMediaImageSize = 300;
+
+const ImageWrapper = styled.div`
+  border-radius: 10px;
+  overflow: hidden;
+  max-height: ${PostCommentMediaImageSize}px;
+  width: inherit;
+`;
+
+const PostCommentMediaImgContent = styled.img`
+  border-radius: 10px;
+  max-height: ${PostCommentMediaImageSize}px;
+  max-width: calc(
+    100% - ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding}
+  );
+  object-fit: contain;
+  object-position: center;
 `;
 
 export default PostCommentElement;

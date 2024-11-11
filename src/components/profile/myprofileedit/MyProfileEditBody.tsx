@@ -102,7 +102,7 @@ const MyProfileEditBody: React.FC = () => {
 };
 
 const MyProfileEditBodyContainer = styled.div`
-  padding-top: ${({ theme }) => theme.systemSize.header.height};
+  height: calc(100vh - ${({ theme }) => theme.systemSize.header.height});
 `;
 
 const MyProfileImgEditWrap = styled.div`

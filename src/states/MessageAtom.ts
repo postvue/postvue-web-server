@@ -1,11 +1,8 @@
+import { MESSAGE_NONE_ACTION } from 'const/MessageConst';
 import { ProfileInfoByDirectMsg } from 'global/interface/profile';
 import { atom } from 'recoil';
 import { INIT_CURSOR_ID } from '../const/PageConfigConst';
-import {
-  MsgBlockHiddenUser,
-  MsgConversation,
-  MsgReactionInfo,
-} from '../global/interface/message';
+import { MsgBlockHiddenUser } from '../global/interface/message';
 
 export const profileInfoByDirectMsgAtom = atom<ProfileInfoByDirectMsg>({
   key: 'profileInfoByDirectMsg',
@@ -16,10 +13,10 @@ export const profileInfoByDirectMsgAtom = atom<ProfileInfoByDirectMsg>({
   },
 });
 
-export const msgConversationListAtom = atom<MsgConversation[]>({
-  key: 'msgConversationHashMap',
-  default: [],
-});
+// export const msgConversationListAtom = atom<MsgConversation[]>({
+//   key: 'msgConversationHashMap',
+//   default: [],
+// });
 
 export const cursorIdAtomByMsgConversation = atom<string>({
   key: 'cursorIdAtomByMsgConversation',
@@ -51,14 +48,26 @@ export const isSettingByMsgConversationAtom = atom<boolean>({
   default: false,
 });
 
-export const msgReactionInfoAtom = atom<MsgReactionInfo>({
-  key: 'msgReactionInfo',
+export const msgConversationScrollInfoAtom = atom<{
+  currentPostion: number;
+  maxScrollPosition: number;
+  msgContainerHeight: number;
+}>({
+  key: 'msgConversationScrollInfo',
   default: {
-    msgId: '',
-    msgHeight: 0,
-    y: 0,
-    height: 0,
-    isMyMsg: false,
-    msgText: '',
+    currentPostion: 0,
+    maxScrollPosition: 0,
+    msgContainerHeight: 0,
+  },
+});
+
+export const sendedMsgListInfoAtom = atom<{
+  unreadMsgNum: number;
+  action: string;
+}>({
+  key: 'sendedMsgListInfo',
+  default: {
+    unreadMsgNum: 0,
+    action: MESSAGE_NONE_ACTION,
   },
 });

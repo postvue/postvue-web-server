@@ -9,11 +9,9 @@ import { LOGIN_PATH } from 'const/PathConst';
 import { CALLBACK_URL } from 'const/QueryParamConst';
 import { SERVER_API_PATH } from 'const/SystemAttrConst';
 import { TOKEN_EXPIRED_SPECIFICATION } from 'const/SystemSpecificationConst';
+import { UNAUTHORIZED_ERROR_LINK_LIST } from 'const/WebSocketStompErrorConst';
 import { getAccessTokenByBearer } from 'global/util/AuthUtil';
-import {
-  getAccessTokenToLocalStorage,
-  setAccessTokenToLocalStorage,
-} from 'global/util/CookieUtil';
+import { setAccessTokenToLocalStorage } from 'global/util/CookieUtil';
 import QueryString from 'qs';
 import { postRefreshToken } from './auth/postRefreshToken';
 
@@ -68,6 +66,15 @@ export const privateApi = axios.create({
   },
 });
 
+// form API
+export const formApi = axios.create({
+  baseURL: SERVER_API_PATH,
+  headers: {
+    'Content-Type': 'multipart/form-data',
+  },
+  withCredentials: true,
+});
+
 privateApi.interceptors.request.use((config) => {
   if (!config.headers) return config;
 
@@ -80,6 +87,26 @@ privateApi.interceptors.request.use((config) => {
 });
 
 privateApi.interceptors.response.use(
+  // 200번대 응답이 올때 처리
+  (response) => {
+    return response;
+  },
+
+  interceptorErrorFunc,
+);
+
+formApi.interceptors.request.use((config) => {
+  if (!config.headers) return config;
+
+  const accessToken =
+    localStorage.getItem(ACCESS_TOKEN) || INVALID_ACCESS_TOKEN;
+
+  config.headers.authorization = getAccessTokenByBearer(accessToken);
+
+  return config;
+});
+
+formApi.interceptors.response.use(
   // 200번대 응답이 올때 처리
   (response) => {
     return response;
@@ -193,7 +220,7 @@ export async function handleWebSocketStomp(func: () => void): Promise<void> {
       // localStorage에 저장
       const newAccessToken = response.accessToken;
       setAccessTokenToLocalStorage(newAccessToken);
-      console.log('실행 1', getAccessTokenToLocalStorage());
+
       func();
     })
     .catch((err: AxiosError) => {
@@ -205,6 +232,14 @@ export async function handleWebSocketStomp(func: () => void): Promise<void> {
         // 인증 오류 시, 리프레쉬 토큰 만료시 OR 리프레시 토큰이 없을 때
         const currentPath = window.location.pathname;
         setAccessTokenToLocalStorage('');
+
+        if (
+          window.location.pathname === LOGIN_PATH ||
+          !UNAUTHORIZED_ERROR_LINK_LIST.some(
+            (value) => value === window.location.pathname,
+          )
+        )
+          return;
 
         window.location.replace(`${LOGIN_PATH}?${CALLBACK_URL}=` + currentPath);
       } else {

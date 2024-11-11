@@ -1,14 +1,14 @@
-import { privateApi } from '..';
-import { PostCommentReq, PostCommentRsp } from '../../global/interface/post';
+import { formApi } from 'services';
+import { PostComment } from '../../global/interface/post';
 
 import { COMMENT_LIST_PATH, POST_LIST_PATH } from '../appApiPath';
 
 export const createPostComment = (
   postId: string,
-  postCommentReq: PostCommentReq,
-): Promise<PostCommentRsp> => {
-  return privateApi
-    .post(`${POST_LIST_PATH}/${postId}${COMMENT_LIST_PATH}`, postCommentReq)
+  formData: FormData,
+): Promise<PostComment> => {
+  return formApi
+    .post(`${POST_LIST_PATH}/${postId}${COMMENT_LIST_PATH}`, formData)
     .then((res) => {
       console.log(res.data);
       return res.data.data;

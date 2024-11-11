@@ -96,3 +96,8 @@ export const isActivePrivateProfileConfirmPopupAtom = atom<boolean>({
   key: 'isActivePrivateProfileConfirmPopup',
   default: false,
 });
+
+export const isActiveScrapViewPopupByMasonryAtom = atom<boolean>({
+  key: 'isActiveScrapViewPopupByMasonry',
+  default: false,
+});

@@ -3,9 +3,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
+import { filterBrigntnessStyle } from 'styles/commonStyles';
 import {
   SEARCH_FAVORITE_LIST_PATH,
-  SEARCH_PATH,
+  SEARCH_POST_PATH,
 } from '../../../const/PathConst';
 import { getRecommTagList } from '../../../services/recomm/getRecommTagList';
 import { recommTagListAtom } from '../../../states/TagAtom';
@@ -73,7 +74,7 @@ const SearchBody: React.FC<SearchBodyProps> = ({ SearchBodyStyle }) => {
                         i === data.length - 1 ? SuggestContainerSideMargin : '',
                     }}
                   >
-                    <Link to={`${SEARCH_PATH}/${v.favoriteTermName}`}>
+                    <Link to={`${SEARCH_POST_PATH}/${v.favoriteTermName}`}>
                       <TagElementWrap $tagBkgdPath={v.favoriteTermContent}>
                         <TagNameDiv>{v.favoriteTermName}</TagNameDiv>
                       </TagElementWrap>
@@ -92,7 +93,7 @@ const SearchBody: React.FC<SearchBodyProps> = ({ SearchBodyStyle }) => {
               {recommTagList &&
                 recommTagList.map((v, i) => (
                   <TagElementContainer key={i} ref={i === 0 ? handleRef : null}>
-                    <Link to={`${SEARCH_PATH}/${v.tagName}`}>
+                    <Link to={`${SEARCH_POST_PATH}/${v.tagName}`}>
                       {/* @REFER: 콘텐츠 타입에 따라 다르게 보이도록 */}
                       <TagElementWrap $tagBkgdPath={v.tagBkgdContent}>
                         <TagNameDiv>#{v.tagName}</TagNameDiv>
@@ -116,7 +117,7 @@ const SearchTagRecommContainer = styled.div`
 `;
 
 const SearchBodyContainer = styled.div`
-  margin: calc(22px + ${theme.systemSize.header.height}) 0 0 0;
+  margin: 22px 0 0 0;
 `;
 
 const SearchRelatedTitle = styled.div`
@@ -135,6 +136,7 @@ const SearchSuggestItemListWrap = styled.div`
 
 const TagElementContainer = styled.div`
   cursor: pointer;
+  ${filterBrigntnessStyle}
 `;
 
 const TagElementWrap = styled.div<{ $tagBkgdPath: string }>`
@@ -188,6 +190,7 @@ const SearchFavoriteItemListWrap = styled.div`
 
 const FavoriteTermContainer = styled(TagElementContainer)`
   flex: 0 0 auto;
+  ${filterBrigntnessStyle}
 `;
 
 export default SearchBody;

@@ -66,9 +66,7 @@ const MsgBlockListBody: React.FC = () => {
   );
 };
 
-const MsgBlockListBodyContainer = styled.div`
-  margin-top: ${({ theme }) => theme.systemSize.header.height};
-`;
+const MsgBlockListBodyContainer = styled.div``;
 
 const MessageSearchContainer = styled.div`
   padding: 16px 15px 16px 15px;

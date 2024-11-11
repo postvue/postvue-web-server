@@ -17,7 +17,11 @@ const PostReactionListElement: React.FC<PostReactionListElementProps> = ({
   postListRspAtom,
 }) => {
   return (
-    <ReactionContainer>
+    <ReactionContainer
+      onClick={(e) => {
+        e.stopPropagation();
+      }}
+    >
       <HrtMsgShrReactionContainer>
         <>
           <HeartButtonFactory
@@ -43,7 +47,8 @@ const PostReactionListElement: React.FC<PostReactionListElementProps> = ({
 const ReactionContainer = styled.div`
   display: flex;
   justify-content: space-between;
-  margin: 17px 0px 8px 0;
+  padding: 17px 0px 8px 0;
+  cursor: default;
 `;
 
 const HrtMsgShrReactionContainer = styled.div`

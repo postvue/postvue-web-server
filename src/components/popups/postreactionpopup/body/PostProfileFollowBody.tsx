@@ -1,5 +1,8 @@
+import { PROFILE_LIST_PATH } from 'const/PathConst';
 import React, { ReactNode } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { useSetRecoilState } from 'recoil';
+import { isPostReactionAtom } from 'states/PostReactionAtom';
 import styled from 'styled-components';
 import { PostProfileInfoRsp } from '../../../../global/interface/post';
 import theme from '../../../../styles/theme';
@@ -14,6 +17,8 @@ const PostProfileFollowBody: React.FC<PostProfileFollowBodyProps> = ({
   PostProfileFollowInfiniteScroll,
   postProfileInfoMap,
 }) => {
+  const setIsPopupActive = useSetRecoilState(isPostReactionAtom);
+  const navigate = useNavigate();
   return (
     <>
       {Array.from(postProfileInfoMap.entries()).map(([k, v]) => {
@@ -21,20 +26,25 @@ const PostProfileFollowBody: React.FC<PostProfileFollowBodyProps> = ({
           <React.Fragment key={k}>
             <PostProfileFollowContainer key={k}>
               <PostProfileFollowWrap>
-                <Link to={`/${v.username}`}>
+                <PostProfileFollowSubWrap
+                  onClick={() => {
+                    setIsPopupActive(false);
+                    navigate(`${PROFILE_LIST_PATH}/${v.username}`);
+                  }}
+                >
                   <ProfileImgUsernameWrap>
                     <PostProfileFollowImg src={v.profilePath} />
                     <PostProfileFollowUsername>
                       {v.username}
                     </PostProfileFollowUsername>
                   </ProfileImgUsernameWrap>
-                </Link>
+                </PostProfileFollowSubWrap>
                 {v.isMe ? (
                   ''
                 ) : (
                   <FollowButton
                     fontSize={theme.fontSizes.Subhead3}
-                    userId={v.useId}
+                    userId={v.userId}
                     isFollow={v.isFollowed}
                   />
                 )}
@@ -54,6 +64,11 @@ const PostProfileFollowWrap = styled.div`
   display: flex;
   justify-content: space-between;
   padding: 13px 20px 11px 20px;
+`;
+
+const PostProfileFollowSubWrap = styled.div`
+  width: 100%;
+  cursor: pointer;
 `;
 const ProfileImgUsernameWrap = styled.div`
   display: flex;

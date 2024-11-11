@@ -1,4 +1,8 @@
 import anime from 'animejs';
+import {
+  COMMENT_DOWN_ANIMATION,
+  COMMENT_UP_ANIMATION,
+} from 'const/PostCommentConst';
 import { PostComment, PostCommentWithReplies } from '../interface/post';
 
 export function getGroupComments(
@@ -62,19 +66,24 @@ export function getGroupComments(
   return sortedGroupedComments;
 }
 
+const ANIMATION_DIRECTIONS = {
+  UP: COMMENT_UP_ANIMATION,
+  DOWN: COMMENT_DOWN_ANIMATION,
+} as const;
+
+// 타입 정의
+export type AnimationDirection =
+  (typeof ANIMATION_DIRECTIONS)[keyof typeof ANIMATION_DIRECTIONS];
+
 export const animateCount = (
-  index: string,
+  countRefCurrent: HTMLDivElement | null,
   to: number,
-  direction: 'up' | 'down',
-  countRef: React.MutableRefObject<{
-    [key: string]: HTMLDivElement | null;
-  }>,
+  direction: AnimationDirection,
 ): void => {
-  const countRefCurrent = countRef.current[index];
-  if (countRefCurrent !== null) {
+  if (countRefCurrent !== null && countRefCurrent !== undefined) {
     anime({
       targets: countRefCurrent,
-      translateY: direction === 'up' ? [20, 0] : [-20, 0],
+      translateY: direction === COMMENT_UP_ANIMATION ? [20, 0] : [-20, 0],
       opacity: [0, 1],
       duration: 300,
       easing: 'easeInOutQuad',

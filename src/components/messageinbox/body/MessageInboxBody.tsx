@@ -1,3 +1,5 @@
+import MsgInboxListInfiniteScroll from 'hook/MsgInboxListInfiniteScroll';
+import { QueryStateMsgInboxListInfinite } from 'hook/queryhook/QueryStateMsgInboxListInfinite';
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
@@ -6,20 +8,19 @@ import { MSG_CONTENT_TEXT_TYPE } from '../../../const/MsgContentTypeConst';
 import { CONVERSTAION_PATH, MESSAGE_PATH } from '../../../const/PathConst';
 import { MESSAGE_SEARCH_INPUT_PHARSE_TEXT } from '../../../const/SystemPhraseConst';
 import { convertDiffrenceDateTime } from '../../../global/util/DateTimeUtil';
-import MsgInboxFollowInfiniteScroll from '../../../hook/MsgInboxFollowInfiniteScroll';
-import { msgInboxMessageHashMapAtom } from '../../../states/MsgInboxAtom';
 import { sessionActiveUserInfoHashMapAtom } from '../../../states/SessionAtom';
 import theme from '../../../styles/theme';
 
 const MessageInboxBody: React.FC = () => {
-  const msgInboxMessageHashMap = useRecoilValue(msgInboxMessageHashMapAtom);
   const sessionActiveUserInfoHashMap = useRecoilValue(
     sessionActiveUserInfoHashMapAtom,
   );
 
+  const { data: msgInboxMessageList } = QueryStateMsgInboxListInfinite();
+
   useEffect(() => {
-    console.log('변경됨: ', sessionActiveUserInfoHashMap);
-  }, [sessionActiveUserInfoHashMap]);
+    console.log(msgInboxMessageList);
+  }, [msgInboxMessageList]);
 
   return (
     <MessageInboxBodyContainer>
@@ -47,53 +48,57 @@ const MessageInboxBody: React.FC = () => {
         </MessageSearchWrap>
       </MessageSearchContainer>
       <FollowProfileMsgListContainer>
-        {msgInboxMessageHashMap && (
+        {msgInboxMessageList && (
           <>
-            {Array.from(msgInboxMessageHashMap.entries()).map(([i, v]) => (
-              <FollowProfileWrap key={i}>
-                <FollowProfileImgNameWrapWrap>
-                  <FollowProfileActiveWrap>
-                    <FollowProfileImg src={v.profilePath} />
-                    <FollowActiveState
-                      $sessionState={
-                        sessionActiveUserInfoHashMap.get(v.targetUserId)
-                          ?.sessionState || false
-                      }
-                    />
-                  </FollowProfileActiveWrap>
-                  <FollowNameMsgWrap>
-                    <Link
-                      to={`${MESSAGE_PATH}/${v.username}${CONVERSTAION_PATH}`}
-                    >
-                      <FollowUsername>{v.username}</FollowUsername>
-                      <FollowRecentWrap>
-                        {v.msgType === MSG_CONTENT_TEXT_TYPE ? (
-                          <FollowRecentMsg>{v.msgContent}</FollowRecentMsg>
-                        ) : (
-                          <FollowRecentMsg>텍스트 아님</FollowRecentMsg>
-                        )}
-                      </FollowRecentWrap>
-                    </Link>
-                  </FollowNameMsgWrap>
-                </FollowProfileImgNameWrapWrap>
-                <MsgSubWrap>
-                  {v.unreadCount > 0 && (
-                    <FollowUnreadWrap>
-                      <FollowUnreadMsgCount>
-                        {v.unreadCount}
-                      </FollowUnreadMsgCount>
-                    </FollowUnreadWrap>
-                  )}
-                  <FollowRecentSendTime>
-                    {convertDiffrenceDateTime(v.sendAt)}
-                  </FollowRecentSendTime>
-                </MsgSubWrap>
-              </FollowProfileWrap>
-            ))}
+            {msgInboxMessageList?.pages
+              .flatMap((v) => v)
+              .map((value, index) => (
+                <FollowProfileWrap key={index}>
+                  <FollowProfileImgNameWrapWrap>
+                    <FollowProfileActiveWrap>
+                      <FollowProfileImg src={value.profilePath} />
+                      <FollowActiveState
+                        $sessionState={
+                          sessionActiveUserInfoHashMap.get(value.targetUserId)
+                            ?.sessionState || false
+                        }
+                      />
+                    </FollowProfileActiveWrap>
+                    <FollowNameMsgWrap>
+                      <Link
+                        to={`${MESSAGE_PATH}/${value.username}${CONVERSTAION_PATH}`}
+                      >
+                        <FollowUsername>{value.username}</FollowUsername>
+                        <FollowRecentWrap>
+                          {value.msgType === MSG_CONTENT_TEXT_TYPE ? (
+                            <FollowRecentMsg>
+                              {value.msgContent}
+                            </FollowRecentMsg>
+                          ) : (
+                            <FollowRecentMsg>텍스트 아님</FollowRecentMsg>
+                          )}
+                        </FollowRecentWrap>
+                      </Link>
+                    </FollowNameMsgWrap>
+                  </FollowProfileImgNameWrapWrap>
+                  <MsgSubWrap>
+                    {value.unreadCount > 0 && (
+                      <FollowUnreadWrap>
+                        <FollowUnreadMsgCount>
+                          {value.unreadCount}
+                        </FollowUnreadMsgCount>
+                      </FollowUnreadWrap>
+                    )}
+                    <FollowRecentSendTime>
+                      {convertDiffrenceDateTime(value.sendAt)}
+                    </FollowRecentSendTime>
+                  </MsgSubWrap>
+                </FollowProfileWrap>
+              ))}
           </>
         )}
       </FollowProfileMsgListContainer>
-      <MsgInboxFollowInfiniteScroll />
+      <MsgInboxListInfiniteScroll />
     </MessageInboxBodyContainer>
   );
 };
@@ -145,12 +150,13 @@ const FollowProfileMsgListContainer = styled.div`
 const FollowProfileWrap = styled.div`
   display: flex;
   margin-bottom: 16px;
+  justify-content: space-between;
 `;
 
 const FollowProfileImgNameWrapWrap = styled.div`
   display: flex;
   gap: 13px;
-  width: 100%;
+  width: 90%;
 `;
 
 const FollowProfileActiveWrap = styled.div`
@@ -200,6 +206,8 @@ const FollowRecentMsg = styled.div`
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 1;
   overflow: hidden;
+  word-break: break-all;
+  width: 100%;
 `;
 const FollowRecentSendTime = styled.div`
   font: ${({ theme }) => theme.fontSizes.Body3};

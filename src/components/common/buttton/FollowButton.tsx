@@ -1,22 +1,31 @@
 import React, { useState } from 'react';
 import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
+import theme from 'styles/theme';
 import { deleteProfilFollow } from '../../../services/profile/deleteProfileFollow';
 import { postProfilFollow } from '../../../services/profile/postProfileFollow';
 import { systemPostRspHashMapAtom } from '../../../states/SystemConfigAtom';
 
 interface FollowButtonProps {
-  fontSize: string;
+  fontSize?: string;
   userId: string;
   style?: React.CSSProperties;
   isFollow: boolean;
+  FollowButton?: React.ReactNode;
+  FollowCancelButton?: React.ReactNode;
+  FollowButtonContainerStyle?: React.CSSProperties;
+  hasFollowCancelButton?: boolean;
 }
 
 const FollowButton: React.FC<FollowButtonProps> = ({
-  fontSize,
+  fontSize = theme.fontSizes.Subhead2,
   userId,
   style,
   isFollow,
+  FollowButton,
+  FollowCancelButton,
+  FollowButtonContainerStyle,
+  hasFollowCancelButton = false,
 }) => {
   const [snsSystemPostHashMap, setSnsSystemPostHashMap] = useRecoilState(
     systemPostRspHashMapAtom,
@@ -56,33 +65,58 @@ const FollowButton: React.FC<FollowButtonProps> = ({
     });
   };
   return (
-    <ProfileFollowButtonWrap
-      $fontSize={fontSize}
-      style={style}
+    <ProfileFollowButtonContainer
       onClick={(e) => {
         e.stopPropagation();
+        isFollowed ? onDeleteFollow() : onCreateFollow();
       }}
+      style={FollowButtonContainerStyle}
     >
       {isFollowed ? (
-        <ProfileFollowed onClick={onDeleteFollow}>팔로잉</ProfileFollowed>
+        <>
+          {hasFollowCancelButton && (
+            <>
+              {FollowCancelButton ? (
+                FollowCancelButton
+              ) : (
+                <ProfileFollowButtonWrap $fontSize={fontSize} style={style}>
+                  <ProfileFollowed>팔로잉</ProfileFollowed>
+                </ProfileFollowButtonWrap>
+              )}
+            </>
+          )}
+        </>
       ) : (
-        <ProfileFollowButton onClick={onCreateFollow}>
-          팔로우
-        </ProfileFollowButton>
+        <>
+          {FollowButton ? (
+            FollowButton
+          ) : (
+            <ProfileFollowButtonWrap $fontSize={fontSize} style={style}>
+              <ProfileFollowButton>팔로우</ProfileFollowButton>
+            </ProfileFollowButtonWrap>
+          )}
+        </>
       )}
-    </ProfileFollowButtonWrap>
+    </ProfileFollowButtonContainer>
   );
 };
+
+const ProfileFollowButtonContainer = styled.div`
+  display: flex;
+`;
 
 const ProfileFollowButtonWrap = styled.div<{ $fontSize: string }>`
   font: ${(props) => props.$fontSize};
   margin: auto 0;
+  white-space: nowrap;
+  display: flex;
 `;
 
 const ProfileFollowButton = styled.div`
   color: ${({ theme }) => theme.mainColor.Blue};
   line-height: 190%;
   cursor: pointer;
+  display: flex;
 `;
 
 const ProfileFollowed = styled(ProfileFollowButton)`

@@ -1,18 +1,13 @@
 import { privateApi } from '..';
 import { MsgInboxMessage } from '../../global/interface/message';
 import { MSG_CONVERATION_INBOX_LIST_API_PATH } from '../appApiPath';
-import { CURSOR_PARAM } from '../appApiQueryParam';
-
-interface GetMsgInboxMessageRsp {
-  cursorId: string;
-  msgInboxMessageList: MsgInboxMessage[];
-}
+import { PAGE_PARAM } from '../appApiQueryParam';
 
 export const getMsgInboxMessages = (
-  cursor: string,
-): Promise<GetMsgInboxMessageRsp> => {
+  pageNum: number,
+): Promise<MsgInboxMessage[]> => {
   return privateApi
-    .get(`${MSG_CONVERATION_INBOX_LIST_API_PATH}?${CURSOR_PARAM}=${cursor}`)
+    .get(`${MSG_CONVERATION_INBOX_LIST_API_PATH}?${PAGE_PARAM}=${pageNum}`)
     .then((res) => {
       console.log(res.data);
       return res.data.data;

@@ -1,37 +1,53 @@
+import WindowResizeSenceComponent from 'components/common/container/WindowResizeSenseComponent';
+import FloatingActionButtonLayout from 'components/layouts/FloatingActionButtonLayout';
+import {
+  MESSAGE_NONE_ACTION,
+  MESSAGE_SCROLL_TO_END_ACTION,
+} from 'const/MessageConst';
+import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
+import MsgConversationListInfiniteScroll from 'hook/MsgConversationListInfiniteScroll';
+import { QueryStateMsgConversationListInfinite } from 'hook/queryhook/QueryStateMsgConversationListInfinite';
 import React, { useEffect, useRef, useState } from 'react';
-import { useRecoilState, useRecoilValue } from 'recoil';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
+import theme from 'styles/theme';
 import { INIT_SCROLL_POSITION } from '../../const/AttributeConst';
 import { MsgConversation } from '../../global/interface/message';
 import { convertDate } from '../../global/util/DateTimeUtil';
-import MsgConversationInfiniteScroll from '../../hook/MsgConversationInfiniteScroll';
 import {
   isSettingByMsgConversationAtom,
-  msgConversationListAtom,
-  msgReactionInfoAtom,
+  msgConversationScrollInfoAtom,
   profileInfoByDirectMsgAtom,
+  sendedMsgListInfoAtom,
 } from '../../states/MessageAtom';
 import FollowConversationMsg from './body/FollowConversationMsg';
-import FollowConversationReaction from './body/FollowConversationReaction';
 import MsgConversationSendMessage from './body/MsgConversationSendMessageButton';
 import MyConversationMsg from './body/MyConversationMsg';
 import MsgConversationSettingPopup from './popup/MsgConversationSettingPopup';
 
+// 개인 메시지
 const MsgConversationBody: React.FC = () => {
-  const profileInfoByDirectMsg = useRecoilValue(profileInfoByDirectMsgAtom);
-  const [msgConversationList, setMsgConversationList] = useRecoilState(
-    msgConversationListAtom,
+  const setMsgConversationScrollInfo = useSetRecoilState(
+    msgConversationScrollInfoAtom,
   );
+  const profileInfoByDirectMsg = useRecoilValue(profileInfoByDirectMsgAtom);
+
+  const [sendedMsgListInfo, setSendedMsgListInfo] = useRecoilState(
+    sendedMsgListInfoAtom,
+  );
+
   const [isSettingByMsgConversation, setIsSettingByMsgConversation] =
     useRecoilState(isSettingByMsgConversationAtom);
 
-  const [msgReactionInfo, setMsgReactionInfo] =
-    useRecoilState(msgReactionInfoAtom);
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [msgConversationScrollHeight, setMsgConversationScrollHeight] =
     useState<number>(INIT_SCROLL_POSITION);
 
-  const MsgConversationBodyContainerRef = useRef<HTMLDivElement | null>(null);
+  const MsgConversationBodyContainerRef = useRef<HTMLDivElement>(null);
+
+  const [windowSize, setWindowSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
 
   const MINUTE_MS = 60 * 1000;
   const groupMessages = (
@@ -52,7 +68,7 @@ const MsgConversationBody: React.FC = () => {
     let lastUserId: string | null = null;
 
     messages.forEach((message) => {
-      const userId = message.isFollowMsg
+      const userId = message.isOtherMsg
         ? profileInfoByDirectMsg.targetUserId
         : 'me';
 
@@ -87,83 +103,223 @@ const MsgConversationBody: React.FC = () => {
     return grouped;
   };
 
-  const messages: MsgConversation[] = msgConversationList
-    .slice(0)
-    .reverse()
-    .map((value) => ({ ...value, key: value.msgId }));
+  const {
+    data: msgConversationList,
+    isFetched: isFetchedByMsgConversationList,
+    isFetching,
+  } = QueryStateMsgConversationListInfinite(
+    profileInfoByDirectMsg.targetUserId,
+  );
 
-  const groupedMessages: {
-    userId: string;
-    group: { msgConversation: MsgConversation; showDate: boolean }[];
-  }[] = groupMessages(messages);
+  const lastMsgPostionRef = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState<boolean>(false);
+
+  const [initPage, setInitPage] = useState<boolean>(false);
+
+  // useEffect(() => {
+  //   if (!isFetchedByMsgConversationList) return;
+  //   const msgConversationBodyContainer =
+  //     MsgConversationBodyContainerRef.current;
+  //   if (msgConversationBodyContainer) {
+  //     msgConversationBodyContainer.scrollTo({
+  //       top: msgConversationBodyContainer.scrollHeight,
+  //     });
+  //   }
+
+  //   setTimeout(() => {
+  //     if (!lastMsgPostionRef.current) return;
+
+  //     lastMsgPostionRef.current.scrollIntoView({ behavior: 'smooth' });
+  //   }, 100);
+  // }, [isFetchedByMsgConversationList]);
+
+  useEffect(() => {
+    if (initPage) return;
+    const msgConversationBodyContainer =
+      MsgConversationBodyContainerRef.current;
+    if (msgConversationBodyContainer) {
+      msgConversationBodyContainer.scrollTo({
+        top: msgConversationBodyContainer.scrollHeight,
+      });
+    }
+    setInitPage(true);
+  }, [msgConversationList]);
 
   useEffect(() => {
     const msgConversationBodyContainer =
       MsgConversationBodyContainerRef.current;
-    if (
-      msgConversationBodyContainer &&
-      msgConversationList.length > 0 &&
-      isInitialLoad
-    ) {
-      msgConversationBodyContainer.scrollTop =
-        msgConversationBodyContainer.scrollHeight;
-      setIsInitialLoad(false);
-      setMsgConversationScrollHeight(msgConversationBodyContainer.scrollHeight);
-    }
-    if (!isInitialLoad && msgConversationBodyContainer) {
-      msgConversationBodyContainer.scrollTop =
-        msgConversationBodyContainer.scrollHeight -
-        msgConversationScrollHeight +
-        msgConversationBodyContainer.scrollTop;
-    }
-  }, [isInitialLoad, msgConversationList]);
+
+    if (!isFetchedByMsgConversationList) return;
+
+    if (!msgConversationBodyContainer) return;
+
+    setMsgConversationScrollHeight(msgConversationBodyContainer.scrollHeight);
+
+    msgConversationBodyContainer.scrollTo({
+      top:
+        msgConversationBodyContainer.scrollHeight - msgConversationScrollHeight,
+    });
+  }, [isFetching]);
 
   useEffect(() => {
+    if (!MsgConversationBodyContainerRef.current) return;
+    const msgConversationBodyContainer =
+      MsgConversationBodyContainerRef.current;
+
+    const maxScrollPosition =
+      msgConversationBodyContainer.scrollHeight -
+      (window.innerHeight || 0) -
+      MAX_POSITION_GAP;
+
+    setMsgConversationScrollInfo({
+      currentPostion: msgConversationBodyContainer.scrollTop,
+      maxScrollPosition: maxScrollPosition,
+      msgContainerHeight: msgConversationBodyContainer.scrollHeight,
+    });
+
+    let animationFrameId: number;
+    const handleScroll = () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+
+      animationFrameId = requestAnimationFrame(() => {
+        if (!MsgConversationBodyContainerRef.current) return;
+        const currentPostion = msgConversationBodyContainer.scrollTop;
+        const maxScrollPosition =
+          msgConversationBodyContainer.scrollHeight -
+          (window.innerHeight || 0) -
+          MAX_POSITION_GAP;
+
+        if (currentPostion >= maxScrollPosition) {
+          setSendedMsgListInfo({
+            unreadMsgNum: 0,
+            action: MESSAGE_NONE_ACTION,
+          });
+        }
+
+        setMsgConversationScrollInfo({
+          currentPostion: currentPostion,
+          maxScrollPosition: maxScrollPosition,
+          msgContainerHeight: msgConversationBodyContainer.scrollHeight,
+        });
+      });
+    };
+    msgConversationBodyContainer.addEventListener('scroll', handleScroll);
+
     return () => {
+      window.removeEventListener('scroll', handleScroll);
       setIsSettingByMsgConversation(false);
+      setInitPage(false);
     };
   }, []);
 
+  useEffect(() => {
+    if (sendedMsgListInfo.action === MESSAGE_NONE_ACTION) return;
+
+    if (
+      sendedMsgListInfo.action === MESSAGE_SCROLL_TO_END_ACTION &&
+      MsgConversationBodyContainerRef.current
+    ) {
+      MsgConversationBodyContainerRef.current.scrollTo({
+        top: MsgConversationBodyContainerRef.current.scrollHeight,
+        behavior: 'smooth',
+      });
+    }
+  }, [sendedMsgListInfo]);
   return (
     <>
-      <MsgConversationBodyContainer ref={MsgConversationBodyContainerRef}>
-        {profileInfoByDirectMsg.targetUserId && (
-          <MsgConversationScrollWrap>
-            <MsgConversationInfiniteScroll
-              targetUserId={profileInfoByDirectMsg.targetUserId}
-            />
-          </MsgConversationScrollWrap>
-        )}
-        <MsgConversationListWrap>
-          {groupedMessages.map((groupData, index) => (
-            <MsgConversationWrap key={index}>
-              {groupData.userId === profileInfoByDirectMsg.targetUserId ? (
-                <FollowConversationMsg
-                  followInfo={profileInfoByDirectMsg}
-                  groupData={groupData}
+      <MsgConversationBodyContainer>
+        <MsgConversationListWrap ref={MsgConversationBodyContainerRef}>
+          <MsgConversationListSubWrap>
+            {profileInfoByDirectMsg.targetUserId && (
+              <MsgConversationScrollWrap>
+                <MsgConversationListInfiniteScroll
+                  targetUserId={profileInfoByDirectMsg.targetUserId}
                 />
-              ) : (
-                <MyConversationMsg groupData={groupData} />
-              )}
-            </MsgConversationWrap>
-          ))}
+              </MsgConversationScrollWrap>
+            )}
+            {msgConversationList &&
+              groupMessages(
+                msgConversationList.pages
+                  .flatMap((v) => v.msgConversationRspList)
+                  .slice(0)
+                  .reverse()
+                  .map(
+                    (value) =>
+                      ({
+                        msgId: value.msgId,
+                        msgRoomId: value.msgRoomId,
+                        isGroupedMsg: false,
+                        targetUserId: profileInfoByDirectMsg.targetUserId,
+                        isOtherMsg: value.isOtherMsg,
+                        msgType: value.msgType,
+                        msgContent: value.msgContent,
+                        hasMsgReaction: value.hasMsgReaction,
+                        msgReactionType: value.msgReactionType,
+                        sendAt: value.sendAt,
+                      }) as MsgConversation,
+                  ),
+              ).map((groupData, index) => {
+                return (
+                  <MsgConversationWrap key={index}>
+                    {groupData.userId ===
+                    profileInfoByDirectMsg.targetUserId ? (
+                      <FollowConversationMsg
+                        followInfo={profileInfoByDirectMsg}
+                        groupData={groupData}
+                      />
+                    ) : (
+                      <MyConversationMsg groupData={groupData} />
+                    )}
+                  </MsgConversationWrap>
+                );
+              })}
+            <LastPositionWrap ref={lastMsgPostionRef} />
+          </MsgConversationListSubWrap>
         </MsgConversationListWrap>
-        <MsgConversationSendMessage followInfo={profileInfoByDirectMsg} />
-        {isSettingByMsgConversation && (
-          <MsgConversationSettingPopup
-            targetProfileInfo={profileInfoByDirectMsg}
-          />
+
+        {sendedMsgListInfo.unreadMsgNum > 0 && (
+          <UnreadMsgNotifcationWrap>
+            <FloatingActionButtonLayout
+              bottomByMaxSize={theme.systemSize.bottomNavBar.heightNum}
+              bottomGap={10}
+              containerRef={MsgConversationBodyContainerRef}
+              isActiveDown={false}
+              actionFunc={() => {
+                if (!MsgConversationBodyContainerRef.current) return;
+                MsgConversationBodyContainerRef.current.scrollTo({
+                  top: MsgConversationBodyContainerRef.current.scrollHeight,
+                  behavior: 'smooth',
+                });
+              }}
+            >
+              <UnreadMsgNotifcation>
+                {sendedMsgListInfo.unreadMsgNum}개 읽지 않은 메시지
+              </UnreadMsgNotifcation>
+            </FloatingActionButtonLayout>
+          </UnreadMsgNotifcationWrap>
         )}
-        {msgReactionInfo.msgId !== '' && <FollowConversationReaction />}
+
+        <MsgConversationSendMessage
+          followInfo={profileInfoByDirectMsg}
+          MsgConversationBodyContainerRef={MsgConversationBodyContainerRef}
+        />
+        {windowSize.width <= MEDIA_MOBILE_MAX_WIDTH_NUM &&
+          isSettingByMsgConversation && (
+            <MsgConversationSettingPopup
+              targetProfileInfo={profileInfoByDirectMsg}
+            />
+          )}
       </MsgConversationBodyContainer>
+      <WindowResizeSenceComponent setWindowSize={setWindowSize} />
     </>
   );
 };
 
-const MsgConversationBodyContainer = styled.div`
-  overflow: scroll;
-  height: calc(100vh - 58px);
+const MAX_POSITION_GAP = 100;
 
+const MsgConversationBodyContainer = styled.div`
   & {
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -174,13 +330,33 @@ const MsgConversationBodyContainer = styled.div`
 `;
 
 const MsgConversationScrollWrap = styled.div`
-  margin-bottom: 50px;
+  padding-bottom: 50px;
+  padding-top: 100px;
 `;
 
 const MsgConversationListWrap = styled.div`
-  padding: 0 20px 100px 20px;
+  position: fixed;
+  width: 100%;
+  max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
+  height: 100vh;
+  overflow-y: scroll;
+`;
+
+const MsgConversationListSubWrap = styled.div`
+  padding: 0 ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding};
 `;
 
 const MsgConversationWrap = styled.div``;
+
+const LastPositionWrap = styled.div`
+  padding-bottom: 150px;
+`;
+
+const UnreadMsgNotifcationWrap = styled.div``;
+
+const UnreadMsgNotifcation = styled.div`
+  font: ${({ theme }) => theme.fontSizes.Body3};
+  color: ${({ theme }) => theme.grey.Grey6};
+`;
 
 export default MsgConversationBody;

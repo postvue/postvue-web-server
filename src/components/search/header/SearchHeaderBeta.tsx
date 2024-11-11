@@ -1,3 +1,5 @@
+import LoadingComponent from 'components/common/container/LoadingComponent';
+import { RECENTLY_SEARCH_WORD_LIST_LOCAL_STORAGE } from 'const/LocalStorageConst';
 import { INIT_CURSOR_ID } from 'const/PageConfigConst';
 import {
   SEARCH_POST_LASTEST_QUERY_PARAM,
@@ -26,7 +28,7 @@ import {
   DISPLAY_NONE,
   INIT_EMPTY_STRING_VALUE,
 } from '../../../const/AttributeConst';
-import { SEARCH_PATH } from '../../../const/PathConst';
+import { SEARCH_POST_PATH } from '../../../const/PathConst';
 import { SEARCH_POST_FILTER_QUERY_PARAM } from '../../../const/QueryParamConst';
 import { SEARCH_RELATION_QUERY_DELAY_MIRCE_TIME } from '../../../const/SearchConst';
 import { MAX_DELAY_SETTIMEOUT_TIME } from '../../../const/SystemAttrConst';
@@ -162,8 +164,8 @@ const SearchHeaderBeta: React.FC<SearchHeaderProps> = ({
 
   const onClickSearchButton = () => {
     if (searchTempWord !== '' && searchWord !== searchTempWord) {
-      handleSearch(searchTempWord);
-      navigate(`${SEARCH_PATH}/${searchTempWord}`);
+      handleSearch(RECENTLY_SEARCH_WORD_LIST_LOCAL_STORAGE, searchTempWord);
+      navigate(`${SEARCH_POST_PATH}/${searchTempWord}`);
     }
   };
 
@@ -321,16 +323,10 @@ const SearchHeaderBeta: React.FC<SearchHeaderProps> = ({
           )}
         </SearchHeaderWrap>
       </HeaderLayout>
-      {loading && isSearchInputActive && (
-        <SearchLoadingWrap>
-          <SearchLoadingGif src="/assets/images/gif/loadingBar.gif" />
-        </SearchLoadingWrap>
-      )}
+      {loading && isSearchInputActive && <LoadingComponent />}
     </>
   );
 };
-
-const LoadingBarSize = '50px';
 
 const SearchHeaderWrap = styled.div`
   margin: auto 0;
@@ -358,18 +354,6 @@ const SearchInputCancelButton = styled.div`
   padding-right: 20px;
   cursor: pointer;
   animation: ${animationStyle.slideLeft} 0.1s ease-in forwards;
-`;
-
-const SearchLoadingWrap = styled.div`
-  position: fixed;
-  top: calc(30%);
-  left: 50%;
-  transform: translate(-50%, 50%);
-`;
-
-const SearchLoadingGif = styled.img`
-  width: ${LoadingBarSize};
-  height: ${LoadingBarSize};
 `;
 
 export default SearchHeaderBeta;

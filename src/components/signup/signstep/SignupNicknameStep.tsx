@@ -62,8 +62,7 @@ const SignupNicknameStep: React.FC = () => {
 };
 
 const SignupStepTitleWrap = styled.div`
-  padding: calc(30px + ${({ theme }) => theme.systemSize.header.height}) 0px
-    50px 0px;
+  padding: 30px 0px 50px 0px;
 `;
 
 const SignupStepTitle = styled.div`

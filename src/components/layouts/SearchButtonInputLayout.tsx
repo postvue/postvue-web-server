@@ -3,13 +3,15 @@ import styled from 'styled-components';
 
 interface SearchButtonInputLayoutProps {
   children: React.ReactNode;
+  SearchButtonInputLayoutStyle?: React.CSSProperties;
 }
 
 const SearchButtonInputLayout: React.FC<SearchButtonInputLayoutProps> = ({
   children,
+  SearchButtonInputLayoutStyle,
 }) => {
   return (
-    <SearchWrap>
+    <SearchWrap style={SearchButtonInputLayoutStyle}>
       <SearchButton>
         <SearchIcon
           xmlns="http://www.w3.org/2000/svg"

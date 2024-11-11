@@ -3,14 +3,17 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import BorderCircleButton from 'components/common/buttton/BorderCircleButton';
+import SnsPostMasonryLayout from 'components/layouts/SnsPostMasonryLayout';
 import { ACTIVE_CLASS_NAME } from 'const/ClassNameConst';
-import { SEARCH_PATH } from 'const/PathConst';
+import { SEARCH_POST_PATH } from 'const/PathConst';
 import { SEARCH_POST_FILTER_QUERY_PARAM } from 'const/QueryParamConst';
 import { isValidString } from 'global/util/ValidUtil';
+import { QueryStatePostSearchListInfinite } from 'hook/queryhook/QueryStatePostSearchListInfinite';
 import SearchPostListInfiniteScroll from 'hook/SearchPostListInfiniteScroll';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import {
+  isActiveSearchPostFilterPopupAtom,
   searchQueryAndFilterKeyAtom,
   searchWordAtom,
 } from 'states/SearchPostAtom';
@@ -26,6 +29,8 @@ import {
   SEARCH_POST_POPULAR_QUERY_PARAM,
 } from '../../../const/TabConfigConst';
 import theme from '../../../styles/theme';
+
+import { ReactComponent as PostSearchFilterButtonIcon } from 'assets/images/icon/svg/post/PostSearchFilterButtonIcon.svg';
 
 const SearchPostBody: React.FC = () => {
   // navigate 객체
@@ -58,6 +63,12 @@ const SearchPostBody: React.FC = () => {
     searchPostTabList[0].queryParam,
   );
 
+  const { data } = QueryStatePostSearchListInfinite(searchQueryAndFilterKey);
+
+  const setIsActiveSearchPostFilterPopup = useSetRecoilState(
+    isActiveSearchPostFilterPopupAtom,
+  );
+
   useEffect(() => {
     setSearchPostFilterTab(
       queryParam.get(SEARCH_POST_FILTER_QUERY_PARAM) ||
@@ -82,7 +93,7 @@ const SearchPostBody: React.FC = () => {
                   isValidString(searchWord) &&
                   searchPostFilterTab !== v.queryParam
                 ) {
-                  let searchResultPath = `${SEARCH_PATH}/${searchWord}`;
+                  let searchResultPath = `${SEARCH_POST_PATH}/${searchWord}`;
                   if (v.tabId !== SEARCH_POST_POPULAR_FILTER_ID) {
                     searchResultPath += `?${SEARCH_POST_FILTER_QUERY_PARAM}=${v.queryParam}`;
                   }
@@ -95,8 +106,20 @@ const SearchPostBody: React.FC = () => {
             />
           ))}
         </SearchFilterWrap>
+        <SearchPostFilterButtonWrap
+          onClick={() => setIsActiveSearchPostFilterPopup(true)}
+        >
+          <PostSearchFilterButtonIcon />
+        </SearchPostFilterButtonWrap>
       </SearchFilterContainer>
       <SearchPostContainer>
+        {data && (
+          <SnsPostMasonryLayout
+            snsPostList={data.pages.flatMap((page) =>
+              page.snsPostRspList.map((v) => v),
+            )}
+          />
+        )}
         <SearchPostListInfiniteScroll
           searchQueryAndFilterKey={searchQueryAndFilterKey}
         />
@@ -105,26 +128,32 @@ const SearchPostBody: React.FC = () => {
   );
 };
 
-const SearchPostBodyContinaer = styled.div`
-  margin-top: ${theme.systemSize.header.height};
-`;
+const SearchPostBodyContinaer = styled.div``;
 
 const SearchFilterWrap = styled.div`
-  padding: 12px 6px 6px 6px;
+  padding: 6px;
   display: flex;
   gap: 6px;
 `;
 
 const SearchFilterContainer = styled.div`
-  position: fixed;
+  position: sticky;
   z-index: 10;
   width: 100%;
-  max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
+  top: ${({ theme }) => theme.systemSize.header.height};
   background-color: ${({ theme }) => theme.mainColor.White};
+
+  display: flex;
+  justify-content: space-between;
 `;
 
 const SearchPostContainer = styled.div`
-  padding-top: 60px;
+  padding-top: 10px;
+`;
+
+const SearchPostFilterButtonWrap = styled.div`
+  margin: auto 10px auto 0px;
+  display: flex;
 `;
 
 export default SearchPostBody;

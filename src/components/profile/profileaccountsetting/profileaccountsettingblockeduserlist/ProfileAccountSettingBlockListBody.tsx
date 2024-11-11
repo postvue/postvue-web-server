@@ -94,9 +94,7 @@ const ProfileAccountSettingBlockListBody: React.FC = () => {
   );
 };
 
-const ProfileSettingBlockListBodyContainer = styled.div`
-  margin-top: ${({ theme }) => theme.systemSize.header.height};
-`;
+const ProfileSettingBlockListBodyContainer = styled.div``;
 
 const ProfileBlockedUserSearchContainer = styled.div`
   padding: 16px 15px 16px 15px;

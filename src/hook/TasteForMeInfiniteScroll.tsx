@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 import styled from 'styled-components';
 
+import InViewComponent from 'components/common/container/InViewComponent';
 import { useRecoilState } from 'recoil';
 import { getTasteForMeListByParam } from '../services/post/home/getTasteForMeList';
 import { systemPostRspHashMapAtom } from '../states/SystemConfigAtom';
@@ -54,7 +55,7 @@ const TasteForMeInfiniteScroll: React.FC = () => {
 
   return (
     <ScrollBottomContainer ref={ref}>
-      <div>테스트</div>
+      <InViewComponent />
     </ScrollBottomContainer>
   );
 };

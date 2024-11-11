@@ -4,7 +4,7 @@ import { FOLLOW_FOR_ME_PATH } from '../../../const/PathConst';
 import { PostRsp } from '../../../global/interface/post';
 import { POST_LIST_PATH } from '../../appApiPath';
 
-interface GetTasteForMeListRsp {
+export interface GetTasteForMeListRsp {
   cursorId: string;
   snsPostRspList: PostRsp[];
 }

@@ -1,28 +1,34 @@
+import { queryClient } from 'App';
+import { ReactComponent as CommentSendButtonIcon } from 'assets/images/icon/svg/post/reaction/comment/CommentSendButtonIcon.svg';
+import { ReactComponent as UploadImageDeleteButtonIcon } from 'assets/images/icon/svg/post/reaction/comment/UploadImageDeleteButtonIcon.svg';
+import { ReactComponent as PostCommentImageIcon } from 'assets/images/icon/svg/PostCommentImageIcon.svg';
+import { COMMENT_UP_ANIMATION } from 'const/PostCommentConst';
+import { QUERY_STATE_POST_COMMENT_LIST } from 'const/QueryClientConst';
 import { ProfileMyInfo } from 'global/interface/profile';
+import { animateCount } from 'global/util/CommentUtil';
+import { convertQueryTemplate } from 'global/util/TemplateUtil';
+import { QueryMutationCreatePostComment } from 'hook/queryhook/QueryMutationCreatePostComment';
+import { QueryMutationCreatePostCommentReply } from 'hook/queryhook/QueryMutationCreatePostCommentReply';
+import { PostCommetListInfiniteInterface } from 'hook/queryhook/QueryStatePostCommentListInfinite';
 import React, { useEffect, useRef, useState } from 'react';
-import { SetterOrUpdater } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { activeCommentByPostCommentThreadAtom } from 'states/PostThreadAtom';
+import { isLoadingPopupAtom } from 'states/SystemConfigAtom';
 import styled from 'styled-components';
 import { INIT_EMPTY_STRING_VALUE } from '../../../const/AttributeConst';
 import { THREAD_ID, UPLOAD_COMMENT_IMAGE_ID } from '../../../const/IdNameConst';
-import { POST_COMMENT_TEXT_TYPE } from '../../../const/PostCommentTypeConst';
 import { POST_COMMENT_REPLAY_PLACEHOLDER } from '../../../const/SystemPhraseConst';
 import {
-  PostComment,
   PostCommentReplyMsgInfo,
   PostCommentReq,
 } from '../../../global/interface/post';
-import { animateCount } from '../../../global/util/CommentUtil';
 import { uploadImgUtil } from '../../../global/util/ImageInputUtil';
 import { getMyAccountSettingInfo } from '../../../global/util/MyAccountSettingUtil';
 import { isValidString } from '../../../global/util/ValidUtil';
-import { createPostComment } from '../../../services/post/createPostComment';
-import { createPostCommentReply } from '../../../services/post/createPostCommentReply';
 
 interface CommentInputSenderElementProps {
   postId: string;
   commentSenderRef?: React.MutableRefObject<HTMLDivElement | null>;
-  snsPostCommentHashMap: Map<string, PostComment>;
-  setSnsPostCommentHashMap: SetterOrUpdater<Map<string, PostComment>>;
   postCommentTextareaRef: React.MutableRefObject<HTMLTextAreaElement | null>;
   commentReplyCountRef: React.MutableRefObject<{
     [key: string]: HTMLDivElement | null;
@@ -35,12 +41,12 @@ interface CommentInputSenderElementProps {
   isReplyToReply?: boolean;
   isThread?: boolean;
   threadCommentId?: string;
+  commentCountByCommentCurrent?: HTMLDivElement | null;
+  containerBorderRadiusNum?: number;
 }
 
 const CommentInputSenderElement: React.FC<CommentInputSenderElementProps> = ({
   postId,
-  snsPostCommentHashMap,
-  setSnsPostCommentHashMap,
   postCommentTextareaRef,
   commentReplyCountRef,
   defaultSendPlaceHolder,
@@ -50,11 +56,19 @@ const CommentInputSenderElement: React.FC<CommentInputSenderElementProps> = ({
   isThread = false,
   threadCommentId,
   commentSenderRef,
+  commentCountByCommentCurrent,
+  containerBorderRadiusNum = 0,
 }) => {
   const myAccountSettingInfo: ProfileMyInfo = getMyAccountSettingInfo();
   const imgFileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const [uploadCommentImgFile, setUploadCommentImgFile] = useState<File | null>(
+  const activeCommentByPostCommentThread = useRecoilValue(
+    activeCommentByPostCommentThreadAtom,
+  );
+
+  const setIsLoadingPopup = useSetRecoilState(isLoadingPopupAtom);
+
+  const [uploadCommentImgFile, setUploadCommentImgFile] = useState<Blob | null>(
     null,
   );
   const [uploadCommentImgUrl, setUploadCommentImgUrl] = useState<string>(
@@ -66,9 +80,10 @@ const CommentInputSenderElement: React.FC<CommentInputSenderElementProps> = ({
 
   const [isActiveUpload, setIsActiveUpload] = useState<boolean>(false);
 
-  const [sendPlaceHolder, setSendPlaceHolder] = useState<string>(
-    defaultSendPlaceHolder,
-  );
+  const [sendPlaceHolder, setSendPlaceHolder] = useState<string>('');
+
+  const createPostCommentReply = QueryMutationCreatePostCommentReply();
+  const createPostComment = QueryMutationCreatePostComment();
 
   const onClickDeleteUploadCommentImg = () => {
     if (uploadCommentImgUrl) {
@@ -82,52 +97,89 @@ const CommentInputSenderElement: React.FC<CommentInputSenderElementProps> = ({
   };
 
   const onClickSendTextComment = () => {
-    const postCommentReq: PostCommentReq = {
-      postCommentType: POST_COMMENT_TEXT_TYPE,
-      postCommentContent: postCommentTextarea,
+    const snsPostCmntCreateReq: PostCommentReq = {
+      postCommentMsg: postCommentTextarea,
     };
+    const formData = new FormData();
+    const snsPostCmntCreateBlob = new Blob(
+      [JSON.stringify(snsPostCmntCreateReq)],
+      {
+        type: 'application/json',
+      },
+    );
+    formData.append('snsPostCmntCreateReq', snsPostCmntCreateBlob);
+    if (uploadCommentImgFile) {
+      formData.append('file', uploadCommentImgFile);
+    }
 
+    setIsLoadingPopup(true);
+    setPostCommentTextarea('');
     // 답글 남기기
     if (replyMsg) {
       const isReplyToCommentByThreadMsg =
         isThread &&
         (threadCommentId ? threadCommentId === replyMsg.commentId : false);
-      createPostCommentReply(
-        postId,
-        replyMsg.commentId,
-        postCommentReq,
-        isReplyToCommentByThreadMsg,
-      ).then((value) => {
-        const tempSnsPostCommentHashMap = new Map(snsPostCommentHashMap);
-        const comment = tempSnsPostCommentHashMap.get(replyMsg.commentId);
 
-        if (comment) {
-          comment.commentCount += 1;
-          tempSnsPostCommentHashMap.set(replyMsg.commentId, comment);
-          setSnsPostCommentHashMap(tempSnsPostCommentHashMap);
-          animateCount(
-            comment.postCommentId,
-            comment.commentCount,
-            'up',
-            commentReplyCountRef,
-          );
-        }
+      createPostCommentReply
+        .mutateAsync({
+          postId: postId,
+          replyCommentId: activeCommentByPostCommentThread.commentId,
+          commentId: replyMsg.commentId,
+          isReplyToCommentByThreadMsg: isReplyToCommentByThreadMsg,
+          formData: formData,
+          commentReplyCountRef: commentReplyCountRef,
+        })
+        .then(() => {
+          setIsLoadingPopup(false);
+        });
 
-        const newSnsPostCommentHash = new Map(snsPostCommentHashMap);
-        newSnsPostCommentHash.set(value.postCommentId, value);
-        setSnsPostCommentHashMap(newSnsPostCommentHash);
-      });
-      setReplyMsg(null);
-      setPostCommentTextarea('');
+      if (activeCommentByPostCommentThread.commentId !== replyMsg.commentId)
+        return;
+
+      queryClient.setQueryData(
+        [convertQueryTemplate(QUERY_STATE_POST_COMMENT_LIST, postId)],
+        (oldData: PostCommetListInfiniteInterface) => {
+          if (!oldData) {
+            return oldData;
+          }
+          const updatedPages = oldData.pages.map((page) => {
+            const temp = { ...page };
+            temp.snsPostCommentRspList.forEach((v) => {
+              if (
+                v.postCommentId === activeCommentByPostCommentThread.commentId
+              ) {
+                v.commentCount += 1;
+                console.log(commentCountByCommentCurrent);
+                if (!commentCountByCommentCurrent) return;
+                animateCount(
+                  commentCountByCommentCurrent,
+                  v.commentCount,
+                  COMMENT_UP_ANIMATION,
+                );
+              }
+            });
+
+            return page;
+          });
+
+          return {
+            ...oldData,
+            pages: updatedPages,
+          };
+        },
+      );
     }
+
     // 댓글 남기기
     else {
-      createPostComment(postId, postCommentReq).then((value) => {
-        const newSnsPostCommentHash = new Map(snsPostCommentHashMap);
-        newSnsPostCommentHash.set(value.postCommentId, value);
-        setSnsPostCommentHashMap(newSnsPostCommentHash);
-      });
-      setPostCommentTextarea('');
+      createPostComment
+        .mutateAsync({
+          postId: postId,
+          formData: formData,
+        })
+        .then(() => {
+          setIsLoadingPopup(false);
+        });
     }
   };
 
@@ -174,57 +226,29 @@ const CommentInputSenderElement: React.FC<CommentInputSenderElementProps> = ({
   useEffect(() => {
     if (replyMsg !== null) {
       setSendPlaceHolder(replyMsg.username + POST_COMMENT_REPLAY_PLACEHOLDER);
-    } else {
-      setSendPlaceHolder(defaultSendPlaceHolder);
     }
   }, [replyMsg]);
 
   return (
-    <PostCommentMsgComponent ref={commentSenderRef}>
+    <PostCommentMsgComponent
+      ref={commentSenderRef}
+      $containerBorderRadiusNum={containerBorderRadiusNum}
+    >
       <PostCommentMsgComponentWrap>
         <MsgMyProfileImgWrap>
           <MsgMyProfileImg src={myAccountSettingInfo.profilePath} />
         </MsgMyProfileImgWrap>
         <PostCommentMsgWrap>
           <PostCommentMsgUploadWrap>
-            {uploadCommentImgUrl && (
-              <PostCommentImageImgWrap>
-                <PostCommentImageImg src={uploadCommentImgUrl} />
-                <DeleteUploadImageDiv onClick={onClickDeleteUploadCommentImg}>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="22"
-                    height="22"
-                    viewBox="0 0 22 22"
-                    fill="none"
-                  >
-                    <circle
-                      cx="11"
-                      cy="11"
-                      r="11"
-                      fill="white"
-                      fillOpacity="0.7"
-                    />
-                    <path
-                      d="M15.529 6.25488L6.47021 15.3137"
-                      stroke="black"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M6.47021 6.25488L15.529 15.3137"
-                      stroke="black"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </DeleteUploadImageDiv>
-              </PostCommentImageImgWrap>
-            )}
-
             <PostCommentReplySendWrap>
+              {uploadCommentImgUrl && (
+                <PostCommentImageImgWrap>
+                  <PostCommentImageImg src={uploadCommentImgUrl} />
+                  <DeleteUploadImageDiv onClick={onClickDeleteUploadCommentImg}>
+                    <UploadImageDeleteButtonIcon />
+                  </DeleteUploadImageDiv>
+                </PostCommentImageImgWrap>
+              )}
               {replyMsg !== null && (
                 <CommentReplyUserTag>
                   @ {replyMsg?.username}
@@ -232,7 +256,9 @@ const CommentInputSenderElement: React.FC<CommentInputSenderElementProps> = ({
               )}
               <PostCommentMsgTextarea
                 rows={1}
-                placeholder={sendPlaceHolder}
+                placeholder={
+                  replyMsg !== null ? sendPlaceHolder : defaultSendPlaceHolder
+                }
                 ref={postCommentTextareaRef}
                 value={postCommentTextarea}
                 onChange={handleChangeByPostCommentMsg}
@@ -240,103 +266,50 @@ const CommentInputSenderElement: React.FC<CommentInputSenderElementProps> = ({
               ></PostCommentMsgTextarea>
             </PostCommentReplySendWrap>
             <MsgSendButtonWrap>
+              <PostCommentUploadImageDiv>
+                <PostCommentUploadImage>
+                  <PostCommentUploadImgLabel htmlFor={uploadCommentImgId}>
+                    <PostCommentImageIcon />
+                  </PostCommentUploadImgLabel>
+                  <PostCommentUploadInput
+                    id={uploadCommentImgId}
+                    ref={imgFileInputRef}
+                    accept="image/*"
+                    type="file"
+                    onChange={(e) => {
+                      uploadImgUtil(
+                        e,
+                        setUploadCommentImgFile,
+                        setUploadCommentImgUrl,
+                      );
+                    }}
+                  />
+                </PostCommentUploadImage>
+              </PostCommentUploadImageDiv>
               {isActiveUpload && (
                 <MsgSendButton onClick={onClickSendTextComment}>
-                  <MsgSendButtonIcon
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="22"
-                    height="22"
-                    viewBox="0 0 22 22"
-                    fill="none"
-                  >
-                    <path
-                      d="M11 17.4168V4.5835"
-                      stroke="white"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M4.58301 11.0002L10.9997 4.5835L17.4163 11.0002"
-                      stroke="white"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </MsgSendButtonIcon>
+                  <CommentSendButtonIcon />
                 </MsgSendButton>
               )}
             </MsgSendButtonWrap>
           </PostCommentMsgUploadWrap>
         </PostCommentMsgWrap>
       </PostCommentMsgComponentWrap>
-      <PostCommentUpload>
-        <PostCommentUploadTypeTab>
-          <PostCommentUploadImage>
-            <PostCommentUploadImgLabel htmlFor={uploadCommentImgId}>
-              <PostCommentUploadImageSvg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="18"
-                viewBox="0 0 18 18"
-                fill="none"
-              >
-                <path
-                  d="M1 14V16C1 16.5523 1.44772 17 2 17H16C16.5523 17 17 16.5523 17 16V11.5M1 14V2C1 1.44772 1.44772 1 2 1H16C16.5523 1 17 1.44772 17 2V11.5M1 14L4.35826 11.4813C4.73322 11.2001 5.25319 11.217 5.60905 11.522L7.7969 13.3973C8.19364 13.7374 8.78531 13.7147 9.1548 13.3452L13.2929 9.20711C13.6834 8.81658 14.3166 8.81658 14.7071 9.20711L17 11.5"
-                  stroke="#3D4248"
-                  strokeWidth="1.5"
-                />
-                <circle
-                  cx="5"
-                  cy="5"
-                  r="2"
-                  stroke="#3D4248"
-                  strokeWidth="1.5"
-                />
-              </PostCommentUploadImageSvg>
-            </PostCommentUploadImgLabel>
-            <PostCommentUploadInput
-              id={uploadCommentImgId}
-              ref={imgFileInputRef}
-              accept="image/*"
-              type="file"
-              onChange={(e) => {
-                uploadImgUtil(
-                  e,
-                  setUploadCommentImgFile,
-                  setUploadCommentImgUrl,
-                );
-              }}
-            />
-          </PostCommentUploadImage>
-          <PostCommentUploadGif>
-            <PostCommentUploadGifSvg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-            >
-              <path
-                d="M3 5.5C3 4.119 4.12 3 5.5 3H18.5C19.88 3 21 4.119 21 5.5V18.5C21 19.881 19.88 21 18.5 21H5.5C4.12 21 3 19.881 3 18.5V5.5ZM5.5 5C5.22 5 5 5.224 5 5.5V18.5C5 18.776 5.22 19 5.5 19H18.5C18.78 19 19 18.776 19 18.5V5.5C19 5.224 18.78 5 18.5 5H5.5ZM18 10.711V9.25H14.26V14.75H15.7V13.031H17.4V11.57H15.7V10.711H18ZM11.79 9.25H13.23V14.75H11.79V9.25ZM8.72 10.625C9.06 10.625 9.49 10.797 9.74 11.055L10.77 10.195C10.26 9.594 9.49 9.25 8.72 9.25C7.19 9.25 6 10.453 6 12C6 13.547 7.19 14.75 8.72 14.75C9.57 14.75 10.26 14.406 10.77 13.805V11.656H8.38V12.688H9.4V13.203C9.23 13.289 8.98 13.375 8.72 13.375C7.96 13.375 7.36 12.773 7.36 12C7.36 11.312 7.96 10.625 8.72 10.625Z"
-                fill="#3D4248"
-              />
-            </PostCommentUploadGifSvg>
-          </PostCommentUploadGif>
-        </PostCommentUploadTypeTab>
-      </PostCommentUpload>
     </PostCommentMsgComponent>
   );
 };
 
-const PostCommentMsgComponent = styled.div`
-  max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
+const PostCommentMsgComponent = styled.div<{
+  $containerBorderRadiusNum: number;
+}>`
   width: 100%;
-  position: fixed;
-  bottom: 0;
+  position: absolute;
+  bottom: 0px;
   padding: 8px 0 50px 0;
-  background-color: ${({ theme }) => theme.mainColor.White};
   z-index: 100;
+  background-color: white;
+  border-radius: 0 0 ${(props) => props.$containerBorderRadiusNum}px
+    ${(props) => props.$containerBorderRadiusNum}px;
 `;
 
 const MsgMyProfileImgWrap = styled.div`
@@ -371,7 +344,7 @@ const PostCommentMsgUploadWrap = styled.div`
 
 const PostCommentImageImgWrap = styled.div`
   position: relative;
-  width: 60%;
+  width: 90%;
   margin: auto 0;
   padding: 5px 0 5px 10px;
 `;
@@ -451,20 +424,6 @@ const MsgSendButton = styled.div`
   margin: auto 0px;
 `;
 
-const PostCommentUpload = styled.div`
-  width: calc(100% - 38px);
-  margin: 0px auto;
-  display: flex;
-  justify-content: space-between;
-  padding-top: 10px;
-`;
-
-const PostCommentUploadTypeTab = styled.div`
-  display: flex;
-  gap: 5px;
-  padding-left: 10px;
-`;
-
 const PostCommentUploadImage = styled.div`
   display: flex;
   cursor: pointer;
@@ -478,17 +437,10 @@ const PostCommentUploadInput = styled.input`
   display: none;
 `;
 
-const PostCommentUploadImageSvg = styled.svg`
-  margin: auto 0;
-`;
-const PostCommentUploadGif = styled.div`
+const PostCommentUploadImageDiv = styled.div`
   display: flex;
-`;
-
-const PostCommentUploadGifSvg = styled.svg`
   margin: auto 0;
+  padding-right: 10px;
 `;
-
-const MsgSendButtonIcon = styled.svg``;
 
 export default CommentInputSenderElement;

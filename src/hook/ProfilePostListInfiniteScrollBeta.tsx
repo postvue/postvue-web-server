@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 import styled from 'styled-components';
 
+import InViewComponent from 'components/common/container/InViewComponent';
 import { INIT_CURSOR_ID, ZERO_CURSOR_ID } from 'const/PageConfigConst';
 import { NavigationType, useNavigationType } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
@@ -68,7 +69,7 @@ const ProfilePostListInfiniteScrollBeta: React.FC<
 
   return (
     <ScrollBottomContainer ref={ref}>
-      <div>테스트</div>
+      <InViewComponent />
     </ScrollBottomContainer>
   );
 };

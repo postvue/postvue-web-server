@@ -1,10 +1,14 @@
 import PrevButtonHeaderHeader from 'components/layouts/PrevButtonHeaderHeader';
 import React from 'react';
 
-const PoseComposeHeader: React.FC = () => {
+interface PoseComposeHeaderProps {
+  titleName: string;
+}
+
+const PoseComposeHeader: React.FC<PoseComposeHeaderProps> = ({ titleName }) => {
   return (
     <>
-      <PrevButtonHeaderHeader titleName={'새 게시물'} />
+      <PrevButtonHeaderHeader titleName={titleName} />
     </>
   );
 };

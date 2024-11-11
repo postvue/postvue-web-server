@@ -67,7 +67,8 @@ const PostCotentZoomPopup: React.FC<PostCotentZoomPopupProps> = ({
         });
       }
 
-      e.preventDefault(); // 터치 이동 이벤트가 부모에게 전파되지 않도록
+      // e.preventDefault(); // 터치 이동 이벤트가 부모에게 전파되지 않도록
+      e.stopPropagation();
     }, 16),
     [startY, startX, isVerticalScroll],
   );
@@ -130,9 +131,12 @@ const PostCotentZoomPopup: React.FC<PostCotentZoomPopupProps> = ({
             {snsPost?.postContents.map((value, index) => {
               return (
                 <StyledSwiperSlide key={index}>
-                  <PostContentSlideWrap onClick={(e) => e.stopPropagation()}>
+                  <PostContentSlideWrap>
                     {value.postContentType === POST_IMAGE_TYPE && (
-                      <PostImage src={value.content} />
+                      <PostImage
+                        src={value.content}
+                        onClick={(e) => e.stopPropagation()}
+                      />
                     )}
                     {value.postContentType === POST_VIDEO_TYPE && (
                       <PostVideoContentELement videoSrc={value.content} />
@@ -159,6 +163,7 @@ const PopupOverLayLayoutContainer = styled.div<{ $translateY: number }>`
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
+  cursor: grab;
 
   background: rgba(
     0,
@@ -214,7 +219,11 @@ const PostContentSlideWrap = styled.div`
 const PostImage = styled.img`
   border-radius: 10px;
   @media (max-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
-    width: 100%;
+    width: inherit;
+    object-fit: contain;
+    max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
+    margin: 0 auto;
+    display: flex;
   }
 
   @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {

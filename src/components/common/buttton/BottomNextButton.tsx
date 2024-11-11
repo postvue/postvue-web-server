@@ -10,6 +10,7 @@ interface BottomNextButtonProps {
   isActive?: boolean;
   notActiveTitle?: string;
   isTransparent?: boolean;
+  BottomNextButtonWrapContainerStyle?: React.CSSProperties;
 }
 
 const BottomNextButton: React.FC<BottomNextButtonProps> = ({
@@ -20,11 +21,13 @@ const BottomNextButton: React.FC<BottomNextButtonProps> = ({
   isActive = true,
   notActiveTitle,
   isTransparent = false,
+  BottomNextButtonWrapContainerStyle,
 }) => {
   return (
     <BottomNextButtonWrapContainer
       $isTransparent={isTransparent}
       ref={bottomNextButtonRef}
+      style={BottomNextButtonWrapContainerStyle}
     >
       {isActive ? (
         <BottomNextButtonWrap
@@ -49,13 +52,13 @@ const BottomNextButton: React.FC<BottomNextButtonProps> = ({
 };
 
 const BottomNextButtonWrapContainer = styled.div<{ $isTransparent: boolean }>`
-  position: fixed;
+  position: absolute;
   bottom: 0px;
   // left: 0;
   // right: 0px;
   // margin: 0 auto;
   width: 100%;
-  max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
+
   text-align: center;
   background-color: ${(props) =>
     props.$isTransparent ? '' : theme.mainColor.White};

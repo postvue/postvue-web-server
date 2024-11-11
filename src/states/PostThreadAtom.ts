@@ -1,13 +1,12 @@
 import { atom } from 'recoil';
 import { INIT_CURSOR_ID } from '../const/PageConfigConst';
-import { PostComment } from '../global/interface/post';
 
-export const postCommentRepliesThreadHashMapAtom = atom<
-  Map<string, PostComment>
->({
-  key: 'postCommentRepliesThreadHashMap',
-  default: new Map(),
-});
+// export const postCommentRepliesThreadHashMapAtom = atom<
+//   Map<string, PostComment>
+// >({
+//   key: 'postCommentRepliesThreadHashMap',
+//   default: new Map(),
+// });
 
 export const activeCommentByPostCommentThreadAtom = atom<{
   postId: string;

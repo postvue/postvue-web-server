@@ -7,29 +7,35 @@ interface BorderCircleButtonProps {
   className: string;
   contentText: string;
   onClickFunc?: () => void;
+  fontSize?: string;
   deactiveBackgroundColor?: string;
   deactiveBorderColor?: string;
   deactiveFontColor?: string;
   activeBackgroundColor?: string;
   activeBorderColor?: string;
   activeFontColor?: string;
+  BorderCircleButtonStyle?: React.CSSProperties;
 }
 
 const BorderCircleButton: React.FC<BorderCircleButtonProps> = ({
   className,
   contentText,
   onClickFunc,
+  fontSize = theme.fontSizes.Body2,
   deactiveBackgroundColor,
   deactiveBorderColor,
   deactiveFontColor,
   activeBackgroundColor,
   activeBorderColor,
   activeFontColor,
+  BorderCircleButtonStyle,
 }) => {
   return (
     <BorderCircleButtonContainer
+      style={BorderCircleButtonStyle}
       className={className}
       onClick={onClickFunc}
+      $fontSize={fontSize}
       $deactiveBackgroundColor={
         deactiveBackgroundColor || theme.mainColor.White
       }
@@ -45,6 +51,7 @@ const BorderCircleButton: React.FC<BorderCircleButtonProps> = ({
 };
 
 const BorderCircleButtonContainer = styled.div<{
+  $fontSize: string;
   $deactiveBackgroundColor: string;
   $deactiveBorderColor: string;
   $deactiveFontColor: string;
@@ -55,7 +62,7 @@ const BorderCircleButtonContainer = styled.div<{
   display: inline-block;
   padding: 5px 12px;
   border-radius: 40px;
-  font: ${({ theme }) => theme.fontSizes.Body2};
+  font: ${(props) => props.$fontSize};
   cursor: pointer;
 
   background-color: ${(props) => props.$deactiveBackgroundColor};

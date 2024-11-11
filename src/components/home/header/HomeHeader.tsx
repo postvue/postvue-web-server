@@ -1,9 +1,10 @@
 import { ReactComponent as FeelogLogo } from 'assets/images/icon/svg/logo/FeelogLogo62x30.svg';
 import { ReactComponent as SearchButtonIcon } from 'assets/images/icon/svg/SearchButtonIcon.svg';
 import TabStickBar from 'components/common/container/TabStickBar';
+import WindowResizeSenceComponent from 'components/common/container/WindowResizeSenseComponent';
 import HeaderLayout from 'components/layouts/HeaderLayout';
 import { MEDIA_MOBILE_MAX_WIDTH } from 'const/SystemAttrConst';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
@@ -60,22 +61,25 @@ const HomeHeader: React.FC = () => {
       setCurrentIntertestByUserSettingInfo(FOLLOW_STATE_SESSION_VALUE);
     }
   }, []);
+  const [windowSize, setWindowSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
   return (
-    <HeaderLayout
-      HeaderLayoutStyle={{
-        paddingBottom: '5px',
-        backdropFilter: 'blur(10px)',
-        WebkitBackdropFilter: 'blur(10px)',
-        backgroundColor: 'rgba(255,255,255,0.97)',
-      }}
-    >
-      <HomeHeaderContainer>
-        <AppLogoWrap>
-          <FeelogLogo />
-        </AppLogoWrap>
-        <HomeTabContainer>
-          {mainTabList.map((v, i) => (
-            <>
+    <>
+      <HeaderLayout
+        HeaderLayoutStyle={{
+          backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)',
+          backgroundColor: 'rgba(255,255,255,0.97)',
+        }}
+      >
+        <HomeHeaderContainer>
+          <AppLogoWrap>
+            <FeelogLogo />
+          </AppLogoWrap>
+          <HomeTabContainer>
+            {mainTabList.map((v, i) => (
               <TabItem
                 key={i}
                 className={mainTabId === v.tabId ? ACTIVE_CLASS_NAME : ''}
@@ -107,12 +111,11 @@ const HomeHeader: React.FC = () => {
                 {v.tabName}
                 {mainTabId === v.tabId && <TabStickBar />}
               </TabItem>
-            </>
-          ))}
-        </HomeTabContainer>
-        <SubTabContainer onClick={() => navigate(SEARCH_PATH)}>
-          {/* @REFEC: 나중에 추가 될 기능 */}
-          {/* <FilterTab>
+            ))}
+          </HomeTabContainer>
+          <SubTabContainer onClick={() => navigate(SEARCH_PATH)}>
+            {/* @REFEC: 나중에 추가 될 기능 */}
+            {/* <FilterTab>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -130,10 +133,12 @@ const HomeHeader: React.FC = () => {
             </svg>
           </FilterTab> */}
 
-          <SearchButtonIcon />
-        </SubTabContainer>
-      </HomeHeaderContainer>
-    </HeaderLayout>
+            <SearchButtonIcon />
+          </SubTabContainer>
+        </HomeHeaderContainer>
+      </HeaderLayout>
+      <WindowResizeSenceComponent setWindowSize={setWindowSize} />
+    </>
   );
 };
 
@@ -189,11 +194,6 @@ const AppLogoWrap = styled.div`
   @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
     display: none;
   }
-  margin: auto 0px;
-`;
-
-const SearchTab = styled.div`
-  cursor: pointer;
   margin: auto 0px;
 `;
 

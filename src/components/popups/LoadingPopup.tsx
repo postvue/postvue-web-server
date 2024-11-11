@@ -3,9 +3,13 @@ import PopupOverLayLayout from 'components/layouts/PopupOverlayLayout';
 import React from 'react';
 import styled from 'styled-components';
 
-const LoadingPopup: React.FC = () => {
+interface LoadingPopupProps {
+  LoadingPopupStyle?: React.CSSProperties;
+}
+
+const LoadingPopup: React.FC<LoadingPopupProps> = ({ LoadingPopupStyle }) => {
   return (
-    <PopupOverLayLayout>
+    <PopupOverLayLayout PopupOverLayLayoutStyle={LoadingPopupStyle}>
       <LoadingWrap>
         <LoadingGif src={loadingBarGif} />
       </LoadingWrap>
@@ -16,6 +20,7 @@ const LoadingPopup: React.FC = () => {
 const LoadingBarSize = 50;
 
 const LoadingWrap = styled.div`
+  z-index: 1000;
   position: fixed;
   top: calc(50% - ${LoadingBarSize}px);
   left: 50%;

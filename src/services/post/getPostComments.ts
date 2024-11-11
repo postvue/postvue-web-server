@@ -3,7 +3,7 @@ import { PostComment } from '../../global/interface/post';
 import { COMMENT_LIST_PATH, POST_LIST_PATH } from '../appApiPath';
 import { CURSOR_PARAM } from '../appApiQueryParam';
 
-interface GetPostCommentsRsp {
+export interface GetPostCommentsRsp {
   cursorId: string;
   snsPostCommentRspList: PostComment[];
 }

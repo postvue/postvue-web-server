@@ -1,3 +1,4 @@
+import InViewComponent from 'components/common/container/InViewComponent';
 import React, { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { GetProfilePostListRsp } from 'services/profile/getProfilePostList';
@@ -28,8 +29,8 @@ const ProfilePostListInfiniteScroll: React.FC<
   }, [inView]); //hasNextPage, isFetchingNextPage
 
   return (
-    <ScrollBottomContainer>
-      <div ref={ref}> 보인다.</div>
+    <ScrollBottomContainer ref={ref}>
+      <InViewComponent />
     </ScrollBottomContainer>
   );
 };

@@ -156,11 +156,7 @@ const ProfileScrapImgListWrap = styled.div`
 const ProfileScrapImgWrap = styled.div`
   width: 30%;
   flex: 0 0 auto;
-  @media (hover: hover) and (pointer: fine) {
-    &:hover {
-      filter: brightness(0.7);
-    }
-  }
+
   cursor: pointer;
 `;
 
@@ -183,7 +179,7 @@ const PostContentVideo = styled.video`
 const ProfileScrapViewNameActiveWrap = styled.div`
   padding-top: 7px;
   display: flex;
-  gap: 2px;
+  gap: 8px;
 `;
 
 const ActiveSelecteScrapdWrap = styled.div`

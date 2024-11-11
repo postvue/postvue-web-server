@@ -1,4 +1,5 @@
 import { ReactComponent as ProfileLinkIcon } from 'assets/images/icon/svg/ProfileLinkIcon.svg';
+import FollowButton from 'components/common/buttton/FollowButton';
 import { ACCOUNT_INFO_HEADER_OFFSET_SCROLL_THRESHOLD } from 'const/AccountConst';
 import {
   CONVERSTAION_PATH,
@@ -136,13 +137,20 @@ const ProfileAccountInfo: React.FC = () => {
               )}
               {!data.isBlocked && (
                 <>
-                  {data.isFollowed ? (
-                    <ProfileAlreedyFollowButton>
-                      팔로잉
-                    </ProfileAlreedyFollowButton>
-                  ) : (
-                    <ProfileFollowButton>팔로우</ProfileFollowButton>
-                  )}
+                  <FollowButton
+                    userId={data.userId}
+                    isFollow={data.isFollowed}
+                    FollowButtonContainerStyle={{ width: '100%' }}
+                    FollowButton={
+                      <ProfileFollowButton>팔로우</ProfileFollowButton>
+                    }
+                    FollowCancelButton={
+                      <ProfileAlreedyFollowButton>
+                        팔로잉
+                      </ProfileAlreedyFollowButton>
+                    }
+                    hasFollowCancelButton={true}
+                  />
                 </>
               )}
 

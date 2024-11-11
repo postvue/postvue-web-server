@@ -1,4 +1,4 @@
-import { ReactComponent as FeelogMobileLogo } from 'assets/images/icon/svg/FeelogLogo.svg';
+import { ReactComponent as FeelogMobileLogo } from 'assets/images/icon/svg/logo/FeelogLogo.svg';
 import { ACCESS_TOKEN } from 'const/LocalStorageConst';
 import { HOME_PATH } from 'const/PathConst';
 import { CALLBACK_URL } from 'const/QueryParamConst';

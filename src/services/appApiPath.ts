@@ -37,6 +37,9 @@ export const DOCUMENT_RESOURCE_LIST = '/resources/documents';
 export const DOC_IMAGE_RESOURCE_LIST = `${DOCUMENT_RESOURCE_LIST}/images`;
 export const POST_UPLOAD_RESOURCE_LINK = '/resource-link';
 
+// 포스트
+export const POST_MAP_POST_API_PATH = `${POST_LIST_PATH}/map_post`;
+
 // 로그인
 export const AUTH_APTH = '/auth';
 export const AUTH_RENEWAL_TOKEN_API_PATH = `${AUTH_APTH}/renewal/tokens`;
@@ -60,3 +63,28 @@ export const PROFILE_PROFILE_BLOCKED_USER_LIST_API_PATH = `${PROFILE_LIST_PATH}/
 // 알림
 export const NOTIFICATION_API_PATH = `/notifications`;
 export const NOTIFICATION_MSG_LIST_API_PATH = `${NOTIFICATION_API_PATH}/messages`;
+
+// 지도
+export const MAP_API_PATH = '/maps';
+
+export const MAP_ADDRESS_PATH = `${MAP_API_PATH}/addresses`;
+export const MAP_ADDRESS_UNIQUENESS_PATH = `${MAP_ADDRESS_PATH}/uniqueness`;
+
+export const MAP_LOCATION_PATH = `${MAP_API_PATH}/location`;
+
+export const MAP_ADDRESS_REPLATION_PATH = `${MAP_API_PATH}/addresses/relations`;
+
+export const MAP_LOCAL_SEARCH_PATH = `${MAP_API_PATH}/search/local`;
+
+export const MAP_POST_SEARCH_PATH = `${MAP_API_PATH}/search/post`;
+
+export const MAP_RECOMM_SEARCH_PATH = `${MAP_API_PATH}/search/recomm`;
+
+// 공유
+export const PROFILE_SEARCH_USERS_API_PATH = '/profiles/search/users';
+
+// 포스트 게시
+export const POST_COMPOSE = '/compose';
+
+//
+export const REPORT_PATH = '/report';

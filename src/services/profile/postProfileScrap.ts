@@ -23,6 +23,7 @@ export const postProfileScrap = (
   if (isValidString(postId)) {
     makeProfileScrapPath = `${makeProfileScrapPath}?${POST_ID_PARAM}=${postId}`;
   }
+
   return privateApi
     .post(makeProfileScrapPath, createProfileScrapReq)
     .then((res) => {

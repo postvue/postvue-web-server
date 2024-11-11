@@ -1,5 +1,5 @@
-import { privateApi } from '..';
-import { PostCommentReq, PostCommentRsp } from '../../global/interface/post';
+import { formApi } from '..';
+import { PostComment } from '../../global/interface/post';
 
 import { COMMENT_LIST_PATH, POST_LIST_PATH } from '../appApiPath';
 import { IS_THREAD } from '../appApiQueryParam';
@@ -7,17 +7,16 @@ import { IS_THREAD } from '../appApiQueryParam';
 export const createPostCommentReply = (
   postId: string,
   commentId: string,
-  postCommentReq: PostCommentReq,
   isThread = false,
-): Promise<PostCommentRsp> => {
+  formData: FormData,
+): Promise<PostComment> => {
   let apiPath = `${POST_LIST_PATH}/${postId}${COMMENT_LIST_PATH}/${commentId}`;
   if (isThread) {
     apiPath += `?${IS_THREAD}=${isThread}`;
   }
-  console.log(apiPath);
 
-  return privateApi
-    .post(apiPath, postCommentReq)
+  return formApi
+    .post(apiPath, formData)
     .then((res) => {
       console.log(res.data);
       return res.data.data;

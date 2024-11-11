@@ -1,32 +1,36 @@
 import { debounce, DebouncedFunc } from 'lodash';
 import { useCallback } from 'react';
-import {
-  LOCAL_STORAGE_LIST_INIT_VALUE,
-  RECENTLY_SEARCH_WORD_LIST_LOCAL_STORAGE,
-} from '../../const/LocalStorageConst';
+import { LOCAL_STORAGE_LIST_INIT_VALUE } from '../../const/LocalStorageConst';
 import {
   RECENTLY_WORD_LIST_NUM,
   SEARCH_RELATION_QUERY_DELAY_MIRCE_TIME,
+  SEARCH_WORD_POST_TYPE,
 } from '../../const/SearchConst';
 import { SearchRecentKeywordInterface } from '../interface/localstorage/SearchInterface';
 
-export const handleSearch = (searchWord: string): void => {
-  addRecentlyKeywordList(searchWord);
+export const handleSearch = (
+  recentKeywordStorageName: string,
+  searchWord: string,
+): void => {
+  addRecentlyKeywordList(recentKeywordStorageName, searchWord);
 };
 
-export const getRecentSearchWordList = (): SearchRecentKeywordInterface[] => {
+export const getRecentSearchWordList = (
+  recentKeywordStorageName: string,
+): SearchRecentKeywordInterface[] => {
   const recentlyKeywordList: SearchRecentKeywordInterface[] = JSON.parse(
-    localStorage.getItem(RECENTLY_SEARCH_WORD_LIST_LOCAL_STORAGE) ||
+    localStorage.getItem(recentKeywordStorageName) ||
       LOCAL_STORAGE_LIST_INIT_VALUE,
   );
   return recentlyKeywordList;
 };
 
 const addRecentlyKeywordList = (
+  recentKeywordStorageName: string,
   searchTerm: string,
 ): SearchRecentKeywordInterface[] => {
   const recentlyKeywordList: SearchRecentKeywordInterface[] = JSON.parse(
-    localStorage.getItem(RECENTLY_SEARCH_WORD_LIST_LOCAL_STORAGE) ||
+    localStorage.getItem(recentKeywordStorageName) ||
       LOCAL_STORAGE_LIST_INIT_VALUE,
   );
 
@@ -42,11 +46,15 @@ const addRecentlyKeywordList = (
     if (recentlyKeywordList.length >= RECENTLY_WORD_LIST_NUM) {
       recentlyKeywordList.splice(0, 1);
     }
-    recentlyKeywordList.push({ name: searchTerm, isExposed: true });
+    recentlyKeywordList.push({
+      name: searchTerm,
+      isExposed: true,
+      searchWordType: SEARCH_WORD_POST_TYPE,
+    });
   }
 
   localStorage.setItem(
-    RECENTLY_SEARCH_WORD_LIST_LOCAL_STORAGE,
+    recentKeywordStorageName,
     JSON.stringify(recentlyKeywordList),
   );
 
@@ -55,9 +63,10 @@ const addRecentlyKeywordList = (
 
 export const deleteRecentlyKeyword = (
   searchWord: string,
+  recentKeywordStorageName: string,
 ): SearchRecentKeywordInterface[] => {
   const recentlyKeywordList: SearchRecentKeywordInterface[] = JSON.parse(
-    localStorage.getItem(RECENTLY_SEARCH_WORD_LIST_LOCAL_STORAGE) ||
+    localStorage.getItem(recentKeywordStorageName) ||
       LOCAL_STORAGE_LIST_INIT_VALUE,
   );
 
@@ -75,18 +84,17 @@ export const deleteRecentlyKeyword = (
   }
 
   localStorage.setItem(
-    RECENTLY_SEARCH_WORD_LIST_LOCAL_STORAGE,
+    recentKeywordStorageName,
     JSON.stringify(recentlyKeywordList),
   );
 
   return recentlyKeywordList;
 };
 
-export const removeRecentlyKeywordList = (): void => {
-  localStorage.setItem(
-    RECENTLY_SEARCH_WORD_LIST_LOCAL_STORAGE,
-    LOCAL_STORAGE_LIST_INIT_VALUE,
-  );
+export const removeRecentlyKeywordList = (
+  recentKeywordStorageName: string,
+): void => {
+  localStorage.setItem(recentKeywordStorageName, LOCAL_STORAGE_LIST_INIT_VALUE);
 };
 
 export const getSearchQueryByDebounce = (

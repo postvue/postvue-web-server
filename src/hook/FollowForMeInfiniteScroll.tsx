@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 import styled from 'styled-components';
 
+import InViewComponent from 'components/common/container/InViewComponent';
 import { useRecoilState } from 'recoil';
 import { getFollowForMeListByParam } from '../services/post/home/getFollowForMeList';
 import {
@@ -55,7 +56,7 @@ const FollowForMeInfiniteScroll: React.FC = () => {
 
   return (
     <ScrollBottomContainer ref={ref}>
-      <div>팔로우 테스트</div>
+      <InViewComponent />
     </ScrollBottomContainer>
   );
 };

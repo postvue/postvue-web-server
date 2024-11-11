@@ -1,5 +1,4 @@
 import { ReactComponent as SettingVerticalDotIcon } from 'assets/images/icon/svg/SettingVerticalDotIcon.svg';
-import BoundaryStickBar from 'components/common/container/BoundaryStickBar';
 import { NOTIFICATION_LIST_PATH } from 'const/PathConst';
 import {
   getLastNotificationReadAt,
@@ -7,23 +6,32 @@ import {
   saveNotificationMsgHashMapByLocalStorage,
 } from 'global/util/NotificationUtil';
 import { QueryStateNotificationMsg } from 'hook/queryhook/QueryStateNotificationMsg';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSetRecoilState } from 'recoil';
+import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
-import { isFolloManagePopupByMsgInboxAtom } from '../../../states/MsgInboxAtom';
 
 import { ReactComponent as NotificationActiveIcon } from 'assets/images/icon/svg/NotificationActiveIcon.svg';
 import { ReactComponent as NotificationNotActiveIcon } from 'assets/images/icon/svg/NotificationNotActiveIcon.svg';
+import WindowResizeSenceComponent from 'components/common/container/WindowResizeSenseComponent';
+import HeaderLayout from 'components/layouts/HeaderLayout';
+import ContextMenuPopup from 'components/popups/ContextMenuPopup';
+import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
+import { getMyAccountSettingInfo } from 'global/util/MyAccountSettingUtil';
+import { isActiveMsgBlockHiddenManagePopupAtom } from 'states/MsgInboxAtom';
+import MsgBlockHiddenManagePopupBody from '../popup/MsgBlockHiddenManagePopupBody';
 
 const MessageInboxHeader: React.FC = () => {
   const navigate = useNavigate();
-  const setIsFolloManagePopupByMsgInbox = useSetRecoilState(
-    isFolloManagePopupByMsgInboxAtom,
-  );
+  const msgInboxSettingRef = useRef<HTMLDivElement>(null);
+  const [
+    isActiveMsgBlockHiddenManagePopup,
+    setIsActiveMsgBlockHiddenManagePopup,
+  ] = useRecoilState(isActiveMsgBlockHiddenManagePopupAtom);
+  const myAccountSettingInfo = getMyAccountSettingInfo();
 
   const onClickPopup = () => {
-    setIsFolloManagePopupByMsgInbox(true);
+    setIsActiveMsgBlockHiddenManagePopup(true);
   };
 
   const { data: lastNotificationList } = QueryStateNotificationMsg(
@@ -31,6 +39,11 @@ const MessageInboxHeader: React.FC = () => {
   );
 
   const [hasNotification, setHasNotification] = useState<boolean>(false);
+
+  const [windowSize, setWindowSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
 
   useEffect(() => {
     if (lastNotificationList) {
@@ -47,56 +60,58 @@ const MessageInboxHeader: React.FC = () => {
   }, [lastNotificationList]);
 
   return (
-    <MessageInboxHeaderContainer>
-      <MessageInboxHeaderWrap>
-        <ProfileNameWrap>
-          <ProfileNameDiv>changminkim-329</ProfileNameDiv>
-        </ProfileNameWrap>
-        <MessageSettingWrap>
-          <NotificationTab onClick={() => navigate(NOTIFICATION_LIST_PATH)}>
-            {hasNotification ? (
-              <NotificationActiveIcon />
-            ) : (
-              <NotificationNotActiveIcon />
-            )}
-          </NotificationTab>
-          {/* <MessageWriteButtonWrap>
-            <MessageWriteButton>
-              <MessageWriteIcon
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-              >
-                <path
-                  d="M7 7.00012H6C5.46957 7.00012 4.96086 7.21084 4.58579 7.58591C4.21071 7.96098 4 8.46969 4 9.00012V18.0001C4 18.5306 4.21071 19.0393 4.58579 19.4143C4.96086 19.7894 5.46957 20.0001 6 20.0001H15C15.5304 20.0001 16.0391 19.7894 16.4142 19.4143C16.7893 19.0393 17 18.5306 17 18.0001V17.0001M16 5.00012L19 8.00012M20.385 6.58511C20.7788 6.19126 21.0001 5.65709 21.0001 5.10011C21.0001 4.54312 20.7788 4.00895 20.385 3.61511C19.9912 3.22126 19.457 3 18.9 3C18.343 3 17.8088 3.22126 17.415 3.61511L9 12.0001V15.0001H12L20.385 6.58511Z"
-                  stroke="#26292C"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </MessageWriteIcon>
-            </MessageWriteButton>
-          </MessageWriteButtonWrap> */}
-          <SettingButtonWrap>
-            <SettingButton onClick={onClickPopup}>
-              <SettingVerticalDotIcon />
-            </SettingButton>
-          </SettingButtonWrap>
-        </MessageSettingWrap>
-      </MessageInboxHeaderWrap>
-      <BoundaryStickBar />
-    </MessageInboxHeaderContainer>
+    <>
+      <MessageInboxHeaderContainer>
+        <HeaderLayout>
+          <MessageInboxHeaderWrap>
+            <ProfileNameWrap>
+              <ProfileNameDiv>{myAccountSettingInfo.username}</ProfileNameDiv>
+            </ProfileNameWrap>
+            <MessageSettingWrap>
+              <NotificationTab onClick={() => navigate(NOTIFICATION_LIST_PATH)}>
+                {hasNotification ? (
+                  <NotificationActiveIcon />
+                ) : (
+                  <NotificationNotActiveIcon />
+                )}
+              </NotificationTab>
+              <SettingButtonWrap>
+                <SettingButton onClick={onClickPopup} ref={msgInboxSettingRef}>
+                  <SettingVerticalDotIcon />
+                </SettingButton>
+                {windowSize.width > MEDIA_MOBILE_MAX_WIDTH_NUM &&
+                  isActiveMsgBlockHiddenManagePopup &&
+                  msgInboxSettingRef.current && (
+                    <ContextMenuPopup
+                      contextMenuRef={msgInboxSettingRef.current}
+                      setIsActive={setIsActiveMsgBlockHiddenManagePopup}
+                    >
+                      <MsgBlockHiddenManagePopupBody
+                        BlockedHiddenManageContainerStyle={{ margin: '20px' }}
+                      />
+                    </ContextMenuPopup>
+                  )}
+              </SettingButtonWrap>
+            </MessageSettingWrap>
+          </MessageInboxHeaderWrap>
+        </HeaderLayout>
+      </MessageInboxHeaderContainer>
+      <WindowResizeSenceComponent setWindowSize={setWindowSize} />
+    </>
   );
 };
 
-const MessageInboxHeaderContainer = styled.div``;
+const MessageInboxHeaderContainer = styled.div`
+  z-index: 150;
+  background-color: ${({ theme }) => theme.mainColor.White};
+  width: 100%;
+`;
 const MessageInboxHeaderWrap = styled.div`
   display: flex;
   justify-content: space-between;
-  padding: 12px 16px 11px 20px;
-  height: 35px;
+  padding: 0 ${({ theme }) => theme.systemSize.header.paddingLeftRightMargin} 0
+    ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding};
+  width: 100%;
 `;
 
 const ProfileNameWrap = styled.div`
@@ -112,18 +127,9 @@ const MessageSettingWrap = styled.div`
   gap: 10px;
 `;
 
-const MessageWriteButtonWrap = styled.div`
-  display: flex;
-`;
-const MessageWriteButton = styled.div`
-  display: flex;
-`;
-const MessageWriteIcon = styled.svg`
-  margin: auto 0;
-`;
-
 const SettingButtonWrap = styled.div`
   display: flex;
+  position: relative;
 `;
 const SettingButton = styled.div`
   display: flex;

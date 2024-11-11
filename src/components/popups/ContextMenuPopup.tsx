@@ -17,8 +17,9 @@ interface ContextMenuPopupProps {
     | React.Dispatch<React.SetStateAction<boolean | string>>
     | SetterOrUpdater<boolean | number | string>
     | React.Dispatch<React.SetStateAction<boolean | number | string>>;
-  contextMenuRef: React.RefObject<HTMLElement>;
+  contextMenuRef: HTMLDivElement;
   hasFixedActive?: boolean;
+  ContextMenuPopupContainerStyle?: React.CSSProperties;
 }
 
 const ContextMenuPopup: React.FC<ContextMenuPopupProps> = ({
@@ -26,6 +27,7 @@ const ContextMenuPopup: React.FC<ContextMenuPopupProps> = ({
   contextMenuRef,
   setIsActive,
   hasFixedActive = true,
+  ContextMenuPopupContainerStyle,
 }) => {
   const [contextMenuLayoutInfo, setContextMenuLayoutInfo] =
     useState<ContextMenuLayoutInfoInterface>({
@@ -34,9 +36,9 @@ const ContextMenuPopup: React.FC<ContextMenuPopupProps> = ({
     });
 
   useEffect(() => {
-    if (contextMenuRef.current) {
+    if (contextMenuRef) {
       const body = document.body;
-      const dom = contextMenuRef.current.getBoundingClientRect();
+      const dom = contextMenuRef.getBoundingClientRect();
 
       const clipY = dom.y;
       const clipHeight = dom.height;
@@ -64,6 +66,7 @@ const ContextMenuPopup: React.FC<ContextMenuPopupProps> = ({
       <ContextMenuContainer
         $positionType={contextMenuLayoutInfo.positionType}
         $positionValue={contextMenuLayoutInfo.positionValue}
+        style={ContextMenuPopupContainerStyle}
       >
         {children}
       </ContextMenuContainer>

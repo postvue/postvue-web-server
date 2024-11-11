@@ -7,25 +7,30 @@ import { NAVIGATION_BACK } from 'const/AppConst';
 import { useRecoilValue } from 'recoil';
 import { SEARCH_PATH } from 'services/appApiPath';
 import {
+  isActiveSearchPostFilterPopupAtom,
   isSearchInputActiveAtom,
   searchQueryAndFilterKeyAtom,
   searchWordAtom,
 } from 'states/SearchPostAtom';
 import BottomNavBar from '../components/BottomNavBar';
 import AppBaseTemplate from '../components/layouts/AppBaseTemplate';
-import ToastPopup from '../components/popups/ToastMsgPopup';
 
 import SearchFavoriteTermButton from 'components/common/buttton/SearchFavoriteTermButton';
+import PostSearchFilterPopup from 'components/popups/search/PostSearchFilterPopup';
 
 const SearchPostPage: React.FC = () => {
   const isSearchInputActive = useRecoilValue(isSearchInputActiveAtom);
+
+  const isActiveSearchPostFilterPopup = useRecoilValue(
+    isActiveSearchPostFilterPopupAtom,
+  );
 
   const searchWord = useRecoilValue(searchWordAtom);
 
   const searchQueryAndFilterKey = useRecoilValue(searchQueryAndFilterKeyAtom);
 
   return (
-    <AppBaseTemplate>
+    <AppBaseTemplate hasSearchInputModule={false}>
       <SearchHeader
         backToUrl={SEARCH_PATH}
         navigateType={NAVIGATION_BACK}
@@ -39,7 +44,9 @@ const SearchPostPage: React.FC = () => {
       />
       <SearchPostBody />
       {isSearchInputActive && <SearchSuggestBody />}
-      <ToastPopup />
+      {isActiveSearchPostFilterPopup && (
+        <PostSearchFilterPopup searchWord={searchWord} />
+      )}
       <BottomNavBar />
     </AppBaseTemplate>
   );

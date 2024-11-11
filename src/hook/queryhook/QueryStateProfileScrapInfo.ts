@@ -2,7 +2,7 @@ import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import {
   QUERY_STATE_PROFILE_SCRAP_INFO,
-  SERACH_FAVORITE_TERMS_STALE_TIME,
+  STALE_30_MINUTES_TIME,
 } from 'const/QueryClientConst';
 import {
   getProfileScrapInfo,
@@ -15,6 +15,6 @@ export const QueryStateProfileScrapInfo = (
   return useQuery<GetProfileScrapInfoRsp, AxiosError>({
     queryKey: [QUERY_STATE_PROFILE_SCRAP_INFO, scrapId],
     queryFn: () => getProfileScrapInfo(scrapId),
-    staleTime: SERACH_FAVORITE_TERMS_STALE_TIME,
+    staleTime: STALE_30_MINUTES_TIME,
   });
 };

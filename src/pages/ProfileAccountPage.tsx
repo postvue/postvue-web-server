@@ -1,8 +1,8 @@
 import React from 'react';
 import BottomNavBar from '../components/BottomNavBar';
 import AppBaseTemplate from '../components/layouts/AppBaseTemplate';
-import ProfileAccountBody from '../components/profile/ProfileAccountBody';
-import ProfileAccountHeader from '../components/profile/ProfileAccountHeader';
+import ProfileAccountBody from '../components/profile/profileaccount/ProfileAccountBody';
+import ProfileAccountHeader from '../components/profile/profileaccount/ProfileAccountHeader';
 
 const ProfileAccountPage: React.FC = () => {
   return (

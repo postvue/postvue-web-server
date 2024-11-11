@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import BottomNextButton from 'components/common/buttton/BottomNextButton';
-import ToastPopup from 'components/popups/ToastMsgPopup';
+import { APP_SERVICE_NAME } from 'const/AppInfoConst';
 import { INIT_EMPTY_STRING_VALUE } from 'const/AttributeConst';
 import { SETTING_EDIT_BUTTON_PHASE_TEXT } from 'const/SystemPhraseConst';
 import { ACCOUNT_SETTING_EMAIL_EDIT_TAB_NAME } from 'const/TabConfigConst';
@@ -11,7 +11,6 @@ import { isValidEmail, isValidString } from 'global/util/ValidUtil';
 import { QueryMutationPutMyProfileEmailInfo } from 'hook/queryhook/QueryMutationPutMyProfileEmailInfo';
 import { QueryStateMyProfileInfo } from 'hook/queryhook/QueryStateMyProfileInfo';
 import { PutMyProfileEmailInfoReq } from 'services/profile/putMyProfileEmailInfo';
-import theme from 'styles/theme';
 
 const ProfileAccountEmailEditBody: React.FC = () => {
   const { data } = QueryStateMyProfileInfo();
@@ -63,6 +62,9 @@ const ProfileAccountEmailEditBody: React.FC = () => {
             </SignupMinAgeCheck>
           </SignupMinAgeWrap>
         )}
+        <ProfileEmailDetailInfo>
+          {`현재 ${data?.nickname}님의 이메일은 ${data?.email}입니다. 이메일은 ${APP_SERVICE_NAME}의 내 공개 프로필에 표시되지 않습니다.`}
+        </ProfileEmailDetailInfo>
 
         <BottomNextButton
           title={SETTING_EDIT_BUTTON_PHASE_TEXT}
@@ -71,13 +73,12 @@ const ProfileAccountEmailEditBody: React.FC = () => {
           actionFunc={onClickEditEmail}
         />
       </ProfileEditEmailContainer>
-      <ToastPopup backgroundColor={theme.mainColor.Black} />
     </>
   );
 };
 
 const ProfileEditEmailContainer = styled.div`
-  padding-top: calc(${({ theme }) => theme.systemSize.header.height} + 30px);
+  padding-top: 30px;
 `;
 
 const ProfileEditEmailInputWrap = styled.div`
@@ -103,6 +104,13 @@ const SignupMinAgeWrap = styled.div`
 const SignupMinAgeCheck = styled.div`
   font: ${({ theme }) => theme.fontSizes.Body2};
   color: ${({ theme }) => theme.errorColor.Red};
+`;
+
+const ProfileEmailDetailInfo = styled.div`
+  margin: 0 ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding};
+  font: ${({ theme }) => theme.fontSizes.Body2};
+  color: ${({ theme }) => theme.grey.Grey7};
+  margin-top: 10px;
 `;
 
 export default ProfileAccountEmailEditBody;

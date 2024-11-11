@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import BottomNextButton from 'components/common/buttton/BottomNextButton';
-import ToastPopup from 'components/popups/ToastMsgPopup';
 import { INIT_EMPTY_STRING_VALUE } from 'const/AttributeConst';
 import {
   SIGNUP_GENDER_FEMALE_CATEGORY,
@@ -18,7 +17,6 @@ import { QueryStateMyProfileInfo } from 'hook/queryhook/QueryStateMyProfileInfo'
 import { ReactComponent as GenderCategoryCheckIcon } from 'assets/images/icon/svg/CategoryCheckIcon.svg';
 import { ReactComponent as GenderCategoryNotCheckIcon } from 'assets/images/icon/svg/CategoryNotCheckIcon.svg';
 import { QueryMutationPutMyProfileGenderInfo } from 'hook/queryhook/QueryMutationPutMyProfileGenderInfo';
-import theme from 'styles/theme';
 
 const ProfileAccountGenderEditBody: React.FC = () => {
   const { data } = QueryStateMyProfileInfo();
@@ -80,13 +78,12 @@ const ProfileAccountGenderEditBody: React.FC = () => {
           actionFunc={onClickEditGender}
         />
       </ProfileEditEmailContainer>
-      <ToastPopup backgroundColor={theme.mainColor.Black} />
     </>
   );
 };
 
 const ProfileEditEmailContainer = styled.div`
-  padding-top: calc(${({ theme }) => theme.systemSize.header.height} + 30px);
+  padding-top: 30px;
 `;
 
 const ProfileGenderEditContainer = styled.div`

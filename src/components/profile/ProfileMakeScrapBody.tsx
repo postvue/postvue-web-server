@@ -2,6 +2,7 @@ import { queryClient } from 'App';
 import BottomNextButton from 'components/common/buttton/BottomNextButton';
 import BoundaryStickBar from 'components/common/container/BoundaryStickBar';
 import ProfileScrapTargetAudiencePopup from 'components/popups/ProfileScrapTargetAudiencePopup';
+import { notify } from 'components/popups/ToastMsgPopup';
 import { QUERY_STATE_PROFILE_POST_LIST } from 'const/QueryClientConst';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -15,7 +16,10 @@ import {
   POST_ID,
 } from '../../const/QueryParamConst';
 import { TargetAudienceCategory } from '../../const/ScrapConst';
-import { MAKE_NEW_SCRAP_INPUT_PHASE_TEXT } from '../../const/SystemPhraseConst';
+import {
+  CREATE_SCRAP,
+  MAKE_NEW_SCRAP_INPUT_PHASE_TEXT,
+} from '../../const/SystemPhraseConst';
 import { TargetAudienceInterface } from '../../global/interface/profile';
 import { isValidString } from '../../global/util/ValidUtil';
 import { postProfileScrap } from '../../services/profile/postProfileScrap';
@@ -85,6 +89,8 @@ const ProfileMakeScrapBody: React.FC = () => {
 
         navigate(PROFILE_SCRAP_LIST_PATH);
       });
+
+      notify(CREATE_SCRAP);
     }
   };
 
@@ -131,17 +137,16 @@ const ProfileMakeScrapBody: React.FC = () => {
             </TargetAudienceIcon>
           </TargetAudienceButtonWrap>
         </TargetAudienceWrap>
-        <ScrapMakeButtonWrap>
-          <BottomNextButton
-            isActive={
-              isValidString(scrapName) &&
-              targetAudienceList.includes(targetAudience)
-            }
-            actionFunc={onClickMakeScrap}
-            title={'신규 스크랩 만들기'}
-            notActiveTitle={'신규 스크랩 만들기'}
-          />
-        </ScrapMakeButtonWrap>
+
+        <BottomNextButton
+          isActive={
+            isValidString(scrapName) &&
+            targetAudienceList.includes(targetAudience)
+          }
+          actionFunc={onClickMakeScrap}
+          title={'신규 스크랩 만들기'}
+          notActiveTitle={'신규 스크랩 만들기'}
+        />
       </ProfileMakeScrapBodyContainer>
       {isActiveProfileScarpTargetAudPopup && (
         <ProfileScrapTargetAudiencePopup
@@ -154,7 +159,8 @@ const ProfileMakeScrapBody: React.FC = () => {
 };
 
 const ProfileMakeScrapBodyContainer = styled.div`
-  padding-top: ${({ theme }) => theme.systemSize.header.height};
+  height: calc(100vh - ${({ theme }) => theme.systemSize.header.height});
+  position: relative;
 `;
 
 const TogetherPostWrap = styled.div`
@@ -218,13 +224,6 @@ const TargetAudienceButton = styled.div`
 
 const TargetAudienceIcon = styled.svg`
   margin: auto 0px;
-`;
-
-const ScrapMakeButtonWrap = styled.div`
-  bottom: 45px;
-  position: fixed;
-  width: 100%;
-  max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
 `;
 
 const ScrapMakeButton = styled.div`

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import BottomNextButton from 'components/common/buttton/BottomNextButton';
+import { APP_SERVICE_NAME } from 'const/AppInfoConst';
 import { HOME_PATH } from 'const/PathConst';
 import {
   SETTING_AFTER_DELETE_ACCOUNT_MAIN_MOVE_PHASE_TEXT,
@@ -37,9 +38,9 @@ const ProfileAccountDeleteAccountBody: React.FC = () => {
               ㅠㅠ 너무 아쉬워요..
             </AccountDeleteCheckTitle>
             <AccountDeleteCheckSubTitle>
-              회원님의 계정은 7일 후에 삭제되며 삭제 시 회원님의 Feelog 계정
-              데이터가 삭제됩니다. 7일 이전에 삭제를 취소하려면 회원의 계정으로
-              다시 로그인해주세요.
+              회원님의 계정은 7일 후에 삭제되며 삭제 시 회원님의 $
+              {APP_SERVICE_NAME} 계정 데이터가 삭제됩니다. 7일 이전에 삭제를
+              취소하려면 회원의 계정으로 다시 로그인해주세요.
             </AccountDeleteCheckSubTitle>
           </AccountDeleteCheckTitleWrap>
 
@@ -57,7 +58,7 @@ const ProfileAccountDeleteAccountBody: React.FC = () => {
             <AccountDeleteCheckSubTitle>
               계정 삭제는 영구적이며 회원님이 데이터를 되돌릴 수 없게 됩니다.
               <br />
-              모든 Feelog 계정 데이터와 활동 내용이 삭제 됩니다.
+              {`모든 ${APP_SERVICE_NAME} 계정 데이터와 활동 내용이 삭제 됩니다.`}
             </AccountDeleteCheckSubTitle>
           </AccountDeleteCheckTitleWrap>
 
@@ -79,7 +80,7 @@ const ProfileAccountDeleteAccountBody: React.FC = () => {
 };
 
 const ProfileAccountDeleteContainer = styled.div`
-  padding-top: calc(${({ theme }) => theme.systemSize.header.height} + 30px);
+  padding-top: 30px;
 `;
 
 const AccountDeleteCheckTitleWrap = styled.div``;

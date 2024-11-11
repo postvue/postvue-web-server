@@ -7,7 +7,6 @@ import { ReactComponent as PasswordValidCheckIcon } from 'assets/images/icon/svg
 import { ReactComponent as PasswordNotValidCheckIcon } from 'assets/images/icon/svg/signup/SignupNotCheckIcon.svg';
 import BottomNextButton from 'components/common/buttton/BottomNextButton';
 import BoundaryStickBar from 'components/common/container/BoundaryStickBar';
-import ToastPopup from 'components/popups/ToastMsgPopup';
 import { INIT_EMPTY_STRING_VALUE } from 'const/AttributeConst';
 import { STATUS_UNAUTHORIZED_CODE } from 'const/HttpStatusConst';
 import {
@@ -30,7 +29,6 @@ import {
   isValidString,
 } from 'global/util/ValidUtil';
 import { QueryMutationPutMyProfilePasswordInfo } from 'hook/queryhook/QueryMutationPutMyProfilePasswordInfo';
-import theme from 'styles/theme';
 
 const ProfileAccountPasswordEditBody: React.FC = () => {
   const [isClickButton, setIsClickButton] = useState<boolean>(false);
@@ -241,13 +239,12 @@ const ProfileAccountPasswordEditBody: React.FC = () => {
           bottomNextButtonRef={bottomNextButtonRef}
         />
       </ProfileEditPasswordContainer>
-      <ToastPopup backgroundColor={theme.mainColor.Black} />
     </>
   );
 };
 
 const ProfileEditPasswordContainer = styled.div`
-  padding-top: calc(${({ theme }) => theme.systemSize.header.height} + 30px);
+  padding-top: 30px;
 `;
 
 const ProfileCurrentPasswordSubContainer = styled.div`

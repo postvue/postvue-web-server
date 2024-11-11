@@ -14,9 +14,8 @@ import PostTextContent from '../../components/common/posts/body/PostTextContent'
 import PopupLayout from '../../components/layouts/PopupLayout';
 import PrevButtonHeaderHeader from '../../components/layouts/PrevButtonHeaderHeader';
 import BlockUserPopup from '../../components/popups/BlockUserPopup';
-import PostReactionPopup from '../../components/popups/PostReactionPopup';
 import ScrapViewPopup from '../../components/popups/ScrapViewPopup';
-import ToastMsgPopup, { notify } from '../../components/popups/ToastMsgPopup';
+import ToastMsgPopup from '../../components/popups/ToastMsgPopup';
 import PrevButton from '../../components/PrevButton';
 import { INIT_SCROLL_POSITION } from '../../const/AttributeConst';
 import { PROFILE_LIST_PATH } from '../../const/PathConst';
@@ -24,8 +23,6 @@ import {
   POST_IMAGE_TYPE,
   POST_VIDEO_TYPE,
 } from '../../const/PostContentTypeConst';
-import { PROFILE_URL_CLIP_BOARD_TEXT } from '../../const/SystemPhraseConst';
-import { copyClipBoard } from '../../global/util/CopyUtil';
 import {
   addPostToHiddenPostIdList,
   getHiddenPostIdList,
@@ -53,11 +50,13 @@ import {
 } from '../../states/ProfileAtom';
 import { systemPostRspHashMapAtom } from '../../states/SystemConfigAtom';
 import theme from '../../styles/theme';
+import PostReactionPopup from '../popups/postreactionpopup/PostReactionPopup';
 
 import PostCotentZoomPopup from 'components/popups/PostContentZoomPopup';
 import SnsSharePopup from 'components/popups/SnsSharePopup';
 import { getMyAccountSettingInfo } from 'global/util/MyAccountSettingUtil';
-import PostRelationListInfiniteScroll from 'hook/PostRelationInfiniteScrollBeta';
+import { onClickClipBoardCopyButton } from 'global/util/ToastUtil';
+import PostRelationListInfiniteScroll from 'hook/PostRelationInfiniteScroll';
 import { postPostInterested } from 'services/post/postPostInterested';
 import { postPostNotInterested } from 'services/post/postPostNotInterested';
 import { isSharePopupAtom } from 'states/ShareAtom';
@@ -80,9 +79,7 @@ const ProfilePostDetail: React.FC<ProfilePostDetailProps> = ({
     myProfileClipHashMapAtom,
   );
 
-  const [snsSystemPostHashMap, setSnsSystemPostHashMap] = useRecoilState(
-    systemPostRspHashMapAtom,
-  );
+  const snsSystemPostHashMap = useRecoilValue(systemPostRspHashMapAtom);
 
   const [snsPost, setSnsPost] = useRecoilState(postRspAtom);
   const [isSettingActive, setIsSettingActive] = useState<boolean>(false);
@@ -107,7 +104,7 @@ const ProfilePostDetail: React.FC<ProfilePostDetailProps> = ({
     isActiveProfileBlockPopupAtom,
   );
 
-  const isSharePopup = useRecoilValue(isSharePopupAtom);
+  const [isSharePopup, setIsSharePopup] = useRecoilState(isSharePopupAtom);
 
   const myAccountSettingInfo = getMyAccountSettingInfo();
 
@@ -177,15 +174,6 @@ const ProfilePostDetail: React.FC<ProfilePostDetailProps> = ({
   const onClickPopupContainer = () => {
     setIsSettingActive(false);
   };
-  async function onClickClipBoardCopyButton(copyText: string) {
-    try {
-      copyClipBoard(copyText);
-
-      notify(PROFILE_URL_CLIP_BOARD_TEXT);
-    } catch (e) {
-      alert(e);
-    }
-  }
 
   const onClickPostNotInterest = () => {
     if (postId && isValidString(postId)) {
@@ -458,12 +446,17 @@ const ProfilePostDetail: React.FC<ProfilePostDetailProps> = ({
           </SettingPopupWrap>
         </PopupLayout>
       )}
-      {isPopupActive && <PostReactionPopup postId={reactionPostId} />}
+      {isPopupActive && (
+        <PostReactionPopup postId={reactionPostId} snsPost={snsPost} />
+      )}
       {isActiveScrapView && postId !== undefined && firstPostContent && (
         <ScrapViewPopup
           postId={postId}
           postContentUrl={firstPostContent.content}
           postContentType={firstPostContent.postContentType}
+          snsPost={snsPost}
+          setSnsPost={setSnsPost}
+          setIsActiveScrapViewPopup={setIsActiveScrapView}
         />
       )}
       {isActiveProfileBlock && (
@@ -475,7 +468,12 @@ const ProfilePostDetail: React.FC<ProfilePostDetailProps> = ({
           setIsSettingPopup={setIsSettingActive}
         />
       )}
-      {isSharePopup && <SnsSharePopup />}
+      {isSharePopup && (
+        <SnsSharePopup
+          shareLink={window.location.href}
+          setIsSharePopup={setIsSharePopup}
+        />
+      )}
       {postContentZoomPopupInfo.isActive && (
         <PostCotentZoomPopup
           snsPost={snsPost}
@@ -580,7 +578,7 @@ const SettingPopupWrap = styled.div`
   height: auto;
 
   margin-top: 50px;
-  padding-bottom: 100px;
+  padding-bottom: 50px;
   width: 100%;
   background: white;
   border-radius: 15px 15px 0 0;

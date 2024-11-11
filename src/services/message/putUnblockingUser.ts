@@ -1,11 +1,11 @@
-import { api } from '..';
+import { privateApi } from '..';
 import { PutBlockingUserRsp } from '../../global/interface/message';
 import { MESSAGE_PATH, MSG_UNBLOCK_USER_LIST_PATH } from '../appApiPath';
 
 export const putUnblockingUser = (
   targetUserId: string,
 ): Promise<PutBlockingUserRsp> => {
-  return api
+  return privateApi
     .put(`${MESSAGE_PATH}${MSG_UNBLOCK_USER_LIST_PATH}/${targetUserId}`)
     .then((res) => {
       console.log(res.data);

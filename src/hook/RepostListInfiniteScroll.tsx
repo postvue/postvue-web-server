@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 import styled from 'styled-components';
 
+import InViewComponent from 'components/common/container/InViewComponent';
 import { useRecoilState } from 'recoil';
 import { getRePostList } from '../services/post/getRepostList';
 import {
@@ -33,7 +34,7 @@ const RepostListInfiniteScroll: React.FC<RepostInfiniteScrollProps> = ({
           const newRepostHashMap = new Map(snsRepostHashMap);
 
           res.snsReactionRepostedRspList.forEach((repost) => {
-            newRepostHashMap.set(repost.useId, repost);
+            newRepostHashMap.set(repost.userId, repost);
           });
 
           setRepostHashMap(newRepostHashMap);
@@ -54,7 +55,7 @@ const RepostListInfiniteScroll: React.FC<RepostInfiniteScrollProps> = ({
 
   return (
     <ScrollBottomContainer ref={ref}>
-      <div>리포스트 테스트</div>
+      <InViewComponent />
     </ScrollBottomContainer>
   );
 };

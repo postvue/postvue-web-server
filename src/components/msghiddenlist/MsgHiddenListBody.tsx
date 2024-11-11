@@ -68,9 +68,7 @@ const MsgHiddenListBody: React.FC = () => {
   );
 };
 
-const MsgHiddenListBodyContainer = styled.div`
-  margin-top: ${({ theme }) => theme.systemSize.header.height};
-`;
+const MsgHiddenListBodyContainer = styled.div``;
 
 const MessageSearchContainer = styled.div`
   padding: 16px 15px 16px 15px;

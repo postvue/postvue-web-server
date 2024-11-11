@@ -81,7 +81,6 @@ const PostComposeTargetHeaderTitle = styled.div`
 `;
 
 const PostComposeTargetBodyContainer = styled.div`
-  margin-top: ${({ theme }) => theme.systemSize.header.height};
   display: flex;
   flex-flow: column;
   gap: 20px;

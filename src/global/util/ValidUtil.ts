@@ -6,7 +6,7 @@ import {
 } from 'const/SignupConst';
 
 export const isValidString = (str: string): boolean => {
-  return !/^\s*$/.test(str);
+  return str !== null && !/^\s*$/.test(str);
 };
 
 //최소 5글자, 최대 20글자까지 입력 가능합니다.

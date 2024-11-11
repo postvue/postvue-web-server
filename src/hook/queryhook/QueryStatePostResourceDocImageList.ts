@@ -3,7 +3,7 @@ import { AxiosError } from 'axios';
 import { POST_COMPOSE_IMG_RATIO } from 'const/PostComposeConst';
 import {
   QUERY_STATE_POST_RESOURCE_DOC_IMAGE_LIST,
-  SERACH_FAVORITE_TERMS_STALE_TIME,
+  STALE_30_MINUTES_TIME,
 } from 'const/QueryClientConst';
 import { PostDocResourceImageRsp } from 'global/interface/post';
 import { isValidString } from 'global/util/ValidUtil';
@@ -19,7 +19,7 @@ export const QueryStatePostResourceDocImageList = (
       getPostResourceDocImageList(sourceUrl).then((value) =>
         getValidImageList(value),
       ),
-    staleTime: SERACH_FAVORITE_TERMS_STALE_TIME,
+    staleTime: STALE_30_MINUTES_TIME,
     enabled: isValidString(sourceUrl) && active,
     retry: false,
   });

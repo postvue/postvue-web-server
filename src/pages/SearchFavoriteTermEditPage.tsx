@@ -2,13 +2,15 @@ import SearchFavoriteTermButton from 'components/common/buttton/SearchFavoriteTe
 import BoundaryStickBar from 'components/common/container/BoundaryStickBar';
 import AppBaseTemplate from 'components/layouts/AppBaseTemplate';
 import PrevButtonHeaderHeader from 'components/layouts/PrevButtonHeaderHeader';
-import ToastPopup from 'components/popups/ToastMsgPopup';
+import { SEARCH_POST_PATH } from 'const/PathConst';
 import { QueryStateSearchFavoriteTermList } from 'hook/queryhook/QueryStateSearchFavoriteTermList';
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 const SearchFavoriteTermEditPage: React.FC = () => {
   const { data } = QueryStateSearchFavoriteTermList();
+  const navigate = useNavigate();
   return (
     <AppBaseTemplate>
       <SearchFavoriteTermEditContainer>
@@ -17,7 +19,11 @@ const SearchFavoriteTermEditPage: React.FC = () => {
           {data !== undefined &&
             data.map((value, key) => (
               <React.Fragment key={key}>
-                <ProfileAccountSettingElementWrap>
+                <ProfileAccountSettingElementWrap
+                  onClick={() =>
+                    navigate(`${SEARCH_POST_PATH}/${value.favoriteTermName}`)
+                  }
+                >
                   <SearchFavoriteTermButton
                     searchWord={value.favoriteTermName}
                   />
@@ -30,7 +36,6 @@ const SearchFavoriteTermEditPage: React.FC = () => {
             ))}
         </SearchFavoriteItemListWrap>
       </SearchFavoriteTermEditContainer>
-      <ToastPopup />
     </AppBaseTemplate>
   );
 };
@@ -48,8 +53,6 @@ const ProfileAccountSettingElementTitle = styled.div`
   font: ${({ theme }) => theme.fontSizes.Body5};
 `;
 
-const SearchFavoriteItemListWrap = styled.div`
-  padding-top: ${({ theme }) => theme.systemSize.header.height};
-`;
+const SearchFavoriteItemListWrap = styled.div``;
 
 export default SearchFavoriteTermEditPage;

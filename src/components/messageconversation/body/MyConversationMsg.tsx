@@ -1,14 +1,9 @@
-import React from 'react';
-import { useSetRecoilState } from 'recoil';
+import LongPressToResizeButton from 'components/common/buttton/LongPressToResizeButton';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { MSG_REACTION_CLASS_NAME } from '../../../const/ClassNameConst';
-import {
-  MsgConversation,
-  MsgReactionInfo,
-} from '../../../global/interface/message';
+import { MsgConversation } from '../../../global/interface/message';
 import { convertDiffrenceDateTime } from '../../../global/util/DateTimeUtil';
-import { msgReactionInfoAtom } from '../../../states/MessageAtom';
-import LongPressReaction from '../../LongPressReaction';
+import MyMsgConversationReactionContextPopup from '../popup/MyMsgConversationReactionContextPopup';
 
 interface MyConversationMsgProps {
   groupData: {
@@ -21,27 +16,19 @@ interface MyConversationMsgProps {
 }
 
 const MyConversationMsg: React.FC<MyConversationMsgProps> = ({ groupData }) => {
-  const setMsgReactionInfo = useSetRecoilState(msgReactionInfoAtom);
-  const onDownService = (msgId: string) => {
-    const reactionElement = document.getElementById(
-      `${MSG_REACTION_CLASS_NAME}${msgId}`,
-    );
+  const [activeMsgReactionPopup, setActiveMsgReactionPopup] = useState<
+    boolean | number
+  >(false);
 
-    if (reactionElement !== null) {
-      const dom = reactionElement.getBoundingClientRect();
-      const body = document.body;
-
-      const msgReactionInfo: MsgReactionInfo = {
-        msgId: msgId,
-        msgHeight: dom.height,
-        y: dom.y,
-        height: body.offsetHeight,
-        isMyMsg: true,
-        msgText: reactionElement?.innerText,
-      };
-      setMsgReactionInfo(msgReactionInfo);
-    }
+  const onDownService = (msgIdx: number) => {
+    setActiveMsgReactionPopup(msgIdx);
   };
+
+  const msgContentListRef = useRef<HTMLDivElement[]>([]);
+
+  useEffect(() => {
+    console.log(msgContentListRef);
+  }, [msgContentListRef]);
 
   return (
     <MsgConversationMeWrap>
@@ -52,35 +39,68 @@ const MyConversationMsg: React.FC<MyConversationMsgProps> = ({ groupData }) => {
               <MsgConversationMeDate>
                 {convertDiffrenceDateTime(msg.msgConversation.sendAt)}
               </MsgConversationMeDate>
-              <LongPressReaction
-                onDownService={() => onDownService(msg.msgConversation.msgId)}
+              <LongPressToResizeButton
+                resize={MsgResize}
+                onDownFunc={() => onDownService(idx)}
               >
                 <MsgConversationMeItem
-                  id={`${MSG_REACTION_CLASS_NAME}${msg.msgConversation.msgId}`}
+                  ref={(el) => {
+                    if (!el) return;
+                    msgContentListRef.current[idx] = el;
+                  }}
                 >
                   {msg.msgConversation.msgContent}
                 </MsgConversationMeItem>
-              </LongPressReaction>
+              </LongPressToResizeButton>
+              {activeMsgReactionPopup &&
+                activeMsgReactionPopup === idx &&
+                msgContentListRef.current[idx] && (
+                  <MyMsgConversationReactionContextPopup
+                    setActiveMsgReactionPopup={setActiveMsgReactionPopup}
+                    msgConversationReactionContextRef={
+                      msgContentListRef.current[idx]
+                    }
+                    msgText={msg.msgConversation.msgContent}
+                    msgId={msg.msgConversation.msgId}
+                  />
+                )}
             </MsgDateWrap>
           ) : (
-            <>
-              <LongPressReaction
-                onDownService={() => onDownService(msg.msgConversation.msgId)}
+            <MsgWrap>
+              <LongPressToResizeButton
+                resize={MsgResize}
+                onDownFunc={() => onDownService(idx)}
               >
                 <MsgConversationMeItem
-                  key={msg.msgConversation.msgId}
-                  id={`${MSG_REACTION_CLASS_NAME}${msg.msgConversation.msgId}`}
+                  ref={(el) => {
+                    if (!el) return;
+                    msgContentListRef.current[idx] = el;
+                  }}
                 >
                   {msg.msgConversation.msgContent}
                 </MsgConversationMeItem>
-              </LongPressReaction>
-            </>
+              </LongPressToResizeButton>
+              {activeMsgReactionPopup &&
+                activeMsgReactionPopup === idx &&
+                msgContentListRef.current[idx] && (
+                  <MyMsgConversationReactionContextPopup
+                    setActiveMsgReactionPopup={setActiveMsgReactionPopup}
+                    msgConversationReactionContextRef={
+                      msgContentListRef.current[idx]
+                    }
+                    msgText={msg.msgConversation.msgContent}
+                    msgId={msg.msgConversation.msgId}
+                  />
+                )}
+            </MsgWrap>
           )}
         </React.Fragment>
       ))}
     </MsgConversationMeWrap>
   );
 };
+
+const MsgResize = 0.95;
 
 const MsgConversationMeWrap = styled.div`
   display: flex;
@@ -102,12 +122,19 @@ const MsgConversationMeItem = styled.div`
   color: ${({ theme }) => theme.mainColor.White};
   border-radius: 20px;
   max-width: 259px;
+  word-break: break-all;
 `;
 
 const MsgDateWrap = styled.div`
   display: flex;
   gap: 5px;
   margin-bottom: 20px;
+  position: relative;
+`;
+
+const MsgWrap = styled.div`
+  display: flex;
+  position: relative;
 `;
 
 const MsgConversationFollowDate = styled.div`
@@ -122,6 +149,7 @@ const MsgConversationFollowDate = styled.div`
 
 const MsgConversationMeDate = styled(MsgConversationFollowDate)`
   text-align: end;
+  white-space: nowrap;
 `;
 
 export default MyConversationMsg;

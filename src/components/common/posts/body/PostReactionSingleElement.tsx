@@ -1,4 +1,6 @@
-import React from 'react';
+import WindowResizeSenceComponent from 'components/common/container/WindowResizeSenseComponent';
+import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
+import React, { useState } from 'react';
 import { RecoilState } from 'recoil';
 import styled from 'styled-components';
 import { PostRsp } from '../../../../global/interface/post';
@@ -20,32 +22,41 @@ const PostReactionSingleElement: React.FC<PostReactionSingleElementProps> = ({
   funcHeartState,
   funcClipState,
 }) => {
+  const [windowSize, setWindowSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
   return (
-    <ReactionContainer>
-      <HrtMsgShrReactionContainer>
-        {postId && (
-          <>
-            <HeartButtonFactory
-              postId={postId}
-              isList={false}
-              singleState={postRspAtom}
-              funcHeartState={funcHeartState}
-            />
-            <MsgButton postId={postId} />
-          </>
-        )}
+    <>
+      <ReactionContainer>
+        <HrtMsgShrReactionContainer>
+          {postId && (
+            <>
+              <HeartButtonFactory
+                postId={postId}
+                isList={false}
+                singleState={postRspAtom}
+                funcHeartState={funcHeartState}
+              />
+              {windowSize.width <= MEDIA_MOBILE_MAX_WIDTH_NUM && (
+                <MsgButton postId={postId} />
+              )}
+            </>
+          )}
 
-        <ShareButton />
-      </HrtMsgShrReactionContainer>
-      {postId && (
-        <ClipButtonFactory
-          postId={postId}
-          isList={false}
-          singleState={postRspAtom}
-          funcState={funcClipState}
-        />
-      )}
-    </ReactionContainer>
+          <ShareButton />
+        </HrtMsgShrReactionContainer>
+        {postId && (
+          <ClipButtonFactory
+            postId={postId}
+            isList={false}
+            singleState={postRspAtom}
+            funcState={funcClipState}
+          />
+        )}
+      </ReactionContainer>
+      <WindowResizeSenceComponent setWindowSize={setWindowSize} />
+    </>
   );
 };
 

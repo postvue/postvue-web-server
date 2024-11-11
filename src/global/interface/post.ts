@@ -17,7 +17,6 @@ export interface PostRsp {
   profilePath: string;
   location: Location;
   tags: string[];
-  reactionCount: number;
   isFollowed: boolean;
   followable: boolean;
   isLiked: boolean;
@@ -31,6 +30,19 @@ export interface PostRsp {
   postedAt: string;
 }
 
+export interface PostInfoRsp {
+  postId: string;
+  userId: string;
+  location: Location;
+  tags: string[];
+  postContents: PostContentInterface[];
+  postCategory: string;
+  postBodyText: string;
+  postTitle: string;
+  postedAt: string;
+  targetAudTypeId: number;
+}
+
 export interface MasonryPostRsp {
   postId: string;
   userId: string;
@@ -38,6 +50,12 @@ export interface MasonryPostRsp {
   postContentType: string;
   username: string;
   location: Location;
+}
+
+export interface DeleteCommentRsp {
+  postId: string;
+  commentId: string;
+  isDeleted: boolean;
 }
 
 export interface PostLikeRsp {
@@ -51,8 +69,9 @@ export interface PostClipRsp {
 export interface PostComment {
   postCommentId: string;
   commentUserId: string;
-  postCommentType: string;
-  postCommentContent: string;
+  postCommentMsg: string;
+  commentMediaType: string;
+  commentMediaContent: string;
   isLiked: boolean;
   likeCount: number;
   commentCount: number;
@@ -64,7 +83,7 @@ export interface PostComment {
 }
 
 export interface PostProfileInfoRsp {
-  useId: string;
+  userId: string;
   username: string;
   nickname: string;
   profilePath: string;
@@ -74,24 +93,28 @@ export interface PostProfileInfoRsp {
 }
 
 export interface PostCommentReq {
-  postCommentType: string;
-  postCommentContent: string;
+  postCommentMsg: string;
 }
 
-export interface PostCommentRsp {
-  postCommentId: string;
-  commentUserId: string;
-  postCommentType: string;
-  postCommentContent: string;
-  isLiked: boolean;
-  likeCount: number;
-  commentCount: number;
-  username: string;
-  profilePath: string;
-  postedAt: string;
-  isReplyMsg: boolean;
-  replyTargetCommentId: string;
+export interface CreatePostReportReq {
+  postReportReason: string | null;
+  postReportReasonType: string;
 }
+
+// export interface PostCommentRsp {
+//   postCommentId: string;
+//   commentUserId: string;
+//   postCommentType: string;
+//   postCommentContent: string;
+//   isLiked: boolean;
+//   likeCount: number;
+//   commentCount: number;
+//   username: string;
+//   profilePath: string;
+//   postedAt: string;
+//   isReplyMsg: boolean;
+//   replyTargetCommentId: string;
+// }
 
 export interface PostInterested {
   postId: string;
@@ -114,14 +137,19 @@ export interface PostDocResourceImageRsp {
   contentType: string;
 }
 
-export interface PostComposeUploadResource {
+export interface PostUploadContent {
   contentUrl: string;
   contentType: string;
+  isLink: boolean;
+  fileBlob: Blob | null;
+  filename: string | null;
+  isUploadedLink: boolean;
 }
 
 export interface PostComposeUploadByResourceLinkReq {
-  latitude: number;
-  longitude: number;
+  latitude?: number;
+  longitude?: number;
+  address: string;
   postContents: PostContentInterface[];
   tagList: string[];
   title: string;

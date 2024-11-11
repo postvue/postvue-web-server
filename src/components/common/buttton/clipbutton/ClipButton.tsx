@@ -9,9 +9,13 @@ import { GetMyProfileScrapPreviewsRsp } from '../../../../global/interface/profi
 import { createPostToScrap } from '../../../../services/profile/createPostToScrap';
 import { deletePostToScrap } from '../../../../services/profile/deletePostToScrap';
 import { isActiveScrapViewPopupAtom } from '../../../../states/ProfileAtom';
-import theme from '../../../../styles/theme';
 import ContextMenuPopup from '../../../popups/ContextMenuPopup';
 import LongPressToResizeButton from '../LongPressToResizeButton';
+
+import { ReactComponent as PostClipButtonIcon } from 'assets/images/icon/svg/post/PostClipButtonIcon.svg';
+import { ReactComponent as PostClipedButtonIcon } from 'assets/images/icon/svg/post/PostClipedButtonIcon.svg';
+import { notify } from 'components/popups/ToastMsgPopup';
+import { SAVE_POST_TO_SCRAP } from 'const/SystemPhraseConst';
 
 interface ClipButtonProps {
   setClipStete: (postClipRsp: PostClipRsp) => void;
@@ -56,42 +60,43 @@ const ClipButton: React.FC<ClipButtonProps> = ({
   }, [data]);
 
   const onAddScrap = (scrapId: string) => {
-    if (postId) {
-      createPostToScrap(scrapId, postId)
-        .then((value) => {
-          const postClipRsp: PostClipRsp = {
-            isClipped: value.isClipped,
-          };
-          if (!isClipped) {
-            setClipStete(postClipRsp);
-          }
-          if (value.isClipped) {
-            anime({
-              targets: clipRef.current,
-              scale: [1, 1.5],
-              duration: 300,
-              easing: 'easeInOutQuad',
-              direction: 'alternate',
-            });
-          }
-
-          setScrapBoardPreviewList((prev) => {
-            const prevCopy = [...prev];
-
-            prev.forEach((prevValue, index) => {
-              if (prevValue.scrapBoardId === scrapId) {
-                prevCopy[index].isScraped = value.isScraped;
-              }
-            });
-            return prevCopy;
+    if (!postId) return;
+    createPostToScrap(scrapId, postId)
+      .then((value) => {
+        const postClipRsp: PostClipRsp = {
+          isClipped: value.isClipped,
+        };
+        if (!isClipped) {
+          setClipStete(postClipRsp);
+        }
+        if (value.isClipped) {
+          anime({
+            targets: clipRef.current,
+            scale: [1, 1.5],
+            duration: 300,
+            easing: 'easeInOutQuad',
+            direction: 'alternate',
           });
+        }
 
-          setIsScrapBoardActive(false);
-        })
-        .catch((err) => {
-          throw err;
+        setScrapBoardPreviewList((prev) => {
+          const prevCopy = [...prev];
+
+          prev.forEach((prevValue, index) => {
+            if (prevValue.scrapBoardId === scrapId) {
+              prevCopy[index].isScraped = value.isScraped;
+            }
+          });
+          return prevCopy;
         });
-    }
+
+        setIsScrapBoardActive(false);
+
+        notify(SAVE_POST_TO_SCRAP);
+      })
+      .catch((err) => {
+        throw err;
+      });
   };
 
   const onDeleteScrap = (scrapId: string) => {
@@ -133,26 +138,12 @@ const ClipButton: React.FC<ClipButtonProps> = ({
     <ClipButtonContainer key={postId}>
       <LongPressToResizeButton resize={0.85} resizeSpeedRate={0.2}>
         <ClipButtonWrap onClick={(e) => onClickClipButton(e)} ref={clipRef}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill={isClipped ? theme.grey.Grey6 : 'none'}
-          >
-            <path
-              d="M18 7V19.1315C18 19.9302 17.1099 20.4066 16.4453 19.9635L12 17L7.5547 19.9635C6.89014 20.4066 6 19.9302 6 19.1315V7C6 5.93913 6.42143 4.92172 7.17157 4.17157C7.92172 3.42143 8.93913 3 10 3H14C15.0609 3 16.0783 3.42143 16.8284 4.17157C17.5786 4.92172 18 5.93913 18 7Z"
-              stroke={theme.grey.Grey6}
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          {isClipped ? <PostClipedButtonIcon /> : <PostClipButtonIcon />}
         </ClipButtonWrap>
       </LongPressToResizeButton>
-      {isScrapBoardActive && !isLoading && (
+      {isScrapBoardActive && !isLoading && clipRef.current && (
         <ContextMenuPopup
-          contextMenuRef={clipRef}
+          contextMenuRef={clipRef.current}
           setIsActive={setIsScrapBoardActive}
         >
           {scrapBoardPreviewList.map((value, index) => {

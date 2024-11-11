@@ -9,7 +9,11 @@ import LongPressToResizeButton from './LongPressToResizeButton';
 const ShareButton: React.FC = () => {
   const setIsSharePopup = useSetRecoilState(isSharePopupAtom);
   return (
-    <LongPressToResizeButton resize={0.85} resizeSpeedRate={0.2}>
+    <LongPressToResizeButton
+      resize={0.85}
+      resizeSpeedRate={0.2}
+      LongPressToResizeButtonContainerStyle={{ display: 'flex' }}
+    >
       <ShareButtonWrap
         onClick={(e) => {
           e.stopPropagation();
@@ -25,6 +29,7 @@ const ShareButton: React.FC = () => {
 const ShareButtonWrap = styled.div`
   display: flex;
   margin: auto 0;
+  cursor: pointer;
 `;
 
 export default ShareButton;

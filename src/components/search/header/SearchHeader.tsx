@@ -42,7 +42,7 @@ import PrevButton from '../../PrevButton';
 import HeaderLayout from '../../layouts/HeaderLayout';
 import SearchButtonInputElement from './SearchButtonInputElement';
 
-import loadingBarGif from 'assets/images/gif/loadingBar.gif';
+import LoadingComponent from 'components/common/container/LoadingComponent';
 
 interface SearchHeaderProps {
   backToUrl: string;
@@ -235,16 +235,10 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
           )}
         </SearchHeaderWrap>
       </HeaderLayout>
-      {loading && isSearchInputActive && (
-        <SearchLoadingWrap>
-          <SearchLoadingGif src={loadingBarGif} />
-        </SearchLoadingWrap>
-      )}
+      {loading && isSearchInputActive && <LoadingComponent />}
     </>
   );
 };
-
-const LoadingBarSize = '50px';
 
 const SearchHeaderWrap = styled.div`
   margin: auto 0;
@@ -272,19 +266,6 @@ const SearchInputCancelButton = styled.div`
   padding-right: 20px;
   cursor: pointer;
   animation: ${animationStyle.slideLeft} 0.1s ease-in forwards;
-`;
-
-const SearchLoadingWrap = styled.div`
-  position: fixed;
-  top: calc(30%);
-  left: 50%;
-  transform: translate(-50%, 50%);
-  z-index: 100;
-`;
-
-const SearchLoadingGif = styled.img`
-  width: ${LoadingBarSize};
-  height: ${LoadingBarSize};
 `;
 
 export default SearchHeader;

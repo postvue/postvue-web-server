@@ -1,130 +1,174 @@
 import SideNavBar from 'components/SideNavBar';
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useState } from 'react';
 import styled from 'styled-components';
 
-import { ReactComponent as FeelogLogo } from 'assets/images/icon/svg/pc/FeelogLogo.svg';
-import LongPressToResizeButton from 'components/common/buttton/LongPressToResizeButton';
+import WindowResizeSenceComponent from 'components/common/container/WindowResizeSenseComponent';
 import SearchBody from 'components/search/body/SearchBody';
 import SearchSuggestBody from 'components/search/body/SearchSuggestBody';
 import SearchHeader from 'components/search/header/SearchHeader';
 import { HOME_PATH, PROFILE_SETTING_PATH, SEARCH_PATH } from 'const/PathConst';
-import { MEDIA_MOBILE_MAX_WIDTH } from 'const/SystemAttrConst';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import {
+  MEDIA_MIDDLE_1300_WIDTH,
+  MEDIA_MIDDLE_1400_WIDTH,
+  MEDIA_MIDDLE_WIDTH,
+  MEDIA_MOBILE_MAX_WIDTH,
+  MEDIA_MOBILE_MAX_WIDTH_NUM,
+} from 'const/SystemAttrConst';
+import { useLocation } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import { isSearchInputActiveAtom } from 'states/SearchPostAtom';
+import { borderShadowStyle_prop } from 'styles/commonStyles';
 import theme from 'styles/theme';
 
 interface AppBaseTemplate {
   children: ReactNode;
+  slideBarNode?: ReactNode;
+  SlideBarNodeStyle?: React.CSSProperties;
+  hasSearchInputModule?: boolean;
+  hasSearchBodyModule?: boolean;
+  SideContainerStyle?: React.CSSProperties;
+  SideBarNodeWrapStyle?: React.CSSProperties;
+  AppContainerStyle?: React.CSSProperties;
+  isTransparentSearchButton?: boolean;
 }
 
-const AppBaseTemplate: React.FC<AppBaseTemplate> = ({ children }) => {
-  const navigate = useNavigate();
-
+const AppBaseTemplate: React.FC<AppBaseTemplate> = ({
+  children,
+  slideBarNode,
+  hasSearchInputModule = true,
+  hasSearchBodyModule = true,
+  SideContainerStyle,
+  SlideBarNodeStyle,
+  SideBarNodeWrapStyle,
+  AppContainerStyle,
+  isTransparentSearchButton = false,
+}) => {
   const isSearchInputActive = useRecoilValue(isSearchInputActiveAtom);
-
-  const param = useParams();
 
   const location = useLocation();
 
   // '/search' 경로로 시작하는 경우 모듈을 숨기고 싶다면
-  const isSearchBodyPage = location.pathname.startsWith(SEARCH_PATH);
+  const isSearchBodyPage = location.pathname.startsWith(`${SEARCH_PATH}/`);
 
   const isNotActiveSearchBody =
     [SEARCH_PATH].includes(location.pathname) ||
     location.pathname.startsWith(PROFILE_SETTING_PATH);
 
+  const [windowSize, setWindowSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
+
   return (
-    <Container>
-      {/* refer: 수정 */}
-      <Header>
-        <HeaderContainer>
-          <HeaderWrap>
-            <HeaderSidebarWrap>
-              <HeaderSidebarLogoWrap onClick={() => navigate(HOME_PATH)}>
-                <LongPressToResizeButton resize={0.85} resizeSpeedRate={0.3}>
-                  <FeelogLogo />
-                </LongPressToResizeButton>
-              </HeaderSidebarLogoWrap>
+    <>
+      <Container>
+        {/* refer: 수정 */}
+        {windowSize.width > MEDIA_MOBILE_MAX_WIDTH_NUM && (
+          <Header>
+            <HeaderWrap>
               <SideNavBar />
-            </HeaderSidebarWrap>
+            </HeaderWrap>
+            {/* <HeaderContainer>
+              
+            </HeaderContainer> */}
+          </Header>
+        )}
 
-            <PoseComposeButtonWrap>
-              <PoseComposeButton>게시하기</PoseComposeButton>
-            </PoseComposeButtonWrap>
-          </HeaderWrap>
-        </HeaderContainer>
-      </Header>
-      <Main id="main">
-        <MainContainer>
-          <MainWrap>
-            <AppContainer>{children}</AppContainer>
-            {/* refer: 수정 */}
-            <SideBar>
-              {!isSearchBodyPage && (
-                <>
-                  <SearchHeader
-                    backToUrl={HOME_PATH}
-                    SearchHeaderContainer={{
-                      maxWidth: `${SIDE_WIDTH}px`,
-                    }}
-                    isPrevButton={false}
-                  />
-                  {isSearchInputActive && (
-                    <SearchSuggestBodyWrap>
-                      <SearchSuggestBody
-                        SearchSuggestBodyContiainerStyle={{
-                          maxWidth: `${SIDE_WIDTH}px`,
+        <Main id="main">
+          <MainContainer>
+            <MainWrap>
+              <AppContainer style={AppContainerStyle}>{children}</AppContainer>
+              {/* refer: 수정 */}
+              {windowSize.width > MEDIA_MOBILE_MAX_WIDTH_NUM && (
+                <SideBar style={SideContainerStyle}>
+                  {hasSearchInputModule && (
+                    <>
+                      <SearchHeader
+                        backToUrl={HOME_PATH}
+                        SearchHeaderContainer={{
+                          width: `${SIDE_WIDTH}px`,
+                          backgroundColor: isTransparentSearchButton
+                            ? 'transparent'
+                            : '',
+                          paddingTop: '10px',
+                          position: 'fixed',
                         }}
+                        isPrevButton={false}
                       />
-                    </SearchSuggestBodyWrap>
+                      {isSearchInputActive && (
+                        <SearchSuggestBodyWrap>
+                          <SearchSuggestBody
+                            SearchSuggestBodyContiainerStyle={{
+                              width: `${SIDE_WIDTH}px`,
+                            }}
+                          />
+                        </SearchSuggestBodyWrap>
+                      )}
+                    </>
                   )}
-                </>
-              )}
 
-              {!isNotActiveSearchBody && (
-                <RightSidebarWrapWrap>
-                  <SearchBodyWrap>
-                    <SearchBody
-                      SearchBodyStyle={
-                        isSearchBodyPage ? { marginTop: '20px' } : {}
-                      }
-                    />
-                  </SearchBodyWrap>
-                </RightSidebarWrapWrap>
+                  {hasSearchBodyModule && !isNotActiveSearchBody && (
+                    <SearchBodyWrap $isSearchPage={isSearchBodyPage}>
+                      <SearchBody />
+                    </SearchBodyWrap>
+                  )}
+                  {slideBarNode && (
+                    <RightSidebarWrapWrap style={SlideBarNodeStyle}>
+                      <SideBarNodeWrap style={SideBarNodeWrapStyle}>
+                        {slideBarNode}
+                      </SideBarNodeWrap>
+                    </RightSidebarWrapWrap>
+                  )}
+                </SideBar>
               )}
-            </SideBar>
-          </MainWrap>
-        </MainContainer>
-      </Main>
-    </Container>
+            </MainWrap>
+          </MainContainer>
+        </Main>
+      </Container>
+      <WindowResizeSenceComponent setWindowSize={setWindowSize} />
+    </>
   );
 };
 
 const CONTAINER_GAP = 70;
+const CONTAINER_MIN_GAP = 30;
 
 const HEADER_WIDTH = 400;
 
 const SIDE_WIDTH = 400;
 
+const RightSideHeaderMargin = 8;
+
 const Container = styled.div`
   justify-content: center;
   display: flex;
   flex-direction: row;
-  gap: ${CONTAINER_GAP}px;
-`;
-const Header = styled.header`
-  @media (max-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
-    display: none;
+
+  @media (max-width: ${MEDIA_MIDDLE_WIDTH}) {
+    gap: ${CONTAINER_MIN_GAP}px;
   }
 
-  @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
-    min-width: ${HEADER_WIDTH}px;
-    max-width: ${HEADER_WIDTH}px;
-    height: 100%;
-    width: 100%;
-    display: flex;
+  @media (min-width: ${MEDIA_MIDDLE_WIDTH}) {
+    gap: ${CONTAINER_GAP}px;
+  }
+`;
+const Header = styled.header`
+  height: 100vh;
+  width: 100%;
+  display: flex;
+
+  @media ((min-width: ${MEDIA_MOBILE_MAX_WIDTH}) and (max-width: ${MEDIA_MIDDLE_1400_WIDTH})) {
+    padding-left: 50px;
+    width: 150px;
+  }
+  @media (max-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
+    width: 150px;
+  }
+
+  @media (min-width: ${MEDIA_MIDDLE_1400_WIDTH}) {
     justify-content: center;
+    min-width: ${HEADER_WIDTH - 100}px;
+    max-width: ${HEADER_WIDTH - 100}px;
   }
 `;
 
@@ -142,43 +186,18 @@ const HeaderWrap = styled.div`
   position: fixed;
 `;
 
-const HeaderSidebarLogoWrap = styled.div`
-  padding-top: 20px;
-  cursor: pointer;
-`;
-
-const HeaderSidebarWrap = styled.div`
-  display: flex;
-  flex-flow: column;
-  gap: 50px;
-`;
-
 const SideBar = styled.div`
-  @media (max-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
-    display: none;
-  }
+  position: relative;
 
-  @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
-    width: 100%;
-    max-width: ${SIDE_WIDTH}px;
-    min-width: ${SIDE_WIDTH}px;
+  max-width: ${SIDE_WIDTH}px;
+  min-width: ${SIDE_WIDTH}px;
+
+  @media (max-width: ${MEDIA_MIDDLE_1300_WIDTH}) {
+    padding-right: 10px;
   }
 `;
 
 const SearchSuggestBodyWrap = styled.div``;
-
-const PoseComposeButtonWrap = styled.div`
-  margin-bottom: ${({ theme }) =>
-    theme.systemSize.appDisplaySize.bottomButtonMargin};
-`;
-
-const PoseComposeButton = styled.div`
-  font: ${({ theme }) => theme.fontSizes.Headline2};
-  padding: 8px 65px;
-  background-color: ${({ theme }) => theme.mainColor.Blue};
-  color: ${({ theme }) => theme.mainColor.White};
-  border-radius: 30px;
-`;
 
 const Main = styled.main`
   @media (max-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
@@ -190,38 +209,61 @@ const MainContainer = styled.div``;
 
 const MainWrap = styled.div`
   display: flex;
-  gap: ${CONTAINER_GAP}px;
+
+  @media ((min-width: ${MEDIA_MOBILE_MAX_WIDTH}) and (max-width: ${MEDIA_MIDDLE_WIDTH})) {
+    gap: ${CONTAINER_MIN_GAP}px;
+  }
+
+  @media (min-width: ${MEDIA_MIDDLE_WIDTH}) {
+    gap: ${CONTAINER_GAP}px;
+  }
+
+  @media (max-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
+    max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
+    margin: auto;
+  }
 `;
 
 const AppContainer = styled.div`
   width: 100%;
-
-  margin-bottom: 86px;
-
-  // @media (min-width: ${theme.systemSize.appDisplaySize.maxWidth}) {
-  //   display: flex;
-  //   margin: auto;
-  // }
+  position: relative;
 
   @media (max-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
     max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
+    margin: auto;
+    // margin-bottom: 86px;
   }
 
   @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
-    max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
-    min-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
+    max-width: ${({ theme }) => theme.systemSize.appDisplaySize.widthByPc};
+    min-width: ${({ theme }) => theme.systemSize.appDisplaySize.widthByPc};
+    margin-bottom: 8px;
   }
 `;
 
-const SearchBodyWrap = styled.div`
-  max-width: ${SIDE_WIDTH}px;
+const SearchBodyWrap = styled.div<{ $isSearchPage: boolean }>`
   width: 100%;
-  position: fixed;
+  position: sticky;
+
+  padding-top: ${(props) =>
+    props.$isSearchPage ? '0px' : `${theme.systemSize.header.height}`};
+  top: ${(props) => (props.$isSearchPage ? `-160px` : '-180px')};
+`;
+
+const SideBarNodeWrap = styled.div`
+  width: 100%;
+  position: relative;
+  height: calc(100vh - ${RightSideHeaderMargin * 2}px);
 `;
 
 const RightSidebarWrapWrap = styled.div`
-  overflow-y: scroll;
-  height: 100vh;
+  margin-top: ${RightSideHeaderMargin}px;
+  max-width: ${SIDE_WIDTH}px;
+  min-width: ${SIDE_WIDTH}px;
+  position: fixed;
+
+  border-radius: 20px;
+  box-shadow: ${borderShadowStyle_prop};
 `;
 
 export default AppBaseTemplate;

@@ -5,7 +5,6 @@ import { ReactComponent as PrivateProfileButtonIcon } from 'assets/images/icon/s
 import ToggleSwitchButton from 'components/common/buttton/ToggleSwitchButton';
 import MyAccountSettingInfoState from 'components/common/state/MyAccountSettingInfoState';
 import ConfirmPopup from 'components/popups/ConfirmPopup';
-import ToastPopup from 'components/popups/ToastMsgPopup';
 import { QueryMutationPutMyPrivateProfileInfo } from 'hook/queryhook/QueryMutationPutMyPrivateProfileInfo';
 import { QueryStateMyProfileInfo } from 'hook/queryhook/QueryStateMyProfileInfo';
 import { useRecoilState } from 'recoil';
@@ -77,13 +76,12 @@ const ProfileAccountSettingPrivateProfileBody: React.FC = () => {
           actionFunc={confirmPrivateProfile}
         />
       )}
-      <ToastPopup />
     </>
   );
 };
 
 const ProfileEditEmailContainer = styled.div`
-  padding-top: calc(${({ theme }) => theme.systemSize.header.height} + 30px);
+  padding-top: 30px;
 `;
 
 const ProfileEditEmailInputWrap = styled.div`

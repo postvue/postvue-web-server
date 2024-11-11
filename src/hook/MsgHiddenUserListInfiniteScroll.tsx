@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { useInView } from 'react-intersection-observer';
 // import CopyRightFooter from '../conponents/CopyRightFooter';
 
+import InViewComponent from 'components/common/container/InViewComponent';
 import { useRecoilState, useResetRecoilState } from 'recoil';
 import { getHiddenUserList } from '../services/message/getHiddenUserList';
 import {
@@ -62,7 +63,7 @@ const MsgHiddenUserListInfiniteScroll: React.FC = () => {
 
   return (
     <ScrollBottomContainer ref={ref}>
-      <div>테스트</div>
+      <InViewComponent />
     </ScrollBottomContainer>
   );
 };

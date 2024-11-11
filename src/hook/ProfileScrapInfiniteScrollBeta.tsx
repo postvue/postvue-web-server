@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 import styled from 'styled-components';
 
+import InViewComponent from 'components/common/container/InViewComponent';
 import { useRecoilState, useResetRecoilState, useSetRecoilState } from 'recoil';
 import { getProfileScrap } from '../services/profile/getProfileScrap';
 import { cursorIdByScrapAtom, myProfileScrapAtom } from '../states/ProfileAtom';
@@ -49,7 +50,7 @@ const ProfileScarpInfiniteScrollBeta: React.FC<
 
   return (
     <ScrollBottomContainer ref={ref}>
-      <div>스크랩 테스트</div>
+      <InViewComponent />
     </ScrollBottomContainer>
   );
 };

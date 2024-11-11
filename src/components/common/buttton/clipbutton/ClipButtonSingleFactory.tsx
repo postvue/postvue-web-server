@@ -44,7 +44,7 @@ const ClipButtonSingleFactory: React.FC<ClipButtonSingleFactoryProps> = ({
         postId={postId}
         setClipStete={setClipSingleButtonState}
         isClipped={snsPost?.isClipped || false}
-      ></ClipButton>
+      />
     </>
   );
 };

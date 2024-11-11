@@ -1,64 +1,42 @@
+import InViewComponent from 'components/common/container/InViewComponent';
 import React, { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
+import { GetRecommPostRelationRsp } from 'services/recomm/getRecommPostRelation';
 import styled from 'styled-components';
+import { QueryStatePostRelationListInfinite } from './queryhook/QueryStatePostRelationListInfinite';
 
-import { useRecoilState } from 'recoil';
-import { getRecommPostRelation } from '../services/recomm/getRecommPostRelation';
-import {
-  cursorIdByPostRelationAtom,
-  postRelationHashMapAtom,
-} from '../states/PostRelation';
-
-interface PostCommentInfiniteScrollProps {
+interface ProfilePostListInfiniteScrollProps {
   postId: string;
 }
 
-const PostRelationInfiniteScroll: React.FC<PostCommentInfiniteScrollProps> = ({
-  postId,
-}) => {
-  const [cursorNum, setCursorNum] = useRecoilState(cursorIdByPostRelationAtom);
+export interface ProfilePostRelationQueryInterface {
+  pages: GetRecommPostRelationRsp[];
+  pageParams: unknown[];
+}
 
-  const [ref, inView] = useInView();
+const PostRelationListInfiniteScroll: React.FC<
+  ProfilePostListInfiniteScrollProps
+> = ({ postId }) => {
+  const { ref, inView } = useInView();
 
-  const [snsPostRelationHashMap, setSnsPostRelationHashMap] = useRecoilState(
-    postRelationHashMapAtom,
-  );
-
-  const callback = () => {
-    getRecommPostRelation(postId, cursorNum)
-      .then((res) => {
-        if (res.snsPostRspList.length > 0) {
-          const newSnsPostRelationHashMap = new Map(snsPostRelationHashMap);
-
-          res.snsPostRspList.forEach((postRelation) => {
-            newSnsPostRelationHashMap.set(postRelation.postId, postRelation);
-          });
-
-          setSnsPostRelationHashMap(newSnsPostRelationHashMap);
-        }
-
-        setCursorNum(res.cursorId);
-      })
-      .catch((err) => {
-        throw err;
-      });
-  };
+  const { fetchNextPage, hasNextPage, isFetchingNextPage } =
+    QueryStatePostRelationListInfinite(postId);
 
   useEffect(() => {
-    if (inView) {
-      callback();
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
     }
-  }, [inView]);
+  }, [inView]); //hasNextPage, isFetchingNextPage
 
   return (
-    <ScrollBottomContainer ref={ref}>
-      <div>댓글 테스트</div>
-    </ScrollBottomContainer>
+    <PostRelationWrap ref={ref}>
+      <InViewComponent />
+    </PostRelationWrap>
   );
 };
 
-const ScrollBottomContainer = styled.div`
+const PostRelationWrap = styled.div`
   margin: 0px auto;
 `;
 
-export default PostRelationInfiniteScroll;
+export default PostRelationListInfiniteScroll;

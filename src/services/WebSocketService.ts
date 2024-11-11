@@ -1,6 +1,11 @@
 import { Client, IMessage, StompSubscription } from '@stomp/stompjs';
 import { SetterOrUpdater } from 'recoil';
 
+import {
+  WEBSOCKET_HEARTBEAT_INCOMING_TIME,
+  WEBSOCKET_HEARTBEAT_OUTGOING_TIME,
+  WEBSOCKET_RECONNECT_DELAY_TIME,
+} from 'const/WebSocketConfigConst';
 import { ACCESS_TOKEN_EXPIRED_ERROR_STOMP_DELIVERY_MESSAGE } from 'const/WebSocketStompErrorConst';
 import { NotificationMsgWsSub } from 'global/interface/notification';
 import { ProfileMyInfo } from 'global/interface/profile';
@@ -9,6 +14,7 @@ import { getAccessTokenToLocalStorage } from 'global/util/CookieUtil';
 import { handleWebSocketStomp } from 'services';
 import { SessionActiveUserInfoSub } from '../global/interface/session';
 import { getMyAccountSettingInfo } from '../global/util/MyAccountSettingUtil';
+import msgConversationWsService from './message/MsgConversationWsService';
 import notificationWsService from './notification/NotificationWsService';
 import sessionWsService from './session/SessionWsService';
 import {
@@ -28,6 +34,8 @@ class WebSocketService {
   private setNotificationMsgHashMap: SetterOrUpdater<
     Map<string, NotificationMsgWsSub>
   > | null = null;
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  private handleUnreadMsg: () => void = () => {};
   private authorization = '';
   private isInitialized = false;
   private onInitializedCallbacks: Array<() => void> = [];
@@ -42,9 +50,9 @@ class WebSocketService {
       debug: (str) => {
         console.log(str); //@REFER: 나중에 지우도록
       },
-      reconnectDelay: 5000,
-      heartbeatIncoming: 4000,
-      heartbeatOutgoing: 4000,
+      reconnectDelay: WEBSOCKET_RECONNECT_DELAY_TIME,
+      heartbeatIncoming: WEBSOCKET_HEARTBEAT_INCOMING_TIME,
+      heartbeatOutgoing: WEBSOCKET_HEARTBEAT_OUTGOING_TIME,
       // webSocketFactory: () => new SockJS(this.getSocketUrl()),
       onDisconnect: this.onDisconnect,
       onStompError: this.onStompError,
@@ -70,11 +78,13 @@ class WebSocketService {
     setNotificationMsgHashMap: SetterOrUpdater<
       Map<string, NotificationMsgWsSub>
     >,
+    handleUnreadMsg: () => void,
   ): void {
     this.sessionActiveUserInfoHashMap = sessionActiveUserInfoHashMap;
     this.setSessionActiveUserInfoHashMap = setSessionActiveUserInfoHashMap;
     this.notificationMsgHashMap = notificationMsgHashMap;
     this.setNotificationMsgHashMap = setNotificationMsgHashMap;
+    this.handleUnreadMsg = handleUnreadMsg;
   }
 
   public activateConnect(): void {
@@ -133,6 +143,7 @@ class WebSocketService {
         this.notificationMsgHashMap,
         this.setNotificationMsgHashMap,
       );
+      msgConversationWsService.connect(this.handleUnreadMsg, myAccountSetting);
     }
   };
 

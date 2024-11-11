@@ -1,8 +1,9 @@
+import { SAVE_POST_TO_SCRAP } from 'const/SystemPhraseConst';
 import { onClickClipGlobalState } from 'global/globalstateaction/onClickClipGlobalState';
-import React, { useRef, useState } from 'react';
+import { PostRsp } from 'global/interface/post';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useRecoilState, useSetRecoilState } from 'recoil';
-import { postRspAtom } from 'states/PostAtom';
+import { SetterOrUpdater, useRecoilState } from 'recoil';
 import styled from 'styled-components';
 import theme from 'styles/theme';
 import { PROFILE_NEW_SCRAP_PATH } from '../../const/PathConst';
@@ -14,27 +15,33 @@ import {
 import { PostToScrapListReq } from '../../global/interface/profile';
 import { createPostToScrapList } from '../../services/profile/createPostToScrapList';
 import {
-  isActiveScrapViewPopupAtom,
   myProfileClipHashMapAtom,
   profilePostHashMapAtom,
 } from '../../states/ProfileAtom';
 import ProfileScrapViewBody from '../common/body/ProfileScrapViewBody';
 import PopupLayout from '../layouts/PopupLayout';
+import { notify } from './ToastMsgPopup';
 
 const popupWrapStyle: React.CSSProperties = {
   height: '85%',
 };
 
 interface ScrapViewPopupProps {
+  snsPost: PostRsp;
+  setSnsPost: SetterOrUpdater<PostRsp>;
   postId: string;
   postContentUrl: string;
   postContentType: string;
+  setIsActiveScrapViewPopup: SetterOrUpdater<boolean>;
 }
 
 const ScrapViewPopup: React.FC<ScrapViewPopupProps> = ({
+  snsPost,
+  setSnsPost,
   postId,
   postContentType,
   postContentUrl,
+  setIsActiveScrapViewPopup,
 }) => {
   // 클립 관련 상태 관리
   const [profilePostHashMap, setProfilePostHashMap] = useRecoilState(
@@ -44,12 +51,7 @@ const ScrapViewPopup: React.FC<ScrapViewPopupProps> = ({
     myProfileClipHashMapAtom,
   );
 
-  const [snsPost, setSnsPost] = useRecoilState(postRspAtom);
-
   const navigate = useNavigate();
-  const setIsActiveScrapViewPopup = useSetRecoilState(
-    isActiveScrapViewPopupAtom,
-  );
 
   const ScrapViewBodyRef = useRef<HTMLDivElement>(null);
 
@@ -85,6 +87,7 @@ const ScrapViewPopup: React.FC<ScrapViewPopupProps> = ({
         },
       );
       setSnsPost((prev) => ({ ...prev, isClipped: value.isClipped }));
+      notify(SAVE_POST_TO_SCRAP);
     });
   };
 
@@ -93,6 +96,12 @@ const ScrapViewPopup: React.FC<ScrapViewPopupProps> = ({
       `${PROFILE_NEW_SCRAP_PATH}?${POST_ID}=${postId}&${POST_CONTENT_URL}=${postContentUrl}&${POST_CONTENT_TYPE}=${postContentType}`,
     );
   };
+
+  useEffect(() => {
+    return () => {
+      setIsActiveScrapViewPopup(false);
+    };
+  }, []);
 
   return (
     <PopupLayout

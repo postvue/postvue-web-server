@@ -107,7 +107,6 @@ const PopupLayout: React.FC<PopupLayoutProps> = ({
     document.body.style.overflow = OVERFLOW_HIDDEN;
 
     return () => {
-      console.log(originalOverflow);
       //@REFER: 참고 바람
       // document.body.style.overflow = originalOverflow;
       document.body.style.overflow = OVERFLOW_DEFAULT;
@@ -115,24 +114,23 @@ const PopupLayout: React.FC<PopupLayoutProps> = ({
   }, []);
 
   useEffect(() => {
-    // const element = touchRef.current;
-    // const preventDefault = (e: TouchEvent) => e.preventDefault();
-    // if (element) {
-    //   // DOM 이벤트 리스너 추가
-    //   element.addEventListener('touchmove', preventDefault as EventListener, {
-    //     passive: false,
-    //   });
-    // }
-    // return () => {
-    //   if (element) {
-    //     // DOM 이벤트 리스너 제거
-    //     element.removeEventListener(
-    //       'touchmove',
-    //       preventDefault as EventListener,
-    //       { passive: false },
-    //     );
-    //   }
-    // };
+    const element = touchRef.current;
+    const preventDefault = (e: TouchEvent) => e.preventDefault();
+    if (element) {
+      // DOM 이벤트 리스너 추가
+      element.addEventListener('touchmove', preventDefault as EventListener, {
+        passive: false,
+      });
+    }
+    return () => {
+      if (element) {
+        // DOM 이벤트 리스너 제거
+        element.removeEventListener(
+          'touchmove',
+          preventDefault as EventListener,
+        );
+      }
+    };
   }, []);
 
   return (

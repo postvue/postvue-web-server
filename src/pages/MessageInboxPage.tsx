@@ -1,19 +1,28 @@
-import React, { useEffect } from 'react';
+import WindowResizeSenceComponent from 'components/common/container/WindowResizeSenseComponent';
+import MsgBlockHiddenManagePopup from 'components/messageinbox/popup/MsgBlockHiddenManagePopup';
+import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
+import React, { useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
 import BottomNavBar from '../components/BottomNavBar';
 import AppBaseTemplate from '../components/layouts/AppBaseTemplate';
 import MessageInboxBody from '../components/messageinbox/body/MessageInboxBody';
 import MessageInboxHeader from '../components/messageinbox/header/MessageInboxHeader';
-import FollowManageByMsgInboxPopup from '../components/messageinbox/popup/FollowManageByMsgInboxPopup';
-import { isFolloManagePopupByMsgInboxAtom } from '../states/MsgInboxAtom';
+import { isActiveMsgBlockHiddenManagePopupAtom } from '../states/MsgInboxAtom';
 
 const MessageInboxPage: React.FC = () => {
-  const [isFolloManagePopupByMsgInbox, setIsFolloManagePopupByMsgInbox] =
-    useRecoilState(isFolloManagePopupByMsgInboxAtom);
+  const [
+    isActiveMsgBlockHiddenManagePopup,
+    setIsActiveMsgBlockHiddenManagePopup,
+  ] = useRecoilState(isActiveMsgBlockHiddenManagePopupAtom);
+
+  const [windowSize, setWindowSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
 
   useEffect(() => {
     return () => {
-      setIsFolloManagePopupByMsgInbox(false);
+      setIsActiveMsgBlockHiddenManagePopup(false);
     };
   }, []);
 
@@ -22,7 +31,9 @@ const MessageInboxPage: React.FC = () => {
       <MessageInboxHeader />
       <MessageInboxBody />
       <BottomNavBar />
-      {isFolloManagePopupByMsgInbox && <FollowManageByMsgInboxPopup />}
+      {windowSize.width <= MEDIA_MOBILE_MAX_WIDTH_NUM &&
+        isActiveMsgBlockHiddenManagePopup && <MsgBlockHiddenManagePopup />}
+      <WindowResizeSenceComponent setWindowSize={setWindowSize} />
     </AppBaseTemplate>
   );
 };

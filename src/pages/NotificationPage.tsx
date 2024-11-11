@@ -214,6 +214,7 @@ const NotificatiNotificationContentText = styled.span`
 const NotificationUnreadContentNotifiedAt = styled.span`
   font: ${({ theme }) => theme.fontSizes.Body2};
   color: ${({ theme }) => theme.grey.Grey4};
+  display: inline-block;
 `;
 
 const NotificationPageBodyReadContainer = styled.div``;

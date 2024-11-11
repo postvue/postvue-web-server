@@ -12,8 +12,8 @@ import {
   TABBAR_NAV_CLASS_NAME,
 } from '../const/ClassNameConst';
 import {
+  EXPLORE_PATH,
   HOME_PATH,
-  MAP_PATH,
   MESSAGE_INBOX_PATH,
   PROFILE_CLIP_LIST_PATH,
   PROFILE_SCRAP_LIST_PATH,
@@ -33,7 +33,13 @@ import { ReactComponent as ProfileTabNotActiveIcon } from 'assets/images/icon/sv
 import { MEDIA_MOBILE_MAX_WIDTH } from 'const/SystemAttrConst';
 import { isPostDetailInfoPopupAtom } from 'states/PostAtom';
 
-const BottomNavBar: React.FC = () => {
+interface BottomNavBarProps {
+  BottomNavBarContainerRef?: React.RefObject<HTMLDivElement>;
+}
+
+const BottomNavBar: React.FC<BottomNavBarProps> = ({
+  BottomNavBarContainerRef,
+}) => {
   const [selectedPath, setSelectedPath] = useState<string>();
 
   const [isActivePostComposePopup, setIsActivePostComposePopup] =
@@ -63,7 +69,7 @@ const BottomNavBar: React.FC = () => {
 
   return (
     <>
-      <Container>
+      <BottomNavBarContainer ref={BottomNavBarContainerRef}>
         <StyleTab
           onClick={() => {
             onClickNavTab();
@@ -89,7 +95,7 @@ const BottomNavBar: React.FC = () => {
         </StyleTab>
         <StyleTab>
           <NavLink
-            to={MAP_PATH}
+            to={EXPLORE_PATH}
             className={({ isActive }) => {
               return (
                 (isActive ? ACTIVE_CLASS_NAME : '') +
@@ -97,7 +103,7 @@ const BottomNavBar: React.FC = () => {
               );
             }}
           >
-            {selectedPath == MAP_PATH ? (
+            {selectedPath == EXPLORE_PATH ? (
               <MapTabActiveIcon />
             ) : (
               <MapTabNotActiveIcon />
@@ -143,18 +149,18 @@ const BottomNavBar: React.FC = () => {
             ) : (
               <ProfileTabNotActiveIcon />
             )}
-            <TabText>마이페이지</TabText>
+            <TabText>프로필</TabText>
           </NavLink>
         </StyleTab>
-      </Container>
+      </BottomNavBarContainer>
       {isActivePostComposePopup && <PostComposePopup />}
       {isActivePostComposeBySourceUrlPopup && <PostComposeBySourceUrlPopup />}
     </>
   );
 };
 
-const Container = styled.div`
-  z-index: 10;
+const BottomNavBarContainer = styled.div`
+  z-index: 150;
   position: fixed;
   max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
   bottom: 0;
@@ -194,16 +200,6 @@ const TabText = styled.span`
   padding-top: 5px;
   font: ${({ theme }) => theme.fontSizes.Body1};
   color: ${({ theme }) => theme.grey.Grey4};
-`;
-
-const PostWritingButton = styled.div`
-  width: 50px;
-  height: 50px;
-  background-color: ${({ theme }) => theme.mainColor.Blue};
-  border-radius: 30px;
-  margin: auto auto;
-  display: flex;
-  cursor: pointer;
 `;
 
 export default BottomNavBar;

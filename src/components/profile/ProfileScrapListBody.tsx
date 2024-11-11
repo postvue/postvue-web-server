@@ -21,7 +21,7 @@ const ProfileScrapListBody: React.FC = () => {
           navigate(`${PROFILE_SCRAP_LIST_PATH}/${scrapId}`);
         }}
       />
-      <FloatingActionButtonLayout>
+      <FloatingActionButtonLayout bottomGap={56}>
         <Link to={PROFILE_NEW_SCRAP_PATH}>
           <MakeScrapButton>
             <MakeScrapButtonIconWrap>
@@ -48,9 +48,7 @@ const ProfileScrapListBody: React.FC = () => {
   );
 };
 
-const ProfileScrapListBodyContainer = styled.div`
-  margin-top: ${({ theme }) => theme.systemSize.header.height};
-`;
+const ProfileScrapListBodyContainer = styled.div``;
 
 const MakeScrapButton = styled.div`
   display: flex;

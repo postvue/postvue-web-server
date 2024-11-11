@@ -75,3 +75,38 @@ export const GOOGLE_LOGIN_TITLE_NAME = '구글로 시작하기';
 
 // 메시지 페이지
 export const MSG_BLOCK_LIST_TAB_NAME = '차단 목록';
+export const MSG_HIDDEN_LIST_TAB_NAME = '숨긴 목록';
+
+// 지도 페이지
+export const MAP_EXPLORE_ALL_TAB_NAME = '전체';
+export const MAP_EXPLORE_ALL_TAB_ID = 1;
+export const MAP_EXPLORE_ALL_TAB_PARAM = 'all';
+
+export const MAP_EXPLORE_GOOD_FOOE_PLACE_TAB_NAME = '맛집';
+export const MAP_EXPLORE_GOOD_FOOE_PLACE_TAB_ID = 2;
+export const MAP_EXPLORE_GOOD_FOOE_PLACE_TAB_PARAM = 'good_places';
+
+export const MAP_EXPLORE_CAFE_TAB_NAME = '카페';
+export const MAP_EXPLORE_CAFE_TAB_ID = 3;
+export const MAP_EXPLORE_CAFE_TAB_PARAM = 'cafes';
+
+export const MAP_EXPLORE_ATTRACTION_TAB_NAME = '볼거리';
+export const MAP_EXPLORE_ATTRACTION_TAB_ID = 4;
+export const MAP_EXPLORE_ATTRACTION_TAB_PARAM = 'attractions';
+
+export const MAP_EXPLORE_PARK_TAB_NAME = '공원';
+export const MAP_EXPLORE_PARK_TAB_ID = 5;
+export const MAP_EXPLORE_PARK_TAB_PARAM = 'parks';
+
+export const MAP_EXPLORE_DAILY_TAB_NAME = '일상';
+export const MAP_EXPLORE_DAILY_TAB_ID = 6;
+export const MAP_EXPLORE_DAILY_TAB_PARAM = 'daily';
+
+export const MAP_EXPLORE_SEARCH_TASTE_TAB_NAME = '추천';
+export const MAP_EXPLORE_SEARCH_RECOMM_TAB_ID = 1;
+
+export const MAP_EXPLORE_SEARCH_POST_TAB_NAME = '게시물';
+export const MAP_EXPLORE_SEARCH_POST_TAB_ID = 2;
+
+export const MAP_EXPLORE_SEARCH_LOCATION_TAB_NAME = '위치';
+export const MAP_EXPLORE_SEARCH_LOCATION_TAB_ID = 3;

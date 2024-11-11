@@ -1,16 +1,16 @@
 import { privateApi } from '..';
-import { MsgConversation } from '../../global/interface/message';
+import { MsgDirectConversationRsp } from '../../global/interface/message';
 import { MESSAGE_PATH, MSG_CONVERSATION_LIST_PATH } from '../appApiPath';
 import { CURSOR_PARAM, TARGET_USER_ID_PARAM } from '../appApiQueryParam';
 
-interface GetMsgConversationsRsp {
+export interface GetMsgConversationsRsp {
   cursorId: string;
-  msgConversationRspList: MsgConversation[];
+  msgConversationRspList: MsgDirectConversationRsp[];
 }
 
-export const getMsgConversationList = (
-  cursorId: string,
+export const getDirectMsgConversationList = (
   targetUserId: string,
+  cursorId: string,
 ): Promise<GetMsgConversationsRsp> => {
   return privateApi
     .get(

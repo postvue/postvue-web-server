@@ -1,4 +1,4 @@
-import { ReactComponent as PostComposeButtonIcon } from 'assets/images/icon/svg/PostComposeButtonIcon.svg';
+import { ReactComponent as PostComposeButtonIcon } from 'assets/images/icon/svg/post/PostComposeButtonIcon.svg';
 import React from 'react';
 import { useSetRecoilState } from 'recoil';
 import { isActivPostComposePopupAtom } from 'states/PostComposeAtom';

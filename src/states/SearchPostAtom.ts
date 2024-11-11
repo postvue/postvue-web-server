@@ -77,3 +77,8 @@ export const searchPostResultInfoAtom = atom<
   key: 'searchPostResultInfo',
   default: new Map(),
 });
+
+export const isActiveSearchPostFilterPopupAtom = atom<boolean>({
+  key: 'isActiveSearchPostFilterPopup',
+  default: false,
+});

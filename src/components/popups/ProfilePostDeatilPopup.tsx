@@ -30,7 +30,7 @@ const ProfilePostDetailPopup: React.FC = () => {
     <PopupLayout
       setIsPopup={setIsPostDetailInfoPopup}
       popupWrapStyle={{ borderRadius: '0px' }}
-      popupOverLayContainerStyle={{ zIndex: '8' }}
+      popupOverLayContainerStyle={{ zIndex: '100' }}
       hasTransparentOverLay={true}
     >
       <ProfilePostDetail

@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useRecoilValue } from 'recoil';
+import { msgConversationScrollInfoAtom } from 'states/MessageAtom';
 import styled from 'styled-components';
 import { INIT_EMPTY_STRING_VALUE } from '../../../const/AttributeConst';
 import { MSG_CONTENT_TEXT_TYPE } from '../../../const/MsgContentTypeConst';
@@ -8,15 +10,21 @@ import msgConversationWsService from '../../../services/message/MsgConversationW
 
 interface MsgConversationSendMessageProps {
   followInfo: ProfileInfoByDirectMsg;
+  MsgConversationBodyContainerRef: React.RefObject<HTMLDivElement>;
 }
 
 const MsgConversationSendMessage: React.FC<MsgConversationSendMessageProps> = ({
   followInfo,
+  MsgConversationBodyContainerRef,
 }) => {
   const msgConversationTextareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const [msgConversationTextarea, setMsgConversationTextarea] = useState(
     INIT_EMPTY_STRING_VALUE,
+  );
+
+  const msgConversationScrollInfo = useRecoilValue(
+    msgConversationScrollInfoAtom,
   );
 
   useEffect(() => {
@@ -29,13 +37,37 @@ const MsgConversationSendMessage: React.FC<MsgConversationSendMessageProps> = ({
     }
   }, [msgConversationTextarea]);
 
-  const onClickSendMsg = (followInfo: ProfileInfoByDirectMsg): void => {
+  const onHandleMoveEnd = () => {
+    const max_gap_move = 500; // 최대한 밑으로 이동
+    if (!MsgConversationBodyContainerRef.current) return;
+    MsgConversationBodyContainerRef.current.scrollTo({
+      top: msgConversationScrollInfo.msgContainerHeight + max_gap_move,
+    });
+  };
+
+  const onClickSendMsg = (): void => {
     if (isValidString(msgConversationTextarea)) {
       msgConversationWsService.sendMessage(followInfo.targetUserId, {
         msgType: MSG_CONTENT_TEXT_TYPE,
         msgContent: msgConversationTextarea,
       });
+
       setMsgConversationTextarea('');
+
+      onHandleMoveEnd();
+    }
+  };
+
+  const handleKeyPress = async (
+    event: React.KeyboardEvent<HTMLTextAreaElement>,
+  ) => {
+    if (
+      event.key === 'Enter' &&
+      !event.shiftKey &&
+      event.nativeEvent.isComposing === false
+    ) {
+      event.preventDefault();
+      onClickSendMsg();
     }
   };
 
@@ -68,11 +100,21 @@ const MsgConversationSendMessage: React.FC<MsgConversationSendMessageProps> = ({
               ref={msgConversationTextareaRef}
               value={msgConversationTextarea}
               onChange={(e) => setMsgConversationTextarea(e.target.value)}
+              onKeyDown={(e) => {
+                e.stopPropagation();
+                handleKeyPress(e);
+              }}
             />
           </MsgConversationSendTextFieldWrap>
           <MsgSendButtonWrap>
             {isValidString(msgConversationTextarea) && (
-              <MsgSendButton onClick={() => onClickSendMsg(followInfo)}>
+              <MsgSendButton
+                onClick={(e) => {
+                  e.stopPropagation();
+
+                  onClickSendMsg();
+                }}
+              >
                 게시
               </MsgSendButton>
             )}

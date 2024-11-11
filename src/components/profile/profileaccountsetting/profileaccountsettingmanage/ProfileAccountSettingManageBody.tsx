@@ -85,7 +85,7 @@ const ProfileAccountSettingManageBody: React.FC = () => {
 };
 
 const ProfileAccountSettingBodyContainer = styled.div`
-  padding: ${({ theme }) => theme.systemSize.header.height} ${({ theme }) => theme.systemSize.header.paddingLeftRightMargin}; 0 ${({ theme }) => theme.systemSize.header.paddingLeftRightMargin};
+  padding: 0 ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding};
 `;
 
 const ProfileAccountSettingBodyWrap = styled.div`

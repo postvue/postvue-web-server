@@ -1,3 +1,4 @@
+import { ReactComponent as DeleteSearchInputIcon } from 'assets/images/icon/svg/DeleteSearchInputIcon.svg';
 import React from 'react';
 import styled from 'styled-components';
 import SearchButtonInputLayout from '../../layouts/SearchButtonInputLayout';
@@ -15,6 +16,7 @@ interface SearchButtonInputProps {
   isActiveDeleteButton: boolean;
   isShowAddElement?: boolean;
   addElement?: React.ReactNode;
+  SearchButtonInputLayoutStyle?: React.CSSProperties;
 }
 
 const SearchButtonInput: React.FC<SearchButtonInputProps> = ({
@@ -30,9 +32,12 @@ const SearchButtonInput: React.FC<SearchButtonInputProps> = ({
   isActiveDeleteButton,
   isShowAddElement = false,
   addElement,
+  SearchButtonInputLayoutStyle,
 }) => {
   return (
-    <SearchButtonInputLayout>
+    <SearchButtonInputLayout
+      SearchButtonInputLayoutStyle={SearchButtonInputLayoutStyle}
+    >
       <SearchInput
         placeholder={placeholder}
         onChange={onSearchInputChange}
@@ -45,21 +50,8 @@ const SearchButtonInput: React.FC<SearchButtonInputProps> = ({
       {onClickDelete !== undefined && (
         <>
           {isActiveDeleteButton && (
-            <DeleteSearchButton ref={deleteButtonRef}>
-              <DeleteSearchIcon
-                width="24"
-                height="24"
-                viewBox="0 0 32 32"
-                color="#A1A9AD"
-                onClick={onClickDelete}
-              >
-                <path
-                  fill="currentColor"
-                  fillRule="evenodd"
-                  d="M16 27c6.075 0 11-4.925 11-11S22.075 5 16 5 5 9.925 5 16s4.925 11 11 11Zm-3.47-6.47L16 17.06l3.47 3.47 1.06-1.06L17.06 16l3.47-3.47-1.06-1.06L16 14.94l-3.47-3.47-1.06 1.06L14.94 16l-3.47 3.47 1.06 1.06Z"
-                  clipRule="evenodd"
-                ></path>
-              </DeleteSearchIcon>
+            <DeleteSearchButton ref={deleteButtonRef} onClick={onClickDelete}>
+              <DeleteSearchInputIcon />
             </DeleteSearchButton>
           )}
         </>
@@ -90,8 +82,6 @@ const SearchInput = styled.input`
 
 const DeleteSearchButton = styled.div`
   display: flex;
-`;
-const DeleteSearchIcon = styled.svg`
   padding-right: 10px;
   cursor: pointer;
 `;

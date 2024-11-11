@@ -129,8 +129,7 @@ const SignupFavoriteTagStep: React.FC = () => {
 };
 
 const SignupStepTitleWrap = styled.div`
-  padding: calc(30px + ${({ theme }) => theme.systemSize.header.height}) 0px
-    30px 0px;
+  padding: 30px 0px 30px 0px;
 `;
 
 const SignupStepTitle = styled.div`
@@ -183,7 +182,7 @@ const SearchButtonInputWrap = styled.div`
 `;
 
 const MasonryLayoutWrap = styled.div<{ $isActive: boolean }>`
-  padding-top: calc(10px + ${({ theme }) => theme.systemSize.header.height});
+  padding-top: 10px;
   opacity: ${(props) => (props.$isActive ? 1 : 0.5)};
 `;
 

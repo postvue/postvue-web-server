@@ -72,7 +72,7 @@ const fontSizes = {
   BoxText:
     '12px/1.4 Pretendard-SemiBold; letter-spacing: -0.6px; line-height: 140%; font-style: normal;',
   Location2:
-    '10px/1.4 Pretendard-Medium; letter-spacing: -0.25px; line-height: 140%; font-style: normal;',
+    '12px/1.4 Pretendard-Medium; letter-spacing: -0.25px; line-height: 140%; font-style: normal;',
   Location1:
     '9px/1.4 Pretendard-Medium; letter-spacing: -0.225px; line-height: 140%; font-style: normal;',
 };
@@ -82,24 +82,36 @@ const paddings = {
   base: '7%',
 };
 
+const background = {
+  lightBlurBackground: `rgba(255, 255, 255, 0.5)`,
+};
+
 const systemSize = {
   appDisplaySize: {
-    maxWidth: '540px',
+    maxWidth: '500px',
+    widthByPc: '600px',
+    profilePostMaxWidth: '580px',
 
     bothSidePadding: '20px',
     bottomButtonMargin: '40px',
   },
   bottomNavBar: {
+    heightNum: 90,
     height: '90px',
   },
   header: {
     height: '50px',
+    heightNumber: 50,
     paddingLeftRightMargin: '15px',
     //@REFER: 22px 또는 21px로 할 지 결정
     //paddingLeftRightMargin: '22px',
   },
   popupTopBodyBottomScrollArea: {
     height: '80px',
+  },
+  reactionButton: {
+    padding: '6px',
+    gap: '9px',
   },
 };
 
@@ -113,6 +125,7 @@ const theme = {
   paddings,
   systemSize,
   snsColor,
+  background,
 };
 
 export default theme;

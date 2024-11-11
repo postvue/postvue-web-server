@@ -1,0 +1,13 @@
+<svg
+width="24"
+height="24"
+viewBox="0 0 32 32"
+color="#A1A9AD"
+>
+<path
+    fill="currentColor"
+    fillRule="evenodd"
+    d="M16 27c6.075 0 11-4.925 11-11S22.075 5 16 5 5 9.925 5 16s4.925 11 11 11Zm-3.47-6.47L16 17.06l3.47 3.47 1.06-1.06L17.06 16l3.47-3.47-1.06-1.06L16 14.94l-3.47-3.47-1.06 1.06L14.94 16l-3.47 3.47 1.06 1.06Z"
+    clipRule="evenodd"
+></path>
+</svg>

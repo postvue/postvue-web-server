@@ -56,7 +56,7 @@ const StyledToastContainer = styled(ToastContainer)<{
     // position: fixed;
     // top: 50px;
     // left: 50%;
-    z-index: 100;
+    z-index: 200;
     pointer-events: none;
     display: flex;
     justify-content: center;

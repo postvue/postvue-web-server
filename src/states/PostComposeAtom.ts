@@ -1,6 +1,7 @@
+import { MapAddressRelation } from 'global/interface/map';
 import {
-  PostComposeUploadResource,
   PostDocResourceImageRsp,
+  PostUploadContent,
 } from 'global/interface/post';
 import { atom } from 'recoil';
 
@@ -19,12 +20,25 @@ export const postComposeBySourceUrlListAtom = atom<PostDocResourceImageRsp[]>({
   default: [],
 });
 
-export const uploadResourceLinkListAtom = atom<PostComposeUploadResource[]>({
-  key: 'uploadResourceLinkList',
+export const uploadResourceListAtom = atom<PostUploadContent[]>({
+  key: 'uploadResourceList',
   default: [],
 });
 
 export const isActivPostComposeTargetAudiencePopupAtom = atom<boolean>({
   key: 'isActivPostComposeTargetAudiencePopup',
   default: false,
+});
+
+export const isActivPostComposeLocationPopupAtom = atom<boolean>({
+  key: 'isActivPostComposeLocationPopup',
+  default: false,
+});
+
+export const postComposeAddressRelationAtom = atom<MapAddressRelation>({
+  key: 'poseComposeAddressRelation',
+  default: {
+    roadAddr: '',
+    buildName: '',
+  },
 });

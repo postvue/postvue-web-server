@@ -1,29 +1,27 @@
 import { ProfileMyInfo } from 'global/interface/profile';
+import { QueryMutationDeletePostComment } from 'hook/queryhook/QueryMutationDeletePostComment';
 import React, { useRef, useState } from 'react';
-import { SetterOrUpdater } from 'recoil';
+import { useSetRecoilState } from 'recoil';
+import { postBlockedUserInfoAtom } from 'states/PostAtom';
+import { isActiveProfileBlockPopupAtom } from 'states/ProfileAtom';
+import { isLoadingPopupAtom } from 'states/SystemConfigAtom';
 import styled from 'styled-components';
-import { PostComment } from '../../../../global/interface/post';
 import { getMyAccountSettingInfo } from '../../../../global/util/MyAccountSettingUtil';
-import { deletePostComment } from '../../../../services/post/deletePostComment';
 import ContextMenuPopup from '../../ContextMenuPopup';
 
 interface PostReactionCommentSettingButtonProps {
   postId: string;
   userId: string;
+  username: string;
   commentId: string;
-  snsPostCommentHashMap: Map<string, PostComment>;
-  setSnsPostCommentHashMap: SetterOrUpdater<Map<string, PostComment>>;
+
+  // snsPostCommentHashMap: Map<string, PostComment>;
+  // setSnsPostCommentHashMap: SetterOrUpdater<Map<string, PostComment>>;
 }
 
 const PostReactionCommentSettingButton: React.FC<
   PostReactionCommentSettingButtonProps
-> = ({
-  postId,
-  userId,
-  commentId,
-  snsPostCommentHashMap,
-  setSnsPostCommentHashMap,
-}) => {
+> = ({ postId, userId, commentId, username }) => {
   const postCommentSettingRef = useRef<HTMLDivElement>(null);
 
   const myAccountSettingInfo: ProfileMyInfo = getMyAccountSettingInfo();
@@ -34,13 +32,21 @@ const PostReactionCommentSettingButton: React.FC<
     setIsCommentSettingContextMenu(postIdIndex);
   };
 
+  const deletePostCommentQuery = QueryMutationDeletePostComment();
+  const setIsLoadingPopup = useSetRecoilState(isLoadingPopupAtom);
   const onClickDeletePostComment = (commentId: string) => {
-    deletePostComment(commentId).then(() => {
-      const tempSnsPostCommentHashMap = new Map(snsPostCommentHashMap);
-      tempSnsPostCommentHashMap.delete(postId);
-      setSnsPostCommentHashMap(tempSnsPostCommentHashMap);
-    });
+    setIsLoadingPopup(true);
+    setTimeout(() => {
+      deletePostCommentQuery.mutate({ commentId });
+      setIsLoadingPopup(false);
+    }, 500);
   };
+
+  const setIsActiveProfileBlock = useSetRecoilState(
+    isActiveProfileBlockPopupAtom,
+  );
+
+  const setPostBlockedUserInfo = useSetRecoilState(postBlockedUserInfoAtom);
 
   return (
     <PostCommentSettingButtonContainer
@@ -92,14 +98,15 @@ const PostReactionCommentSettingButton: React.FC<
         </PostCommentSettingIcon>
       </PostCommentSettingWrap>
       {isCommentSettingContextMenu !== false &&
-        isCommentSettingContextMenu === postId && (
+        isCommentSettingContextMenu === postId &&
+        postCommentSettingRef.current && (
           <ContextMenuPopup
-            contextMenuRef={postCommentSettingRef}
+            contextMenuRef={postCommentSettingRef.current}
             setIsActive={setIsCommentSettingContextMenu}
             hasFixedActive={false}
           >
             <PostCommentSettingItemWrap>
-              {myAccountSettingInfo.userId === userId && (
+              {myAccountSettingInfo.userId === userId ? (
                 <>
                   <PostCommentSettingItem
                     onClick={() => onClickDeletePostComment(commentId)}
@@ -108,9 +115,23 @@ const PostReactionCommentSettingButton: React.FC<
                   </PostCommentSettingItem>
                   <PostCommentSettingItem>수정 하기</PostCommentSettingItem>
                 </>
+              ) : (
+                <>
+                  <PostCommentSettingItem>신고 하기</PostCommentSettingItem>
+                  <PostCommentSettingItem
+                    onClick={() => {
+                      setIsCommentSettingContextMenu(false);
+                      setIsActiveProfileBlock(true);
+                      setPostBlockedUserInfo({
+                        userId: userId,
+                        username: username,
+                      });
+                    }}
+                  >
+                    사용자 차단
+                  </PostCommentSettingItem>
+                </>
               )}
-              <PostCommentSettingItem>신고 하기</PostCommentSettingItem>
-              <PostCommentSettingItem>사용자 차단</PostCommentSettingItem>
             </PostCommentSettingItemWrap>
           </ContextMenuPopup>
         )}

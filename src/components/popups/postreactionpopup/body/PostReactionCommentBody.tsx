@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { useRecoilState } from 'recoil';
+import PostCommentListInfiniteScroll from 'hook/PostCommentListInfiniteScroll';
+import { QueryStatePostCommentListInfinite } from 'hook/queryhook/QueryStatePostCommentListInfinite';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { POST_COMMENT_INPUT_PLACEHOLDER } from '../../../../const/SystemPhraseConst';
 import {
+  PostComment,
   PostCommentReplyMsgInfo,
   PostCommentWithReplies,
   PostRsp,
 } from '../../../../global/interface/post';
 import { getGroupComments } from '../../../../global/util/CommentUtil';
-import PostCommentInfiniteScroll from '../../../../hook/PostCommentInfiniteScroll';
-import { postReactionCommentHashMapAtom } from '../../../../states/PostReactionAtom';
 import CommentInputSenderElement from '../../../common/comment/CommentInputSenderElement';
 import PostCommentReplyElement from './PostCommentReplyElement';
 
@@ -42,65 +42,98 @@ const PostReactionCommentBody: React.FC<PostReactionCommentBodyProps> = ({
   replyMsg,
   setReplyMsg,
 }) => {
-  const [snsPostCommentHashMap, setSnsPostCommentHashMap] = useRecoilState(
-    postReactionCommentHashMapAtom,
-  );
+  // const [snsPostCommentHashMap, setSnsPostCommentHashMap] = useRecoilState(
+  //   postReactionCommentHashMapAtom,
+  // );
 
-  const defaultSendPlaceHolder = `${snsPost.username} ${POST_COMMENT_INPUT_PLACEHOLDER}`;
+  const {
+    data: postCommentList,
+    isSuccess,
+    isFetched,
+  } = QueryStatePostCommentListInfinite(postId);
 
   const [groupComments, setGroupComments] = useState<
     Map<string, PostCommentWithReplies>
   >(new Map());
   useEffect(() => {
-    setGroupComments(getGroupComments(snsPostCommentHashMap));
-  }, [snsPostCommentHashMap]);
+    if (!postCommentList) return;
+
+    const postCommentList_ = postCommentList.pages
+      .flatMap((v) => v.snsPostCommentRspList)
+      .map((value) => value);
+
+    const postCommentHashMap = new Map<string, PostComment>();
+
+    postCommentList_.forEach((postComment) => {
+      postCommentHashMap.set(postComment.postCommentId, postComment);
+    });
+    setGroupComments(getGroupComments(postCommentHashMap));
+  }, [postCommentList, isSuccess, isFetched]);
 
   const topLevelComments = Array.from(groupComments.values())
     .filter((comment) => comment.isReplyMsg === false)
     .sort((a, b) => b.postCommentId.localeCompare(a.postCommentId));
 
+  const commentSenderRef = useRef<HTMLDivElement>(null);
+
   return (
     <>
-      <PostContentListContainer>
-        {topLevelComments.map((comment) => (
-          <PostCommentReplyElement
-            key={comment.postCommentId}
-            postId={postId}
-            commentIdIndex={comment.postCommentId}
-            postComment={comment}
-            snsPostCommentHashMap={snsPostCommentHashMap}
-            setSnsPostCommentHashMap={setSnsPostCommentHashMap}
-            likeIconRef={likeIconRef}
-            likeCountRef={likeCountRef}
-            commentReplyCountRef={commentReplyCountRef}
-            postCommentTextareaRef={postCommentTextareaRef}
-            setReplyMsg={setReplyMsg}
-            neededGroupBar={comment.replies.length > 0}
-            comment={comment}
-            isReplyToReply={false}
-          />
-        ))}
+      <PostContentListContainer
+        $commentInputHeight={commentSenderRef.current?.offsetHeight || 0}
+      >
+        {topLevelComments.length > 0 &&
+          topLevelComments.map((comment) => (
+            <PostCommentReplyElement
+              key={comment.postCommentId}
+              postId={postId}
+              commentIdIndex={comment.postCommentId}
+              postComment={comment}
+              likeIconRef={likeIconRef}
+              likeCountRef={likeCountRef}
+              commentReplyCountRef={commentReplyCountRef}
+              postCommentTextareaRef={postCommentTextareaRef}
+              setReplyMsg={setReplyMsg}
+              neededGroupBar={comment.replies.length > 0}
+              comment={comment}
+              isReplyToReply={false}
+            />
+          ))}
+        {topLevelComments.length <= 0 && (
+          <NotPostComment>아직 댓글이 없습니다.</NotPostComment>
+        )}
 
-        {postId && <PostCommentInfiniteScroll postId={postId} />}
+        {postId && <PostCommentListInfiniteScroll postId={postId} />}
       </PostContentListContainer>
 
       <CommentInputSenderElement
         postId={postId}
-        snsPostCommentHashMap={snsPostCommentHashMap}
-        setSnsPostCommentHashMap={setSnsPostCommentHashMap}
+        //@REFER: snsPostCommentHashMap 잔재 제거 필요
+        // snsPostCommentHashMap={snsPostCommentHashMap}
+        // setSnsPostCommentHashMap={setSnsPostCommentHashMap}
+        commentSenderRef={commentSenderRef}
         postCommentTextareaRef={postCommentTextareaRef}
         commentReplyCountRef={commentReplyCountRef}
-        defaultSendPlaceHolder={defaultSendPlaceHolder}
+        defaultSendPlaceHolder={`${snsPost.username} ${POST_COMMENT_INPUT_PLACEHOLDER}`}
         replyMsg={replyMsg}
         setReplyMsg={setReplyMsg}
+        containerBorderRadiusNum={20}
       />
     </>
   );
 };
 
-const PostContentListContainer = styled.div`
+const PostContentListContainer = styled.div<{ $commentInputHeight: number }>`
   overflow: scroll;
-  height: calc(100% - 230px);
+  height: calc(100% - ${(props) => props.$commentInputHeight}px);
+  position: relative;
+`;
+
+const NotPostComment = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, 50%);
+  font: ${({ theme }) => theme.fontSizes.Body3};
 `;
 
 export default PostReactionCommentBody;

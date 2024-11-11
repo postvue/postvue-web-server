@@ -5,7 +5,7 @@ import { QueryStateProfileScrap } from 'hook/queryhook/QueryStateProfileScrap';
 import { QueryStateProfileScrapInfo } from 'hook/queryhook/QueryStateProfileScrapInfo';
 import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { useRecoilState, useRecoilValue } from 'recoil';
+import { useRecoilState } from 'recoil';
 import { profileScrapInfoAtom } from 'states/ProfileAtom';
 import { isSharePopupAtom } from 'states/ShareAtom';
 import styled from 'styled-components';
@@ -19,7 +19,7 @@ const ProfileScrapBody: React.FC = () => {
   const [profileScrapInfo, setProfileScrapInfo] =
     useRecoilState(profileScrapInfoAtom);
 
-  const isSharePopup = useRecoilValue(isSharePopupAtom);
+  const [isSharePopup, setIsSharePopup] = useRecoilState(isSharePopupAtom);
 
   useEffect(() => {
     if (data) {
@@ -81,14 +81,17 @@ const ProfileScrapBody: React.FC = () => {
           )}
         </ProfileScrapBodyWrap>
       </ProfileScrapBodyContainer>
-      {isSharePopup && <SnsSharePopup />}
+      {isSharePopup && (
+        <SnsSharePopup
+          shareLink={window.location.href}
+          setIsSharePopup={setIsSharePopup}
+        />
+      )}
     </>
   );
 };
 
-const ProfileScrapBodyContainer = styled.div`
-  padding-top: ${({ theme }) => theme.systemSize.header.height};
-`;
+const ProfileScrapBodyContainer = styled.div``;
 
 const ProfileScrapBodyWrap = styled.div``;
 

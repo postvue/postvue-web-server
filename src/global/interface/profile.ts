@@ -102,3 +102,10 @@ export interface ProfileBlockedUserRsp {
   blockedUserName: string;
   blockedUserProfilePath: string;
 }
+
+export interface ProfileUsername {
+  userId: string;
+  username: string;
+  nickname: string;
+  profilePath: string;
+}

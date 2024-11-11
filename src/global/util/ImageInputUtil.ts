@@ -3,7 +3,7 @@ import { UPLOAD_IMG_MAX_HEIGHT } from '../../const/SystemAttrConst';
 
 export async function uploadImgUtil(
   e: React.ChangeEvent<HTMLInputElement>,
-  setUploadImgFile: React.Dispatch<React.SetStateAction<File | null>>,
+  setUploadImgFile: React.Dispatch<React.SetStateAction<Blob | null>>,
   setUploadImgUrl: React.Dispatch<React.SetStateAction<string>>,
 ): Promise<void> {
   if (!e.target.files) {
@@ -16,6 +16,7 @@ export async function uploadImgUtil(
       UPLOAD_IMG_MAX_HEIGHT,
       UPLOAD_IMG_MAX_HEIGHT,
     );
+
     const uploadFile = new File([resizedImage], file.name);
 
     // const reader = new FileReader();
@@ -23,7 +24,7 @@ export async function uploadImgUtil(
     //   setImageUrls([...imageUrls, reader.result as string]);
     // };
     // reader.readAsDataURL(file);
-    setUploadImgFile(uploadFile);
+    setUploadImgFile(resizedImage);
     setUploadImgUrl(URL.createObjectURL(uploadFile));
   } catch (error) {
     /* empty */
@@ -62,7 +63,8 @@ export async function resizeImage(
 
       canvas.toBlob((blob) => {
         if (blob) {
-          resolve(blob);
+          const resizedFile = new File([blob], file.name, { type: file.type });
+          resolve(resizedFile);
         } else {
           reject(new Error('Failed to resize image'));
         }
@@ -72,3 +74,68 @@ export async function resizeImage(
     img.src = URL.createObjectURL(file);
   });
 }
+
+const createImage = (url: string): Promise<HTMLImageElement> => {
+  return new Promise<HTMLImageElement>((resolve, reject) => {
+    const image = new Image();
+    image.src = url;
+    image.onload = () => {
+      resolve(image);
+    };
+    image.onerror = (error) => {
+      reject(error);
+    };
+  });
+};
+
+export interface PixelCropType {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+export const getCroppedImg = async (
+  imageSrc: string,
+  pixelCrop: PixelCropType,
+): Promise<Blob | null> => {
+  return new Promise<Blob | null>((resolve, reject) => {
+    createImage(imageSrc)
+      .then((image) => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+        if (!ctx) {
+          reject(new Error('Could not get canvas context'));
+          return;
+        }
+
+        canvas.width = pixelCrop.width;
+        canvas.height = pixelCrop.height;
+
+        ctx.drawImage(
+          image,
+          pixelCrop.x,
+          pixelCrop.y,
+          pixelCrop.width,
+          pixelCrop.height,
+          0,
+          0,
+          pixelCrop.width,
+          pixelCrop.height,
+        );
+
+        // Blob으로 이미지를 가져옴
+        canvas.toBlob((blob) => {
+          if (blob) {
+            resolve(blob);
+          } else {
+            reject(new Error('Canvas is empty'));
+          }
+        }, 'image/jpeg');
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};

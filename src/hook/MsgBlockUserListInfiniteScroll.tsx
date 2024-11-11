@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { useInView } from 'react-intersection-observer';
 // import CopyRightFooter from '../conponents/CopyRightFooter';
 
+import InViewComponent from 'components/common/container/InViewComponent';
 import { useRecoilState, useResetRecoilState } from 'recoil';
 import { getMsgBlockedUserList } from '../services/message/getMsgBlockedUserList';
 import {
@@ -57,7 +58,7 @@ const MsgBlockUserListInfiniteScroll: React.FC = () => {
 
   return (
     <ScrollBottomContainer ref={ref}>
-      <div>테스트</div>
+      <InViewComponent />
     </ScrollBottomContainer>
   );
 };

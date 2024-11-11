@@ -1,5 +1,4 @@
 import React from 'react';
-import { SetterOrUpdater } from 'recoil';
 import {
   PostComment,
   PostCommentReplyMsgInfo,
@@ -11,8 +10,8 @@ interface PostCommentReplyElementProps {
   postId: string;
   commentIdIndex: string;
   postComment: PostComment;
-  snsPostCommentHashMap: Map<string, PostComment>;
-  setSnsPostCommentHashMap: SetterOrUpdater<Map<string, PostComment>>;
+  // snsPostCommentHashMap: Map<string, PostComment>;
+  // setSnsPostCommentHashMap: SetterOrUpdater<Map<string, PostComment>>;
   likeIconRef: React.MutableRefObject<{
     [key: string]: SVGSVGElement | null;
   }>;
@@ -36,8 +35,6 @@ const PostCommentReplyElement: React.FC<PostCommentReplyElementProps> = ({
   postId,
   commentIdIndex,
   postComment,
-  snsPostCommentHashMap,
-  setSnsPostCommentHashMap,
   likeIconRef,
   likeCountRef,
   commentReplyCountRef,
@@ -53,8 +50,6 @@ const PostCommentReplyElement: React.FC<PostCommentReplyElementProps> = ({
         postId={postId}
         commentIdIndex={commentIdIndex}
         postComment={postComment}
-        snsPostCommentHashMap={snsPostCommentHashMap}
-        setSnsPostCommentHashMap={setSnsPostCommentHashMap}
         likeIconRef={likeIconRef}
         likeCountRef={likeCountRef}
         commentReplyCountRef={commentReplyCountRef}
@@ -73,8 +68,6 @@ const PostCommentReplyElement: React.FC<PostCommentReplyElementProps> = ({
             postId={postId}
             commentIdIndex={reply.postCommentId}
             postComment={reply}
-            snsPostCommentHashMap={snsPostCommentHashMap}
-            setSnsPostCommentHashMap={setSnsPostCommentHashMap}
             likeIconRef={likeIconRef}
             likeCountRef={likeCountRef}
             commentReplyCountRef={commentReplyCountRef}

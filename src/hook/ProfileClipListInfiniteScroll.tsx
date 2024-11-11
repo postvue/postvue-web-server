@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 import styled from 'styled-components';
 
+import InViewComponent from 'components/common/container/InViewComponent';
 import { ZERO_CURSOR_ID } from 'const/PageConfigConst';
 import { useRecoilState } from 'recoil';
 import { getMyProfileClipList } from '../services/profile/getProfileClipList';
@@ -44,8 +45,8 @@ const ProfileClipListInfiniteScroll: React.FC = () => {
   }, [inView]);
 
   return (
-    <ScrollBottomContainer ref={ref}>
-      <div>클립 테스트</div>
+    <ScrollBottomContainer>
+      <InViewComponent inViewRef={ref} />
     </ScrollBottomContainer>
   );
 };

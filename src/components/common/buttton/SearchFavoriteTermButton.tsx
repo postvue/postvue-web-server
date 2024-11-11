@@ -9,7 +9,9 @@ import styled from 'styled-components';
 import { ReactComponent as SearchFavoriteButtonIcon } from 'assets/images/icon/svg/searchfavorite/SearchFavoriteButtonIcon.svg';
 import { ReactComponent as SearchFavoriteNotActiveButtonIcon } from 'assets/images/icon/svg/searchfavorite/SearchFavoriteNotActiveButtonIcon.svg';
 import { notify } from 'components/popups/ToastMsgPopup';
+import { QUERY_STATE_SEARCH_POST_LIST } from 'const/QueryClientConst';
 import { PostRsp } from 'global/interface/post';
+import { convertQueryTemplate } from 'global/util/TemplateUtil';
 import { QueryMutationSearchFavoriteTermList } from 'hook/queryhook/QueryMutationSearchFavoriteTerm';
 import { QueryStateSearchFavoriteTermList } from 'hook/queryhook/QueryStateSearchFavoriteTermList';
 
@@ -30,7 +32,12 @@ const SearchFavoriteTermButton: React.FC<SearchFavoriteTermButtonProps> = ({
 
   const onClickBookmarkFavorite = () => {
     const searchPostQueryPageList: SearchPostQueryInterface | undefined =
-      queryClient.getQueryData([searchQueryAndFilterKey]);
+      queryClient.getQueryData([
+        convertQueryTemplate(
+          QUERY_STATE_SEARCH_POST_LIST,
+          searchQueryAndFilterKey,
+        ),
+      ]);
 
     let searchPostList: PostRsp[];
     if (searchPostQueryPageList) {
@@ -43,6 +50,7 @@ const SearchFavoriteTermButton: React.FC<SearchFavoriteTermButtonProps> = ({
 
     let favoriteTermContent = '';
     let favoriteTermContentType = '';
+
     if (searchPostList.length > 0) {
       if (!isBookMarkedFavoriteTerm) {
         const randomSearchPost =

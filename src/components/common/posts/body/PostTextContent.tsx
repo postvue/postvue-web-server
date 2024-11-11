@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { SEARCH_PATH } from '../../../../const/PathConst';
+import { SEARCH_POST_PATH } from '../../../../const/PathConst';
 
+import LinkifyTextComponent from 'components/LinkifyTextComponent';
 import { isValidString } from 'global/util/ValidUtil';
 import { convertDtStrToDTStr } from '../../../../global/util/DateTimeUtil';
 
@@ -55,7 +56,7 @@ const PostTextContent: React.FC<PostTextContentProps> = ({
             $isExpanded={isExpanded}
             $maxLines={bodyTextMaxLines}
           >
-            {postBodyText}
+            <LinkifyTextComponent text={postBodyText} />
           </PostTextFieldContent>
           {!isExpanded && isTruncated && (
             <BodyExpandedButton
@@ -72,7 +73,7 @@ const PostTextContent: React.FC<PostTextContentProps> = ({
       <PostDateTime>{convertDtStrToDTStr(postedAt)}</PostDateTime>
       <PostTagWrap onClick={(e) => e.stopPropagation()}>
         {tags.map((v, i) => (
-          <Link to={`${SEARCH_PATH}/${v}`} key={i}>
+          <Link to={`${SEARCH_POST_PATH}/${v}`} key={i}>
             <PostTag>#{v}</PostTag>
           </Link>
         ))}

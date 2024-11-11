@@ -2,10 +2,11 @@ import SearchButtonInput from 'components/common/input/SearchButtonInput';
 import { SEARCH_INPUT_PHARSE_TEXT } from 'const/SystemPhraseConst';
 import React from 'react';
 
+import { RECENTLY_SEARCH_WORD_LIST_LOCAL_STORAGE } from 'const/LocalStorageConst';
 import { useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useRecoilState, useRecoilValue } from 'recoil';
-import { SEARCH_PATH } from '../../../const/PathConst';
+import { SEARCH_POST_PATH } from '../../../const/PathConst';
 import {
   getSearchQueryByDebounce,
   handleSearch,
@@ -117,8 +118,8 @@ const SearchButtonInputElement: React.FC<SearchButtonInputElementProps> = ({
 
   const onClickSearchButton = () => {
     if (searchTempWord !== '' && searchWord !== searchTempWord) {
-      handleSearch(searchTempWord);
-      navigate(`${SEARCH_PATH}/${searchTempWord}`);
+      handleSearch(RECENTLY_SEARCH_WORD_LIST_LOCAL_STORAGE, searchTempWord);
+      navigate(`${SEARCH_POST_PATH}/${searchTempWord}`);
     }
   };
 

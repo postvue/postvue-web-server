@@ -1,13 +1,28 @@
+import { MEDIA_MOBILE_MAX_WIDTH } from 'const/SystemAttrConst';
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import theme from '../../styles/theme';
+import theme from 'styles/theme';
 
 interface FloatingActionButtonLayoutProps {
   children: React.ReactNode;
+  containerRef?: React.RefObject<HTMLDivElement>;
+  maxGap?: number;
+  isActiveDown?: boolean;
+  actionFunc?: () => void;
+  bottomGap?: number;
+  bottomByMinSize?: number;
+  bottomByMaxSize?: number;
 }
 
 const FloatingActionButtonLayout: React.FC<FloatingActionButtonLayoutProps> = ({
   children,
+  containerRef,
+  maxGap = 50,
+  isActiveDown = true,
+  actionFunc,
+  bottomByMaxSize = 0,
+  bottomByMinSize = theme.systemSize.bottomNavBar.heightNum,
+  bottomGap = 0,
 }) => {
   const prevScrollTopRef = useRef(0);
   const [scrollOpacity, setScrollOpacity] = useState(1);
@@ -21,23 +36,48 @@ const FloatingActionButtonLayout: React.FC<FloatingActionButtonLayoutProps> = ({
       }
 
       animationFrameId = requestAnimationFrame(() => {
-        const scrollTop = window.scrollY;
+        let scrollTop: number;
+
+        if (containerRef && containerRef.current) {
+          scrollTop = containerRef.current.scrollTop;
+        } else {
+          scrollTop = window.scrollY;
+        }
+
         const scrollDifference = scrollTop - prevScrollTopRef.current;
 
-        if (scrollDifference > 50) {
-          setScrollOpacity(0);
+        if (scrollDifference > maxGap) {
+          if (isActiveDown) {
+            setScrollOpacity(0);
+          } else {
+            setScrollOpacity(1);
+          }
+
           prevScrollTopRef.current = scrollTop;
-        } else if (scrollDifference < -50) {
-          setScrollOpacity(1);
+        } else if (scrollDifference < -maxGap) {
+          if (isActiveDown) {
+            setScrollOpacity(1);
+          } else {
+            setScrollOpacity(0);
+          }
           prevScrollTopRef.current = scrollTop;
         }
       });
     };
 
-    window.addEventListener('scroll', handleScroll);
+    if (containerRef && containerRef.current) {
+      containerRef.current.addEventListener('scroll', handleScroll);
+    } else {
+      window.addEventListener('scroll', handleScroll);
+    }
 
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      if (containerRef && containerRef.current) {
+        containerRef.current.removeEventListener('scroll', handleScroll);
+      } else {
+        window.removeEventListener('scroll', handleScroll);
+      }
+
       if (animationFrameId) {
         cancelAnimationFrame(animationFrameId);
       }
@@ -45,11 +85,27 @@ const FloatingActionButtonLayout: React.FC<FloatingActionButtonLayoutProps> = ({
   }, []);
 
   return (
-    <FloatingActionWrap opacity={scrollOpacity}>{children}</FloatingActionWrap>
+    <FloatingActionWrap
+      $bottomByMaxSize={bottomByMaxSize}
+      $bottomByMinSize={bottomByMinSize}
+      $bottomGap={bottomGap}
+      opacity={scrollOpacity}
+      onClick={() => {
+        if (!actionFunc) return;
+        actionFunc();
+      }}
+    >
+      {children}
+    </FloatingActionWrap>
   );
 };
 
-const FloatingActionWrap = styled.div<{ opacity: number }>`
+const FloatingActionWrap = styled.div<{
+  opacity: number;
+  $bottomByMinSize: number;
+  $bottomByMaxSize: number;
+  $bottomGap: number;
+}>`
   z-index: 1000;
   position: fixed;
   transform: translate(-50%, 50%);
@@ -59,7 +115,17 @@ const FloatingActionWrap = styled.div<{ opacity: number }>`
   padding: 8px 13px;
   box-shadow: 0px 1px 6px 0px rgba(0, 0, 0, 0.15);
 
-  bottom: calc(${theme.systemSize.bottomNavBar.height} + 56px);
+  @media (max-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
+    bottom: calc(
+      ${(props) => props.$bottomByMinSize}px + ${(props) => props.$bottomGap}px
+    );
+  }
+
+  @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
+    bottom: calc(
+      ${(props) => props.$bottomByMaxSize}px + ${(props) => props.$bottomGap}px
+    );
+  }
 
   cursor: pointer;
 

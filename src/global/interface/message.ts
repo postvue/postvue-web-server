@@ -9,15 +9,37 @@ export interface MsgInboxMessage {
   msgContent: string;
 }
 
+export interface MsgDirectConversationRsp {
+  msgRoomId: string;
+  msgId: string;
+  msgType: string;
+  msgContent: string;
+  sendAt: string;
+  hasMsgReaction: boolean;
+  msgReactionType: string;
+  sourceUserId: string;
+  isOtherMsg: boolean;
+}
+
 export interface MsgConversation {
   msgId: string;
-  isFollowMsg: boolean;
+  msgRoomId: string;
+  isGroupedMsg: boolean;
+  targetUserId: string;
+  isOtherMsg: boolean;
   msgType: string;
   msgContent: string;
   hasMsgReaction: boolean;
   msgReactionType: string;
-  isRead: boolean;
   sendAt: string;
+}
+
+export interface MsgDeletedConversation {
+  msgId: string;
+  msgRoomId: string;
+  isGroupedMsg: boolean;
+  targetUserId: string;
+  sourceUserId: string;
 }
 
 export interface MsgConversationWsCreatePub {
@@ -32,19 +54,20 @@ export interface MsgConversationWsUpdatePub {
   msgContent: string;
   hasMsgReaction: boolean;
   msgReactionType: string;
-  isRead: boolean;
 }
 
 export interface MsgConversationWsSub {
+  msgRoomId: string;
+  isGroupedMsg: boolean;
+  targetUserId: string;
   msgId: string;
   msgType: string;
   msgContent: string;
   sendAt: string;
   hasMsgReaction: boolean;
   msgReactionType: string;
-  isRead: boolean;
+  sourceUserId: string;
   isDeleted: boolean;
-  userId: string;
 }
 
 export interface MsgBlockHiddenUser {

@@ -1,7 +1,6 @@
-import BoundaryStickBar from 'components/common/container/BoundaryStickBar';
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 import { NAVIGATION_TO } from '../../../const/AppConst';
 import {
@@ -17,69 +16,124 @@ import theme from '../../../styles/theme';
 import PrevButton from '../../PrevButton';
 
 import { ReactComponent as SettingVerticalDotIcon } from 'assets/images/icon/svg/SettingVerticalDotIcon.svg';
+import WindowResizeSenceComponent from 'components/common/container/WindowResizeSenseComponent';
+import HeaderLayout from 'components/layouts/HeaderLayout';
+import ContextMenuPopup from 'components/popups/ContextMenuPopup';
+import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
+import MsgConversationSettingPopupBody from '../popup/MsgConversationSettingPopupBody';
 
 const MsgConversationHeader: React.FC = () => {
+  const msgSettingButtonRef = useRef<HTMLDivElement>(null);
+
   const profileInfoByDirectMsg = useRecoilValue(profileInfoByDirectMsgAtom);
   const sessionActiveUserInfoHashMap = useRecoilValue(
     sessionActiveUserInfoHashMapAtom,
   );
-  const setIsSettingByMsgConversation = useSetRecoilState(
-    isSettingByMsgConversationAtom,
-  );
+  const [isSettingByMsgConversation, setIsSettingByMsgConversation] =
+    useRecoilState(isSettingByMsgConversationAtom);
 
   const onClickSetting = () => {
     setIsSettingByMsgConversation(true);
   };
 
+  const [windowSize, setWindowSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
+
   return (
-    <MsgConversationHeaderContainer>
-      <MsgProfileHeaderContainer>
-        <PrevButtonWrap>
-          <PrevButton
-            style={PrevStyle}
-            strokeColor={theme.mainColor.Black}
-            to={MESSAGE_INBOX_PATH}
-            type={NAVIGATION_TO}
-          />
-        </PrevButtonWrap>
-        <FollowProfileInfoWrap>
-          <Link to={`${PROFILE_LIST_PATH}/${profileInfoByDirectMsg.username}`}>
-            <FollowProfileInfoLinkWrap>
-              <FolowProfileActiveWrap>
-                <FollowProfileImg src={profileInfoByDirectMsg.profilePath} />
-                <FollowActive
-                  $sessionState={
-                    sessionActiveUserInfoHashMap.get(
-                      profileInfoByDirectMsg.targetUserId,
-                    )?.sessionState || false
-                  }
+    <>
+      <MsgConversationHeaderContainer>
+        <HeaderLayout
+          HeaderLayoutStyle={{
+            paddingBottom: '5px',
+            borderBottom: `1px solid ${theme.grey.Grey2}`,
+          }}
+        >
+          <MsgProfileHeaderContainer>
+            <MsgProfileHeaderWrap>
+              <PrevButtonWrap>
+                <PrevButton
+                  style={PrevStyle}
+                  strokeColor={theme.mainColor.Black}
+                  to={MESSAGE_INBOX_PATH}
+                  type={NAVIGATION_TO}
                 />
-              </FolowProfileActiveWrap>
-              <FollowProfileNameWrap>
-                <FollowProfileName>
-                  {profileInfoByDirectMsg.username}
-                </FollowProfileName>
-              </FollowProfileNameWrap>
-            </FollowProfileInfoLinkWrap>
-          </Link>
-        </FollowProfileInfoWrap>
-        <SettingButtonWrap>
-          <SettingButton onClick={() => onClickSetting()}>
-            <SettingVerticalDotIcon />
-          </SettingButton>
-        </SettingButtonWrap>
-      </MsgProfileHeaderContainer>
-      <BoundaryStickBar />
-    </MsgConversationHeaderContainer>
+              </PrevButtonWrap>
+              <FollowProfileInfoWrap>
+                <Link
+                  to={`${PROFILE_LIST_PATH}/${profileInfoByDirectMsg.username}`}
+                >
+                  <FollowProfileInfoLinkWrap>
+                    <FolowProfileActiveWrap>
+                      <FollowProfileImg
+                        src={profileInfoByDirectMsg.profilePath}
+                      />
+                      <FollowActive
+                        $sessionState={
+                          sessionActiveUserInfoHashMap.get(
+                            profileInfoByDirectMsg.targetUserId,
+                          )?.sessionState || false
+                        }
+                      />
+                    </FolowProfileActiveWrap>
+                    <FollowProfileNameWrap>
+                      <FollowProfileName>
+                        {profileInfoByDirectMsg.username}
+                      </FollowProfileName>
+                    </FollowProfileNameWrap>
+                  </FollowProfileInfoLinkWrap>
+                </Link>
+              </FollowProfileInfoWrap>
+              <SettingButtonWrap>
+                <SettingButton
+                  onClick={() => onClickSetting()}
+                  ref={msgSettingButtonRef}
+                >
+                  <SettingVerticalDotIcon />
+                </SettingButton>
+                {windowSize.width > MEDIA_MOBILE_MAX_WIDTH_NUM &&
+                  isSettingByMsgConversation &&
+                  msgSettingButtonRef.current && (
+                    <ContextMenuPopup
+                      contextMenuRef={msgSettingButtonRef.current}
+                      setIsActive={setIsSettingByMsgConversation}
+                    >
+                      <MsgConversationSettingPopupBody
+                        MsgSettingContainerStyle={{ padding: '20px' }}
+                        targetProfileInfo={profileInfoByDirectMsg}
+                      />
+                    </ContextMenuPopup>
+                  )}
+              </SettingButtonWrap>
+            </MsgProfileHeaderWrap>
+          </MsgProfileHeaderContainer>
+        </HeaderLayout>
+      </MsgConversationHeaderContainer>
+      <WindowResizeSenceComponent setWindowSize={setWindowSize} />
+    </>
   );
 };
 
-const MsgConversationHeaderContainer = styled.div``;
+const MsgConversationHeaderContainer = styled.div`
+  width: 100%;
+  max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
+  position: fixed;
+  background-color: ${({ theme }) => theme.mainColor.White};
+  z-index: 100;
+`;
 
 const MsgProfileHeaderContainer = styled.div`
-  padding: 12px 16px 11px 20px;
+  margin: auto 0px;
   display: flex;
-  height: 35px;
+  width: 100%;
+`;
+
+const MsgProfileHeaderWrap = styled.div`
+  padding: 0 ${({ theme }) => theme.systemSize.header.paddingLeftRightMargin};
+  margin: auto 0px;
+  display: flex;
+  width: 100%;
 `;
 
 const PrevButtonWrap = styled.div`
@@ -135,6 +189,7 @@ const FollowProfileName = styled.div`
 const SettingButtonWrap = styled.div`
   display: flex;
   cursor: pointer;
+  position: relative;
 `;
 const SettingButton = styled.div`
   display: flex;
