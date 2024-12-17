@@ -16,7 +16,13 @@ jobs:
       DOCKER_HUB_REPOSITORY: ${{ secrets.DOCKER_HUB_REPOSITORY }}        # Docker Hub 이미지 이름
 
     steps:
-      # 1. GitHub Repository 코드 체크아웃
+      # 1. Node.js 버전 설정
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20.15.1 # 로컬에서 사용하는 Node.js 버전
+          
+      # 2. GitHub Repository 코드 체크아웃
       - name: Checkout code
         uses: actions/checkout@v3
 
