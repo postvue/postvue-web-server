@@ -1,3 +1,4 @@
+import SnsAnotherSharePoupElement from 'components/popups/snsshare/SnsAnotherSharePoupElement';
 import MsgInboxListInfiniteScroll from 'hook/MsgInboxListInfiniteScroll';
 import { QueryStateMsgInboxListInfinite } from 'hook/queryhook/QueryStateMsgInboxListInfinite';
 import React, { useEffect } from 'react';
@@ -97,6 +98,16 @@ const MessageInboxBody: React.FC = () => {
               ))}
           </>
         )}
+        {msgInboxMessageList && msgInboxMessageList.pages.flatMap((v) => v) && (
+          <>
+            <NotMsgTargetWrap>
+              <NotMsgTargetTitle>
+                친구들을 팔로우해 대화 해 보세요.
+              </NotMsgTargetTitle>
+              <SnsAnotherSharePoupElement />
+            </NotMsgTargetWrap>
+          </>
+        )}
       </FollowProfileMsgListContainer>
       <MsgInboxListInfiniteScroll />
     </MessageInboxBodyContainer>
@@ -168,6 +179,7 @@ const FollowProfileImg = styled.img`
   height: 59px;
   border-radius: 30px;
   vertical-align: bottom;
+  object-fit: cover;
 `;
 
 const FollowActiveState = styled.div<{ $sessionState: boolean }>`
@@ -235,6 +247,19 @@ const MsgSubWrap = styled.div`
   flex-flow: column;
   justify-content: end;
   gap: 8px;
+`;
+
+const NotMsgTargetWrap = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+`;
+
+const NotMsgTargetTitle = styled.div`
+  font: ${({ theme }) => theme.fontSizes.Body5};
+  text-align: center;
+  padding-bottom: 15px;
 `;
 
 export default MessageInboxBody;

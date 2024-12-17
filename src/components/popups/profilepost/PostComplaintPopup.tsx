@@ -1,46 +1,61 @@
-import WindowResizeSenceComponent from 'components/common/container/WindowResizeSenseComponent';
+import BottomSheetLayout from 'components/layouts/BottomSheetLayout';
 import RoundSquareCenterPopupLayout from 'components/layouts/RoundSquareCenterPopupLayout';
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
+import useWindowSize from 'hook/customhook/useWindowSize';
 import React, { useState } from 'react';
-import { useSetRecoilState } from 'recoil';
+import { useRecoilState } from 'recoil';
 import { isActivePostComplaintPopupAtom } from 'states/PostAtom';
-import PopupLayout from '../../layouts/PopupLayout';
 import PostComplaintPopupBody from './PostComplaintPopupBody';
 
-const popupWrapStyle: React.CSSProperties = {
-  height: 'auto',
-};
+interface PostComplaintPopupProps {
+  isFixed?: boolean;
+}
 
-const PostComplaintPopup: React.FC = () => {
-  const setIsActivePostComplaintPopup = useSetRecoilState(
-    isActivePostComplaintPopupAtom,
-  );
+const PostComplaintPopup: React.FC<PostComplaintPopupProps> = ({
+  isFixed = true,
+}) => {
+  const [isActivePostComplaintPopup, setIsActivePostComplaintPopup] =
+    useRecoilState(isActivePostComplaintPopupAtom);
 
-  const [windowSize, setWindowSize] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
-  });
+  const [isExternalCloseFunc, setIsExternalCloseFunc] =
+    useState<boolean>(false);
+
+  const { windowWidth } = useWindowSize();
 
   return (
     <>
-      {windowSize.width <= MEDIA_MOBILE_MAX_WIDTH_NUM ? (
-        <PopupLayout
-          setIsPopup={setIsActivePostComplaintPopup}
-          isTouchScrollBar={true}
-          popupWrapStyle={popupWrapStyle}
+      {windowWidth <= MEDIA_MOBILE_MAX_WIDTH_NUM ? (
+        // <PopupLayout
+        //   setIsPopup={setIsActivePostComplaintPopup}
+        //   isTouchScrollBar={true}
+        //   popupWrapStyle={popupWrapStyle}
+        // >
+        //   <PostComplaintPopupBody />
+        //   </PopupLayout>
+        <BottomSheetLayout
+          isFixed={isFixed}
+          isOpen={isActivePostComplaintPopup}
+          onClose={() => setIsActivePostComplaintPopup(false)}
+          heightNum={500}
+          isExternalCloseFunc={isExternalCloseFunc}
+          setIsExternalCloseFunc={setIsExternalCloseFunc}
         >
-          <PostComplaintPopupBody />
-        </PopupLayout>
+          <PostComplaintPopupBody
+            setIsExternalCloseFunc={setIsExternalCloseFunc}
+          />
+        </BottomSheetLayout>
       ) : (
-        <RoundSquareCenterPopupLayout
-          setIsPopup={setIsActivePostComplaintPopup}
-          popupWrapStyle={{ height: '500px', width: '400px' }}
-        >
-          <PostComplaintPopupBody />
-        </RoundSquareCenterPopupLayout>
+        <>
+          {isActivePostComplaintPopup && (
+            <RoundSquareCenterPopupLayout
+              onClose={() => setIsActivePostComplaintPopup(false)}
+              popupWrapStyle={{ height: '500px', width: '400px' }}
+            >
+              <PostComplaintPopupBody />
+            </RoundSquareCenterPopupLayout>
+          )}
+        </>
       )}
-
-      <WindowResizeSenceComponent setWindowSize={setWindowSize} />
     </>
   );
 };

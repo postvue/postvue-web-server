@@ -13,8 +13,8 @@ import {
   locationSearchWordAtom,
 } from 'states/GeoLocationAtom';
 import { isMapSLocationLoadingAtom } from 'states/MapExploreAtom';
-import { animationStyle } from 'styles/animations';
-import SearchInputTemplate from './SearchInputTemplate';
+import theme from 'styles/theme';
+import SearchInputTemplate from '../../common/input/SearchInputTemplate';
 
 interface LocationSearchHeaderProps {
   LocationHeaderContainer?: React.CSSProperties;
@@ -55,7 +55,12 @@ const LocationSearchHeader: React.FC<LocationSearchHeaderProps> = ({
 
   return (
     <>
-      <HeaderLayout HeaderLayoutStyle={LocationHeaderContainer}>
+      <HeaderLayout
+        HeaderLayoutStyle={{
+          ...LocationHeaderContainer,
+          ...{ position: 'static' },
+        }}
+      >
         <LocationHeaderWrap>
           <SearchContainerWrap>
             <SearchInputTemplate
@@ -75,7 +80,14 @@ const LocationSearchHeader: React.FC<LocationSearchHeaderProps> = ({
           </SearchContainerWrap>
         </LocationHeaderWrap>
       </HeaderLayout>
-      {loading && isLocationSearchInputActive && <LoadingComponent />}
+      {loading && isLocationSearchInputActive && (
+        <LoadingComponent
+          LoadingComponentStyle={{
+            top: `${theme.systemSize.header.heightNumber * 4}px`,
+            transform: 'translate(-50%,0px)',
+          }}
+        />
+      )}
     </>
   );
 };
@@ -84,7 +96,6 @@ const LocationHeaderWrap = styled.div`
   margin: auto 0;
   width: 100%;
   display: flex;
-  animation: ${animationStyle.slideLeft} 0.1s ease-in forwards;
 `;
 
 const SearchContainerWrap = styled.div`

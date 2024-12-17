@@ -38,7 +38,7 @@ const ClipButton: React.FC<ClipButtonProps> = ({
 
   const [isScrapBoardActive, setIsScrapBoardActive] = useState<boolean>(false);
 
-  const { data, isLoading } = QueryStatePostScrapPreviewList(
+  const { data, isLoading, isFetched } = QueryStatePostScrapPreviewList(
     postId,
     isScrapBoardActive,
   );
@@ -134,6 +134,13 @@ const ClipButton: React.FC<ClipButtonProps> = ({
     setIsScrapBoardActive(false);
   };
 
+  useEffect(() => {
+    if (!isFetched) return;
+    if (data === undefined || (data && data.length <= 0)) {
+      onClickMoveScrapView();
+    }
+  }, [isFetched]);
+
   return (
     <ClipButtonContainer key={postId}>
       <LongPressToResizeButton resize={0.85} resizeSpeedRate={0.2}>
@@ -141,7 +148,7 @@ const ClipButton: React.FC<ClipButtonProps> = ({
           {isClipped ? <PostClipedButtonIcon /> : <PostClipButtonIcon />}
         </ClipButtonWrap>
       </LongPressToResizeButton>
-      {isScrapBoardActive && !isLoading && clipRef.current && (
+      {isScrapBoardActive && !isLoading && isFetched && clipRef.current && (
         <ContextMenuPopup
           contextMenuRef={clipRef.current}
           setIsActive={setIsScrapBoardActive}

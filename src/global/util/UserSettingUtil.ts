@@ -1,10 +1,9 @@
 import { USER_SETTING_SESSION } from '../../const/SessionStorageConst';
-import { POPULARITY_STATE_SESSION_VALUE } from '../../const/UserSettingConst';
 import { UserSettingInterface } from '../interface/sessionstorage/UserSettingInterface';
 
 export const getUserSettingInfo = (): UserSettingInterface => {
   const initUserSettingInfo: UserSettingInterface = {
-    currentInterestState: POPULARITY_STATE_SESSION_VALUE,
+    currentInterestState: 0,
   };
 
   const userSettingInfo: UserSettingInterface = JSON.parse(

@@ -10,7 +10,6 @@ import {
   followForMeHashMapAtom,
   pageNumAtomByFollowForMe,
 } from '../states/FollowForMeAtom';
-import { systemPostRspHashMapAtom } from '../states/SystemConfigAtom';
 
 const FollowForMeInfiniteScroll: React.FC = () => {
   const [cursorNum, setCursorNum] = useRecoilState(cursorIdAtomByFollowForMe);
@@ -21,23 +20,17 @@ const FollowForMeInfiniteScroll: React.FC = () => {
   const [snsPostHashMap, setSnsPostHashMap] = useRecoilState(
     followForMeHashMapAtom,
   );
-  const [systemPostHashMap, setSystemPostHashMap] = useRecoilState(
-    systemPostRspHashMapAtom,
-  );
 
   const callback = () => {
     getFollowForMeListByParam(cursorNum)
       .then((res) => {
         if (res.snsPostRspList.length > 0) {
           const newSnsPostHashMap = new Map(snsPostHashMap);
-          const newSystemPostHashMap = new Map(systemPostHashMap);
           res.snsPostRspList.forEach((post) => {
             newSnsPostHashMap.set(post.postId, post);
-            newSystemPostHashMap.set(post.postId, post);
           });
 
           setSnsPostHashMap(newSnsPostHashMap);
-          setSystemPostHashMap(newSystemPostHashMap);
           setPageNum(pageNum + 1);
         }
 

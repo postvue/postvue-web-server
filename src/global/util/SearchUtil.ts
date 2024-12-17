@@ -62,8 +62,8 @@ const addRecentlyKeywordList = (
 };
 
 export const deleteRecentlyKeyword = (
-  searchWord: string,
   recentKeywordStorageName: string,
+  searchWord: string,
 ): SearchRecentKeywordInterface[] => {
   const recentlyKeywordList: SearchRecentKeywordInterface[] = JSON.parse(
     localStorage.getItem(recentKeywordStorageName) ||

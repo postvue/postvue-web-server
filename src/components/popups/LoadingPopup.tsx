@@ -5,12 +5,21 @@ import styled from 'styled-components';
 
 interface LoadingPopupProps {
   LoadingPopupStyle?: React.CSSProperties;
+  LoadingWrapStyle?: React.CSSProperties;
+  isLight?: boolean;
 }
 
-const LoadingPopup: React.FC<LoadingPopupProps> = ({ LoadingPopupStyle }) => {
+const LoadingPopup: React.FC<LoadingPopupProps> = ({
+  LoadingPopupStyle,
+  LoadingWrapStyle,
+  isLight = true,
+}) => {
   return (
-    <PopupOverLayLayout PopupOverLayLayoutStyle={LoadingPopupStyle}>
-      <LoadingWrap>
+    <PopupOverLayLayout
+      PopupOverLayLayoutStyle={LoadingPopupStyle}
+      isLight={isLight}
+    >
+      <LoadingWrap style={LoadingWrapStyle}>
         <LoadingGif src={loadingBarGif} />
       </LoadingWrap>
     </PopupOverLayLayout>

@@ -86,18 +86,23 @@ const background = {
   lightBlurBackground: `rgba(255, 255, 255, 0.5)`,
 };
 
+const maxWidthNum = 500;
+const profilePostMaxWidthNum = 530;
+
 const systemSize = {
   appDisplaySize: {
-    maxWidth: '500px',
+    maxWidthNum: maxWidthNum,
+    maxWidth: `${maxWidthNum}px`,
     widthByPc: '600px',
-    profilePostMaxWidth: '580px',
+    profilePostMaxWidthNum: profilePostMaxWidthNum,
+    profilePostMaxWidth: `${profilePostMaxWidthNum}px`,
 
     bothSidePadding: '20px',
     bottomButtonMargin: '40px',
   },
   bottomNavBar: {
-    heightNum: 90,
-    height: '90px',
+    heightNum: 80,
+    height: '80px',
   },
   header: {
     height: '50px',
@@ -113,6 +118,7 @@ const systemSize = {
     padding: '6px',
     gap: '9px',
   },
+  settingGap: '20px',
 };
 
 const theme = {

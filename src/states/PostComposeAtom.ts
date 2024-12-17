@@ -10,6 +10,22 @@ export const isActivPostComposePopupAtom = atom<boolean>({
   default: false,
 });
 
+export const postEditActiveInfoPopupAtom = atom<{
+  postId: string;
+  isActive: boolean;
+}>({
+  key: 'postEditActiveInfoPopup',
+  default: {
+    postId: '',
+    isActive: false,
+  },
+});
+
+export const isActivPostComposeSelectPopupAtom = atom<boolean>({
+  key: 'isActivPostComposeSelectPopup',
+  default: false,
+});
+
 export const isActivPostComposeBySourceUrlPopupAtom = atom<boolean>({
   key: 'isActivPostComposeBySourceUrlPopup',
   default: false,
@@ -24,6 +40,11 @@ export const uploadResourceListAtom = atom<PostUploadContent[]>({
   key: 'uploadResourceList',
   default: [],
 });
+
+// export const postContentSortListAtom = atom<PostUploadContentSort[]>({
+//   key: 'postContentSortList',
+//   default: [],
+// });
 
 export const isActivPostComposeTargetAudiencePopupAtom = atom<boolean>({
   key: 'isActivPostComposeTargetAudiencePopup',

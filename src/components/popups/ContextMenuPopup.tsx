@@ -37,14 +37,16 @@ const ContextMenuPopup: React.FC<ContextMenuPopupProps> = ({
 
   useEffect(() => {
     if (contextMenuRef) {
-      const body = document.body;
       const dom = contextMenuRef.getBoundingClientRect();
 
       const clipY = dom.y;
       const clipHeight = dom.height;
-      const bodyHeight = body.offsetHeight;
+      const windowHeight = window.innerHeight;
 
-      if (clipY + clipHeight / 2 > bodyHeight / 2) {
+      console.log(clipY, clipHeight, windowHeight);
+      console.log(dom);
+
+      if (clipY + clipHeight / 2 > windowHeight / 2) {
         setContextMenuLayoutInfo((prev) => ({
           ...prev,
           positionType: BOTTOM_ATTRIBUTE,

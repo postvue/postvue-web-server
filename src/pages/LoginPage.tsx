@@ -34,7 +34,6 @@ const LoginPage: React.FC = () => {
       })
       .catch(() => {
         //@REFER: 출력값 필요하면 넣으삼
-        console.error('에러 남');
       });
   }, []);
 

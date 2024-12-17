@@ -16,26 +16,28 @@ export const QUERY_STATE_POST_COMMENT_REPLY_LIST =
 export const QUERY_STATE_POST_COMMENT_REPLY_REPLIES =
   'profilePostCommentReplyReplyList';
 
-// 포스트, 스크랩 preview
-export const QUERY_STATE_POST_SCRAP_PREVIEW_LIST = 'postScrapPreviewList';
-
 export const QUERY_STATE_PROFILE_FOLLOWING_LIST = 'profileFollowingList';
 export const QUERY_STATE_PROFILE_FOLLOWER_LIST = 'profileFollowerList';
 
+export const QUERY_STATE_PROFILE_CLIP_LIST = 'profileClipList';
+
 // 검색 페이지
 export const QUERY_STATE_SEARCH_POST_LIST = 'searchPostList';
+export const QUERY_STATE_SEARCH_SCRAP_LIST = 'searchScrapList';
 
 // 상세 게시글
-export const QUERY_STATE_PROFILE_POST_LIST = 'profilePostList';
+export const QUERY_STATE_PROFILE_ACCOUNT_POST_LIST = 'profileAccountPostList';
 
 // 프로필 계정
 export const QUERY_STATE_PROFILE_ACCOUNT_INFO = 'profileAccountInfo';
 
 // 프로필 스크랩 리스트(보드)
+export const QUERY_STATE_POST_SCRAP_PREVIEW_LIST = 'postScrapPreviewList';
 export const QUERY_STATE_PROFILE_SCRAP_INFO = 'profileScrapInfo';
+// 포스트, 스크랩 preview
 export const QUERY_STATE_PROFILE_SCRAP_LIST = 'profileScrapList';
 
-// 포스트, 스크랩 preview
+// 포스트 게시글 링크
 export const QUERY_STATE_POST_RESOURCE_DOC_IMAGE_LIST =
   'postResourceDocImageList';
 

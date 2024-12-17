@@ -1,16 +1,12 @@
-import WindowResizeSenceComponent from 'components/common/container/WindowResizeSenseComponent';
+import BottomSheetLayout from 'components/layouts/BottomSheetLayout';
 import RoundSquareCenterPopupLayout from 'components/layouts/RoundSquareCenterPopupLayout';
 import BlockUserPopupBody from 'components/profile/blockuser/BlockUserPopupBody';
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
-import React, { useState } from 'react';
-import { useSetRecoilState } from 'recoil';
+import useWindowSize from 'hook/customhook/useWindowSize';
+import React from 'react';
+import { useRecoilState } from 'recoil';
 import { isActivePostComplaintCompletePopupAtom } from 'states/PostAtom';
 import styled from 'styled-components';
-import PopupLayout from '../../layouts/PopupLayout';
-
-const popupWrapStyle: React.CSSProperties = {
-  height: '60%',
-};
 
 interface PostComplaintPopupProps {
   userInfo: { username: string; userId: string };
@@ -18,21 +14,20 @@ interface PostComplaintPopupProps {
   hasTransparentOverLay?: boolean;
   setIsBlocked?: React.Dispatch<React.SetStateAction<boolean>>;
   setIsSettingPopup?: React.Dispatch<React.SetStateAction<boolean>>;
+  isFixed?: boolean;
 }
 const PostComplaintCompletePopup: React.FC<PostComplaintPopupProps> = ({
   userInfo,
   isBlocked,
-  hasTransparentOverLay = false,
   setIsBlocked,
+  isFixed,
 }) => {
-  const setIsActivePostComplaintCompletePopup = useSetRecoilState(
-    isActivePostComplaintCompletePopupAtom,
-  );
+  const [
+    isActivePostComplaintCompletePopup,
+    setIsActivePostComplaintCompletePopup,
+  ] = useRecoilState(isActivePostComplaintCompletePopupAtom);
 
-  const [windowSize, setWindowSize] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
-  });
+  const { windowWidth } = useWindowSize();
 
   const PostReportBody = () => {
     return (
@@ -54,26 +49,27 @@ const PostComplaintCompletePopup: React.FC<PostComplaintPopupProps> = ({
 
   return (
     <>
-      {windowSize.width <= MEDIA_MOBILE_MAX_WIDTH_NUM ? (
-        <PopupLayout
-          setIsPopup={setIsActivePostComplaintCompletePopup}
-          isTouchScrollBar={true}
-          popupWrapStyle={popupWrapStyle}
-          hasTransparentOverLay={hasTransparentOverLay}
-          hasFixedActive={true}
+      {windowWidth <= MEDIA_MOBILE_MAX_WIDTH_NUM ? (
+        <BottomSheetLayout
+          isFixed={isFixed}
+          isOpen={isActivePostComplaintCompletePopup}
+          onClose={() => setIsActivePostComplaintCompletePopup(false)}
+          heightNum={500}
         >
           <PostReportBody />
-        </PopupLayout>
+        </BottomSheetLayout>
       ) : (
-        <RoundSquareCenterPopupLayout
-          setIsPopup={setIsActivePostComplaintCompletePopup}
-          popupWrapStyle={{ height: '400px', width: '500px' }}
-        >
-          <PostReportBody />
-        </RoundSquareCenterPopupLayout>
+        <>
+          {isActivePostComplaintCompletePopup && (
+            <RoundSquareCenterPopupLayout
+              onClose={() => setIsActivePostComplaintCompletePopup(false)}
+              popupWrapStyle={{ height: '400px', width: '500px' }}
+            >
+              <PostReportBody />
+            </RoundSquareCenterPopupLayout>
+          )}
+        </>
       )}
-
-      <WindowResizeSenceComponent setWindowSize={setWindowSize} />
     </>
   );
 };

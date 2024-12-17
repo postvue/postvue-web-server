@@ -91,7 +91,7 @@ const ProfileAccountSettingBodyContainer = styled.div`
 const ProfileAccountSettingBodyWrap = styled.div`
     display: flex;
     flex-flow: column;
-    gap: 16px;
+    gap: ${({ theme }) => theme.systemSize.settingGap};
     padding-top: 35px;
 }`;
 

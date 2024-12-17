@@ -5,21 +5,20 @@ import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import BorderCircleButton from 'components/common/buttton/BorderCircleButton';
-import WindowResizeSenceComponent from 'components/common/container/WindowResizeSenseComponent';
 import MapExploreSearchSuggestBody from 'components/mapexplore/body/MapExploreSearchSuggestBody';
 import GeoCurrentPositionButton from 'components/mapexplore/GeoCurrentPositionButton';
 import GeoPositionRefreshButton from 'components/mapexplore/GeoPositionRefreshButton';
 import MapExploreBody from 'components/mapexplore/MapExploreBody';
 import MapExploreHeader from 'components/mapexplore/MapExploreHeader';
 import LoadingPopup from 'components/popups/LoadingPopup';
-import MapExplorePopup from 'components/popups/MapExplorePopup';
-import ProfilePostDetailPopup from 'components/popups/ProfilePostDeatilPopup';
+import MapExplorePopup_ from 'components/popups/MapExplorePopup_';
 import { OVERFLOW_SCROLL } from 'const/AttributeConst';
 import { ACTIVE_CLASS_NAME } from 'const/ClassNameConst';
 import {
   MEDIA_MOBILE_MAX_WIDTH,
   MEDIA_MOBILE_MAX_WIDTH_NUM,
 } from 'const/SystemAttrConst';
+import { MAP_EXPLORE_SELECT_LOCATION_PHARSE_TEXT } from 'const/SystemPhraseConst';
 import {
   MAP_EXPLORE_ALL_TAB_ID,
   MAP_EXPLORE_ALL_TAB_NAME,
@@ -45,6 +44,8 @@ import {
   getGeoPosition,
   saveInitGeoPosition,
 } from 'global/util/MapExploreUtil';
+import useOutsideClick from 'hook/customhook/useOutsideClick';
+import useWindowSize from 'hook/customhook/useWindowSize';
 import { QueryStateMapAddressByGeo } from 'hook/queryhook/QueryStateMapAddressByGeo';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import {
@@ -148,7 +149,7 @@ const MapExplorePage: React.FC = () => {
     setNewMap(map);
     saveInitGeoPosition(mapLocation);
 
-    naver.maps.Event.addListener(map, 'center_changed', (e) => {
+    naver.maps.Event.addListener(map, 'center_changed', () => {
       const newCenter = map.getCenter(); // 변경된 지도 중심 좌표
       setMapMoveLoation({
         latitude: newCenter.y,
@@ -162,10 +163,7 @@ const MapExplorePage: React.FC = () => {
     });
   };
 
-  const [windowSize, setWindowSize] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
-  });
+  const { windowWidth } = useWindowSize();
 
   useEffect(() => {
     const initGeoPosition = getGeoPosition();
@@ -206,10 +204,17 @@ const MapExplorePage: React.FC = () => {
     mapLocation.longitude,
   );
 
+  const searchInputHeaderRef = useRef<HTMLDivElement>(null);
+  const suggestBodyRef = useRef<HTMLDivElement>(null);
+  useOutsideClick([searchInputHeaderRef, suggestBodyRef], () =>
+    setIsMapSearchInputActive(false),
+  );
+
   return (
     <AppBaseTemplate
       hasSearchBodyModule={false}
       hasSearchInputModule={false}
+      isAppContainerTopMargin={false}
       SideContainerStyle={{
         zIndex: 1000,
       }}
@@ -229,24 +234,43 @@ const MapExplorePage: React.FC = () => {
       }
     >
       <MapExplorePageContainer>
-        <MapExploreHeaderWrap>
+        <MapExploreHeaderWrap ref={searchInputHeaderRef}>
           <MapExploreHeader
-            address={data?.address || ''}
-            MapExploreActiveHeaderStyle={{
+            address={data?.address || MAP_EXPLORE_SELECT_LOCATION_PHARSE_TEXT}
+            MapExploreActiveHeaderStyle={
+              windowWidth > MEDIA_MOBILE_MAX_WIDTH_NUM
+                ? { paddingTop: '6px', backgroundColor: 'transparent' }
+                : { paddingTop: '6px' }
+            }
+            MapExploreNotActiveHeaderStyle={{
               backgroundColor: 'transparent',
               position: 'static',
               paddingTop: '6px',
             }}
-            MapExploreNotActiveHeaderStyle={{ paddingTop: '6px' }}
+            SearchButtonInputLayoutActiveStyle={
+              windowWidth <= MEDIA_MOBILE_MAX_WIDTH_NUM
+                ? {
+                    backgroundColor: theme.grey.Grey2,
+                  }
+                : { backgroundColor: theme.mainColor.White }
+            }
+            SearchButtonInputLayoutNotActiveStyle={
+              windowWidth <= MEDIA_MOBILE_MAX_WIDTH_NUM
+                ? {
+                    backgroundColor: theme.mainColor.White,
+                  }
+                : { backgroundColor: theme.mainColor.White }
+            }
           />
-
-          <MapExploreFilterWrap>
+        </MapExploreHeaderWrap>
+        <MapExploreFilterWrap>
+          <MapExploreFilterSubWrap>
             {mapExploreTabList.map((v) => (
               <BorderCircleButton
                 key={v.tabId}
                 contentText={v.tabName}
                 fontSize={
-                  windowSize.width > MEDIA_MOBILE_MAX_WIDTH_NUM
+                  windowWidth > MEDIA_MOBILE_MAX_WIDTH_NUM
                     ? theme.fontSizes.Body3
                     : theme.fontSizes.Body2
                 }
@@ -261,13 +285,13 @@ const MapExplorePage: React.FC = () => {
                 activeBorderColor={theme.mainColor.Blue}
               />
             ))}
-          </MapExploreFilterWrap>
-        </MapExploreHeaderWrap>
+          </MapExploreFilterSubWrap>
+        </MapExploreFilterWrap>
 
         <NaverExploreMapWrap>
           <NaverExploreMap id={NAVER_MAP_MODULE_ID} ref={naverMapExplorerRef} />
 
-          {windowSize.width > MEDIA_MOBILE_MAX_WIDTH_NUM && (
+          {windowWidth > MEDIA_MOBILE_MAX_WIDTH_NUM && (
             <GeoCurrentPositionButton
               GeoCurrentPositionButtonRef={MyCurrentGeoButtonRef}
               onChangeNaverMap={onChangeNaverMap}
@@ -279,7 +303,7 @@ const MapExplorePage: React.FC = () => {
               }}
             />
           )}
-          {windowSize.width > MEDIA_MOBILE_MAX_WIDTH_NUM &&
+          {windowWidth > MEDIA_MOBILE_MAX_WIDTH_NUM &&
             mapMoveLocation.isMoved && (
               <GeoPositionRefreshButton
                 GeoPositionRefreshButtonStyle={{
@@ -291,28 +315,30 @@ const MapExplorePage: React.FC = () => {
               />
             )}
         </NaverExploreMapWrap>
-        {windowSize.width <= MEDIA_MOBILE_MAX_WIDTH_NUM && (
-          <MapExplorePopup
-            MapExplorePopupRef={MapExplorePopupRef}
-            onChangeNaverMap={onChangeNaverMap}
-          />
+        {windowWidth <= MEDIA_MOBILE_MAX_WIDTH_NUM && (
+          // <MapExplorePopup
+          //   MapExplorePopupRef={MapExplorePopupRef}
+          //   onChangeNaverMap={onChangeNaverMap}
+          // />
+          <MapExplorePopup_ onChangeNaverMap={onChangeNaverMap} />
         )}
       </MapExplorePageContainer>
       <BottomNavBar />
-      {isPostDetailInfoPopup && <ProfilePostDetailPopup />}
+      {/* {isPostDetailInfoPopup && <ProfilePostDetailPopup />} */}
       {isMapSearchInputActive && (
-        <MapExploreSuggestBodyWrap $windowWidthSize={windowSize.width}>
-          <MapExploreSearchSuggestBody onChangeNaverMap={onChangeNaverMap} />
+        <MapExploreSuggestBodyWrap
+          $windowWidthSize={windowWidth}
+          ref={suggestBodyRef}
+        >
+          <MapExploreSearchSuggestBody
+            onChangeNaverMap={onChangeNaverMap}
+            SearchSuggestBodyContiainerStyle={{
+              backgroundColor: 'transparent',
+            }}
+          />
         </MapExploreSuggestBodyWrap>
       )}
-      <WindowResizeSenceComponent setWindowSize={setWindowSize} />
-      {isLoadingPopup && (
-        <LoadingPopup
-          LoadingPopupStyle={{
-            backgroundColor: theme.background.lightBlurBackground,
-          }}
-        />
-      )}
+      {isLoadingPopup && <LoadingPopup />}
     </AppBaseTemplate>
   );
 };
@@ -323,10 +349,11 @@ const GetCurrentButtonMargin = 20;
 
 const MapExplorePageContainer = styled.div`
   position: relative;
+  z-index: 100;
 `;
 
 const MapExploreHeaderWrap = styled.div`
-  z-index: 150;
+  z-index: 200;
   width: 100%;
   position: absolute;
 
@@ -336,18 +363,23 @@ const MapExploreHeaderWrap = styled.div`
   }
 
   @media (max-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
+    position: fixed;
     max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
+    z-index: 1000;
   }
 `;
 
 const NaverExploreMapWrap = styled.div`
-  position: absolute;
+  position: fixed;
+  max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
   width: 100%;
   height: 100vh;
 
   @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
+    position: absolute;
     margin: ${MapFullMargin}px 0;
     height: calc(100vh - ${MapFullMargin * 2}px);
+    max-width: ${({ theme }) => theme.systemSize.appDisplaySize.widthByPc};
   }
 `;
 
@@ -361,24 +393,49 @@ const NaverExploreMap = styled.div`
 `;
 
 const MapExploreFilterWrap = styled.div`
-  padding: 12px 6px 6px 6px;
-  display: flex;
-  gap: 6px;
   width: 100%;
   display: flex;
   overflow-x: auto;
   white-space: nowrap;
+  position: fixed;
+  max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
+
+  margin-top: ${({ theme }) => theme.systemSize.header.height};
+  z-index: 100;
+
+  @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
+    position: absolute;
+    max-width: ${({ theme }) => theme.systemSize.appDisplaySize.widthByPc};
+    margin-top: ${({ theme }) => theme.systemSize.header.heightNumber + 10}px;
+  }
+`;
+
+const MapExploreFilterSubWrap = styled.div`
+  padding: 12px 6px 6px 6px;
+  display: flex;
+  gap: 6px;
 `;
 
 const MapExploreSuggestBodyWrap = styled.div<{ $windowWidthSize: number }>`
+  background-color: white;
   z-index: 160;
-  height: calc(100vh - ${theme.systemSize.header.heightNumber}px);
+  height: calc(100dvh - ${theme.systemSize.header.heightNumber}px);
   position: relative;
   top: ${theme.systemSize.header.heightNumber}px;
   width: 100%;
 
   padding-top: ${(props) =>
     props.$windowWidthSize > MEDIA_MOBILE_MAX_WIDTH_NUM ? MapFullMargin : 0}px;
+
+  @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
+    z-index: 1000;
+    top: 70px;
+    height: 500px;
+    background-color: white;
+    border-radius: 20px;
+    border: 1px solid #cfcfcf;
+    padding-bottom: 10px;
+  }
 `;
 
 export default MapExplorePage;

@@ -1,105 +1,38 @@
-import { AxiosError } from 'axios';
 import MyAccountSettingInfoState from 'components/common/state/MyAccountSettingInfoState';
 import AppBaseTemplate from 'components/layouts/AppBaseTemplate';
-import PoseComposeBody from 'components/posecompose/PoseComposeBody';
-import PoseComposeHeader from 'components/posecompose/PoseComposeHeader';
-import { POST_COMPOSE_TARGET_AUD_PUBLIC_TAB_ID } from 'const/TabConfigConst';
-import { PostContentInterface } from 'global/interface/post';
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useRecoilState, useRecoilValue } from 'recoil';
-import { createPostCompose } from 'services/post/createPostCompose';
-import {
-  postComposeAddressRelationAtom,
-  uploadResourceListAtom,
-} from 'states/PostComposeAtom';
+import PostComposePageBody from 'components/popups/postcompose/PostComposePageBody';
+import { HOME_PATH } from 'const/PathConst';
+import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
+import { useGoBackOrNavigate } from 'global/util/historyStateUtil';
+import React, { useEffect } from 'react';
 
 const PostComposePage: React.FC = () => {
-  const navigate = useNavigate();
-  const [uploadResourceList, setUploadResourceList] = useRecoilState(
-    uploadResourceListAtom,
-  );
-  const [postTitle, setPostTitle] = useState<string>('');
-  const [postBodyText, setPostBodyText] = useState<string>('');
-  const [postTagList, setPostTagList] = useState<string[]>([]);
-
-  const [targetAudienceId, setTargetAudienceId] = useState<number>(
-    POST_COMPOSE_TARGET_AUD_PUBLIC_TAB_ID,
-  );
-
-  const poseComposeAddressRelation = useRecoilValue(
-    postComposeAddressRelationAtom,
-  );
-
-  const [isLoadingPopup, setIsLoadingPopup] = useState<boolean>(false);
-
-  const onClickUploadButton = () => {
-    const formData = new FormData();
-    const snsPostComposeCreateReq = {
-      address: poseComposeAddressRelation.roadAddr,
-      tagList: postTagList,
-      title: postTitle,
-      bodyText: postBodyText,
-      postContentLinkList: uploadResourceList
-        .filter((value) => value.isLink === true)
-        .map((v, key) => {
-          return {
-            postContentType: v.contentType,
-            content: v.contentUrl,
-            ascSortNum: key,
-          } as PostContentInterface;
-        }),
+  const goBackOrNavigate = useGoBackOrNavigate(HOME_PATH);
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > MEDIA_MOBILE_MAX_WIDTH_NUM) {
+        goBackOrNavigate();
+      }
     };
-    const snsPostComposeCreateBlob = new Blob(
-      [JSON.stringify(snsPostComposeCreateReq)],
-      {
-        type: 'application/json',
-      },
-    );
-    formData.append('snsPostComposeCreateReq', snsPostComposeCreateBlob);
 
-    for (const uploadFile of uploadResourceList.filter(
-      (value) => value.isLink === false,
-    )) {
-      if (!uploadFile.fileBlob || !uploadFile.filename) return;
-      console.log(uploadFile, uploadFile.filename);
-      formData.append('files', uploadFile.fileBlob);
-    }
+    // 페이지 로드시 크기 확인
+    handleResize();
 
-    setIsLoadingPopup(true);
-    createPostCompose(formData)
-      .then(() => {
-        setIsLoadingPopup(false);
-        navigate(-1);
-      })
-      .catch((error: AxiosError) => {
-        console.log(error.response?.status);
-        alert('에러');
-        setIsLoadingPopup(false);
-      });
-  };
+    // 창 크기 변경시 크기 확인
+    window.addEventListener('resize', handleResize);
 
+    // 컴포넌트가 언마운트될 때 이벤트 리스너 제거
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
   return (
-    <AppBaseTemplate>
-      <PoseComposeHeader titleName={'새 게시물'} />
-      <PoseComposeBody
-        postTitle={postTitle}
-        setPostTitle={setPostTitle}
-        postBodyText={postBodyText}
-        setPostBodyText={setPostBodyText}
-        postTagList={postTagList}
-        setPostTagList={setPostTagList}
-        postUploadContentList={uploadResourceList}
-        setPostUploadContentList={setUploadResourceList}
-        targetAudienceId={targetAudienceId}
-        setTargetAudienceId={setTargetAudienceId}
-        isLoadingPopup={isLoadingPopup}
-        setIsLoadingPopup={setIsLoadingPopup}
-        onClickActionFunc={onClickUploadButton}
-        composeButtonTitle={'게시물 업로드'}
-      />
+    <>
+      <AppBaseTemplate>
+        <PostComposePageBody actionFuncByCompose={() => goBackOrNavigate()} />
+      </AppBaseTemplate>
       <MyAccountSettingInfoState />
-    </AppBaseTemplate>
+    </>
   );
 };
 

@@ -159,6 +159,7 @@ const SignupGenderContainer = styled.div`
 const SignupGenderItemWrap = styled.div`
   display: flex;
   justify-content: space-between;
+  cursor: pointer;
 `;
 
 const SignupGenderCheckWarp = styled.div``;

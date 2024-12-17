@@ -63,7 +63,7 @@ const ProfileAccountEmailEditBody: React.FC = () => {
           </SignupMinAgeWrap>
         )}
         <ProfileEmailDetailInfo>
-          {`현재 ${data?.nickname}님의 이메일은 ${data?.email}입니다. 이메일은 ${APP_SERVICE_NAME}의 내 공개 프로필에 표시되지 않습니다.`}
+          {`현재 ${data?.nickname}님의 이메일은 ${data?.email ? data.email + '입니다' : '아직 등록 되지 않았습니다.'} 이메일은 ${APP_SERVICE_NAME}의 내 공개 프로필에 표시되지 않습니다.`}
         </ProfileEmailDetailInfo>
 
         <BottomNextButton

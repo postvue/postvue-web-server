@@ -1,25 +1,35 @@
-import React, { useRef, useState } from 'react';
-import { useRecoilState } from 'recoil';
+import BottomSnapSheetLayout from 'components/layouts/BottomSnapSheetLayout';
+import RoundSquareCenterPopupLayout from 'components/layouts/RoundSquareCenterPopupLayout';
+import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
+import { POST_REACTION_COMMENT_ID } from 'const/TabConfigConst';
+import useWindowSize from 'hook/customhook/useWindowSize';
+import React, { useRef } from 'react';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import { PostCommentReplyMsgInfo } from '../../../global/interface/post';
 import {
-  PostCommentReplyMsgInfo,
-  PostRsp,
-} from '../../../global/interface/post';
-import { isPostReactionAtom } from '../../../states/PostReactionAtom';
-import PopupLayout from '../../layouts/PopupLayout';
+  isPostReactionAtom,
+  postReactionTabIdAtom,
+} from '../../../states/PostReactionAtom';
+import PostReactionCommentSendElement from './body/PostReactionCommentSendElement';
 import PostReactionPopupBody from './body/PostReactionPopupBody';
-
-const popupContentWrapStyle: React.CSSProperties = {
-  height: '85%',
-};
+import PostReactionPopupHeader from './body/PostReactionPopupHeader';
 
 interface PostReactionPopupProps {
   postId: string;
-  snsPost: PostRsp;
+  username: string;
+  replyMsg: PostCommentReplyMsgInfo | null;
+  setReplyMsg: React.Dispatch<
+    React.SetStateAction<PostCommentReplyMsgInfo | null>
+  >;
+  isFixed?: boolean;
 }
 
 const PostReactionPopup: React.FC<PostReactionPopupProps> = ({
   postId,
-  snsPost,
+  username,
+  replyMsg,
+  setReplyMsg,
+  isFixed = true,
 }) => {
   // Ref 관련 변수
   const likeIconRef = useRef<{ [key: string]: SVGSVGElement | null }>({});
@@ -29,30 +39,91 @@ const PostReactionPopup: React.FC<PostReactionPopupProps> = ({
   );
   const postCommentTextareaRef = useRef<HTMLTextAreaElement | null>(null);
 
-  // 상태 관리 관련 변수
-  const [replyMsg, setReplyMsg] = useState<PostCommentReplyMsgInfo | null>(
-    null,
-  );
-
   const [isPopupActive, setIsPopupActive] = useRecoilState(isPostReactionAtom);
+
+  const { windowWidth, windowHeight } = useWindowSize();
+
+  const reactionTabId = useRecoilValue(postReactionTabIdAtom);
 
   return (
     <>
-      <PopupLayout
-        popupWrapStyle={popupContentWrapStyle}
-        setIsPopup={setIsPopupActive}
-      >
-        <PostReactionPopupBody
-          postId={postId}
-          snsPost={snsPost}
-          likeCountRef={likeCountRef}
-          likeIconRef={likeIconRef}
-          postCommentTextareaRef={postCommentTextareaRef}
-          commentReplyCountRef={commentReplyCountRef}
-          replyMsg={replyMsg}
-          setReplyMsg={setReplyMsg}
-        />
-      </PopupLayout>
+      {windowWidth < MEDIA_MOBILE_MAX_WIDTH_NUM ? (
+        // <PopupLayout
+        //   popupWrapStyle={popupContentWrapStyle}
+        //   setIsPopup={setIsPopupActive}
+        // >
+        //   <PostReactionPopupBody
+        //     postId={postId}
+        //     snsPost={snsPost}
+        //     likeCountRef={likeCountRef}
+        //     likeIconRef={likeIconRef}
+        //     postCommentTextareaRef={postCommentTextareaRef}
+        //     commentReplyCountRef={commentReplyCountRef}
+        //     replyMsg={replyMsg}
+        //     setReplyMsg={setReplyMsg}
+        //   />
+        // </PopupLayout>
+        <BottomSnapSheetLayout
+          isFixed={isFixed}
+          isOpen={isPopupActive}
+          onClose={() => setIsPopupActive(false)}
+          heightNum={Math.floor(windowHeight * (10 / 11))}
+          bottomSheetHeader={<PostReactionPopupHeader />}
+          BottomSheetBottom={
+            reactionTabId === POST_REACTION_COMMENT_ID && (
+              <PostReactionCommentSendElement
+                postId={postId}
+                postCommentTextareaRef={postCommentTextareaRef}
+                commentReplyCountRef={commentReplyCountRef}
+                username={username}
+                replyMsg={replyMsg}
+                setReplyMsg={setReplyMsg}
+              />
+            )
+          }
+        >
+          <PostReactionPopupBody
+            postId={postId}
+            likeCountRef={likeCountRef}
+            likeIconRef={likeIconRef}
+            postCommentTextareaRef={postCommentTextareaRef}
+            commentReplyCountRef={commentReplyCountRef}
+            setReplyMsg={setReplyMsg}
+          />
+        </BottomSnapSheetLayout>
+      ) : (
+        <>
+          {isPopupActive && (
+            <RoundSquareCenterPopupLayout
+              onClose={() => setIsPopupActive(false)}
+              popupWrapStyle={{ height: '90%' }}
+            >
+              <PostReactionPopupHeader
+                PostReactionTabStyle={{ flexShrink: 0 }}
+              />
+              <PostReactionPopupBody
+                postId={postId}
+                likeCountRef={likeCountRef}
+                likeIconRef={likeIconRef}
+                postCommentTextareaRef={postCommentTextareaRef}
+                commentReplyCountRef={commentReplyCountRef}
+                setReplyMsg={setReplyMsg}
+                PostReactionPopupBodyStyle={{ flexGrow: 1, overflow: 'auto' }}
+              />
+              {reactionTabId === POST_REACTION_COMMENT_ID && (
+                <PostReactionCommentSendElement
+                  postId={postId}
+                  postCommentTextareaRef={postCommentTextareaRef}
+                  commentReplyCountRef={commentReplyCountRef}
+                  username={username}
+                  replyMsg={replyMsg}
+                  setReplyMsg={setReplyMsg}
+                />
+              )}
+            </RoundSquareCenterPopupLayout>
+          )}
+        </>
+      )}
     </>
   );
 };

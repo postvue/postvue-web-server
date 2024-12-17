@@ -2,7 +2,10 @@ import { ProfileMyInfo } from 'global/interface/profile';
 import { QueryMutationDeletePostComment } from 'hook/queryhook/QueryMutationDeletePostComment';
 import React, { useRef, useState } from 'react';
 import { useSetRecoilState } from 'recoil';
-import { postBlockedUserInfoAtom } from 'states/PostAtom';
+import {
+  activePostCommentComplaintPopupAtom,
+  postBlockedUserInfoAtom,
+} from 'states/PostAtom';
 import { isActiveProfileBlockPopupAtom } from 'states/ProfileAtom';
 import { isLoadingPopupAtom } from 'states/SystemConfigAtom';
 import styled from 'styled-components';
@@ -14,9 +17,6 @@ interface PostReactionCommentSettingButtonProps {
   userId: string;
   username: string;
   commentId: string;
-
-  // snsPostCommentHashMap: Map<string, PostComment>;
-  // setSnsPostCommentHashMap: SetterOrUpdater<Map<string, PostComment>>;
 }
 
 const PostReactionCommentSettingButton: React.FC<
@@ -47,6 +47,10 @@ const PostReactionCommentSettingButton: React.FC<
   );
 
   const setPostBlockedUserInfo = useSetRecoilState(postBlockedUserInfoAtom);
+
+  const setActivePostCommentComplaintPopup = useSetRecoilState(
+    activePostCommentComplaintPopupAtom,
+  );
 
   return (
     <PostCommentSettingButtonContainer
@@ -113,11 +117,22 @@ const PostReactionCommentSettingButton: React.FC<
                   >
                     삭제하기
                   </PostCommentSettingItem>
-                  <PostCommentSettingItem>수정 하기</PostCommentSettingItem>
+                  <PostCommentSettingItem>수정하기</PostCommentSettingItem>
                 </>
               ) : (
                 <>
-                  <PostCommentSettingItem>신고 하기</PostCommentSettingItem>
+                  <PostCommentSettingItem
+                    onClick={() => {
+                      setIsCommentSettingContextMenu(false);
+                      setActivePostCommentComplaintPopup({
+                        isActive: true,
+                        postId: postId,
+                        commentId: commentId,
+                      });
+                    }}
+                  >
+                    신고 하기
+                  </PostCommentSettingItem>
                   <PostCommentSettingItem
                     onClick={() => {
                       setIsCommentSettingContextMenu(false);

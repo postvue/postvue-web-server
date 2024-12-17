@@ -30,6 +30,7 @@ const PostProfileFollowBody: React.FC<PostProfileFollowBodyProps> = ({
                   onClick={() => {
                     setIsPopupActive(false);
                     navigate(`${PROFILE_LIST_PATH}/${v.username}`);
+                    window.scrollTo(0, 0);
                   }}
                 >
                   <ProfileImgUsernameWrap>
@@ -78,6 +79,7 @@ const PostProfileFollowImg = styled.img`
   height: 51px;
   flex-shrink: 0;
   border-radius: 30px;
+  object-fit: cover;
 `;
 const PostProfileFollowUsername = styled.div`
   margin: auto 0;

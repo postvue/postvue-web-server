@@ -7,7 +7,7 @@ import {
   QUERY_STATE_POST_COMMENT_REPLY_LIST,
 } from 'const/QueryClientConst';
 import { PostComment } from 'global/interface/post';
-import { animateCount } from 'global/util/CommentUtil';
+import { animateCount } from 'global/util/commentUtil';
 import { convertQueryTemplate } from 'global/util/TemplateUtil';
 import { createPostCommentReply } from 'services/post/createPostCommentReply';
 import { GetPostCommentsRsp } from 'services/post/getPostComments';
@@ -89,11 +89,6 @@ export const QueryMutationCreatePostCommentReply = (): UseMutationResult<
               return page;
             },
           );
-
-          console.log('카부토', {
-            ...oldData,
-            pages: updatedPages,
-          });
 
           return {
             ...oldData,

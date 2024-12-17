@@ -7,7 +7,7 @@ import {
 } from 'const/PostCommentConst';
 import { QUERY_STATE_POST_COMMENT_REPLY_LIST } from 'const/QueryClientConst';
 import { PostLikeRsp } from 'global/interface/post';
-import { animateCount, AnimationDirection } from 'global/util/CommentUtil';
+import { animateCount, AnimationDirection } from 'global/util/commentUtil';
 import { convertQueryTemplate } from 'global/util/TemplateUtil';
 import { putPostCommentLike } from 'services/post/putPostCommentLike';
 import { PostCommetListInfiniteInterface } from './QueryStatePostCommentListInfinite';
@@ -40,10 +40,6 @@ export const QueryMutationPutPostCommentReplyLike = (): UseMutationResult<
           if (!oldData) {
             return oldData;
           }
-
-          console.log('이놈스');
-          console.log(variables.likeCountRef);
-          console.log(variables.commentId);
 
           const updatedPages = oldData.pages.map((page) => {
             const updatedComments = page.snsPostCommentRspList.map(

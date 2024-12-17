@@ -1,5 +1,5 @@
-export const UPLOAD_IMG_MAX_WIDTH = 2048;
-export const UPLOAD_IMG_MAX_HEIGHT = 2048;
+export const UPLOAD_IMG_MAX_WIDTH = 1024;
+export const UPLOAD_IMG_MAX_HEIGHT = 1024;
 
 export const MAX_DELAY_SETTIMEOUT_TIME = 30;
 

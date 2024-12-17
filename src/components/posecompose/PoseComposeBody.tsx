@@ -33,20 +33,22 @@ import { ReactComponent as PostImageCropButtonIcon } from 'assets/images/icon/sv
 import { ReactComponent as PostVideoPauseButtonIcon } from 'assets/images/icon/svg/post/PostVideoPauseButtonIcon.svg';
 import { ReactComponent as PostVideoPlayButtonIcon } from 'assets/images/icon/svg/post/PostVideoPlayButtonIcon.svg';
 import { ReactComponent as PostComposeTagDeleteButtonIcon } from 'assets/images/icon/svg/PostComposeTagDeleteButtonIcon.svg';
-import BottomNextButton from 'components/common/buttton/BottomNextButton';
 import BoundaryStickBar from 'components/common/container/BoundaryStickBar';
-import RoundSquareCenterPopupLayout from 'components/layouts/RoundSquareCenterPopupLayout';
-import PostComposeLocationPopup from 'components/popups/postcompose/PostComposeLocationPopup';
+import HorizontalGrabScrollContainer from 'components/common/container/HorizontalGrabScrollContainer';
+import PostComposeCropPopup from 'components/popups/postcompose/postcomposecropppopup/PostComposeCropPopup';
+import PostComposeLocationPopup from 'components/popups/postcompose/postcomposelocationpopup/PostComposeLocationPopup';
 import PostComposeTargetAudiencePopup from 'components/popups/postcompose/PostComposeTargetAudiencePopup';
 import {
   FILE_IMAGE_CONTENT_TYPE,
   FILE_VIDEO_CONTENT_TYPE,
 } from 'const/fileConst';
-import { POST_COMPOSEUPLOAD_MAX_NUM } from 'const/PostComposeConst';
+import {
+  MAX_POST_VIDEO_DURATION,
+  POST_COMPOSEUPLOAD_MAX_NUM,
+} from 'const/PostComposeConst';
 import { POST_IMAGE_TYPE, POST_VIDEO_TYPE } from 'const/PostContentTypeConst';
-import { getCroppedImg, PixelCropType } from 'global/util/ImageInputUtil';
+import { MEDIA_MOBILE_MAX_WIDTH } from 'const/SystemAttrConst';
 import { useDropzone } from 'react-dropzone';
-import Cropper from 'react-easy-crop';
 import PostComposeButton from './PostComposeButton';
 
 interface PostComposeBodyProps {
@@ -64,6 +66,7 @@ interface PostComposeBodyProps {
   setIsLoadingPopup: React.Dispatch<React.SetStateAction<boolean>>;
   onClickActionFunc: () => void;
   composeButtonTitle: string;
+  hasTransparentOverLay?: boolean;
 }
 
 const PoseComposeBody: React.FC<PostComposeBodyProps> = ({
@@ -81,6 +84,7 @@ const PoseComposeBody: React.FC<PostComposeBodyProps> = ({
   setIsLoadingPopup,
   onClickActionFunc,
   composeButtonTitle,
+  hasTransparentOverLay = false,
 }) => {
   // 팝업 상태 값
   const [
@@ -164,151 +168,92 @@ const PoseComposeBody: React.FC<PostComposeBodyProps> = ({
       : FILE_VIDEO_CONTENT_TYPE;
     const fileBlobUrl = URL.createObjectURL(file);
 
-    setPostUploadContentList((prev) => [
-      ...prev,
-      {
-        contentUrl: fileBlobUrl,
-        contentType:
-          fileType === FILE_IMAGE_CONTENT_TYPE
-            ? POST_IMAGE_TYPE
-            : POST_VIDEO_TYPE,
-        isLink: false,
-        fileBlob: file,
-        isUploadedLink: false,
-        filename: file.name,
-      },
-    ]); // 이미지 미리보기 URL 설정
+    if (fileType === FILE_VIDEO_CONTENT_TYPE) {
+      const video = document.createElement('video');
+      video.src = fileBlobUrl;
+      video.onloadedmetadata = () => {
+        const duration = video.duration;
+        if (duration > MAX_POST_VIDEO_DURATION) {
+          // 300초 = 5분
+          alert(
+            `${MAX_POST_VIDEO_DURATION}분 이하의 영상만 업로드할 수 있습니다.`,
+          );
+          URL.revokeObjectURL(fileBlobUrl); // 메모리 누수 방지
+          return null;
+        } else {
+          setPostUploadContentList((prev) => [
+            ...prev,
+            {
+              contentUrl: fileBlobUrl,
+              contentType: POST_VIDEO_TYPE,
+              isLink: false,
+              fileBlob: file,
+              isUploadedLink: false,
+              filename: file.name,
+              sort: prev.length,
+            },
+          ]); // 이미지 미리보기 URL 설정
+        }
+      };
+    } else {
+      setPostUploadContentList((prev) => [
+        ...prev,
+        {
+          contentUrl: fileBlobUrl,
+          contentType: POST_IMAGE_TYPE,
+          isLink: false,
+          fileBlob: file,
+          isUploadedLink: false,
+          filename: file.name,
+          sort: prev.length,
+        },
+      ]); // 이미지 미리보기 URL 설정
+    }
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      'image/*': ['.jpeg', '.jpg', '.png', '.gif', '.webp'],
-      'video/*': ['.mp4', '.mov', '.avi', '.webm'], // 비디오 파일 확장자 허용
+      'image/jpeg': ['.jpeg', '.jpg'],
+      'image/png': ['.png'],
+      'image/gif': ['.gif'],
+      'image/webp': ['.webp'],
+      'video/mp4': ['.mp4'],
+      'video/quicktime': ['.mov'],
+      'video/x-msvideo': ['.avi'],
+      'video/webm': ['.webm'],
+      'application/vnd.apple.mpegurl': ['.m3u8'],
     },
   });
 
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
+  const videoPlayingMap = new Map<number, boolean>();
 
-  const handlePlayPauseVideo = () => {
-    if (videoRef.current) {
-      if (isPlaying) {
-        videoRef.current.pause();
+  const handlePlayPauseVideo = (index: number) => {
+    const videoRef = videoRefs.current[index];
+    const videoPlaying = videoPlayingMap.get(index);
+    if (videoRef && videoPlaying !== undefined) {
+      if (videoPlaying) {
+        videoRef.pause();
       } else {
-        videoRef.current.play();
+        videoRef.play();
       }
-      setIsPlaying(!isPlaying); // 재생/멈춤 상태 토글
+      videoPlayingMap.set(index, !videoPlaying);
     }
   };
-  const handleVideoEnded = () => {
-    setIsPlaying(false); // 비디오가 끝나면 상태를 false로 설정
+  const handleVideoEnded = (index: number) => {
+    const videoPlaying = videoPlayingMap.get(index);
+    if (!videoPlaying) return;
+    videoPlayingMap.set(index, !videoPlaying);
   };
 
-  const [crop, setCrop] = useState({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState<PixelCropType>({
-    x: 0,
-    y: 0,
-    width: 0,
-    height: 0,
-  });
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [showCropper, setShowCropper] = useState(false); // cropper UI 상태
-
-  const handleCropComplete = (croppedArea: any, croppedAreaPixels: any) => {
-    setCroppedAreaPixels(croppedAreaPixels);
-  };
-
-  const handleCropImage = async () => {
-    if (croppedAreaPixels && imageUrl) {
-      const croppedBlob = await getCroppedImg(imageUrl, croppedAreaPixels);
-      if (croppedBlob) {
-        const blobUrl = URL.createObjectURL(croppedBlob);
-        setPostUploadContentList((prev) =>
-          prev.map((value) => {
-            if (value.contentUrl === imageUrl) {
-              return {
-                ...value,
-                contentUrl: blobUrl,
-                fileBlob: croppedBlob,
-                contentType: POST_IMAGE_TYPE,
-              };
-            } else {
-              return value;
-            }
-          }),
-        );
-      }
-
-      setImageUrl(null);
-      setShowCropper(false);
-    }
-  };
 
   const handleShowCropper = (imageUrl: string) => {
     setImageUrl(imageUrl);
     setShowCropper(true); // "자르기" 버튼 클릭 시 cropper UI 표시
   };
-
-  const sliderRef = useRef<HTMLDivElement | null>(null); // ref 생성
-  const animationFrameRef = useRef<number | null>(null);
-  const [position, setPosition] = useState<number>(0); // 초기 위치를 50%로 설정
-  const [isDragging, setIsDragging] = useState<boolean>(false); // 드래그 상태 관리
-
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current);
-    }
-    setIsDragging(true);
-    handleDrag(e.nativeEvent); // 클릭 시 바로 위치 업데이트
-  };
-
-  const handleMouseMove = (e: MouseEvent) => {
-    if (isDragging) {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-      animationFrameRef.current = requestAnimationFrame(() => {
-        handleDrag(e);
-      });
-      handleDrag(e);
-    }
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
-  const handleDrag = (e: MouseEvent) => {
-    if (!sliderRef.current) return;
-    const sliderWidth = sliderRef.current.offsetWidth;
-    const offsetX = e.clientX - sliderRef.current.getBoundingClientRect().left;
-    const newPosition = Math.max(
-      0,
-      Math.min(100, (offsetX / sliderWidth) * 100),
-    );
-    setPosition(newPosition);
-    setZoom(1 + newPosition / 50);
-  };
-
-  useEffect(() => {
-    // 마우스 이동 이벤트 리스너 추가
-    console.log(isDragging);
-    if (isDragging) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
-    } else {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    }
-
-    // 클린업 함수
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [isDragging]);
 
   return (
     <>
@@ -319,21 +264,30 @@ const PoseComposeBody: React.FC<PostComposeBodyProps> = ({
               {value.contentType === POST_IMAGE_TYPE ? (
                 <>
                   <PostUploadImg src={value.contentUrl} />
-                  {!value.isLink && (
-                    <PostImgCropButton
-                      onClick={() => handleShowCropper(value.contentUrl)}
-                    >
-                      <PostImageCropButtonIcon />
-                    </PostImgCropButton>
-                  )}
+                  {!value.isLink &&
+                    !value.filename.toLowerCase().endsWith('.gif') && (
+                      <PostImgCropButton
+                        onClick={() => handleShowCropper(value.contentUrl)}
+                      >
+                        <PostImageCropButtonIcon />
+                      </PostImgCropButton>
+                    )}
                 </>
               ) : (
                 <>
-                  <PostUploadVideo ref={videoRef} onEnded={handleVideoEnded}>
+                  <PostUploadVideo
+                    ref={(el) => {
+                      videoPlayingMap.set(k, false);
+                      videoRefs.current[k] = el;
+                    }}
+                    onEnded={() => handleVideoEnded(k)}
+                  >
                     <source src={value.contentUrl} type="video/mp4" />
                   </PostUploadVideo>
-                  <PostUploadVideoPlayButtonWrap onClick={handlePlayPauseVideo}>
-                    {isPlaying ? (
+                  <PostUploadVideoPlayButtonWrap
+                    onClick={() => handlePlayPauseVideo(k)}
+                  >
+                    {videoRefs.current[k]?.paused ? (
                       <PostVideoPauseButtonIcon />
                     ) : (
                       <PostVideoPlayButtonIcon />
@@ -370,9 +324,15 @@ const PoseComposeBody: React.FC<PostComposeBodyProps> = ({
             },
             (_, index) => (
               <PostImgWrap key={index} {...getRootProps()}>
-                <PostEmptyImgWrap>
+                <PostEmptyImgWrap $isDragActive={isDragActive}>
                   <PostEmptyImgSubWrap>
-                    <PostComposeButtonIcon />
+                    <PostUploadButton>
+                      <PostComposeButtonIcon />
+                    </PostUploadButton>
+                    <PostUploadDraggableTitle>
+                      파일을 선택하거나 <br />
+                      여기로 끌어다 놓으세요.
+                    </PostUploadDraggableTitle>
                   </PostEmptyImgSubWrap>
                   <input {...getInputProps()} />
                 </PostEmptyImgWrap>
@@ -390,7 +350,7 @@ const PoseComposeBody: React.FC<PostComposeBodyProps> = ({
         <PostComposeDescWrap>
           <PostComposeDesc
             rows={8}
-            placeholder={'게시물 문구를 작성하세요...'}
+            placeholder={'게시물 문구를 작성하세요.'}
             onChange={(e) => setPostBodyText(e.target.value)}
             value={postBodyText}
           ></PostComposeDesc>
@@ -401,12 +361,12 @@ const PoseComposeBody: React.FC<PostComposeBodyProps> = ({
             $bottomNextButtonHeight={bottomNextButtonHeight}
           >
             <PostComposeTagListContainer>
-              <PostComposeTagListWrap ref={tagListRef}>
+              <HorizontalGrabScrollContainer horiontalContainerRef={tagListRef}>
                 {postTagList.map((value, key) => (
                   <PostComposeTagWrap key={key}>
                     <BorderCircleButton
                       className={ACTIVE_CLASS_NAME}
-                      contentText={value}
+                      contentText={`#${value}`}
                       activeBackgroundColor={theme.mainColor.Blue}
                       activeBorderColor={theme.mainColor.Blue}
                       activeFontColor={theme.mainColor.White}
@@ -424,13 +384,13 @@ const PoseComposeBody: React.FC<PostComposeBodyProps> = ({
                 ))}
                 <BorderCircleButton
                   className={''}
-                  contentText={'#태그 추가'}
+                  contentText={'#해시태그'}
                   deactiveBackgroundColor={theme.grey.Grey1}
                   deactiveBorderColor={theme.grey.Grey1}
                   deactiveFontColor={theme.grey.Grey8}
                   onClickFunc={() => setIsTagSearchPopupAtom(true)}
                 />
-              </PostComposeTagListWrap>
+              </HorizontalGrabScrollContainer>
             </PostComposeTagListContainer>
             <PostComposeBodyWrap>
               {postComposeTabList.map((value, key) => (
@@ -452,69 +412,49 @@ const PoseComposeBody: React.FC<PostComposeBodyProps> = ({
                           {poseComposeAddressRelation.roadAddr}
                         </PostComposeLcationDiv>
                       )}
-                      <AccountSettingArrowButtonIcon />
+                      <PostComposeArrowButtonSubWrap>
+                        <AccountSettingArrowButtonIcon />
+                      </PostComposeArrowButtonSubWrap>
                     </PostComposeArrowButtonWrap>
                   </PostComposeElementWrap>
                 </React.Fragment>
               ))}
             </PostComposeBodyWrap>
           </PostComposeBodyConatiner>
-
-          <PostComposeButton
-            title={composeButtonTitle}
-            bottomNextButtonRef={bottomNextButtonRef}
-            onClickActionFunc={onClickActionFunc}
-            isActive={postUploadContentList.length > 0}
-          />
         </PostBottomLayoutContainer>
       </PoseComposeBodyContainer>
+      <PostComposeButton
+        title={composeButtonTitle}
+        bottomNextButtonRef={bottomNextButtonRef}
+        onClickActionFunc={onClickActionFunc}
+        isActive={postUploadContentList.length > 0}
+      />
 
-      {isTagSearchPopup && (
-        <TagSearchPopup tagList={postTagList} setTagList={setPostTagList} />
-      )}
-      {isActivPostComposeTargetAudiencePopup && (
-        <PostComposeTargetAudiencePopup
-          targetAudTabList={targetAudTabList}
-          targetAudTabId={targetAudienceId}
-          setTargetAudTabId={setTargetAudienceId}
-        />
-      )}
-      {isActivePostComposeLocationPopup && (
-        <PostComposeLocationPopup setAddress={setPoseComposeAddressRelation} />
-      )}
-      {showCropper && imageUrl && (
-        <>
-          <RoundSquareCenterPopupLayout
-            setIsPopup={setShowCropper}
-            popupWrapStyle={{ maxWidth: '550px', height: '80%' }}
-          >
-            <CropperContainer>
-              <Cropper
-                image={imageUrl}
-                crop={crop}
-                zoom={zoom}
-                aspect={3 / 4}
-                onCropChange={setCrop}
-                onZoomChange={setZoom}
-                onCropComplete={handleCropComplete}
-              />
-            </CropperContainer>
-            <SliderContainer ref={sliderRef} onMouseDown={handleMouseDown}>
-              <SliderBar />
-              <SliderCircle $position={position} />
-            </SliderContainer>
+      <TagSearchPopup
+        tagList={postTagList}
+        setTagList={setPostTagList}
+        hasTransparentOverLay={hasTransparentOverLay}
+      />
 
-            <BottomNextButton
-              title="이미지 수정"
-              BottomNextButtonWrapContainerStyle={{
-                position: 'static',
-                backgroundColor: 'transparent',
-              }}
-              actionFunc={handleCropImage}
-            />
-          </RoundSquareCenterPopupLayout>
-        </>
-      )}
+      <PostComposeTargetAudiencePopup
+        targetAudTabList={targetAudTabList}
+        targetAudTabId={targetAudienceId}
+        setTargetAudTabId={setTargetAudienceId}
+        hasTransparentOverLay={hasTransparentOverLay}
+      />
+
+      <PostComposeLocationPopup
+        setAddress={setPoseComposeAddressRelation}
+        hasTransparentOverLay={hasTransparentOverLay}
+      />
+
+      <PostComposeCropPopup
+        imageUrl={imageUrl || ''}
+        setImageUrl={setImageUrl}
+        showCropper={showCropper}
+        setShowCropper={setShowCropper}
+        setPostUploadContentList={setPostUploadContentList}
+      />
 
       {isLoadingPopup && <LoadingPopup />}
     </>
@@ -523,9 +463,7 @@ const PoseComposeBody: React.FC<PostComposeBodyProps> = ({
 
 const PoseComposeBodyContainer = styled.div`
   margin-top: 6px;
-  position: fixed;
   width: 100%;
-  max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
 `;
 
 const ProfileScrapImgListWrap = styled.div`
@@ -564,8 +502,11 @@ const PostSubImgWrap = styled.div`
   aspect-ratio: 3/4;
 `;
 
-const PostEmptyImgWrap = styled(PostSubImgWrap)`
+const PostEmptyImgWrap = styled(PostSubImgWrap)<{ $isDragActive: boolean }>`
   background-color: ${({ theme }) => theme.grey.Grey1};
+  border: 2px solid
+    ${(props) =>
+      props.$isDragActive ? theme.mainColor.Blue : theme.grey.Grey1};
   display: flex;
   cursor: pointer;
 `;
@@ -573,6 +514,7 @@ const PostEmptyImgWrap = styled(PostSubImgWrap)`
 const PostEmptyImgSubWrap = styled.div`
   display: flex;
   margin: auto;
+  flex-flow: column;
 `;
 
 const PostUploadImg = styled(PostSubImgWrap)<{ src: string }>`
@@ -656,16 +598,16 @@ const PostComposeBodyConatiner = styled.div<{
     display: flex;
     flex-flow: column;
     gap: 16px;
-    position: fixed;
+    position: absolute;
     bottom: calc(${(props) => props.$bottomNextButtonHeight}px + 46px);
     width: 100%;
-    max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth}
 }`;
 
 const PostComposeBodyWrap = styled.div``;
 
 const PostComposeElementWrap = styled.div`
   display: flex;
+  gap: 10px;
   justify-content: space-between;
   cursor: pointer;
   padding: 10px
@@ -674,9 +616,15 @@ const PostComposeElementWrap = styled.div`
 
 const PostComposeElementTitle = styled.div`
   font: ${({ theme }) => theme.fontSizes.Body4};
+  white-space: nowrap;
 `;
 
 const PostComposeArrowButtonWrap = styled.div`
+  display: flex;
+  gap: 5px;
+`;
+
+const PostComposeArrowButtonSubWrap = styled.div`
   display: flex;
   margin: auto 0;
 `;
@@ -709,6 +657,7 @@ const PostComposeTagDeleteWrap = styled.div`
   position: absolute;
   right: 0;
   top: 0;
+  cursor: pointer;
 `;
 
 const PostComposeTargetDiv = styled.div`
@@ -765,6 +714,26 @@ const SliderCircle = styled.div<{ $position: number }>`
   border-radius: 50%;
   transform: translate(-50%, -50%);
   left: ${(props) => props.$position}%;
+`;
+
+const PostUploadButton = styled.div`
+  display: flex;
+  justify-content: center;
+`;
+
+const PostUploadDraggableTitle = styled.div`
+  word-wrap: break-word;
+  word-break: break-all;
+  white-space: normal;
+  text-align: center;
+  padding: 0 20px;
+
+  font: ${({ theme }) => theme.fontSizes.Body3};
+  color: ${({ theme }) => theme.grey.Grey8};
+
+  @media (max-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
+    display: none;
+  }
 `;
 
 export default PoseComposeBody;

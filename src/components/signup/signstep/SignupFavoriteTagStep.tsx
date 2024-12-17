@@ -1,3 +1,4 @@
+import LongPressToResizeButton from 'components/common/buttton/LongPressToResizeButton';
 import { ACTIVE_CLASS_NAME } from 'const/ClassNameConst';
 import { SIGNUP_FAVORITE_TAG_MAX_NUM } from 'const/SignupConst';
 import { isValidString } from 'global/util/ValidUtil';
@@ -73,7 +74,9 @@ const SignupFavoriteTagStep: React.FC = () => {
     <>
       <SignupHeader />
       <SignupStepTitleWrap>
-        <SignupStepTitle>관심 태그를 5개 선택해보세요.</SignupStepTitle>
+        <SignupStepTitle>
+          관심 태그를 {SIGNUP_FAVORITE_TAG_MAX_NUM}개 선택해보세요.
+        </SignupStepTitle>
         <SignupStepSubTitle></SignupStepSubTitle>
       </SignupStepTitleWrap>
 
@@ -88,22 +91,21 @@ const SignupFavoriteTagStep: React.FC = () => {
                     const refIndex = pageIndex * value.length + index;
 
                     return (
-                      <TagElementContainer
-                        key={refIndex}
-                        ref={(el) => (tagRefs.current[refIndex] = el)}
-                        onClick={() => {
-                          const tagRef = tagRefs.current[refIndex];
-                          if (tagRef) {
-                            actionFuncByRef(tagRef, v.tagId);
-                          }
-                        }}
-                      >
-                        <TagElementWrap $tagBkgdPath={v.tagBkgdContent}>
-                          <TagNameDiv>
-                            #{v.tagName} {refIndex}
-                          </TagNameDiv>
-                        </TagElementWrap>
-                      </TagElementContainer>
+                      <LongPressToResizeButton key={refIndex}>
+                        <TagElementContainer
+                          ref={(el) => (tagRefs.current[refIndex] = el)}
+                          onClick={() => {
+                            const tagRef = tagRefs.current[refIndex];
+                            if (tagRef) {
+                              actionFuncByRef(tagRef, v.tagId);
+                            }
+                          }}
+                        >
+                          <TagElementWrap $tagBkgdPath={v.tagBkgdContent}>
+                            <TagNameDiv>#{v.tagName}</TagNameDiv>
+                          </TagElementWrap>
+                        </TagElementContainer>
+                      </LongPressToResizeButton>
                     );
                   }),
                 )}
@@ -145,13 +147,16 @@ const SignupStepSubTitle = styled.div`
 
 const FavoriteTagSuggestItemListContainer = styled.div`
   padding-bottom: 20px;
+  overflow: auto;
+  flex-grow: 1;
 `;
 
 const FavoriteTagSuggestItemListWrap = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
-  margin: 0 ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding};
+  margin: 10px ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding}
+    0px ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding};
 `;
 
 const TagElementContainer = styled.div`
@@ -176,14 +181,5 @@ const TagElementWrap = styled.div<{ $tagBkgdPath: string }>`
 `;
 
 const TagNameDiv = styled.div``;
-
-const SearchButtonInputWrap = styled.div`
-  padding: 0 10px;
-`;
-
-const MasonryLayoutWrap = styled.div<{ $isActive: boolean }>`
-  padding-top: 10px;
-  opacity: ${(props) => (props.$isActive ? 1 : 0.5)};
-`;
 
 export default SignupFavoriteTagStep;

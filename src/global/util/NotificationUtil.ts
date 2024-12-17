@@ -1,13 +1,5 @@
-import {
-  NOTIFICATION_LAST_READ_DATE_TIME,
-  NOTIFICATION_MSG_LIST,
-} from 'const/LocalStorageConst';
-import { NOTIFICATION_MSG_MAX_RETATION_DAY } from 'const/NotificationConst';
+import { NOTIFICATION_MSG_LIST } from 'const/LocalStorageConst';
 import { NotificationMsgWsSub } from 'global/interface/notification';
-import {
-  getDateFormatToServerDateTimeString,
-  getDateNDaysAgo,
-} from './DateTimeUtil';
 
 export const getNotificationMsgHashMapByLocalStorage = (): Map<
   string,
@@ -19,9 +11,9 @@ export const getNotificationMsgHashMapByLocalStorage = (): Map<
   return new Map(notificationMsgHashMap);
 };
 
-export const resetNotificationMsgListByLocalStorage = (): void => {
-  localStorage.removeItem(NOTIFICATION_MSG_LIST);
-};
+// export const resetNotificationMsgListByLocalStorage = (): void => {
+//   localStorage.removeItem(NOTIFICATION_MSG_LIST);
+// };
 
 export const saveNotificationMsgHashMapByLocalStorage = (
   newNotificationMsgList: NotificationMsgWsSub[],
@@ -50,7 +42,7 @@ export const saveNotificationMsgHashMapByLocalStorage = (
       ),
     );
 
-    setLastNotificationReadAt(newNotificationMsgList[0].notifiedAt);
+    // setLastNotificationReadAt(newNotificationMsgList[0].notifiedAt);
   }
 };
 
@@ -67,15 +59,40 @@ export const readNotificationMsgByLocalStorage = (): void => {
 };
 
 export const getLastNotificationReadAt = (): string => {
-  return (
-    localStorage.getItem(NOTIFICATION_LAST_READ_DATE_TIME) ||
-    getDateFormatToServerDateTimeString(
-      getDateNDaysAgo(NOTIFICATION_MSG_MAX_RETATION_DAY),
-    )
+  const notificationMsgHashMap = getNotificationMsgHashMapByLocalStorage();
+  const oneMonthAgo = new Date();
+  oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1); // 현재 날짜에서 한 달 전으로 설정
+
+  // 한 달 전 날짜를 ISO 8601 형식의 문자열로 변환
+  const oneMonthAgoString = oneMonthAgo.toISOString();
+  const latestElement = Array.from(notificationMsgHashMap.entries()).reduce(
+    (latest, current) => {
+      return new Date(current[1].notifiedAt) > new Date(latest[1].notifiedAt)
+        ? current
+        : latest;
+    },
+    [
+      '' as string,
+      {
+        notificationId: '',
+        userId: '',
+        username: '',
+        postId: '',
+        notificationUserId: '',
+        notificationUsername: '',
+        notificationUserProfilePath: '',
+        notificationType: '',
+        notificationContents: [],
+        notifiedAt: oneMonthAgoString,
+        isRead: false,
+      } as NotificationMsgWsSub,
+    ],
   );
+
+  return latestElement[1].notifiedAt;
 };
 
-export const setLastNotificationReadAt = (serverDateString: string): string => {
-  localStorage.setItem(NOTIFICATION_LAST_READ_DATE_TIME, serverDateString);
-  return serverDateString;
-};
+// export const setLastNotificationReadAt = (serverDateString: string): string => {
+//   localStorage.setItem(NOTIFICATION_LAST_READ_DATE_TIME, serverDateString);
+//   return serverDateString;
+// };

@@ -1,16 +1,14 @@
 import GeoCurrentPositionButton from 'components/mapexplore/GeoCurrentPositionButton';
 import GeoPositionRefreshButton from 'components/mapexplore/GeoPositionRefreshButton';
 import MapExploreBody from 'components/mapexplore/MapExploreBody';
-import { OVERFLOW_DEFAULT, OVERFLOW_HIDDEN } from 'const/AttributeConst';
+import { OVERFLOW_HIDDEN, POSITION_FIXED } from 'const/AttributeConst';
 import {
   POPUP_FULL_SIZE_POSITION,
   POPUP_MIDDLE_SIZE_POSITION,
-  POPUP_SMALL_SIZE_POSITION,
 } from 'const/MapExploreConst';
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
 import { GeoPositionInterface } from 'global/util/MapExploreUtil';
 import { QueryStateMapAddressByGeo } from 'hook/queryhook/QueryStateMapAddressByGeo';
-import { throttle } from 'lodash';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useRecoilState } from 'recoil';
 import { mapLoactionAtom, mapMoveLoactionAtom } from 'states/MapExploreAtom';
@@ -40,16 +38,16 @@ const MapExplorePopup: React.FC<MapExplorePopupProps> = ({
 }) => {
   const [startY, setStartY] = useState(POPUP_FULL_SIZE_POSITION);
   const [translateY, setTranslateY] = useState(POPUP_MIDDLE_SIZE_POSITION);
-  const tranlateYRef = useRef<number>(translateY);
+  const [finalTranslateY, setFinalTranslateY] = useState(
+    POPUP_MIDDLE_SIZE_POSITION,
+  );
+  const moveDifferNumRef = useRef<number>(0);
   const animationFrameRef = useRef<number | null>(null);
   const touchRef = useRef<HTMLDivElement | null>(null);
   const MyCurrentGeoButtonRef = useRef<HTMLDivElement>(null);
 
   const [mapLocation, setMapLocation] = useRecoilState(mapLoactionAtom);
-  const { data } = QueryStateMapAddressByGeo(
-    mapLocation.latitude,
-    mapLocation.longitude,
-  );
+  QueryStateMapAddressByGeo(mapLocation.latitude, mapLocation.longitude);
 
   const [mapMoveLocation, setMapMoveLoation] =
     useRecoilState(mapMoveLoactionAtom);
@@ -70,12 +68,20 @@ const MapExplorePopup: React.FC<MapExplorePopupProps> = ({
   }, [mapLocation]);
 
   const handleTouchMove = useCallback(
-    throttle((e: React.TouchEvent<HTMLDivElement>) => {
+    (e: React.TouchEvent<HTMLDivElement>) => {
       const currentY = e.touches[0].clientY;
-      console.log('움직임', currentY);
-      console.log(startY);
+
       const deltaY = currentY - startY;
-      console.log(deltaY);
+      moveDifferNumRef.current = deltaY;
+      console.log(
+        '이동 차이:',
+        deltaY,
+        '고정 위치:',
+        startY,
+        '움직임 위치:',
+        currentY,
+      );
+      document.body.style.overscrollBehavior = 'none';
 
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
@@ -84,48 +90,76 @@ const MapExplorePopup: React.FC<MapExplorePopupProps> = ({
       animationFrameRef.current = requestAnimationFrame(() => {
         // deltaY가 양수일 때 아래로, 음수일 때 위로 스크롤
         if (deltaY > 0) {
-          console.log('밑으로', deltaY * 1.5, translateY + deltaY, translateY);
-          setTranslateY((prevTranslateY) => {
-            return deltaY * 1.5 > startY
-              ? deltaY * 1.5
-              : prevTranslateY + deltaY;
-          });
-          tranlateYRef.current = deltaY * 1.5;
-          console.log('으으으:', tranlateYRef.current);
+          // console.log('밑으로', deltaY * 1.5, translateY + deltaY, translateY);
+          // setTranslateY((prevTranslateY) => {
+          //   return deltaY * 1.5 > startY
+          //     ? deltaY * 1.5
+          //     : prevTranslateY + deltaY;
+          // });
+          console.log(finalTranslateY);
+          console.log('밑으로', deltaY * 1.5 + finalTranslateY);
+          setTranslateY(deltaY * 1.5 + finalTranslateY);
         } else {
           console.log('위로', translateY, deltaY);
-          tranlateYRef.current = translateY + deltaY;
+
           setTranslateY(translateY + deltaY);
         }
       });
-      console.log(translateY);
 
-      e.stopPropagation(); // 터치 이동 이벤트가 부모에게 전파되지 않도록
-    }, 16),
+      e.stopPropagation();
+    },
     [startY],
   );
 
-  const handleTouchEnd = () => {
-    if (translateY < 100) {
-      requestAnimationFrame(() => {
-        setTranslateY(Math.min(window.innerHeight, POPUP_FULL_SIZE_POSITION));
+  const test = window.innerHeight - 50 - 100;
 
-        console.log('호잇4', window.innerHeight);
-      });
-    } else if (
-      translateY >= 100 &&
-      translateY < POPUP_SMALL_SIZE_POSITION - 100
-    ) {
+  const handleTouchEnd = () => {
+    console.log('멈춰!!!');
+    document.body.style.overscrollBehavior = 'auto';
+    // 첫번쨰 위치
+    if (translateY < 80) {
       requestAnimationFrame(() => {
-        setTranslateY(Math.min(window.innerHeight, POPUP_MIDDLE_SIZE_POSITION));
-        console.log(
-          '호잇3',
-          Math.min(window.innerHeight, POPUP_MIDDLE_SIZE_POSITION),
-        );
+        setTranslateY(POPUP_FULL_SIZE_POSITION);
+        setFinalTranslateY(POPUP_FULL_SIZE_POSITION);
       });
-    } else {
+    }
+    // 중간 위치
+    else if (translateY >= 100 && translateY < test - 100) {
       requestAnimationFrame(() => {
-        setTranslateY(POPUP_SMALL_SIZE_POSITION);
+        const moveDifferAbsNum = Math.abs(moveDifferNumRef.current);
+        // 이동 움직임
+        if (moveDifferAbsNum > 50) {
+          // 위로
+          if (moveDifferNumRef.current <= 0) {
+            if (translateY < POPUP_MIDDLE_SIZE_POSITION) {
+              setTranslateY(POPUP_FULL_SIZE_POSITION);
+              setFinalTranslateY(POPUP_FULL_SIZE_POSITION);
+            } else {
+              setTranslateY(POPUP_MIDDLE_SIZE_POSITION);
+              setFinalTranslateY(POPUP_MIDDLE_SIZE_POSITION);
+            }
+          }
+          // 밑으로
+          else {
+            if (translateY > POPUP_MIDDLE_SIZE_POSITION + 100) {
+              setTranslateY(test);
+              setFinalTranslateY(test);
+            } else {
+              setTranslateY(POPUP_MIDDLE_SIZE_POSITION);
+              setFinalTranslateY(POPUP_MIDDLE_SIZE_POSITION);
+            }
+          }
+        } else {
+          setTranslateY(POPUP_MIDDLE_SIZE_POSITION);
+          setFinalTranslateY(POPUP_MIDDLE_SIZE_POSITION);
+        }
+      });
+    }
+    // 마지막 위치
+    else {
+      requestAnimationFrame(() => {
+        setTranslateY(test);
+        setFinalTranslateY(test);
       });
     }
   };
@@ -155,24 +189,29 @@ const MapExplorePopup: React.FC<MapExplorePopupProps> = ({
 
   useEffect(() => {
     if (!hasFixedActive) return;
-    const originalOverflow = document.body.style.overflow;
     document.body.style.overflow = OVERFLOW_HIDDEN;
+    document.body.style.position = POSITION_FIXED;
+    document.body.style.left = '0';
+    document.body.style.right = '0';
+    document.body.style.width = '100%';
 
     return () => {
-      console.log(originalOverflow);
-      //@REFER: 참고 바람
-      // document.body.style.overflow = originalOverflow;
-      document.body.style.overflow = OVERFLOW_DEFAULT;
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.style.width = '';
+      document.body.style.overflow = '';
     };
   }, []);
 
-  useEffect(() => {
-    if (translateY < POPUP_FULL_SIZE_POSITION) {
-      setTranslateY(POPUP_FULL_SIZE_POSITION);
-    } else if (translateY > POPUP_SMALL_SIZE_POSITION) {
-      setTranslateY(POPUP_SMALL_SIZE_POSITION);
-    }
-  }, [translateY]);
+  // useEffect(() => {
+  //   if (translateY < POPUP_FULL_SIZE_POSITION) {
+  //     setTranslateY(POPUP_FULL_SIZE_POSITION);
+  //   } else if (translateY > POPUP_SMALL_SIZE_POSITION) {
+  //     setTranslateY(POPUP_SMALL_SIZE_POSITION);
+  //   }
+  // }, [translateY]);
 
   return (
     <PopupLayoutOverlay style={popupOverLayContainerStyle}>
@@ -199,6 +238,7 @@ const MapExplorePopup: React.FC<MapExplorePopupProps> = ({
 
         <PopupWrap
           style={popupWrapStyle}
+          $isTop={finalTranslateY <= POPUP_FULL_SIZE_POSITION}
           onClick={(e) => {
             e.stopPropagation();
           }}
@@ -215,11 +255,10 @@ const MapExplorePopup: React.FC<MapExplorePopupProps> = ({
                 <PopupScrollBar />
               </PopupTopBodyBottomScrollArea>
             )}
-            <MapExploreBodyWrap>
+            <MapExploreBodyWrap $height={finalTranslateY}>
               <MapExploreBody
                 latitude={mapLocation.latitude}
                 longitude={mapLocation.longitude}
-                MapExploreInfiniteScrollStyle={{ marginBottom: '500px' }}
               />
             </MapExploreBodyWrap>
           </PopupContentWrap>
@@ -263,7 +302,7 @@ const PopupContainer = styled.div<{ $translateY: number }>`
   margin: 0 auto;
 `;
 
-const PopupWrap = styled.div`
+const PopupWrap = styled.div<{ $isTop: boolean }>`
   bottom: 0;
   z-index: 1000;
   position: fixed;
@@ -271,7 +310,7 @@ const PopupWrap = styled.div`
   width: 100%;
   height: 100%;
   background: white;
-  border-radius: 15px 15px 0 0;
+  border-radius: ${(props) => (props.$isTop ? '0px' : '15px 15px 0 0')};
   animation: ${animationStyle.slideUp} 0.15s ease-in-out;
 `;
 
@@ -291,7 +330,7 @@ const PopupScrollBar = styled.div`
   transform: translate(-50%, 0px);
   left: 50%;
   height: 4px;
-  width: 14vw;
+  width: 50px;
   z-index: 1000;
   border-radius: 3px;
   margin-top: 7px;
@@ -299,19 +338,19 @@ const PopupScrollBar = styled.div`
 `;
 
 const PopupTopBodyBottomScrollArea = styled.div`
-  z-index: 10;
+  z-index: 1000;
   position: absolute;
-  height: 50px;
+  height: 80px;
   width: 100%;
 `;
 
 const PopupTopBodyBottomScrollHeader = styled.div``;
 
-const MapExploreBodyWrap = styled.div`
+const MapExploreBodyWrap = styled.div<{ $height: number }>`
   margin-top: 30px;
   position: fixed;
   overflow-y: scroll;
-  height: 700px;
+  height: calc(100dvh - ${(props) => props.$height + 30}px);
 `;
 
 export default MapExplorePopup;

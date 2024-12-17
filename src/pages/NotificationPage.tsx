@@ -1,3 +1,4 @@
+import MyAccountSettingInfoState from 'components/common/state/MyAccountSettingInfoState';
 import AppBaseTemplate from 'components/layouts/AppBaseTemplate';
 import PrevButtonHeaderHeader from 'components/layouts/PrevButtonHeaderHeader';
 import {
@@ -11,20 +12,19 @@ import { PROFILE_LIST_PATH } from 'const/PathConst';
 import { NotificationMsgWsSub } from 'global/interface/notification';
 import { convertDiffrenceDateTime } from 'global/util/DateTimeUtil';
 import {
-  getLastNotificationReadAt,
   getNotificationMsgHashMapByLocalStorage,
   readNotificationMsgByLocalStorage,
-  saveNotificationMsgHashMapByLocalStorage,
 } from 'global/util/NotificationUtil';
-import { QueryStateNotificationMsg } from 'hook/queryhook/QueryStateNotificationMsg';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSetRecoilState } from 'recoil';
+import { notificationMsgHashMapAtom } from 'states/NotificationAtom';
 import styled from 'styled-components';
 
 const NotificationPage: React.FC = () => {
   const navigate = useNavigate();
-  const { data: lastNotificationList } = QueryStateNotificationMsg(
-    getLastNotificationReadAt(),
+  const setNotificationMsgHashMap = useSetRecoilState(
+    notificationMsgHashMapAtom,
   );
   const [unreadNotificationList, setUnreadNotificationList] = useState<
     NotificationMsgWsSub[]
@@ -34,26 +34,28 @@ const NotificationPage: React.FC = () => {
   >([]);
 
   useEffect(() => {
-    if (lastNotificationList) {
-      saveNotificationMsgHashMapByLocalStorage(lastNotificationList);
-    }
-
     const notificationHashMap = getNotificationMsgHashMapByLocalStorage();
 
     setUnreadNotificationList(
       Array.from(notificationHashMap.entries())
-        .filter(([_, value]) => value.isRead === false)
+        .filter(([, value]) => value.isRead === false)
         .map((value) => value[1]),
     );
 
     setReadNotificationList(
       Array.from(notificationHashMap.entries())
-        .filter(([_, value]) => value.isRead === true)
+        .filter(([, value]) => value.isRead === true)
         .map((value) => value[1]),
     );
 
     readNotificationMsgByLocalStorage();
-  }, [lastNotificationList]);
+    setNotificationMsgHashMap(getNotificationMsgHashMapByLocalStorage());
+
+    return () => {
+      setUnreadNotificationList([]);
+      setReadNotificationList([]);
+    };
+  }, []);
 
   const onClickNotificationMsg = (notificationMsg: NotificationMsgWsSub) => {
     switch (notificationMsg.notificationType) {
@@ -78,6 +80,7 @@ const NotificationPage: React.FC = () => {
 
   return (
     <AppBaseTemplate>
+      <MyAccountSettingInfoState />
       <PrevButtonHeaderHeader titleName={'알림'} />
       <NotificationPageBodyContainer>
         {unreadNotificationList.length > 0 && (
@@ -160,15 +163,17 @@ const NotificationPage: React.FC = () => {
           </NotificationReadContentListContainer>
         </NotificationPageBodyReadContainer>
       )}
+      {readNotificationList.length <= 0 &&
+        unreadNotificationList.length <= 0 && (
+          <NotAlarmTitle>알림이 비어있습니다.</NotAlarmTitle>
+        )}
     </AppBaseTemplate>
   );
 };
 
 const ProfileImgSize = 51;
 
-const NotificationPageBodyContainer = styled.div`
-  padding-top: ${({ theme }) => theme.systemSize.header.height};
-`;
+const NotificationPageBodyContainer = styled.div``;
 
 const NotificationPageBodyUnreadContainer = styled.div``;
 
@@ -193,6 +198,7 @@ const NotificationContentWrap = styled.div`
   display: flex;
   gap: 13px;
   padding: 0px ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding};
+  cursor: pointer;
 `;
 
 const NotificationContentImg = styled.img`
@@ -200,6 +206,7 @@ const NotificationContentImg = styled.img`
   width: ${ProfileImgSize}px;
   height: ${ProfileImgSize}px;
   border-radius: 30px;
+  object-fit: cover;
 `;
 
 const NotificationContentMsg = styled.div`
@@ -228,5 +235,13 @@ const NotificationPageBodyReadTitleWrap = styled(
 )``;
 
 const NotificationPageBodyReadTitle = styled(NotificationPageBodyUnreadTitle)``;
+
+const NotAlarmTitle = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font: ${({ theme }) => theme.fontSizes.Body4};
+`;
 
 export default NotificationPage;

@@ -6,7 +6,6 @@ import { RECENTLY_SEARCH_WORD_LIST_LOCAL_STORAGE } from 'const/LocalStorageConst
 import { useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useRecoilState, useRecoilValue } from 'recoil';
-import { SEARCH_POST_PATH } from '../../../const/PathConst';
 import {
   getSearchQueryByDebounce,
   handleSearch,
@@ -26,6 +25,7 @@ interface SearchButtonInputElementProps {
   isShowFavoriteTermButton?: boolean;
   favoriteTermButton?: React.ReactNode;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  searchUrl: string;
 }
 
 const SearchButtonInputElement: React.FC<SearchButtonInputElementProps> = ({
@@ -34,6 +34,7 @@ const SearchButtonInputElement: React.FC<SearchButtonInputElementProps> = ({
   isShowFavoriteTermButton,
   favoriteTermButton,
   setLoading,
+  searchUrl,
 }) => {
   const searchScrollPositionRef = useRef<number>(0);
 
@@ -119,7 +120,7 @@ const SearchButtonInputElement: React.FC<SearchButtonInputElementProps> = ({
   const onClickSearchButton = () => {
     if (searchTempWord !== '' && searchWord !== searchTempWord) {
       handleSearch(RECENTLY_SEARCH_WORD_LIST_LOCAL_STORAGE, searchTempWord);
-      navigate(`${SEARCH_POST_PATH}/${searchTempWord}`);
+      navigate(`${searchUrl}/${searchTempWord}`);
     }
   };
 

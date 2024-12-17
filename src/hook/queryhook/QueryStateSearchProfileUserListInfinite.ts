@@ -19,6 +19,7 @@ export interface ProfilePostRelationQueryInterface {
 }
 export const QueryStateSearchProfileUserListInfinite = (
   username: string,
+  hasFollowInfo = false,
 ): UseInfiniteQueryResult<
   ProfilePostRelationQueryInterface,
   AxiosError<unknown, any>
@@ -30,7 +31,10 @@ export const QueryStateSearchProfileUserListInfinite = (
     [string]
   >({
     queryKey: [
-      convertQueryTemplate(QUERY_STATE_SEARCH_PROFILE_USER_LIST, username),
+      convertQueryTemplate(
+        QUERY_STATE_SEARCH_PROFILE_USER_LIST,
+        username + (hasFollowInfo ? 'HAS_FOLLOW_INFO' : ''),
+      ),
     ], // query key
     queryFn: async ({ pageParam }) => {
       // pageParam이 string인지 확인
@@ -40,7 +44,7 @@ export const QueryStateSearchProfileUserListInfinite = (
         return { cursorId: ZERO_CURSOR_ID, getProfileUserByUsernameList: [] };
       }
 
-      return getProfileSearchUsers(username, pageParam);
+      return getProfileSearchUsers(username, pageParam, hasFollowInfo);
     },
 
     getNextPageParam: (lastPage) => {

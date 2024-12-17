@@ -1,4 +1,3 @@
-import FollowButton from 'components/common/buttton/FollowButton';
 import { ACTIVE_CLASS_NAME } from 'const/ClassNameConst';
 import { FOLLOW_LIST_PATH, PROFILE_LIST_PATH } from 'const/PathConst';
 import { TAB_QUERY_PARAM } from 'const/QueryParamConst';
@@ -17,11 +16,11 @@ import { QueryStateProfileInfo } from 'hook/queryhook/QueryStateProfileInfo';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
-import theme from 'styles/theme';
+import ProfileFollowComponent from './ProfileFollowComponent';
 
 const ProfileFollowListBody: React.FC = () => {
   const navigate = useNavigate();
-  const [searchParam, setSearchParam] = useSearchParams();
+  const [searchParam] = useSearchParams();
   const [myProfileFollowTab, setMyProfileFollowTab] = useState<string>(
     searchParam.get(TAB_QUERY_PARAM) || PROFILE_FOLLOWING_TAB_PARAM,
   );
@@ -80,7 +79,7 @@ const ProfileFollowListBody: React.FC = () => {
           </ContentTab>
         ))}
       </ProfileFollowTabWrap>
-      <ProfileTabBottomMargin />
+
       {myProfileFollowTab === PROFILE_FOLLOWING_TAB_PARAM ? (
         <>
           {username && (
@@ -91,36 +90,14 @@ const ProfileFollowListBody: React.FC = () => {
                     .filter((value) => !value.isBlocked)
                     .map((v, i) => (
                       <React.Fragment key={i}>
-                        <PostProfileFollowContainer
-                          key={i}
-                          onClick={() =>
-                            navigate(`${PROFILE_LIST_PATH}/${v.username}`)
-                          }
-                        >
-                          <PostProfileFollowWrap>
-                            <ProfileImgUsernameWrap>
-                              <PostProfileFollowImg src={v.profilePath} />
-                              <PostProfileFollowNickUsernameWrap>
-                                <PostProfileFollowNickname>
-                                  {v.nickname}
-                                </PostProfileFollowNickname>
-                                <PostProfileFollowUsername>
-                                  @{v.username}
-                                </PostProfileFollowUsername>
-                              </PostProfileFollowNickUsernameWrap>
-                            </ProfileImgUsernameWrap>
-
-                            {v.isMe ? (
-                              ''
-                            ) : (
-                              <FollowButton
-                                fontSize={theme.fontSizes.Subhead3}
-                                userId={v.userId}
-                                isFollow={v.isFollowed}
-                              />
-                            )}
-                          </PostProfileFollowWrap>
-                        </PostProfileFollowContainer>
+                        <ProfileFollowComponent
+                          isMe={v.isMe}
+                          profilePath={v.profilePath}
+                          nickname={v.nickname}
+                          username={v.username}
+                          userId={v.userId}
+                          isFollowed={v.isFollowed}
+                        />
                         <RepostBorderStickBar />
                       </React.Fragment>
                     )),
@@ -139,36 +116,14 @@ const ProfileFollowListBody: React.FC = () => {
                     .filter((value) => !value.isBlocked)
                     .map((v, i) => (
                       <React.Fragment key={i}>
-                        <PostProfileFollowContainer
-                          key={i}
-                          onClick={() =>
-                            navigate(`${PROFILE_LIST_PATH}/${v.username}`)
-                          }
-                        >
-                          <PostProfileFollowWrap>
-                            <ProfileImgUsernameWrap>
-                              <PostProfileFollowImg src={v.profilePath} />
-                              <PostProfileFollowNickUsernameWrap>
-                                <PostProfileFollowNickname>
-                                  {v.nickname}
-                                </PostProfileFollowNickname>
-                                <PostProfileFollowUsername>
-                                  @{v.username}
-                                </PostProfileFollowUsername>
-                              </PostProfileFollowNickUsernameWrap>
-                            </ProfileImgUsernameWrap>
-
-                            {v.isMe ? (
-                              ''
-                            ) : (
-                              <FollowButton
-                                fontSize={theme.fontSizes.Subhead3}
-                                userId={v.userId}
-                                isFollow={v.isFollowed}
-                              />
-                            )}
-                          </PostProfileFollowWrap>
-                        </PostProfileFollowContainer>
+                        <ProfileFollowComponent
+                          isMe={v.isMe}
+                          profilePath={v.profilePath}
+                          nickname={v.nickname}
+                          username={v.username}
+                          userId={v.userId}
+                          isFollowed={v.isFollowed}
+                        />
                         <RepostBorderStickBar />
                       </React.Fragment>
                     )),
@@ -182,18 +137,17 @@ const ProfileFollowListBody: React.FC = () => {
   );
 };
 
-const ProfileFollowListBodyContainer = styled.div`
-  padding-top: ${({ theme }) => theme.systemSize.header.height};
-`;
+const ProfileFollowListBodyContainer = styled.div``;
 
 const ProfileFollowTabWrap = styled.div`
   display: flex;
   justify-content: space-between;
   padding-top: 17px;
   border-bottom: 1px solid ${({ theme }) => theme.grey.Grey2};
-  position: fixed;
+  position: sticky;
   width: 100%;
-  max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
+  top: ${({ theme }) => theme.systemSize.header.height};
+
   background-color: ${({ theme }) => theme.mainColor.White};
 `;
 
@@ -211,47 +165,10 @@ const ContentTab = styled.div`
   }
 `;
 
-const ProfileTabBottomMargin = styled.div`
-  margin-bottom: 43px;
-`;
-
-const PostProfileFollowContainer = styled.div`
-  cursor: pointer;
-`;
-const PostProfileFollowWrap = styled.div`
-  display: flex;
-  justify-content: space-between;
-  padding: 13px 20px 11px 20px;
-`;
-const ProfileImgUsernameWrap = styled.div`
-  display: flex;
-`;
-const PostProfileFollowImg = styled.img`
-  width: 51px;
-  height: 51px;
-  flex-shrink: 0;
-  border-radius: 30px;
-`;
-
 const RepostBorderStickBar = styled.div`
   background-color: ${({ theme }) => theme.grey.Grey2};
   width: 100%;
   height: 1px;
-`;
-
-const PostProfileFollowNickUsernameWrap = styled.div`
-  padding-left: 12px;
-  margin: auto 0;
-`;
-
-const PostProfileFollowNickname = styled.div`
-  color: ${({ theme }) => theme.grey.Grey8};
-  font: ${({ theme }) => theme.fontSizes.Subhead3};
-`;
-
-const PostProfileFollowUsername = styled.div`
-  font: ${({ theme }) => theme.fontSizes.Body2};
-  color: ${({ theme }) => theme.grey.Grey6};
 `;
 
 export default ProfileFollowListBody;

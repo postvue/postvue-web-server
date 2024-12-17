@@ -16,10 +16,9 @@ export interface MsgInboxListInterface {
   pageParams: unknown[];
 }
 
-export const QueryStateMsgInboxListInfinite = (): UseInfiniteQueryResult<
-  MsgInboxListInterface,
-  AxiosError<unknown, any>
-> => {
+export const QueryStateMsgInboxListInfinite = (
+  isActive = true,
+): UseInfiniteQueryResult<MsgInboxListInterface, AxiosError<unknown, any>> => {
   return useInfiniteQuery<
     MsgInboxMessage[],
     AxiosError,
@@ -48,5 +47,6 @@ export const QueryStateMsgInboxListInfinite = (): UseInfiniteQueryResult<
 
     initialPageParam: PAGE_NUM,
     staleTime: STALE_5_MINUTES_TIME,
+    enabled: isActive,
   });
 };

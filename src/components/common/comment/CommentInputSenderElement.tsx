@@ -5,7 +5,7 @@ import { ReactComponent as PostCommentImageIcon } from 'assets/images/icon/svg/P
 import { COMMENT_UP_ANIMATION } from 'const/PostCommentConst';
 import { QUERY_STATE_POST_COMMENT_LIST } from 'const/QueryClientConst';
 import { ProfileMyInfo } from 'global/interface/profile';
-import { animateCount } from 'global/util/CommentUtil';
+import { animateCount } from 'global/util/commentUtil';
 import { convertQueryTemplate } from 'global/util/TemplateUtil';
 import { QueryMutationCreatePostComment } from 'hook/queryhook/QueryMutationCreatePostComment';
 import { QueryMutationCreatePostCommentReply } from 'hook/queryhook/QueryMutationCreatePostCommentReply';
@@ -114,6 +114,9 @@ const CommentInputSenderElement: React.FC<CommentInputSenderElementProps> = ({
 
     setIsLoadingPopup(true);
     setPostCommentTextarea('');
+    setUploadCommentImgFile(null);
+    setUploadCommentImgUrl(INIT_EMPTY_STRING_VALUE);
+
     // 답글 남기기
     if (replyMsg) {
       const isReplyToCommentByThreadMsg =
@@ -130,6 +133,11 @@ const CommentInputSenderElement: React.FC<CommentInputSenderElementProps> = ({
           commentReplyCountRef: commentReplyCountRef,
         })
         .then(() => {
+          setIsLoadingPopup(false);
+        })
+        .catch((error: any) => {
+          console.log(error);
+          alert(error.response.data.message);
           setIsLoadingPopup(false);
         });
 
@@ -178,6 +186,11 @@ const CommentInputSenderElement: React.FC<CommentInputSenderElementProps> = ({
           formData: formData,
         })
         .then(() => {
+          setIsLoadingPopup(false);
+        })
+        .catch((error: any) => {
+          console.log(error);
+          alert(error.response.data.message);
           setIsLoadingPopup(false);
         });
     }
@@ -303,9 +316,8 @@ const PostCommentMsgComponent = styled.div<{
   $containerBorderRadiusNum: number;
 }>`
   width: 100%;
-  position: absolute;
   bottom: 0px;
-  padding: 8px 0 50px 0;
+  padding: 8px 0;
   z-index: 100;
   background-color: white;
   border-radius: 0 0 ${(props) => props.$containerBorderRadiusNum}px

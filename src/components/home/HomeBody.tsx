@@ -1,12 +1,15 @@
 import React from 'react';
-import { useRecoilValue } from 'recoil';
-import { TASTE_FOR_ME_TAB_ID } from '../../const/TabConfigConst';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { MasonryPostRsp } from '../../global/interface/post';
 import TasteForMeInfiniteScroll from '../../hook/TasteForMeInfiniteScroll';
 
-import { homeTabIdAtom } from '../../states/HomePageAtom';
+import {
+  homeScrollPositionInfoAtom,
+  homeTabIdAtom,
+} from '../../states/HomePageAtom';
 
-import SnsPostMasonryLayout from 'components/layouts/SnsPostMasonryLayout';
+import SnsPostMasonryLayout_ from 'components/layouts/SnsPostMasonryLayout_';
+import { TASTE_FOR_ME_TAB_ID } from 'const/TabConfigConst';
 import FollowForMeListInfiniteScroll from 'hook/FollowForMeListInfiniteScroll';
 import { QueryStateFollowForMeListInfinite } from 'hook/queryhook/QueryStateFollowForMeListInfinite';
 import styled from 'styled-components';
@@ -14,9 +17,13 @@ import { tasteForMeHashMapAtom } from '../../states/TasteForMeAtom';
 import HomeFollowSubBody from './body/HomeFollowSubBody';
 
 const HomeBody: React.FC = () => {
-  const mainTabId = useRecoilValue(homeTabIdAtom);
+  const [mainTabId, setMainTabId] = useRecoilState(homeTabIdAtom);
 
   const snsPostRspHashMapByTaste = useRecoilValue(tasteForMeHashMapAtom);
+
+  const [homeScrollPositionInfo, setHomeScrollPositionInfo] = useRecoilState(
+    homeScrollPositionInfoAtom,
+  );
   const { data: followForMeList, isFetched: isFetchedByFollowForMe } =
     QueryStateFollowForMeListInfinite();
 
@@ -31,6 +38,7 @@ const HomeBody: React.FC = () => {
         postContentType: postContent.postContentType,
         username: value.username,
         location: value.location,
+        previewImg: postContent.previewImg,
       };
 
       return homePostRsp;
@@ -39,22 +47,28 @@ const HomeBody: React.FC = () => {
 
   return (
     <HomeBodyContainer>
-      {mainTabId === TASTE_FOR_ME_TAB_ID ? (
-        <>
-          <SnsPostMasonryLayout
+      {/* <ViewPagerLayout
+        tabId={mainTabId}
+        setTabId={setMainTabId}
+        tabScrollInfoList={homeScrollPositionInfo}
+        setTabScrollInfoList={setHomeScrollPositionInfo}
+      >
+        <div>
+          <SnsPostMasonryLayout_
             snsPostList={Array.from(snsPostRspHashMapByTaste.entries()).map(
               ([, v]) => v,
             )}
           />
           <TasteForMeInfiniteScroll />
-        </>
-      ) : (
-        <>
+        </div>
+        <div>
           {isFetchedByFollowForMe && (
             <>
-              {followForMeList ? (
+              {followForMeList &&
+              followForMeList.pages.flatMap((value) => value.snsPostRspList)
+                .length > 0 ? (
                 <>
-                  <SnsPostMasonryLayout
+                  <SnsPostMasonryLayout_
                     snsPostList={followForMeList?.pages.flatMap((v) =>
                       v.snsPostRspList.map((value) => value),
                     )}
@@ -66,8 +80,56 @@ const HomeBody: React.FC = () => {
               )}
             </>
           )}
-        </>
-      )}
+        </div>
+      </ViewPagerLayout> */}
+      <>
+        {/* {mainTabId === TASTE_FOR_ME_TAB_ID ? (
+          <TasteForMeInfiniteScroll />
+        ) : (
+          <>
+            {isFetchedByFollowForMe && (
+              <>
+                {followForMeList &&
+                  followForMeList.pages.flatMap((value) => value.snsPostRspList)
+                    .length > 0 && <FollowForMeListInfiniteScroll />}
+              </>
+            )}
+          </>
+        )} */}
+      </>
+      <>
+        {mainTabId === TASTE_FOR_ME_TAB_ID ? (
+          <div>
+            <SnsPostMasonryLayout_
+              snsPostList={Array.from(snsPostRspHashMapByTaste.entries()).map(
+                ([, v]) => v,
+              )}
+            />
+            <TasteForMeInfiniteScroll />
+          </div>
+        ) : (
+          <div>
+            {isFetchedByFollowForMe && (
+              <>
+                {followForMeList &&
+                followForMeList.pages.flatMap((value) => value.snsPostRspList)
+                  .length > 0 ? (
+                  <>
+                    <SnsPostMasonryLayout_
+                      snsPostList={followForMeList?.pages.flatMap((v) =>
+                        v.snsPostRspList.map((value) => value),
+                      )}
+                    />
+                    <FollowForMeListInfiniteScroll />
+                  </>
+                ) : (
+                  <HomeFollowSubBody />
+                )}
+              </>
+            )}
+          </div>
+        )}
+      </>
     </HomeBodyContainer>
   );
 };

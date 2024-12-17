@@ -238,8 +238,9 @@ export async function handleWebSocketStomp(func: () => void): Promise<void> {
           !UNAUTHORIZED_ERROR_LINK_LIST.some(
             (value) => value === window.location.pathname,
           )
-        )
+        ) {
           return;
+        }
 
         window.location.replace(`${LOGIN_PATH}?${CALLBACK_URL}=` + currentPath);
       } else {

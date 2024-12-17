@@ -1,14 +1,18 @@
 import { ReactComponent as SearchWordDeleteButtonIcon } from 'assets/images/icon/svg/SearchWordDeleteButtonIcon.svg';
+import LoadingComponent from 'components/common/container/LoadingComponent';
+import NoResultComponent from 'components/common/container/NoResultComponent';
 import TabStickBar from 'components/common/container/TabStickBar';
 import LocationPositionElement from 'components/location/LocationPostionElement';
 import SearchQueryElement from 'components/search/body/SearchQueryElement';
 import { ACTIVE_CLASS_NAME } from 'const/ClassNameConst';
-import { MAP_RECENTLY_SEARCH_WORD_LIST_LOCAL_STORAGE } from 'const/LocalStorageConst';
 import {
   MAP_CONTENT_LOCATION_TYPE,
   MAP_CONTENT_POST_TYPE,
 } from 'const/MapExploreConst';
-import { SEARCH_POST_PATH } from 'const/PathConst';
+import {
+  MAP_SEARCH_LOCATION_TYPE,
+  MAP_SEARCH_POST_TYPE,
+} from 'const/SearchConst';
 import { MEDIA_MOBILE_MAX_WIDTH } from 'const/SystemAttrConst';
 import {
   MAP_EXPLORE_ALL_TAB_PARAM,
@@ -21,6 +25,11 @@ import {
 } from 'const/TabConfigConst';
 import { MapLocalSrchRsp } from 'global/interface/map';
 import { GeoPositionInterface } from 'global/util/MapExploreUtil';
+import {
+  deleteMapRecentlyKeyword,
+  getMapRecentSearchWordList,
+  handleMapSearch,
+} from 'global/util/MapSearchUtil';
 import { QueryStateMapExploreList } from 'hook/queryhook/QueryStateMapExploreList';
 import { QueryStateMapLocalSearchList } from 'hook/queryhook/QueryStateMapLocalSearchList';
 import { QueryStateMapPostSearchRelationInfinite } from 'hook/queryhook/QueryStateMapPostSearchRelationInfinite';
@@ -41,14 +50,8 @@ import {
   mapSearchTempWordAtom,
 } from 'states/MapExploreAtom';
 import styled from 'styled-components';
-import { SearchRecentKeywordInterface } from '../../../global/interface/localstorage/SearchInterface';
-import {
-  deleteRecentlyKeyword,
-  getRecentSearchWordList,
-  handleSearch,
-} from '../../../global/util/SearchUtil';
+import { MapSearchRecentKeywordInterface } from '../../../global/interface/localstorage/SearchInterface';
 import { isValidString } from '../../../global/util/ValidUtil';
-import theme from '../../../styles/theme';
 
 interface MapExploreSearchSuggestBodyProps {
   SearchSuggestBodyContiainerStyle?: React.CSSProperties;
@@ -81,13 +84,14 @@ const MapExploreSearchSuggestBody: React.FC<
     isMapSearchInputActiveAtom,
   );
 
-  const [isMapExploreSearchResultActive, setIsMapExploreSearchResultActive] =
-    useRecoilState(isMapExploreSearchResultActiveAtom);
+  const isMapExploreSearchResultActive = useRecoilValue(
+    isMapExploreSearchResultActiveAtom,
+  );
 
   const navigate = useNavigate();
 
   const [recentSearchWordList, setRecentSearchWordList] = useState<
-    SearchRecentKeywordInterface[]
+    MapSearchRecentKeywordInterface[]
   >([]);
 
   const mapSearchTempWord = useRecoilValue(mapSearchTempWordAtom);
@@ -95,12 +99,11 @@ const MapExploreSearchSuggestBody: React.FC<
     mapSearchPostWordAtom,
   );
 
-  const onClickDeleteSearchWord = (searchWord: string) => {
-    const deletedSearchRecentSearchWordList: SearchRecentKeywordInterface[] =
-      deleteRecentlyKeyword(
-        MAP_RECENTLY_SEARCH_WORD_LIST_LOCAL_STORAGE,
-        searchWord,
-      );
+  const onClickDeleteSearchWord = (
+    searchWord: MapSearchRecentKeywordInterface,
+  ) => {
+    const deletedSearchRecentSearchWordList: MapSearchRecentKeywordInterface[] =
+      deleteMapRecentlyKeyword(searchWord);
 
     setRecentSearchWordList(deletedSearchRecentSearchWordList);
   };
@@ -148,9 +151,7 @@ const MapExploreSearchSuggestBody: React.FC<
   };
 
   useEffect(() => {
-    setRecentSearchWordList(
-      getRecentSearchWordList(MAP_RECENTLY_SEARCH_WORD_LIST_LOCAL_STORAGE),
-    );
+    setRecentSearchWordList(getMapRecentSearchWordList());
 
     return () => {
       setRecentSearchWordList([]);
@@ -161,6 +162,7 @@ const MapExploreSearchSuggestBody: React.FC<
     data: mapLocalSearchList,
     isFetching: isFetchingByMapLocal,
     isFetched: isFetchedByMapLocal,
+    isLoading: isLoadingByMapLocal,
   } = QueryStateMapLocalSearchList(
     mapSearchTempWord,
     isMapExploreSearchResultActive &&
@@ -171,6 +173,7 @@ const MapExploreSearchSuggestBody: React.FC<
     data: mapPostSearchRelation,
     isFetching: isFetchingByMapPost,
     isFetched: isFetchedByMapPost,
+    isLoading: isLoadingByMapPost,
   } = QueryStateMapPostSearchRelationInfinite(
     mapSearchTempWord,
     isMapExploreSearchResultActive &&
@@ -181,6 +184,7 @@ const MapExploreSearchSuggestBody: React.FC<
     data: mapRecommSearchList,
     isFetching: isFetchingByMapRecomm,
     isFetched: isFetchedByMapRecomm,
+    isLoading: isLoadingByMapRecomm,
   } = QueryStateMapRecommSearchList(
     mapSearchTempWord,
     isMapExploreSearchResultActive &&
@@ -261,18 +265,56 @@ const MapExploreSearchSuggestBody: React.FC<
                       .reverse()
                       .map((v, i) => (
                         <React.Fragment key={i}>
-                          <SearchQueryElement
-                            searchQueryWord={v.name}
-                            onClickSearchQueryItem={() => {
-                              navigate(`${SEARCH_POST_PATH}/${v.name}`);
-                            }}
-                          >
-                            <RecentDeleteButtonWrap
-                              onClick={() => onClickDeleteSearchWord(v.name)}
-                            >
-                              <SearchWordDeleteButtonIcon />
-                            </RecentDeleteButtonWrap>
-                          </SearchQueryElement>
+                          {v.searchWordType === MAP_SEARCH_LOCATION_TYPE ? (
+                            <>
+                              {(mapExploreSearchTabId ===
+                                MAP_EXPLORE_SEARCH_RECOMM_TAB_ID ||
+                                mapExploreSearchTabId ===
+                                  MAP_EXPLORE_SEARCH_LOCATION_TAB_ID) && (
+                                <LocationPositionElementWrap>
+                                  <LocationPositionElement
+                                    buildName={v.name}
+                                    roadAddr={v.roadAddr}
+                                    onClickAddress={() => {
+                                      onClickAddress({
+                                        roadAddr: v.roadAddr,
+                                        hasLocation: v.isLocation,
+                                        placeName: v.name,
+                                        latitude: v.latitude,
+                                        longitude: v.longitude,
+                                      });
+                                    }}
+                                  />
+                                  <RecentDeleteButtonWrap
+                                    onClick={() => onClickDeleteSearchWord(v)}
+                                  >
+                                    <SearchWordDeleteButtonIcon />
+                                  </RecentDeleteButtonWrap>
+                                </LocationPositionElementWrap>
+                              )}
+                            </>
+                          ) : (
+                            <>
+                              {(mapExploreSearchTabId ===
+                                MAP_EXPLORE_SEARCH_RECOMM_TAB_ID ||
+                                mapExploreSearchTabId ===
+                                  MAP_EXPLORE_SEARCH_POST_TAB_ID) && (
+                                <SearchQueryElement
+                                  searchQueryWord={v.name}
+                                  onClickSearchQueryItem={() => {
+                                    onClickMapPostButton(v.name);
+                                  }}
+                                  key={i}
+                                >
+                                  <RecentDeleteButtonWrap
+                                    onClick={() => onClickDeleteSearchWord(v)}
+                                  >
+                                    <SearchWordDeleteButtonIcon />
+                                  </RecentDeleteButtonWrap>
+                                </SearchQueryElement>
+                              )}
+                            </>
+                          )}
                         </React.Fragment>
                       ))}
                 </SearchWordContainer>
@@ -295,10 +337,15 @@ const MapExploreSearchSuggestBody: React.FC<
                             buildName={value.placeName}
                             roadAddr={value.roadAddr}
                             onClickAddress={() => {
-                              handleSearch(
-                                MAP_RECENTLY_SEARCH_WORD_LIST_LOCAL_STORAGE,
-                                value.roadAddr,
-                              );
+                              handleMapSearch({
+                                name: value.placeName,
+                                roadAddr: value.roadAddr,
+                                isExposed: true,
+                                isLocation: value.isPlace,
+                                searchWordType: MAP_SEARCH_LOCATION_TYPE,
+                                latitude: value.latitude,
+                                longitude: value.longitude,
+                              });
                               onClickAddress(value);
                             }}
                           />
@@ -309,10 +356,15 @@ const MapExploreSearchSuggestBody: React.FC<
                             <SearchQueryElement
                               searchQueryWord={value.searchQueryName}
                               onClickSearchQueryItem={() => {
-                                handleSearch(
-                                  MAP_RECENTLY_SEARCH_WORD_LIST_LOCAL_STORAGE,
-                                  value.searchQueryName,
-                                );
+                                handleMapSearch({
+                                  name: value.searchQueryName,
+                                  roadAddr: '',
+                                  isExposed: true,
+                                  isLocation: false,
+                                  searchWordType: MAP_SEARCH_POST_TYPE,
+                                  latitude: 0,
+                                  longitude: 0,
+                                });
                                 onClickMapPostButton(value.searchQueryName);
                               }}
                             />
@@ -334,10 +386,15 @@ const MapExploreSearchSuggestBody: React.FC<
                           buildName={value.placeName}
                           roadAddr={value.roadAddr}
                           onClickAddress={() => {
-                            handleSearch(
-                              MAP_RECENTLY_SEARCH_WORD_LIST_LOCAL_STORAGE,
-                              value.roadAddr,
-                            );
+                            handleMapSearch({
+                              name: value.placeName,
+                              roadAddr: value.roadAddr,
+                              isExposed: true,
+                              isLocation: value.hasLocation,
+                              searchWordType: MAP_SEARCH_LOCATION_TYPE,
+                              latitude: value.latitude,
+                              longitude: value.longitude,
+                            });
                             onClickAddress(value);
                           }}
                         />
@@ -357,10 +414,15 @@ const MapExploreSearchSuggestBody: React.FC<
                             <SearchQueryElement
                               searchQueryWord={value.searchQueryName}
                               onClickSearchQueryItem={() => {
-                                handleSearch(
-                                  MAP_RECENTLY_SEARCH_WORD_LIST_LOCAL_STORAGE,
-                                  value.searchQueryName,
-                                );
+                                handleMapSearch({
+                                  name: value.searchQueryName,
+                                  roadAddr: '',
+                                  isExposed: true,
+                                  isLocation: false,
+                                  searchWordType: MAP_SEARCH_POST_TYPE,
+                                  latitude: 0,
+                                  longitude: 0,
+                                });
                                 onClickMapPostButton(value.searchQueryName);
                               }}
                             />
@@ -385,9 +447,10 @@ const MapExploreSearchSuggestBody: React.FC<
           mapExploreSearchTabId === MAP_EXPLORE_SEARCH_POST_TAB_ID &&
           isFetchedByMapPost)) &&
         isMapExploreSearchResultActive &&
-        mapSearchTempWord !== '' && (
-          <NotLocatoinPositionWrap>결과가 없습니다.</NotLocatoinPositionWrap>
-        )}
+        mapSearchTempWord !== '' && <NoResultComponent />}
+      {mapSearchTempWord !== '' && !isMapExploreSearchResultActive && (
+        <LoadingComponent />
+      )}
     </SearchSuggestBodyContainer>
   );
 };
@@ -401,13 +464,13 @@ const SearchSuggestBodyContainer = styled.div`
 
 const SearchRelatedTitle = styled.div`
   font: ${({ theme }) => theme.fontSizes.Subhead2};
-  padding: 20px 0 12px 0;
+  padding: 0px 0 12px 0;
   color: ${({ theme }) => theme.grey.Grey6};
 `;
 
 const SearchRecentWordContainer = styled.div`
   overflow-y: scroll;
-  // height: calc(100vh - ${theme.systemSize.header.heightNumber * 2 + 30}px);
+  height: calc(100% - 60px);
   padding: 0 ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding};
 `;
 
@@ -428,7 +491,7 @@ const SearchFilterTabContainer = styled.div`
   // display: flex;
 
   padding: 15px
-    ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding} 0
+    ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding} 15px
     ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding};
 `;
 
@@ -458,15 +521,12 @@ const TabItem = styled.div`
   }
 `;
 
-const NotLocatoinPositionWrap = styled.div`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, 50%);
-`;
+const MapPostSearchQueryWrap = styled.div``;
 
-const MapPostSearchQueryWrap = styled.div`
-  padding: 0 ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding};
+const LocationPositionElementWrap = styled.div`
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
 `;
 
 export default MapExploreSearchSuggestBody;

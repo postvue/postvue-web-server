@@ -59,8 +59,26 @@ export const isActivePostComplaintPopupAtom = atom<boolean>({
   default: false,
 });
 
+export const activePostCommentComplaintPopupAtom = atom<{
+  isActive: boolean;
+  postId: string;
+  commentId: string;
+}>({
+  key: 'activePostCommentComplaintPopup',
+  default: {
+    isActive: false,
+    postId: '',
+    commentId: '',
+  },
+});
+
 export const isActivePostComplaintCompletePopupAtom = atom<boolean>({
   key: 'isActivePostComplaintCompletePopup',
+  default: false,
+});
+
+export const isActivePostDeletePopupAtom = atom<boolean>({
+  key: 'isActivePostDeletePopup',
   default: false,
 });
 
@@ -70,4 +88,9 @@ export const postBlockedUserInfoAtom = atom<{
 }>({
   key: 'blockedUserInfo',
   default: { userId: '', username: '' },
+});
+
+export const isSettingPopupAtom = atom<boolean>({
+  key: 'isSettingPopup',
+  default: false,
 });

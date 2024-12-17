@@ -1,10 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
 import HeaderLayout from '../../layouts/HeaderLayout';
 
-import LoadingComponent from 'components/common/container/LoadingComponent';
-import SearchInputTemplate from 'components/posecompose/PostComposeLocation/SearchInputTemplate';
+import SearchInputTemplate from 'components/common/input/SearchInputTemplate';
 import { MAP_EXPLORE_SELECT_LOCATION_PHARSE_TEXT } from 'const/SystemPhraseConst';
 import { getSearchQueryByDebounce } from 'global/util/SearchUtil';
 import {
@@ -12,25 +11,25 @@ import {
   isMapSearchInputActiveAtom,
   mapSearchTempWordAtom,
 } from 'states/MapExploreAtom';
-import { animationStyle } from 'styles/animations';
-import theme from 'styles/theme';
 
 interface MapExploreSearchHeaderProps {
   MapExploreHeaderActiveContainer?: React.CSSProperties;
   MapExploreHeaderNotActiveContainer?: React.CSSProperties;
-  SearchButtonInputLayoutStyle?: React.CSSProperties;
+  SearchButtonInputLayoutActiveStyle?: React.CSSProperties;
+  SearchButtonInputLayoutNotActiceStyle?: React.CSSProperties;
   address: string;
 }
 
 const MapExploreSearchHeader: React.FC<MapExploreSearchHeaderProps> = ({
   MapExploreHeaderActiveContainer,
   MapExploreHeaderNotActiveContainer,
+  SearchButtonInputLayoutActiveStyle,
+  SearchButtonInputLayoutNotActiceStyle,
   address,
 }) => {
   const deleteButtonRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  const [loading, setLoading] = useState(false);
   const [mapSearchTempWord, setMapSearchTempWord] = useRecoilState(
     mapSearchTempWordAtom,
   );
@@ -49,7 +48,7 @@ const MapExploreSearchHeader: React.FC<MapExploreSearchHeaderProps> = ({
   };
 
   const debouncedGetSearchQuery = getSearchQueryByDebounce(
-    (word: string) => {
+    () => {
       setIsMapExploreSearchResultActive(true);
     },
     [],
@@ -71,8 +70,8 @@ const MapExploreSearchHeader: React.FC<MapExploreSearchHeaderProps> = ({
       <HeaderLayout
         HeaderLayoutStyle={
           isMapSearchInputActive
-            ? MapExploreHeaderNotActiveContainer
-            : MapExploreHeaderActiveContainer
+            ? MapExploreHeaderActiveContainer
+            : MapExploreHeaderNotActiveContainer
         }
       >
         <MapExploreHeaderWrap>
@@ -85,7 +84,6 @@ const MapExploreSearchHeader: React.FC<MapExploreSearchHeaderProps> = ({
                   ? MAP_EXPLORE_SELECT_LOCATION_PHARSE_TEXT
                   : address
               }
-              setLoading={setLoading}
               searchTempWord={mapSearchTempWord}
               setSearchTempWord={setMapSearchTempWord}
               isSearchInputActive={isMapSearchInputActive}
@@ -93,10 +91,8 @@ const MapExploreSearchHeader: React.FC<MapExploreSearchHeaderProps> = ({
               debouncedGetSearchQuery={debouncedGetSearchQuery}
               SearchButtonInputLayoutStyle={
                 isMapSearchInputActive
-                  ? {
-                      backgroundColor: theme.grey.Grey1,
-                    }
-                  : { backgroundColor: theme.mainColor.White }
+                  ? SearchButtonInputLayoutActiveStyle
+                  : SearchButtonInputLayoutNotActiceStyle
               }
               hasHandlePress={false}
             />
@@ -109,9 +105,11 @@ const MapExploreSearchHeader: React.FC<MapExploreSearchHeaderProps> = ({
           )}
         </MapExploreHeaderWrap>
       </HeaderLayout>
-      {mapSearchTempWord !== '' &&
+      {/* {mapSearchTempWord !== '' &&
         loading &&
-        !isMapExploreSearchResultActive && <LoadingComponent />}
+        !isMapExploreSearchResultActive && (
+          <LoadingComponent LoadingComponentStyle={{ position: 'fixed' }} />
+        )} */}
     </>
   );
 };
@@ -133,7 +131,6 @@ const SearchInputCancelButton = styled.div`
   white-space: nowrap;
   padding-right: 20px;
   cursor: pointer;
-  animation: ${animationStyle.slideLeft} 0.1s ease-in forwards;
 `;
 
 export default MapExploreSearchHeader;

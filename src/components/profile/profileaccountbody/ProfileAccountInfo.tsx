@@ -1,6 +1,5 @@
 import { ReactComponent as ProfileLinkIcon } from 'assets/images/icon/svg/ProfileLinkIcon.svg';
 import FollowButton from 'components/common/buttton/FollowButton';
-import { ACCOUNT_INFO_HEADER_OFFSET_SCROLL_THRESHOLD } from 'const/AccountConst';
 import {
   CONVERSTAION_PATH,
   FOLLOW_LIST_PATH,
@@ -11,11 +10,11 @@ import {
 import { TAB_QUERY_PARAM } from 'const/QueryParamConst';
 import { PROFILE_FOLLOWER_TAB_PARAM } from 'const/TabConfigConst';
 import { QueryStateProfileInfo } from 'hook/queryhook/QueryStateProfileInfo';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useSetRecoilState } from 'recoil';
 import { isActiveProfileBlockPopupAtom } from 'states/ProfileAtom';
-import { isSharePopupAtom } from 'states/ShareAtom';
+import { sharePopupInfoAtom } from 'states/ShareAtom';
 import styled from 'styled-components';
 
 const ProfileAccountInfo: React.FC = () => {
@@ -25,55 +24,22 @@ const ProfileAccountInfo: React.FC = () => {
   const username = param.username || '';
   const { data, isLoading } = QueryStateProfileInfo(username);
 
-  const [prevScrollPos, setPrevScrollPos] = useState(0);
-  const [offset, setOffset] = useState(0);
-
   const ProfileAccountInfoRef = useRef<HTMLDivElement>(null);
 
   const setIsActiveProfileBlockPopup = useSetRecoilState(
     isActiveProfileBlockPopupAtom,
   );
 
-  const setIsSharePopup = useSetRecoilState(isSharePopupAtom);
-
-  const handleScroll = () => {
-    const currentScrollPos = window.pageYOffset;
-
-    // 스크롤 차이가 200px 이상일 때만 offset을 업데이트
-    if (
-      Math.abs(currentScrollPos - prevScrollPos) >
-      ACCOUNT_INFO_HEADER_OFFSET_SCROLL_THRESHOLD
-    ) {
-      if (currentScrollPos > prevScrollPos) {
-        // 프로필 정보 높이 만큼 offset, 만약 null시 150 크기 만큼 offset(이동 숨김)
-        setOffset(ProfileAccountInfoRef.current?.offsetHeight || 150);
-      } else {
-        setOffset(0);
-      }
-
-      setPrevScrollPos(currentScrollPos);
-    }
-  };
+  const setSharePopupInfo = useSetRecoilState(sharePopupInfoAtom);
 
   const onClickUnblocking = () => {
     setIsActiveProfileBlockPopup(true);
   };
 
-  useEffect(() => {
-    window.addEventListener('scroll', handleScroll);
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, [prevScrollPos, handleScroll]);
-
   return (
     <>
       {data && !isLoading && username !== '' && (
-        <ProfileAccountInfoContainer
-          offset={offset}
-          ref={ProfileAccountInfoRef}
-        >
+        <ProfileAccountInfoContainer ref={ProfileAccountInfoRef}>
           <ProfileLayout1Wrap>
             <ProfileImg src={data.profilePath} />
             <ProfileLayout1SubWrap>
@@ -124,7 +90,15 @@ const ProfileAccountInfo: React.FC = () => {
                 프로필 수정
               </ProfileEditButton>
 
-              <ProfileShareButton onClick={() => setIsSharePopup(true)}>
+              <ProfileShareButton
+                onClick={() =>
+                  setSharePopupInfo({
+                    isActive: true,
+                    shareLink: window.location.href,
+                    mainImageUrl: data.profilePath,
+                  })
+                }
+              >
                 프로필 공유
               </ProfileShareButton>
             </ProfileLayout2Wrap>
@@ -171,16 +145,11 @@ const ProfileAccountInfo: React.FC = () => {
   );
 };
 
-const ProfileAccountInfoContainer = styled.div<{ offset: number }>`
-  top: calc(
-    ${({ theme }) => theme.systemSize.header.height} - var(--offset, 0px)
-  );
+const ProfileAccountInfoContainer = styled.div`
   z-index: 98;
   max-width: 100vw;
-  transition: top 0.5s;
   position: -webkit-sticky;
   position: sticky;
-  --offset: ${(props) => props.offset}px;
   background-color: ${({ theme }) => theme.mainColor.White};
   padding: 0 20px 10px 20px;
 `;
@@ -194,6 +163,7 @@ const ProfileImg = styled.img`
   width: 64px;
   height: 64px;
   border-radius: 64px;
+  object-fit: cover;
 `;
 
 const ProfileLayout1SubWrap = styled.div`

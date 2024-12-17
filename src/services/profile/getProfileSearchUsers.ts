@@ -1,5 +1,5 @@
 import { ProfileUsername } from 'global/interface/profile';
-import { CURSOR_PARAM } from 'services/appApiQueryParam';
+import { CURSOR_PARAM, HAS_FOLLOW_INFO_PARAM } from 'services/appApiQueryParam';
 import { privateApi } from '..';
 import { PROFILE_SEARCH_USERS_API_PATH } from '../appApiPath';
 
@@ -11,10 +11,11 @@ export interface GetProfileSearchUsersRsp {
 export const getProfileSearchUsers = (
   username: string,
   cursorId: string,
+  hasFollowInfo: boolean,
 ): Promise<GetProfileSearchUsersRsp> => {
   return privateApi
     .get(
-      `${PROFILE_SEARCH_USERS_API_PATH}/${username}?${CURSOR_PARAM}=${cursorId}`,
+      `${PROFILE_SEARCH_USERS_API_PATH}/${username}?${CURSOR_PARAM}=${cursorId}&${HAS_FOLLOW_INFO_PARAM}=${hasFollowInfo}`,
     )
     .then((res) => {
       console.log(res.data);

@@ -1,12 +1,8 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import styled from 'styled-components';
-import { NAVIGATION_TO } from '../../../const/AppConst';
-import {
-  MESSAGE_INBOX_PATH,
-  PROFILE_LIST_PATH,
-} from '../../../const/PathConst';
+import { PROFILE_LIST_PATH } from '../../../const/PathConst';
 import {
   isSettingByMsgConversationAtom,
   profileInfoByDirectMsgAtom,
@@ -16,10 +12,10 @@ import theme from '../../../styles/theme';
 import PrevButton from '../../PrevButton';
 
 import { ReactComponent as SettingVerticalDotIcon } from 'assets/images/icon/svg/SettingVerticalDotIcon.svg';
-import WindowResizeSenceComponent from 'components/common/container/WindowResizeSenseComponent';
 import HeaderLayout from 'components/layouts/HeaderLayout';
 import ContextMenuPopup from 'components/popups/ContextMenuPopup';
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
+import useWindowSize from 'hook/customhook/useWindowSize';
 import MsgConversationSettingPopupBody from '../popup/MsgConversationSettingPopupBody';
 
 const MsgConversationHeader: React.FC = () => {
@@ -36,82 +32,74 @@ const MsgConversationHeader: React.FC = () => {
     setIsSettingByMsgConversation(true);
   };
 
-  const [windowSize, setWindowSize] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
-  });
+  const { windowWidth } = useWindowSize();
 
   return (
-    <>
-      <MsgConversationHeaderContainer>
-        <HeaderLayout
-          HeaderLayoutStyle={{
-            paddingBottom: '5px',
-            borderBottom: `1px solid ${theme.grey.Grey2}`,
-          }}
-        >
-          <MsgProfileHeaderContainer>
-            <MsgProfileHeaderWrap>
-              <PrevButtonWrap>
-                <PrevButton
-                  style={PrevStyle}
-                  strokeColor={theme.mainColor.Black}
-                  to={MESSAGE_INBOX_PATH}
-                  type={NAVIGATION_TO}
-                />
-              </PrevButtonWrap>
-              <FollowProfileInfoWrap>
-                <Link
-                  to={`${PROFILE_LIST_PATH}/${profileInfoByDirectMsg.username}`}
-                >
-                  <FollowProfileInfoLinkWrap>
-                    <FolowProfileActiveWrap>
-                      <FollowProfileImg
-                        src={profileInfoByDirectMsg.profilePath}
-                      />
-                      <FollowActive
-                        $sessionState={
-                          sessionActiveUserInfoHashMap.get(
-                            profileInfoByDirectMsg.targetUserId,
-                          )?.sessionState || false
-                        }
-                      />
-                    </FolowProfileActiveWrap>
-                    <FollowProfileNameWrap>
-                      <FollowProfileName>
-                        {profileInfoByDirectMsg.username}
-                      </FollowProfileName>
-                    </FollowProfileNameWrap>
-                  </FollowProfileInfoLinkWrap>
-                </Link>
-              </FollowProfileInfoWrap>
-              <SettingButtonWrap>
-                <SettingButton
-                  onClick={() => onClickSetting()}
-                  ref={msgSettingButtonRef}
-                >
-                  <SettingVerticalDotIcon />
-                </SettingButton>
-                {windowSize.width > MEDIA_MOBILE_MAX_WIDTH_NUM &&
-                  isSettingByMsgConversation &&
-                  msgSettingButtonRef.current && (
-                    <ContextMenuPopup
-                      contextMenuRef={msgSettingButtonRef.current}
-                      setIsActive={setIsSettingByMsgConversation}
-                    >
-                      <MsgConversationSettingPopupBody
-                        MsgSettingContainerStyle={{ padding: '20px' }}
-                        targetProfileInfo={profileInfoByDirectMsg}
-                      />
-                    </ContextMenuPopup>
-                  )}
-              </SettingButtonWrap>
-            </MsgProfileHeaderWrap>
-          </MsgProfileHeaderContainer>
-        </HeaderLayout>
-      </MsgConversationHeaderContainer>
-      <WindowResizeSenceComponent setWindowSize={setWindowSize} />
-    </>
+    <MsgConversationHeaderContainer>
+      <HeaderLayout
+        HeaderLayoutStyle={{
+          paddingBottom: '5px',
+          borderBottom: `1px solid ${theme.grey.Grey2}`,
+        }}
+      >
+        <MsgProfileHeaderContainer>
+          <MsgProfileHeaderWrap>
+            <PrevButtonWrap>
+              <PrevButton
+                style={PrevStyle}
+                strokeColor={theme.mainColor.Black}
+              />
+            </PrevButtonWrap>
+            <FollowProfileInfoWrap>
+              <Link
+                to={`${PROFILE_LIST_PATH}/${profileInfoByDirectMsg.username}`}
+              >
+                <FollowProfileInfoLinkWrap>
+                  <FolowProfileActiveWrap>
+                    <FollowProfileImg
+                      src={profileInfoByDirectMsg.profilePath}
+                    />
+                    <FollowActive
+                      $sessionState={
+                        sessionActiveUserInfoHashMap.get(
+                          profileInfoByDirectMsg.targetUserId,
+                        )?.sessionState || false
+                      }
+                    />
+                  </FolowProfileActiveWrap>
+                  <FollowProfileNameWrap>
+                    <FollowProfileName>
+                      {profileInfoByDirectMsg.username}
+                    </FollowProfileName>
+                  </FollowProfileNameWrap>
+                </FollowProfileInfoLinkWrap>
+              </Link>
+            </FollowProfileInfoWrap>
+            <SettingButtonWrap>
+              <SettingButton
+                onClick={() => onClickSetting()}
+                ref={msgSettingButtonRef}
+              >
+                <SettingVerticalDotIcon />
+              </SettingButton>
+              {windowWidth > MEDIA_MOBILE_MAX_WIDTH_NUM &&
+                isSettingByMsgConversation &&
+                msgSettingButtonRef.current && (
+                  <ContextMenuPopup
+                    contextMenuRef={msgSettingButtonRef.current}
+                    setIsActive={setIsSettingByMsgConversation}
+                  >
+                    <MsgConversationSettingPopupBody
+                      MsgSettingContainerStyle={{ padding: '20px' }}
+                      targetProfileInfo={profileInfoByDirectMsg}
+                    />
+                  </ContextMenuPopup>
+                )}
+            </SettingButtonWrap>
+          </MsgProfileHeaderWrap>
+        </MsgProfileHeaderContainer>
+      </HeaderLayout>
+    </MsgConversationHeaderContainer>
   );
 };
 

@@ -1,26 +1,30 @@
+import BottomSheetLayout from 'components/layouts/BottomSheetLayout';
 import React from 'react';
-import { useSetRecoilState } from 'recoil';
+import { useRecoilState } from 'recoil';
 import { isActiveMsgBlockHiddenManagePopupAtom } from '../../../states/MsgInboxAtom';
-import PopupLayout from '../../layouts/PopupLayout';
 import MsgBlockHiddenManagePopupBody from './MsgBlockHiddenManagePopupBody';
 
 const MsgBlockHiddenManagePopup: React.FC = () => {
-  const setIsActiveMsgBlockHiddenManagePopup = useSetRecoilState(
-    isActiveMsgBlockHiddenManagePopupAtom,
-  );
+  const [
+    isActiveMsgBlockHiddenManagePopup,
+    setIsActiveMsgBlockHiddenManagePopup,
+  ] = useRecoilState(isActiveMsgBlockHiddenManagePopupAtom);
 
   return (
-    <PopupLayout
-      setIsPopup={setIsActiveMsgBlockHiddenManagePopup}
-      popupWrapStyle={PopupWrapStyle}
+    // <PopupLayout
+    //   setIsPopup={setIsActiveMsgBlockHiddenManagePopup}
+    //   popupWrapStyle={PopupWrapStyle}
+    // >
+    //   <MsgBlockHiddenManagePopupBody />
+    // </PopupLayout>
+    <BottomSheetLayout
+      isOpen={isActiveMsgBlockHiddenManagePopup}
+      onClose={() => setIsActiveMsgBlockHiddenManagePopup(false)}
+      heightNum={150}
     >
       <MsgBlockHiddenManagePopupBody />
-    </PopupLayout>
+    </BottomSheetLayout>
   );
-};
-
-const PopupWrapStyle: React.CSSProperties = {
-  height: 'auto',
 };
 
 export default MsgBlockHiddenManagePopup;

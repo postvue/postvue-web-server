@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
-import { FOLLOW_MANAGE_SERACH_INPUT_PHASE_TEXT } from '../../const/SystemPhraseConst';
 
 import MsgHiddenUserListInfiniteScroll from '../../hook/MsgHiddenUserListInfiniteScroll';
 
+import { queryClient } from 'App';
+import { QUERY_STATE_MSG_INBOX_LIST } from 'const/QueryClientConst';
+import { MSG_MANAGE_SERACH_INPUT_PHASE_TEXT } from 'const/SystemPhraseConst';
 import { putUnhiddenUser } from '../../services/message/putUnhiddenUser';
 import { msgHiddenUserHashMapAtom } from '../../states/MessageAtom';
 import SearchButtonInput from '../common/input/SearchButtonInput';
@@ -20,6 +22,9 @@ const MsgHiddenListBody: React.FC = () => {
       const tempMsgHiddenUserHashMap = new Map(msgHiddenUserHashMap);
       tempMsgHiddenUserHashMap.delete(putUnhiddeningUser.targetUserId);
       setMsgHiddenUserHashMap(tempMsgHiddenUserHashMap);
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_STATE_MSG_INBOX_LIST],
+      });
     });
   };
 
@@ -35,7 +40,7 @@ const MsgHiddenListBody: React.FC = () => {
     <MsgHiddenListBodyContainer>
       <MessageSearchContainer>
         <SearchButtonInput
-          placeholder={FOLLOW_MANAGE_SERACH_INPUT_PHASE_TEXT}
+          placeholder={MSG_MANAGE_SERACH_INPUT_PHASE_TEXT}
           onSearchInputChange={onSearchInputChange}
           onClickDelete={onSearchInputDelete}
           value={hiddenSearchInput}

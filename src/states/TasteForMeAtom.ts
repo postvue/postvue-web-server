@@ -1,5 +1,4 @@
 import { atom } from 'recoil';
-import { INIT_SCROLL_POSITION } from '../const/AttributeConst';
 import { INIT_CURSOR_ID, PAGE_NUM } from '../const/PageConfigConst';
 import { PostRsp } from '../global/interface/post';
 
@@ -21,9 +20,4 @@ export const cursorIdAtomByTasteForMe = atom<string>({
 export const pageNumAtomByTasteForMe = atom<number>({
   key: 'pageNumByTasteForMe',
   default: PAGE_NUM,
-});
-
-export const scrollPositionAtomByTasteForMe = atom<number>({
-  key: 'scrollPositionByTasteForMe',
-  default: INIT_SCROLL_POSITION,
 });

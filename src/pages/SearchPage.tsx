@@ -7,9 +7,8 @@ import SearchBody from '../components/search/body/SearchBody';
 import SearchHeader from 'components/search/header/SearchHeader';
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
 import { useNavigate } from 'react-router-dom';
-import BottomNavBar from '../components/BottomNavBar';
 import SearchSuggestBody from '../components/search/body/SearchSuggestBody';
-import { HOME_PATH } from '../const/PathConst';
+import { HOME_PATH, SEARCH_POST_PATH } from '../const/PathConst';
 import {
   isSearchInputActiveAtom,
   searchWordAtom,
@@ -46,10 +45,10 @@ const SearchPage: React.FC = () => {
 
   return (
     <AppBaseTemplate>
-      <SearchHeader backToUrl={HOME_PATH} />
-      <SearchBody />
+      <SearchHeader backToUrl={HOME_PATH} searchUrl={SEARCH_POST_PATH} />
+      {!isSearchInputActive && <SearchBody />}
       {isSearchInputActive && <SearchSuggestBody />}
-      <BottomNavBar />
+      {/* <BottomNavBar /> */}
     </AppBaseTemplate>
   );
 };

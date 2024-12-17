@@ -67,15 +67,15 @@ const PrevButtonWrap = styled.div`
 `;
 
 const TitleName = styled.div`
-  font: ${({ theme }) => theme.fontSizes.Subhead3};
+  font: ${({ theme }) => theme.fontSizes.Headline1};
   position: absolute;
-  transform: translate(-50%, 0%);
-  top: 0;
+  transform: translate(-50%, -50%);
+  top: 50%;
   left: 50%;
 `;
 
 const TitleReactNodeWrap = styled.div`
-  position: fixed;
+  position: absolute;
   transform: translate(-50%, 50%);
 
   left: 50%;

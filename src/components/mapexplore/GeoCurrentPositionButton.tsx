@@ -23,24 +23,27 @@ const GeoCurrentPositionButton: React.FC<GeoCurrentPositionButtonProps> = ({
 }) => {
   const [mapLoaction, setMapLoaction] = useRecoilState(mapLoactionAtom);
 
-  const { data, isLoading, isError, isSuccess } = QueryStateMapAddressByGeo(
-    mapLoaction.latitude,
-    mapLoaction.longitude,
-  );
+  QueryStateMapAddressByGeo(mapLoaction.latitude, mapLoaction.longitude);
   const setIsLoadingPopup = useSetRecoilState(isLoadingPopupAtom);
 
   const onClickGeoCurrentButton = async () => {
     setIsLoadingPopup(true);
-    getCurrentPosition((position) => {
-      setMapLoaction({
-        latitude: position.latitude,
-        longitude: position.longitude,
-      });
-      if (onChangeNaverMap) {
-        onChangeNaverMap(position);
-      }
-      setIsLoadingPopup(false);
-    });
+
+    getCurrentPosition(
+      (position) => {
+        setMapLoaction({
+          latitude: position.latitude,
+          longitude: position.longitude,
+        });
+        if (onChangeNaverMap) {
+          onChangeNaverMap(position);
+        }
+        setIsLoadingPopup(false);
+      },
+      () => {
+        setIsLoadingPopup(false);
+      },
+    );
   };
   return (
     <GeoCurrentButtonWrap

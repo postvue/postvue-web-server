@@ -1,6 +1,6 @@
 import { QueryStatePostCommentListInfinite } from 'hook/queryhook/QueryStatePostCommentListInfinite';
 import React, { useEffect, useRef, useState } from 'react';
-import { useRecoilState } from 'recoil';
+import { useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 import theme from 'styles/theme';
 import { POST_COMMENT_INPUT_PLACEHOLDER } from '../../../const/SystemPhraseConst';
@@ -10,7 +10,7 @@ import {
   PostCommentWithReplies,
   PostRsp,
 } from '../../../global/interface/post';
-import { getGroupComments } from '../../../global/util/CommentUtil';
+import { getGroupComments } from '../../../global/util/commentUtil';
 
 import PostCommentReplyListInfiniteScroll from 'hook/PostCommentReplyListInfiniteScroll';
 import { QueryStatePostCommentReplyListInfinite } from 'hook/queryhook/QueryStatePostCommentReplyListInfinite';
@@ -59,10 +59,9 @@ const PostCommentThreadPopupBody: React.FC<PostCommentThreadPopupBodyProps> = ({
   const commmentInputSenderWrapRef = useRef<HTMLDivElement | null>(null);
 
   // 상태관리 변수
-  const [
-    activeCommentByPostCommentThread,
-    setActiveCommentByPostCommentThread,
-  ] = useRecoilState(activeCommentByPostCommentThreadAtom);
+  const activeCommentByPostCommentThread = useRecoilValue(
+    activeCommentByPostCommentThreadAtom,
+  );
 
   const { data: postCommentList } = QueryStatePostCommentListInfinite(
     snsPost.postId,
@@ -116,6 +115,7 @@ const PostCommentThreadPopupBody: React.FC<PostCommentThreadPopupBodyProps> = ({
         HeaderLayoutStyle={{
           maxWidth: theme.systemSize.appDisplaySize.maxWidth,
           borderRadius: `${PostThreadPopupRadiusNum}px ${PostThreadPopupRadiusNum}px 0 0`,
+          position: 'static',
         }}
       />
 
@@ -142,11 +142,7 @@ const PostCommentThreadPopupBody: React.FC<PostCommentThreadPopupBodyProps> = ({
           <ReplyTitle>답글</ReplyTitle>
           <ReplyTitleBar />
         </ReplyTitleWrap>
-        <PostReplyContainer
-          $commentSenderHeight={
-            commmentInputSenderWrapRef.current?.offsetHeight || 0
-          }
-        >
+        <PostReplyContainer>
           {topLevelComments.map((comment) => (
             <PostCommentReplyElement
               key={comment.postCommentId}
@@ -197,9 +193,9 @@ const PostCommentThreadPopupBody: React.FC<PostCommentThreadPopupBodyProps> = ({
 };
 
 const PostThreadPopupRadiusNum = 20;
-
 const PostCommentContainer = styled.div`
   overflow-y: scroll;
+  height: 100%;
 `;
 
 const ReplyTitleWrap = styled.div``;
@@ -217,15 +213,13 @@ const ReplyTitle = styled.div`
 
 const PreHeaderButtonNode = styled.div`
   padding-left: 18px;
-  font: ${({ theme }) => theme.fontSizes.Subhead2};
+  font: ${({ theme }) => theme.fontSizes.Subhead3};
   color: ${({ theme }) => theme.grey.Grey6};
   cursor: pointer;
 `;
 
 const PostCommentWrap = styled.div``;
 
-const PostReplyContainer = styled.div<{ $commentSenderHeight: number }>`
-  margin-bottom: ${(props) => props.$commentSenderHeight}px;
-`;
+const PostReplyContainer = styled.div``;
 
 export default PostCommentThreadPopupBody;

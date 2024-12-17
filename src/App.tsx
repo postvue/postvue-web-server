@@ -2,7 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ToastPopup from 'components/popups/ToastMsgPopup';
 import { APP_SERVICE_NAME } from 'const/AppInfoConst';
 import { QUERY_CACHE_TIME, QUERY_STALE_TIME } from 'const/QueryClientConst';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { HelmetProvider } from 'react-helmet-async';
 import { RecoilRoot } from 'recoil';
 import { ThemeProvider } from 'styled-components';
@@ -22,20 +22,20 @@ export const queryClient = new QueryClient({
 });
 
 const App: React.FC = () => {
-  const handleResize = () => {
-    const root = document.getElementById('root');
-    if (root) {
-      root.style.height = `${window.innerHeight}px`;
-    }
-  };
+  // const handleResize = () => {
+  //   const root = document.getElementById('root');
+  //   if (root) {
+  //     root.style.height = `${window.innerHeight}px`;
+  //   }
+  // };
 
-  useEffect(() => {
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
+  // useEffect(() => {
+  //   handleResize();
+  //   window.addEventListener('resize', handleResize);
+  //   return () => {
+  //     window.removeEventListener('resize', handleResize);
+  //   };
+  // }, []);
 
   const banner = `
   ______           _
@@ -63,6 +63,7 @@ const App: React.FC = () => {
           </ThemeProvider>
         </RecoilRoot>
       </HelmetProvider>
+      {/* <ReactQueryDevtools initialIsOpen={true} /> */}
     </QueryClientProvider>
   );
 };

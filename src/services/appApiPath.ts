@@ -88,3 +88,6 @@ export const POST_COMPOSE = '/compose';
 
 //
 export const REPORT_PATH = '/report';
+
+//
+export const EDIT_API_PATH = '/edit';

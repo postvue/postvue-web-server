@@ -1,20 +1,21 @@
+import ClipButtonListFactory from 'components/common/buttton/clipbutton/CliipButtonListFactory';
+import HeartButtonListFactory from 'components/common/buttton/heartbutton/HeartButtonListFactory';
 import React from 'react';
-import { RecoilState } from 'recoil';
+import { systemPostRspHashMapAtom } from 'states/SystemConfigAtom';
 import styled from 'styled-components';
-import { PostRsp } from '../../../../global/interface/post';
-import ClipButtonFactory from '../../buttton/ClipButtonFactory';
-import HeartButtonFactory from '../../buttton/HeartButtonFactory';
 import MsgButton from '../../buttton/MsgButton';
 import ShareButton from '../../buttton/ShareButton';
 
 interface PostReactionListElementProps {
+  username: string;
   postId: string;
-  postListRspAtom: RecoilState<Map<string, PostRsp>>;
+  mainImageUrl: string;
 }
 
 const PostReactionListElement: React.FC<PostReactionListElementProps> = ({
+  username,
   postId,
-  postListRspAtom,
+  mainImageUrl,
 }) => {
   return (
     <ReactionContainer
@@ -24,22 +25,21 @@ const PostReactionListElement: React.FC<PostReactionListElementProps> = ({
     >
       <HrtMsgShrReactionContainer>
         <>
-          <HeartButtonFactory
+          <HeartButtonListFactory
+            username={username}
             postId={postId}
-            isList={true}
-            listState={postListRspAtom}
+            systemPostRspHashMapAtom={systemPostRspHashMapAtom}
           />
           <MsgButton postId={postId} />
         </>
 
-        <ShareButton />
+        <ShareButton
+          shareLink={`/${username}/${postId}`}
+          mainImageUrl={mainImageUrl}
+        />
       </HrtMsgShrReactionContainer>
 
-      <ClipButtonFactory
-        postId={postId}
-        isList={true}
-        listState={postListRspAtom}
-      />
+      <ClipButtonListFactory username={username} postId={postId} />
     </ReactionContainer>
   );
 };
@@ -53,7 +53,7 @@ const ReactionContainer = styled.div`
 
 const HrtMsgShrReactionContainer = styled.div`
   display: flex;
-  gap: 9px;
+  gap: 15px;
 `;
 
 export default PostReactionListElement;

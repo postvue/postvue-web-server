@@ -1,52 +1,30 @@
+import InViewComponent from 'components/common/container/InViewComponent';
 import React, { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
+import { GetProfilePostListRsp } from 'services/profile/getProfilePostList';
 import styled from 'styled-components';
+import { QueryStateProfileClipListInfinite } from './queryhook/QueryStateProfileClipListInfinite';
 
-import InViewComponent from 'components/common/container/InViewComponent';
-import { ZERO_CURSOR_ID } from 'const/PageConfigConst';
-import { useRecoilState } from 'recoil';
-import { getMyProfileClipList } from '../services/profile/getProfileClipList';
-import {
-  cursorIdByClipListAtom,
-  myProfileClipHashMapAtom,
-} from '../states/ProfileAtom';
+export interface SearchPostQueryInterface {
+  pages: GetProfilePostListRsp[];
+  pageParams: unknown[];
+}
 
 const ProfileClipListInfiniteScroll: React.FC = () => {
-  const [cursorNum, setCursorNum] = useRecoilState(cursorIdByClipListAtom);
+  const { ref, inView } = useInView();
 
-  const [ref, inView] = useInView();
+  const { fetchNextPage, hasNextPage, isFetchingNextPage } =
+    QueryStateProfileClipListInfinite();
 
-  const [myProfileClipHashMap, setMyProfileClipHashMap] = useRecoilState(
-    myProfileClipHashMapAtom,
-  );
-
-  const callback = () => {
-    if (cursorNum === ZERO_CURSOR_ID) return;
-    getMyProfileClipList(cursorNum)
-      .then((res) => {
-        if (res.myClipRspList.length > 0) {
-          const tempMyProfileClipHashMap = new Map(myProfileClipHashMap);
-          res.myClipRspList.forEach((myClipRsp) => {
-            tempMyProfileClipHashMap.set(myClipRsp.postId, myClipRsp);
-          });
-          setMyProfileClipHashMap(tempMyProfileClipHashMap);
-        }
-
-        setCursorNum(res.cursorId);
-      })
-      .catch((err) => {
-        throw err;
-      });
-  };
   useEffect(() => {
-    if (inView) {
-      callback();
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
     }
-  }, [inView]);
+  }, [inView]); //hasNextPage, isFetchingNextPage
 
   return (
-    <ScrollBottomContainer>
-      <InViewComponent inViewRef={ref} />
+    <ScrollBottomContainer ref={ref}>
+      <InViewComponent />
     </ScrollBottomContainer>
   );
 };

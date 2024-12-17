@@ -1,11 +1,11 @@
 import { optAuthApi } from '..';
-import { MyProfileScrap } from '../../global/interface/profile';
+import { ProfileScrap } from '../../global/interface/profile';
 import { PROFILE_LIST_PATH, SCRAP_LIST_PATH } from '../appApiPath';
 import { CURSOR_PARAM } from '../appApiQueryParam';
 
 export interface GetMyProfileScrapRsp {
   cursorId: string;
-  myScrapPostList: MyProfileScrap[];
+  scrapPostList: ProfileScrap[];
 }
 
 export const getProfileScrap = (

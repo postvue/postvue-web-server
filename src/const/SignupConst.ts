@@ -39,4 +39,4 @@ export const SIGNUP_GENDER_MALE_CATEGORY = 'MALE';
 export const SIGNUP_GENDER_MALE_TITLE = '남자';
 
 export const SIGNUP_GENDER_OTHERS_CATEGORY = 'OTHERS';
-export const SIGNUP_GENDER_OTHERS_TITLE = '둘다 아님';
+export const SIGNUP_GENDER_OTHERS_TITLE = '선택 안함';

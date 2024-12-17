@@ -2,60 +2,68 @@ import React from 'react';
 
 import styled from 'styled-components';
 
-import SnsPostMasonryLayout from 'components/layouts/SnsPostMasonryLayout';
-import { QueryStatePostSearchListInfinite } from 'hook/queryhook/QueryStatePostSearchListInfinite';
-import SearchPostListInfiniteScroll from 'hook/SearchPostListInfiniteScroll';
-import { useNavigate } from 'react-router-dom';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
-import {
-  isActiveSearchPostFilterPopupAtom,
-  searchQueryAndFilterKeyAtom,
-  searchWordAtom,
-} from 'states/SearchPostAtom';
+import { useRecoilValue } from 'recoil';
+import { searchWordAtom } from 'states/SearchPostAtom';
 
-import { ReactComponent as PostSearchFilterButtonIcon } from 'assets/images/icon/svg/post/PostSearchFilterButtonIcon.svg';
+import NoResultComponent from 'components/common/container/NoResultComponent';
+import ProfileFollowComponent from 'components/profile/followlist/ProfileFollowComponent';
+import {
+  MEDIA_MOBILE_MAX_WIDTH,
+  MEDIA_MOBILE_MAX_WIDTH_NUM,
+} from 'const/SystemAttrConst';
+import SearchProfileWithFollowListInfiniteScroll from 'hook/SearchProfileWithFollowListInfiniteScroll';
+import useWindowSize from 'hook/customhook/useWindowSize';
+import { QueryStateSearchProfileUserListInfinite } from 'hook/queryhook/QueryStateSearchProfileUserListInfinite';
+import SearchFilterButton from './SearchFilterButton';
 
 const SearchProfileBody: React.FC = () => {
-  // navigate 객체
-  const navigate = useNavigate();
-
   const searchWord = useRecoilValue(searchWordAtom);
 
-  const searchQueryAndFilterKey = useRecoilValue(searchQueryAndFilterKeyAtom);
-
-  const { data } = QueryStatePostSearchListInfinite(searchQueryAndFilterKey);
-
-  const setIsActiveSearchPostFilterPopup = useSetRecoilState(
-    isActiveSearchPostFilterPopupAtom,
+  const { data, isFetched } = QueryStateSearchProfileUserListInfinite(
+    searchWord,
+    true,
   );
+
+  const { windowWidth } = useWindowSize();
 
   return (
     <SearchPostBodyContinaer>
-      <SearchFilterContainer>
-        <SearchPostFilterButtonWrap
-          onClick={() => setIsActiveSearchPostFilterPopup(true)}
-        >
-          <PostSearchFilterButtonIcon />
-        </SearchPostFilterButtonWrap>
-      </SearchFilterContainer>
+      {windowWidth < MEDIA_MOBILE_MAX_WIDTH_NUM && (
+        <SearchFilterContainer>
+          <SearchFilterButton />
+        </SearchFilterContainer>
+      )}
+
       <SearchPostContainer>
-        {data && (
-          <SnsPostMasonryLayout
-            snsPostList={data.pages.flatMap((page) =>
-              page.snsPostRspList.map((v) => v),
-            )}
-          />
-        )}
-        <SearchPostListInfiniteScroll
-          searchQueryAndFilterKey={searchQueryAndFilterKey}
-        />
+        {data &&
+          data.pages.flatMap((page) =>
+            page.getProfileUserByUsernameList.map((v, i) => (
+              <ProfileFollowComponent
+                key={i}
+                isMe={false}
+                profilePath={v.profilePath}
+                nickname={v.nickname}
+                username={v.username}
+                userId={v.userId}
+                isFollowed={v.isFollowed}
+              />
+            )),
+          )}
+        {isFetched &&
+          data &&
+          data?.pages.flatMap((value) => value.getProfileUserByUsernameList)
+            .length <= 0 && <NoResultComponent />}
+        <SearchProfileWithFollowListInfiniteScroll username={searchWord} />
       </SearchPostContainer>
     </SearchPostBodyContinaer>
   );
 };
 
-const SearchPostBodyContinaer = styled.div``;
-
+const SearchPostBodyContinaer = styled.div`
+  @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
+    margin-top: ${({ theme }) => theme.systemSize.header.heightNumber}px;
+  }
+`;
 const SearchFilterContainer = styled.div`
   position: sticky;
   z-index: 10;
@@ -64,16 +72,10 @@ const SearchFilterContainer = styled.div`
   background-color: ${({ theme }) => theme.mainColor.White};
 
   display: flex;
-  justify-content: space-between;
+  justify-content: end;
+  height: ${({ theme }) => theme.systemSize.header.height};
 `;
 
-const SearchPostContainer = styled.div`
-  padding-top: 10px;
-`;
-
-const SearchPostFilterButtonWrap = styled.div`
-  margin: auto 10px auto 0px;
-  display: flex;
-`;
+const SearchPostContainer = styled.div``;
 
 export default SearchProfileBody;

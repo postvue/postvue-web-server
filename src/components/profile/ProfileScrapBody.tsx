@@ -1,37 +1,51 @@
-import SnsSharePopup from 'components/popups/SnsSharePopup';
+import { HOME_PATH, PROFILE_EDIT_SCRAP_PATH } from 'const/PathConst';
+import { TargetAudienceCategory } from 'const/ScrapConst';
 import { convertDiffrenceDateTime } from 'global/util/DateTimeUtil';
+import { useGoBackOrNavigate } from 'global/util/historyStateUtil';
 import ProfileScrapInfiniteScroll from 'hook/ProfileScrapInfiniteScroll';
 import { QueryStateProfileScrap } from 'hook/queryhook/QueryStateProfileScrap';
 import { QueryStateProfileScrapInfo } from 'hook/queryhook/QueryStateProfileScrapInfo';
 import React, { useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import { profileScrapInfoAtom } from 'states/ProfileAtom';
-import { isSharePopupAtom } from 'states/ShareAtom';
 import styled from 'styled-components';
 import MasonryLayout from '../layouts/MasonryLayout';
 const ProfileScrapBody: React.FC = () => {
   const param = useParams();
   const scrapId = param.scrap_id;
-  const { data } = QueryStateProfileScrapInfo(scrapId || '');
+  const navigate = useNavigate();
 
-  const { data: profileScrap } = QueryStateProfileScrap(scrapId || '');
+  const goBackOrNavigate = useGoBackOrNavigate(HOME_PATH);
+  const { data: scrapInfo, isFetched: isFetchedByScrapInfo } =
+    QueryStateProfileScrapInfo(scrapId || '');
+
+  const { data: profileScrap, isFetched: isFetchedByProfileScrap } =
+    QueryStateProfileScrap(scrapId || '');
   const [profileScrapInfo, setProfileScrapInfo] =
     useRecoilState(profileScrapInfoAtom);
 
-  const [isSharePopup, setIsSharePopup] = useRecoilState(isSharePopupAtom);
-
   useEffect(() => {
-    if (data) {
-      const profileScrapInfo = data;
+    if (scrapInfo) {
+      const profileScrapInfo = scrapInfo;
       setProfileScrapInfo({
         scrapId: profileScrapInfo.scrapId,
         scrapName: profileScrapInfo.scrapName,
         scrapNum: profileScrapInfo.scrapNum,
         lastPostedAt: profileScrapInfo.lastPostedAt,
+        isMe: profileScrapInfo.isMe,
+        targetAudience: profileScrapInfo.targetAudience,
+        userId: profileScrapInfo.userId,
+        username: profileScrapInfo.username,
+        nickname: profileScrapInfo.nickname,
+        profilePath: profileScrapInfo.profilePath,
       });
     }
-  }, [data]);
+  }, [isFetchedByScrapInfo]);
+
+  useEffect(() => {
+    if (!isFetchedByProfileScrap) return;
+  }, [isFetchedByProfileScrap]);
 
   return (
     <>
@@ -51,15 +65,21 @@ const ProfileScrapBody: React.FC = () => {
                 </ProfileScrapDate>
               </ProfileScrapNumDateWrap>
             </ProfileScrapTitleWrap>
-            <ProfileScrapEditButtonWrap>
-              <ProfileScrapEditButton>편집하기</ProfileScrapEditButton>
-            </ProfileScrapEditButtonWrap>
+            {profileScrapInfo.isMe && (
+              <ProfileScrapEditButtonWrap
+                onClick={() => {
+                  navigate(`${PROFILE_EDIT_SCRAP_PATH}/${scrapId}`);
+                }}
+              >
+                <ProfileScrapEditButton>편집하기</ProfileScrapEditButton>
+              </ProfileScrapEditButtonWrap>
+            )}
           </ProfileScrapTitleEditWrap>
 
           {profileScrap?.pages && (
             <MasonryLayout
               snsPostUrlList={profileScrap.pages
-                .flatMap((value) => value.myScrapPostList)
+                .flatMap((value) => value.scrapPostList)
                 .map((v) => {
                   return {
                     postId: v.postId,
@@ -68,10 +88,25 @@ const ProfileScrapBody: React.FC = () => {
                     postContentType: v.postThumbnailContentType,
                     username: v.username,
                     location: v.location,
+                    previewImg: v.postThumbnailPreviewImg,
                   };
                 })}
             />
           )}
+          {profileScrap && profileScrapInfo && (
+            <>
+              {((profileScrapInfo.targetAudience ===
+                TargetAudienceCategory.PROTECTED_TARGET_AUDIENCE
+                  .targetAudienceValue &&
+                profileScrap.pages.flatMap((v) => v.scrapPostList).length <=
+                  0) ||
+                (!profileScrapInfo.isMe &&
+                  profileScrapInfo.targetAudience ===
+                    TargetAudienceCategory.PRIVATE_TARGET_AUDIENCE
+                      .targetAudienceValue)) && <div>비공개</div>}
+            </>
+          )}
+
           {scrapId && (
             <>
               {profileScrapInfo.scrapName !== '' && (
@@ -81,12 +116,6 @@ const ProfileScrapBody: React.FC = () => {
           )}
         </ProfileScrapBodyWrap>
       </ProfileScrapBodyContainer>
-      {isSharePopup && (
-        <SnsSharePopup
-          shareLink={window.location.href}
-          setIsSharePopup={setIsSharePopup}
-        />
-      )}
     </>
   );
 };
@@ -124,6 +153,7 @@ const ProfileScrapEditButton = styled.div`
   color: ${({ theme }) => theme.grey.Grey6};
   font: ${({ theme }) => theme.fontSizes.Body3};
   text-decoration-line: underline;
+  cursor: pointer;
 `;
 
 export default ProfileScrapBody;

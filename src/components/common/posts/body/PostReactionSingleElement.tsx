@@ -1,61 +1,46 @@
-import WindowResizeSenceComponent from 'components/common/container/WindowResizeSenseComponent';
+import ClipButtonSingleFactory from 'components/common/buttton/clipbutton/ClipButtonSingleFactory';
+import HeartButtonSingleFactory from 'components/common/buttton/heartbutton/HeartButtonSingleFactory';
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
-import React, { useState } from 'react';
-import { RecoilState } from 'recoil';
+import useWindowSize from 'hook/customhook/useWindowSize';
+import React from 'react';
 import styled from 'styled-components';
-import { PostRsp } from '../../../../global/interface/post';
-import ClipButtonFactory from '../../buttton/ClipButtonFactory';
-import HeartButtonFactory from '../../buttton/HeartButtonFactory';
 import MsgButton from '../../buttton/MsgButton';
 import ShareButton from '../../buttton/ShareButton';
 
 interface PostReactionSingleElementProps {
+  username: string;
   postId: string;
-  postRspAtom: RecoilState<PostRsp>;
-  funcHeartState?: () => void;
-  funcClipState?: () => void;
+  mainImageUrl: string;
 }
 
 const PostReactionSingleElement: React.FC<PostReactionSingleElementProps> = ({
+  username,
   postId,
-  postRspAtom,
-  funcHeartState,
-  funcClipState,
+  mainImageUrl,
 }) => {
-  const [windowSize, setWindowSize] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
-  });
+  const { windowWidth } = useWindowSize();
   return (
     <>
       <ReactionContainer>
         <HrtMsgShrReactionContainer>
           {postId && (
             <>
-              <HeartButtonFactory
-                postId={postId}
-                isList={false}
-                singleState={postRspAtom}
-                funcHeartState={funcHeartState}
-              />
-              {windowSize.width <= MEDIA_MOBILE_MAX_WIDTH_NUM && (
+              <HeartButtonSingleFactory postId={postId} username={username} />
+              {windowWidth <= MEDIA_MOBILE_MAX_WIDTH_NUM && (
                 <MsgButton postId={postId} />
               )}
             </>
           )}
 
-          <ShareButton />
+          <ShareButton
+            shareLink={`/${username}/${postId}`}
+            mainImageUrl={mainImageUrl}
+          />
         </HrtMsgShrReactionContainer>
         {postId && (
-          <ClipButtonFactory
-            postId={postId}
-            isList={false}
-            singleState={postRspAtom}
-            funcState={funcClipState}
-          />
+          <ClipButtonSingleFactory username={username} postId={postId} />
         )}
       </ReactionContainer>
-      <WindowResizeSenceComponent setWindowSize={setWindowSize} />
     </>
   );
 };
@@ -68,7 +53,7 @@ const ReactionContainer = styled.div`
 
 const HrtMsgShrReactionContainer = styled.div`
   display: flex;
-  gap: 9px;
+  gap: 15px;
 `;
 
 export default PostReactionSingleElement;

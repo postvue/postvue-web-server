@@ -107,7 +107,7 @@ const FloatingActionWrap = styled.div<{
   $bottomGap: number;
 }>`
   z-index: 1000;
-  position: fixed;
+  position: absolute;
   transform: translate(-50%, 50%);
   left: 50%;
 

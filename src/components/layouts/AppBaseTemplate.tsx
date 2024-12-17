@@ -1,12 +1,23 @@
 import SideNavBar from 'components/SideNavBar';
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode, useRef } from 'react';
 import styled from 'styled-components';
 
-import WindowResizeSenceComponent from 'components/common/container/WindowResizeSenseComponent';
+import PostComposePopup from 'components/popups/postcompose/PostComposePopup';
+import PostComposeSelectPopup from 'components/popups/postcompose/PostComposeSelectPopup';
+import PostComposeBySourceUrlPopup from 'components/popups/postcompose/postcomposesourceurlpopup/PostComposeBySourceUrlPopup';
+import PostEditPopup from 'components/popups/postedit/PostEditPopup';
+import ProfilePostDetailPopup from 'components/popups/ProfilePostDetailPopup';
+import PostSearchFilterPopupBody from 'components/popups/search/PostSearchFilterPopupBody';
+import SnsSharePopup from 'components/popups/SnsSharePopup';
 import SearchBody from 'components/search/body/SearchBody';
 import SearchSuggestBody from 'components/search/body/SearchSuggestBody';
 import SearchHeader from 'components/search/header/SearchHeader';
-import { HOME_PATH, PROFILE_SETTING_PATH, SEARCH_PATH } from 'const/PathConst';
+import {
+  HOME_PATH,
+  PROFILE_SETTING_PATH,
+  SEARCH_PATH,
+  SEARCH_POST_PATH,
+} from 'const/PathConst';
 import {
   MEDIA_MIDDLE_1300_WIDTH,
   MEDIA_MIDDLE_1400_WIDTH,
@@ -14,9 +25,24 @@ import {
   MEDIA_MOBILE_MAX_WIDTH,
   MEDIA_MOBILE_MAX_WIDTH_NUM,
 } from 'const/SystemAttrConst';
+import { isValidString } from 'global/util/ValidUtil';
+import useOutsideClick from 'hook/customhook/useOutsideClick';
+import useWindowSize from 'hook/customhook/useWindowSize';
+import { QueryStateSearchFavoriteTermList } from 'hook/queryhook/QueryStateSearchFavoriteTermList';
 import { useLocation } from 'react-router-dom';
-import { useRecoilValue } from 'recoil';
-import { isSearchInputActiveAtom } from 'states/SearchPostAtom';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import {
+  isPostDetailInfoPopupAtom,
+  postDetailInfoPopupAtom,
+} from 'states/PostAtom';
+import {
+  isActivPostComposeBySourceUrlPopupAtom,
+  isActivPostComposePopupAtom,
+  isActivPostComposeSelectPopupAtom,
+  postEditActiveInfoPopupAtom,
+} from 'states/PostComposeAtom';
+import { isSearchInputActiveAtom, searchWordAtom } from 'states/SearchPostAtom';
+import { sharePopupInfoAtom } from 'states/ShareAtom';
 import { borderShadowStyle_prop } from 'styles/commonStyles';
 import theme from 'styles/theme';
 
@@ -26,10 +52,14 @@ interface AppBaseTemplate {
   SlideBarNodeStyle?: React.CSSProperties;
   hasSearchInputModule?: boolean;
   hasSearchBodyModule?: boolean;
+  hasPostSearchFilterPopupBody?: boolean;
   SideContainerStyle?: React.CSSProperties;
   SideBarNodeWrapStyle?: React.CSSProperties;
+  SideSearchBodyWrapStyle?: React.CSSProperties;
   AppContainerStyle?: React.CSSProperties;
   isTransparentSearchButton?: boolean;
+  isDisplayFavoriteTerm?: boolean;
+  isAppContainerTopMargin?: boolean;
 }
 
 const AppBaseTemplate: React.FC<AppBaseTemplate> = ({
@@ -37,33 +67,59 @@ const AppBaseTemplate: React.FC<AppBaseTemplate> = ({
   slideBarNode,
   hasSearchInputModule = true,
   hasSearchBodyModule = true,
+  hasPostSearchFilterPopupBody = false,
   SideContainerStyle,
   SlideBarNodeStyle,
   SideBarNodeWrapStyle,
+  SideSearchBodyWrapStyle,
   AppContainerStyle,
   isTransparentSearchButton = false,
+  isDisplayFavoriteTerm = true,
+  isAppContainerTopMargin = true,
 }) => {
-  const isSearchInputActive = useRecoilValue(isSearchInputActiveAtom);
+  const [isSearchInputActive, setIsSearchInputActive] = useRecoilState(
+    isSearchInputActiveAtom,
+  );
+  const searchWord = useRecoilValue(searchWordAtom);
 
   const location = useLocation();
 
   // '/search' 경로로 시작하는 경우 모듈을 숨기고 싶다면
   const isSearchBodyPage = location.pathname.startsWith(`${SEARCH_PATH}/`);
 
+  const isActivePostComposeBySourceUrlPopup = useRecoilValue(
+    isActivPostComposeBySourceUrlPopupAtom,
+  );
+  const isActivePostComposePopup = useRecoilValue(isActivPostComposePopupAtom);
+  const postEditActiveInfoPopup = useRecoilValue(postEditActiveInfoPopupAtom);
+  const sharePopupInfo = useRecoilValue(sharePopupInfoAtom);
+  const isActivePostComposeSelectPopup = useRecoilValue(
+    isActivPostComposeSelectPopupAtom,
+  );
+
+  const postDetailInfoPopup = useRecoilValue(postDetailInfoPopupAtom);
+
+  const isPostDetailInfoPopup = useRecoilValue(isPostDetailInfoPopupAtom);
+
   const isNotActiveSearchBody =
     [SEARCH_PATH].includes(location.pathname) ||
     location.pathname.startsWith(PROFILE_SETTING_PATH);
 
-  const [windowSize, setWindowSize] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
-  });
+  const {
+    data: searchFavoriteTermList,
+    isFetched: isFetchedBySearchFavoriteTermList,
+  } = QueryStateSearchFavoriteTermList();
 
+  // SuggestBody를 감싸는 Ref 생성
+  const suggestBodyRef = useRef<HTMLDivElement>(null);
+
+  const { windowWidth } = useWindowSize();
+  useOutsideClick([suggestBodyRef], () => setIsSearchInputActive(false));
   return (
     <>
-      <Container>
+      <Container id="app">
         {/* refer: 수정 */}
-        {windowSize.width > MEDIA_MOBILE_MAX_WIDTH_NUM && (
+        {windowWidth > MEDIA_MOBILE_MAX_WIDTH_NUM && (
           <Header>
             <HeaderWrap>
               <SideNavBar />
@@ -77,15 +133,21 @@ const AppBaseTemplate: React.FC<AppBaseTemplate> = ({
         <Main id="main">
           <MainContainer>
             <MainWrap>
-              <AppContainer style={AppContainerStyle}>{children}</AppContainer>
+              <AppContainer
+                style={AppContainerStyle}
+                $isAppContainerTopMargin={isAppContainerTopMargin}
+              >
+                {children}
+              </AppContainer>
               {/* refer: 수정 */}
-              {windowSize.width > MEDIA_MOBILE_MAX_WIDTH_NUM && (
+              {windowWidth > MEDIA_MOBILE_MAX_WIDTH_NUM && (
                 <SideBar style={SideContainerStyle}>
                   {hasSearchInputModule && (
-                    <>
+                    <div ref={suggestBodyRef}>
                       <SearchHeader
                         backToUrl={HOME_PATH}
-                        SearchHeaderContainer={{
+                        searchUrl={SEARCH_POST_PATH}
+                        SearchHeaderContainerStyle={{
                           width: `${SIDE_WIDTH}px`,
                           backgroundColor: isTransparentSearchButton
                             ? 'transparent'
@@ -96,20 +158,57 @@ const AppBaseTemplate: React.FC<AppBaseTemplate> = ({
                         isPrevButton={false}
                       />
                       {isSearchInputActive && (
-                        <SearchSuggestBodyWrap>
-                          <SearchSuggestBody
-                            SearchSuggestBodyContiainerStyle={{
-                              width: `${SIDE_WIDTH}px`,
-                            }}
-                          />
-                        </SearchSuggestBodyWrap>
+                        <SearchSuggestBody
+                          SearchSuggestBodyContiainerStyle={{
+                            width: `${SIDE_WIDTH}px`,
+                            position: 'fixed',
+                            height: `${SUGGEST_BODY_HEIGHT}px`,
+                            marginTop: '10px',
+                          }}
+                          SearchSuggestBodyWrapStyle={{
+                            padding: '15px',
+                            margin: '0px',
+                          }}
+                          SearchSearchWordContainerStyle={{
+                            overflow: 'scroll',
+                            overscrollBehavior: 'contain',
+                            height: 'calc(100% - 50px)',
+                          }}
+                        />
                       )}
-                    </>
+                    </div>
+                  )}
+                  {hasPostSearchFilterPopupBody && (
+                    <PostSearchFilterPopupBody
+                      searchWord={searchWord}
+                      FilterPopupContainrStyle={{
+                        margin: `8px 20px 0 20px`,
+                        border: `1px solid ${theme.grey.Grey2}`,
+                        borderRadius: '20px',
+                        paddingTop: '20px',
+                      }}
+                      FilterPopupTitleStyle={{
+                        textAlign: 'start',
+                        padding: `0px ${theme.systemSize.appDisplaySize.bothSidePadding} 20px ${theme.systemSize.appDisplaySize.bothSidePadding}`,
+                      }}
+                    />
                   )}
 
                   {hasSearchBodyModule && !isNotActiveSearchBody && (
-                    <SearchBodyWrap $isSearchPage={isSearchBodyPage}>
-                      <SearchBody />
+                    <SearchBodyWrap
+                      style={SideSearchBodyWrapStyle}
+                      $isSearchPage={isSearchBodyPage}
+                      $isActiveSearchFavoriteTermList={
+                        !(
+                          searchFavoriteTermList === undefined ||
+                          (searchFavoriteTermList &&
+                            searchFavoriteTermList.length <= 0)
+                        ) && isFetchedBySearchFavoriteTermList
+                      }
+                    >
+                      <SearchBody
+                        isDisplayFavoriteTerm={isDisplayFavoriteTerm}
+                      />
                     </SearchBodyWrap>
                   )}
                   {slideBarNode && (
@@ -124,8 +223,19 @@ const AppBaseTemplate: React.FC<AppBaseTemplate> = ({
             </MainWrap>
           </MainContainer>
         </Main>
+        {isPostDetailInfoPopup && isValidString(postDetailInfoPopup.postId) && (
+          <ProfilePostDetailPopup />
+        )}
+        {sharePopupInfo.isActive && <SnsSharePopup />}
+        {isActivePostComposeSelectPopup && <PostComposeSelectPopup />}
+        {isActivePostComposeBySourceUrlPopup && <PostComposeBySourceUrlPopup />}
+        {isActivePostComposePopup &&
+          windowWidth >= MEDIA_MOBILE_MAX_WIDTH_NUM && <PostComposePopup />}
+        {postEditActiveInfoPopup.isActive &&
+          windowWidth >= MEDIA_MOBILE_MAX_WIDTH_NUM && (
+            <PostEditPopup postId={postEditActiveInfoPopup.postId} />
+          )}
       </Container>
-      <WindowResizeSenceComponent setWindowSize={setWindowSize} />
     </>
   );
 };
@@ -138,6 +248,8 @@ const HEADER_WIDTH = 400;
 const SIDE_WIDTH = 400;
 
 const RightSideHeaderMargin = 8;
+
+const SUGGEST_BODY_HEIGHT = 500;
 
 const Container = styled.div`
   justify-content: center;
@@ -153,7 +265,7 @@ const Container = styled.div`
   }
 `;
 const Header = styled.header`
-  height: 100vh;
+  height: 100dvh;
   width: 100%;
   display: flex;
 
@@ -170,12 +282,6 @@ const Header = styled.header`
     min-width: ${HEADER_WIDTH - 100}px;
     max-width: ${HEADER_WIDTH - 100}px;
   }
-`;
-
-const HeaderContainer = styled.div`
-  height: 100%;
-  display: flex;
-  position: relative;
 `;
 
 const HeaderWrap = styled.div`
@@ -196,8 +302,6 @@ const SideBar = styled.div`
     padding-right: 10px;
   }
 `;
-
-const SearchSuggestBodyWrap = styled.div``;
 
 const Main = styled.main`
   @media (max-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
@@ -224,36 +328,56 @@ const MainWrap = styled.div`
   }
 `;
 
-const AppContainer = styled.div`
+const AppContainer = styled.div<{ $isAppContainerTopMargin: boolean }>`
   width: 100%;
   position: relative;
-
-  @media (max-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
-    max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
-    margin: auto;
-    // margin-bottom: 86px;
-  }
 
   @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
     max-width: ${({ theme }) => theme.systemSize.appDisplaySize.widthByPc};
     min-width: ${({ theme }) => theme.systemSize.appDisplaySize.widthByPc};
     margin-bottom: 8px;
+    min-height: calc(100dvh - 8px);
+  }
+
+  @media (max-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
+    max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
+    margin: auto;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 20px 0px;
+    min-height: calc(
+      100dvh -
+        ${(props) =>
+          props.$isAppContainerTopMargin
+            ? `${theme.systemSize.header.height}`
+            : '0px'}
+    );
+    padding-top: ${(props) =>
+      props.$isAppContainerTopMargin
+        ? `${theme.systemSize.header.height}`
+        : '0px'};
   }
 `;
 
-const SearchBodyWrap = styled.div<{ $isSearchPage: boolean }>`
+const SearchBodyWrap = styled.div<{
+  $isSearchPage: boolean;
+  $isActiveSearchFavoriteTermList: boolean;
+}>`
   width: 100%;
   position: sticky;
 
   padding-top: ${(props) =>
     props.$isSearchPage ? '0px' : `${theme.systemSize.header.height}`};
-  top: ${(props) => (props.$isSearchPage ? `-160px` : '-180px')};
+  top: ${(props) =>
+    props.$isActiveSearchFavoriteTermList
+      ? props.$isSearchPage
+        ? `-160px`
+        : '-180px'
+      : '0px'};
 `;
 
 const SideBarNodeWrap = styled.div`
   width: 100%;
   position: relative;
-  height: calc(100vh - ${RightSideHeaderMargin * 2}px);
+  height: calc(100dvh - ${RightSideHeaderMargin * 2}px);
 `;
 
 const RightSidebarWrapWrap = styled.div`

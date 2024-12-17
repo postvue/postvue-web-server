@@ -26,7 +26,10 @@ import {
   INIT_EMPTY_STRING_VALUE,
 } from '../../../const/AttributeConst';
 import { SEARCH_POST_FILTER_QUERY_PARAM } from '../../../const/QueryParamConst';
-import { MAX_DELAY_SETTIMEOUT_TIME } from '../../../const/SystemAttrConst';
+import {
+  MAX_DELAY_SETTIMEOUT_TIME,
+  MEDIA_MOBILE_MAX_WIDTH_NUM,
+} from '../../../const/SystemAttrConst';
 import { isValidString } from '../../../global/util/ValidUtil';
 import {
   isSearchInputActiveAtom,
@@ -43,23 +46,28 @@ import HeaderLayout from '../../layouts/HeaderLayout';
 import SearchButtonInputElement from './SearchButtonInputElement';
 
 import LoadingComponent from 'components/common/container/LoadingComponent';
+import useWindowSize from 'hook/customhook/useWindowSize';
 
 interface SearchHeaderProps {
   backToUrl: string;
+  searchUrl: string;
   navigateType?: string;
   isShowFavoriteTermButton?: boolean;
   favoriteTermButton?: React.ReactNode;
-  SearchHeaderContainer?: React.CSSProperties;
+  SearchHeaderContainerStyle?: React.CSSProperties;
   isPrevButton?: boolean;
+  searchHeaderRef?: React.RefObject<HTMLDivElement>;
 }
 
 const SearchHeader: React.FC<SearchHeaderProps> = ({
   backToUrl,
+  searchUrl,
   navigateType = NAVIGATION_TO,
   isShowFavoriteTermButton = false,
   favoriteTermButton,
-  SearchHeaderContainer,
+  SearchHeaderContainerStyle,
   isPrevButton = true,
+  searchHeaderRef,
 }) => {
   const deleteButtonRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -205,9 +213,23 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
     };
   }, [searchScrollPositionState]);
 
+  const { windowWidth } = useWindowSize();
+
   return (
     <>
-      <HeaderLayout HeaderLayoutStyle={SearchHeaderContainer}>
+      <HeaderLayout
+        HeaderLayoutStyle={{
+          ...{
+            position: 'fixed',
+            maxWidth:
+              windowWidth >= MEDIA_MOBILE_MAX_WIDTH_NUM
+                ? theme.systemSize.appDisplaySize.widthByPc
+                : theme.systemSize.appDisplaySize.maxWidth,
+          },
+          ...SearchHeaderContainerStyle,
+        }}
+        HeaderLayoutRef={searchHeaderRef}
+      >
         <SearchHeaderWrap>
           <SearchContainerWrap>
             {isPrevButton && !isSearchInputActive && (
@@ -226,6 +248,7 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
               setLoading={setLoading}
               isShowFavoriteTermButton={isShowFavoriteTermButton}
               favoriteTermButton={favoriteTermButton}
+              searchUrl={searchUrl}
             />
           </SearchContainerWrap>
           {isSearchInputActive && (
@@ -235,7 +258,14 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
           )}
         </SearchHeaderWrap>
       </HeaderLayout>
-      {loading && isSearchInputActive && <LoadingComponent />}
+      {loading && isSearchInputActive && (
+        <LoadingComponent
+          LoadingComponentStyle={{
+            top: `${theme.systemSize.header.heightNumber * 4}px`,
+            transform: 'translate(-50%,0px)',
+          }}
+        />
+      )}
     </>
   );
 };
@@ -265,7 +295,8 @@ const SearchInputCancelButton = styled.div`
   white-space: nowrap;
   padding-right: 20px;
   cursor: pointer;
-  animation: ${animationStyle.slideLeft} 0.1s ease-in forwards;
+  font: ${({ theme }) => theme.fontSizes.Body4};
+  // animation: ${animationStyle.slideLeft} 0.1s ease-in forwards;
 `;
 
 export default SearchHeader;

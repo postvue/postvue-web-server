@@ -47,20 +47,15 @@ class WebSocketService {
       connectHeaders: {
         Authorization: this.authorization,
       },
-      debug: (str) => {
-        console.log(str); //@REFER: 나중에 지우도록
-      },
+      // debug: (str) => {
+      //   console.log(str); //@REFER: 나중에 지우도록
+      // },
       reconnectDelay: WEBSOCKET_RECONNECT_DELAY_TIME,
       heartbeatIncoming: WEBSOCKET_HEARTBEAT_INCOMING_TIME,
       heartbeatOutgoing: WEBSOCKET_HEARTBEAT_OUTGOING_TIME,
       // webSocketFactory: () => new SockJS(this.getSocketUrl()),
-      onDisconnect: this.onDisconnect,
       onStompError: this.onStompError,
-      onWebSocketError: (frame) => {
-        console.log('에러', frame);
-      },
     });
-    console.log('WebSocketService 인스턴스가 생성되었습니다.', this.client);
   }
   public static getInstance(): WebSocketService {
     if (!WebSocketService.instance) {
@@ -102,7 +97,6 @@ class WebSocketService {
     this.client.activate();
 
     this.client.onConnect = () => {
-      console.log('초기화');
       this.isInitialized = true;
       this.onInitializedCallbacks.forEach((callback) => callback());
       this.onInitializedCallbacks = [];
@@ -147,32 +141,19 @@ class WebSocketService {
     }
   };
 
-  private onDisconnect = (frame: any) => {
-    console.log('Disconnected: ', frame);
-  };
-
   private onStompError = async (frame: any) => {
-    console.error('STOMP Error: ', frame);
-    console.log('Broker reported error: ' + frame.headers['message']);
-    const errorCode = frame.headers['errorCode'];
-    console.log(errorCode);
-    console.error('Additional details: ' + frame.body);
-    console.error('Additional details: ' + frame._body);
-
     if (ACCESS_TOKEN_EXPIRED_ERROR_STOMP_DELIVERY_MESSAGE === frame.body) {
-      console.log('실행?');
       await handleWebSocketStomp(() => {
         if (
           !this.sessionActiveUserInfoHashMap ||
           !this.setSessionActiveUserInfoHashMap
         )
           return;
-        console.log(
-          '실행 2',
-          getAccessTokenByBearer(getAccessTokenToLocalStorage()),
-        );
+
         this.disconnect();
         this.activateConnect();
+      }).catch(() => {
+        console.log('어라라라');
       });
     }
   };

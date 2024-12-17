@@ -1,10 +1,10 @@
-import WindowResizeSenceComponent from 'components/common/container/WindowResizeSenseComponent';
 import FloatingActionButtonLayout from 'components/layouts/FloatingActionButtonLayout';
 import {
   MESSAGE_NONE_ACTION,
   MESSAGE_SCROLL_TO_END_ACTION,
 } from 'const/MessageConst';
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
+import useWindowSize from 'hook/customhook/useWindowSize';
 import MsgConversationListInfiniteScroll from 'hook/MsgConversationListInfiniteScroll';
 import { QueryStateMsgConversationListInfinite } from 'hook/queryhook/QueryStateMsgConversationListInfinite';
 import React, { useEffect, useRef, useState } from 'react';
@@ -44,10 +44,7 @@ const MsgConversationBody: React.FC = () => {
 
   const MsgConversationBodyContainerRef = useRef<HTMLDivElement>(null);
 
-  const [windowSize, setWindowSize] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
-  });
+  const { windowWidth } = useWindowSize();
 
   const MINUTE_MS = 60 * 1000;
   const groupMessages = (
@@ -305,14 +302,12 @@ const MsgConversationBody: React.FC = () => {
           followInfo={profileInfoByDirectMsg}
           MsgConversationBodyContainerRef={MsgConversationBodyContainerRef}
         />
-        {windowSize.width <= MEDIA_MOBILE_MAX_WIDTH_NUM &&
-          isSettingByMsgConversation && (
-            <MsgConversationSettingPopup
-              targetProfileInfo={profileInfoByDirectMsg}
-            />
-          )}
+        {windowWidth <= MEDIA_MOBILE_MAX_WIDTH_NUM && (
+          <MsgConversationSettingPopup
+            targetProfileInfo={profileInfoByDirectMsg}
+          />
+        )}
       </MsgConversationBodyContainer>
-      <WindowResizeSenceComponent setWindowSize={setWindowSize} />
     </>
   );
 };
@@ -330,8 +325,8 @@ const MsgConversationBodyContainer = styled.div`
 `;
 
 const MsgConversationScrollWrap = styled.div`
-  padding-bottom: 50px;
-  padding-top: 100px;
+  // padding-bottom: 50px;
+  // padding-top: 100px;
 `;
 
 const MsgConversationListWrap = styled.div`

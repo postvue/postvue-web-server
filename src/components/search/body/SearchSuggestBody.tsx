@@ -1,11 +1,11 @@
 import { ReactComponent as SearchWordDeleteButtonIcon } from 'assets/images/icon/svg/SearchWordDeleteButtonIcon.svg';
 import { RECENTLY_SEARCH_WORD_LIST_LOCAL_STORAGE } from 'const/LocalStorageConst';
+import { MEDIA_MOBILE_MAX_WIDTH } from 'const/SystemAttrConst';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 import { SEARCH_POST_PATH } from '../../../const/PathConst';
-import { SEARCH_RELATION_QUERY_DELAY_MIRCE_TIME } from '../../../const/SearchConst';
 import { SearchRecentKeywordInterface } from '../../../global/interface/localstorage/SearchInterface';
 import {
   deleteRecentlyKeyword,
@@ -22,10 +22,16 @@ import SearchQueryElement from './SearchQueryElement';
 
 interface SearchSuggestBodyProps {
   SearchSuggestBodyContiainerStyle?: React.CSSProperties;
+  SearchSuggestBodyWrapStyle?: React.CSSProperties;
+  SearchSearchWordContainerStyle?: React.CSSProperties;
+  suggestBodyRef?: React.RefObject<HTMLDivElement>;
 }
 
 const SearchSuggestBody: React.FC<SearchSuggestBodyProps> = ({
   SearchSuggestBodyContiainerStyle,
+  SearchSuggestBodyWrapStyle,
+  SearchSearchWordContainerStyle,
+  suggestBodyRef,
 }) => {
   const navigate = useNavigate();
 
@@ -57,15 +63,13 @@ const SearchSuggestBody: React.FC<SearchSuggestBodyProps> = ({
       !searchQueryRelationHashMap.get(searchTempWord) &&
       isValidString(searchTempWord)
     ) {
-      setTimeout(() => {
-        getSearchQuery(searchTempWord).then((value) => {
-          const tempSearchQueryRelationHashMap = new Map(
-            searchQueryRelationHashMap,
-          );
-          tempSearchQueryRelationHashMap.set(searchTempWord, value);
-          setSearchQueryRelationHashMap(tempSearchQueryRelationHashMap);
-        });
-      }, SEARCH_RELATION_QUERY_DELAY_MIRCE_TIME);
+      getSearchQuery(searchTempWord).then((value) => {
+        const tempSearchQueryRelationHashMap = new Map(
+          searchQueryRelationHashMap,
+        );
+        tempSearchQueryRelationHashMap.set(searchTempWord, value);
+        setSearchQueryRelationHashMap(tempSearchQueryRelationHashMap);
+      });
     }
 
     return () => {
@@ -73,67 +77,72 @@ const SearchSuggestBody: React.FC<SearchSuggestBodyProps> = ({
     };
   }, []);
 
-  useEffect(() => {
-    console.log(searchQueryRelationHashMap);
-
-    console.log(searchTempWord);
-    console.log(searchQueryRelationHashMap.get(searchTempWord));
-
-    searchQueryRelationHashMap.get(searchTempWord)?.map((value, index) => {
-      console.log(value, index);
-    });
-  }, [searchQueryRelationHashMap]);
-
   return (
-    <SearchSuggestBodyContainer style={SearchSuggestBodyContiainerStyle}>
-      <SearchRecentWordContainer>
+    <SearchSuggestBodyContainer
+      style={SearchSuggestBodyContiainerStyle}
+      ref={suggestBodyRef}
+    >
+      <SearchRecentWordContainer style={SearchSuggestBodyWrapStyle}>
         {!isValidString(searchTempWord) ? (
           <>
             {recentSearchWordList.length > 0 && (
               <>
                 <SearchRelatedTitle>최근 검색어</SearchRelatedTitle>
-                <SuggestSearchWordContainer>
+                <SuggestSearchWordContainer
+                  style={SearchSearchWordContainerStyle}
+                >
                   {recentSearchWordList &&
                     recentSearchWordList
                       .slice(0)
                       .reverse()
                       .map((v, i) => (
-                        <React.Fragment key={i}>
-                          <SearchQueryElement
-                            searchQueryWord={v.name}
-                            onClickSearchQueryItem={() => {
-                              navigate(`${SEARCH_POST_PATH}/${v.name}`);
-                            }}
+                        <SearchQueryElement
+                          key={i}
+                          searchQueryWord={v.name}
+                          onClickSearchQueryItem={() => {
+                            navigate(`${SEARCH_POST_PATH}/${v.name}`);
+                          }}
+                        >
+                          <RecentDeleteButtonWrap
+                            onClick={() => onClickDeleteSearchWord(v.name)}
                           >
-                            <RecentDeleteButtonWrap
-                              onClick={() => onClickDeleteSearchWord(v.name)}
-                            >
-                              <SearchWordDeleteButtonIcon />
-                            </RecentDeleteButtonWrap>
-                          </SearchQueryElement>
-                        </React.Fragment>
+                            <SearchWordDeleteButtonIcon />
+                          </RecentDeleteButtonWrap>
+                        </SearchQueryElement>
                       ))}
                 </SuggestSearchWordContainer>
               </>
             )}
+            {recentSearchWordList.length <= 0 && (
+              <NotSuggestTitle>
+                관심 있는 태그나 키워드를 검색해보세요.
+              </NotSuggestTitle>
+            )}
           </>
         ) : (
-          <>
-            <SuggestSearchWordContainer>
-              {searchQueryRelationHashMap
-                .get(searchTempWord)
-                ?.map((value, index) => (
-                  <React.Fragment key={index}>
-                    <SearchQueryElement
-                      searchQueryWord={value}
-                      onClickSearchQueryItem={() => {
-                        navigate(`${SEARCH_POST_PATH}/${value}`);
-                      }}
-                    ></SearchQueryElement>
-                  </React.Fragment>
-                ))}
-            </SuggestSearchWordContainer>
-          </>
+          <SuggestSearchWordContainer>
+            {searchQueryRelationHashMap
+              .get(searchTempWord)
+              ?.map((value, index) => (
+                <React.Fragment key={index}>
+                  <SearchQueryElement
+                    searchQueryWord={value}
+                    onClickSearchQueryItem={() => {
+                      navigate(`${SEARCH_POST_PATH}/${value}`);
+                    }}
+                  />
+                </React.Fragment>
+              ))}
+            {searchQueryRelationHashMap.get(searchTempWord) &&
+              searchQueryRelationHashMap.get(searchTempWord)?.length === 0 && (
+                <SearchQueryElement
+                  searchQueryWord={`"${searchTempWord}" 검색`}
+                  onClickSearchQueryItem={() => {
+                    navigate(`${SEARCH_POST_PATH}/${searchTempWord}`);
+                  }}
+                />
+              )}
+          </SuggestSearchWordContainer>
         )}
       </SearchRecentWordContainer>
     </SearchSuggestBodyContainer>
@@ -141,13 +150,27 @@ const SearchSuggestBody: React.FC<SearchSuggestBodyProps> = ({
 };
 
 const SearchSuggestBodyContainer = styled.div`
-  height: calc(100% - ${theme.systemSize.header.height});
   position: absolute;
+  height: calc(100% - ${theme.systemSize.header.height});
   top: ${theme.systemSize.header.height};
   width: 100%;
 
   background-color: ${({ theme }) => theme.mainColor.White};
   z-index: 20;
+  overscroll-behavior: contain;
+  overflow-y: auto;
+
+  @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
+    border-radius: 20px;
+    border: 1px solid ${({ theme }) => theme.grey.Grey2};
+    height: 500px;
+    overflow: auto;
+    padding-bottom: 20px;
+    position: fixed;
+    max-width: ${({ theme }) => theme.systemSize.appDisplaySize.widthByPc};
+    z-index: 1000;
+    width: 100%;
+  }
 `;
 
 const SearchRelatedTitle = styled.div`
@@ -162,13 +185,20 @@ const SearchRecentWordContainer = styled.div`
 const SuggestSearchWordContainer = styled.div`
   display: flex;
   flex-flow: column;
-  gap: 18px;
+  gap: 22px;
 `;
 
 const RecentDeleteButtonWrap = styled.div`
   display: flex;
   cursor: pointer;
   margin: auto 0;
+`;
+
+const NotSuggestTitle = styled.div`
+  padding: 10px 0;
+  font: ${({ theme }) => theme.fontSizes.Body2};
+  font-size: 15px;
+  color: ${({ theme }) => theme.grey.Grey8};
 `;
 
 export default SearchSuggestBody;

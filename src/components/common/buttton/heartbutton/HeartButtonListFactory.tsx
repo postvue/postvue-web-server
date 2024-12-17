@@ -1,52 +1,35 @@
+import { onClickHeartGlobalState } from 'global/globalstateaction/onClickHeartGlobalState';
+import { QueryStateProfileAccountPostList } from 'hook/queryhook/QueryStateProfileAccountPostList';
 import React from 'react';
 import { RecoilState, useRecoilState } from 'recoil';
 import { PostLikeRsp, PostRsp } from '../../../../global/interface/post';
 import HeartButton from './HeartButton';
 
 interface HeartButtonListFactoryProps {
+  username: string;
   postId: string;
-  postRspHashMapAtom: RecoilState<Map<string, PostRsp>>;
   systemPostRspHashMapAtom: RecoilState<Map<string, PostRsp>>;
-  funcHeartState?: () => void;
 }
 
 const HeartButtonListFactory: React.FC<HeartButtonListFactoryProps> = ({
+  username,
   postId,
-  postRspHashMapAtom,
   systemPostRspHashMapAtom,
-  funcHeartState,
 }) => {
-  const [snsPostHashMap, setSnsPostHashMap] =
-    useRecoilState(postRspHashMapAtom);
-
   const [snsSystemPostHashMap, setSnsSystemPostHashMap] = useRecoilState(
     systemPostRspHashMapAtom,
   );
+  const { data: snsProfilePostList } =
+    QueryStateProfileAccountPostList(username);
 
   const setHeartListButtonState = (value: PostLikeRsp) => {
-    const tempSnsPostHashMap = new Map(snsPostHashMap);
-    const snsPostTemp = tempSnsPostHashMap.get(postId);
-
-    if (funcHeartState) {
-      funcHeartState();
-    }
-    if (snsPostTemp !== undefined) {
-      tempSnsPostHashMap.set(postId, {
-        ...snsPostTemp,
-        isLiked: value.isLike,
-      });
-    }
-    setSnsPostHashMap(tempSnsPostHashMap);
-
-    const newSnsPostHashMap = new Map(snsSystemPostHashMap);
-    const snsSysPostHashMapTemp = newSnsPostHashMap.get(postId);
-    if (snsSysPostHashMapTemp !== undefined) {
-      newSnsPostHashMap.set(postId, {
-        ...snsSysPostHashMapTemp,
-        isLiked: value.isLike,
-      });
-    }
-    setSnsSystemPostHashMap(newSnsPostHashMap);
+    onClickHeartGlobalState(
+      username,
+      postId,
+      value.isLike,
+      snsSystemPostHashMap,
+      setSnsSystemPostHashMap,
+    );
   };
 
   return (
@@ -54,7 +37,11 @@ const HeartButtonListFactory: React.FC<HeartButtonListFactoryProps> = ({
       <HeartButton
         postId={postId}
         setHeartStete={setHeartListButtonState}
-        isLiked={snsPostHashMap.get(postId)?.isLiked || false}
+        isLiked={
+          snsProfilePostList?.pages
+            .flatMap((value) => value.snsPostRspList)
+            .find((value) => value.postId === postId)?.isLiked || false
+        }
       />
     </>
   );

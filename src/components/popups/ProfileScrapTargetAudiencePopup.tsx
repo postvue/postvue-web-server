@@ -1,14 +1,13 @@
-import HeaderLayout from 'components/layouts/HeaderLayout';
-import PopupLayout from 'components/layouts/PopupLayout';
 import React from 'react';
 import { useRecoilState } from 'recoil';
-import styled from 'styled-components';
 
-import { ReactComponent as ScrapComposeTargetAudTabIcon } from 'assets/images/icon/svg/CategoryCheckIcon.svg';
-import { ReactComponent as ScrapComposeTargetAudNotActiveTabIcon } from 'assets/images/icon/svg/CategoryNotCheckIcon.svg';
-import { TargetAudienceCategory } from 'const/ScrapConst';
+import BottomSheetLayout from 'components/layouts/BottomSheetLayout';
+import RoundSquareCenterPopupLayout from 'components/layouts/RoundSquareCenterPopupLayout';
+import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
 import { TargetAudienceInterface } from 'global/interface/profile';
+import useWindowSize from 'hook/customhook/useWindowSize';
 import { isActiveProfileScarpTargetAudPopupAtom } from 'states/ProfileAtom';
+import ProfileScrapTargetAudiencePopupBody from './ProfileScrapTargetAudiencePopupBody';
 
 interface ProfileScrapTargetAudiencePopupProps {
   targetAudValue: TargetAudienceInterface;
@@ -25,86 +24,49 @@ const ProfileScrapTargetAudiencePopup: React.FC<
     setIsActiveProfileScarpTargetAudPopup,
   ] = useRecoilState(isActiveProfileScarpTargetAudPopupAtom);
 
-  return (
-    <PopupLayout
-      setIsPopup={setIsActiveProfileScarpTargetAudPopup}
-      isTouchScrollBar={true}
-      popupWrapStyle={popupWrapStyle}
-      hasFixedActive={false}
-    >
-      <ProfileScrapTargetHeaderContainer>
-        <HeaderLayout>
-          <ProfileScrapTargetHeaderTitle>
-            공개 대상
-          </ProfileScrapTargetHeaderTitle>
-        </HeaderLayout>
-        <ProfileScrapTargetBodyContainer>
-          {Object.values(TargetAudienceCategory).map((value, key) => (
-            <ProfileScrapTargetWrap
-              key={key}
-              onClick={() => {
-                setTargetAudValue(value);
-              }}
-            >
-              <ProfileScrapTargetAudienceTab>
-                {value.displayPhrase}
-              </ProfileScrapTargetAudienceTab>
+  const { windowWidth } = useWindowSize();
 
-              <ProfileScrapTargetAudTabWrap>
-                {targetAudValue.targetAudienceValue ===
-                value.targetAudienceValue ? (
-                  <ScrapComposeTargetAudTabIcon />
-                ) : (
-                  <ScrapComposeTargetAudNotActiveTabIcon />
-                )}
-              </ProfileScrapTargetAudTabWrap>
-            </ProfileScrapTargetWrap>
-          ))}
-        </ProfileScrapTargetBodyContainer>
-      </ProfileScrapTargetHeaderContainer>
-    </PopupLayout>
+  return (
+    <>
+      {windowWidth <= MEDIA_MOBILE_MAX_WIDTH_NUM ? (
+        // <PopupLayout
+        //   setIsPopup={setIsActiveProfileScarpTargetAudPopup}
+        //   isTouchScrollBar={true}
+        //   popupWrapStyle={popupWrapStyle}
+        //   hasFixedActive={false}
+        // >
+        //   <ProfileScrapTargetAudiencePopupBody
+        //     targetAudValue={targetAudValue}
+        //     setTargetAudValue={setTargetAudValue}
+        //   />
+        // </PopupLayout>
+        <BottomSheetLayout
+          isOpen={isActiveProfileScarpTargetAudPopup}
+          onClose={() => setIsActiveProfileScarpTargetAudPopup(false)}
+          heightNum={250}
+        >
+          <ProfileScrapTargetAudiencePopupBody
+            targetAudValue={targetAudValue}
+            setTargetAudValue={setTargetAudValue}
+          />
+        </BottomSheetLayout>
+      ) : (
+        <>
+          {isActiveProfileScarpTargetAudPopup && (
+            <RoundSquareCenterPopupLayout
+              onClose={() => setIsActiveProfileScarpTargetAudPopup(false)}
+              popupWrapStyle={{ height: '280px', width: '400px' }}
+            >
+              <ProfileScrapTargetAudiencePopupBody
+                targetAudValue={targetAudValue}
+                setTargetAudValue={setTargetAudValue}
+              />
+            </RoundSquareCenterPopupLayout>
+          )}
+        </>
+      )}
+    </>
   );
 };
-
-const popupWrapStyle: React.CSSProperties = {
-  height: 'auto',
-  paddingBottom: '61px',
-};
-
-const ProfileScrapTargetHeaderContainer = styled.div`
-  margin-top: 29px;
-  flex: 1;
-`;
-
-const ProfileScrapTargetHeaderTitle = styled.div`
-  width: 100%;
-  margin: auto;
-  text-align: center;
-  font: ${({ theme }) => theme.fontSizes.Subhead3};
-`;
-
-const ProfileScrapTargetBodyContainer = styled.div`
-  margin-top: ${({ theme }) => theme.systemSize.header.height};
-  display: flex;
-  flex-flow: column;
-  gap: 20px;
-`;
-
-const ProfileScrapTargetWrap = styled.div`
-  display: flex;
-  justify-content: space-between;
-  padding: 0 ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding};
-  cursor: pointer;
-`;
-
-const ProfileScrapTargetAudienceTab = styled.div`
-  font: ${({ theme }) => theme.fontSizes.Body4};
-  font-size: 18px;
-`;
-
-const ProfileScrapTargetAudTabWrap = styled.div`
-  display: flex;
-  margin: auto 0;
-`;
 
 export default ProfileScrapTargetAudiencePopup;

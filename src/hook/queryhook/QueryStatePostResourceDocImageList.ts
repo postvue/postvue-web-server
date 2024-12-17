@@ -1,5 +1,4 @@
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
-import { AxiosError } from 'axios';
 import { POST_COMPOSE_IMG_RATIO } from 'const/PostComposeConst';
 import {
   QUERY_STATE_POST_RESOURCE_DOC_IMAGE_LIST,
@@ -12,8 +11,8 @@ import { getPostResourceDocImageList } from 'services/post/getPostResouceDocImag
 export const QueryStatePostResourceDocImageList = (
   sourceUrl: string,
   active: boolean,
-): UseQueryResult<PostDocResourceImageRsp[], AxiosError<unknown, any>> => {
-  return useQuery<PostDocResourceImageRsp[], AxiosError>({
+): UseQueryResult<PostDocResourceImageRsp[], any> => {
+  return useQuery<PostDocResourceImageRsp[], any>({
     queryKey: [QUERY_STATE_POST_RESOURCE_DOC_IMAGE_LIST + sourceUrl],
     queryFn: () =>
       getPostResourceDocImageList(sourceUrl).then((value) =>

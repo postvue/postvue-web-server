@@ -97,10 +97,10 @@ const AccountDeleteCheckSubTitle = styled.div`
 `;
 
 const AccountDeleteCheckFocusWrap = styled.div<{ $bottom: number }>`
-  position: fixed;
+  position: absolute;
   bottom: ${(props) => props.$bottom}px;
   width: 100%;
-  max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
+
   color: ${({ theme }) => theme.grey.Grey6};
   font: ${({ theme }) => theme.fontSizes.Body2};
   text-align: center;

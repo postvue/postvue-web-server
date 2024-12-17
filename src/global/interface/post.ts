@@ -8,6 +8,8 @@ export interface PostContentInterface {
   postContentType: string;
   content: string;
   ascSortNum: number;
+  previewImg: string;
+  isUploaded: boolean;
 }
 
 export interface PostRsp {
@@ -50,6 +52,7 @@ export interface MasonryPostRsp {
   postContentType: string;
   username: string;
   location: Location;
+  previewImg: string;
 }
 
 export interface DeleteCommentRsp {
@@ -142,8 +145,9 @@ export interface PostUploadContent {
   contentType: string;
   isLink: boolean;
   fileBlob: Blob | null;
-  filename: string | null;
+  filename: string;
   isUploadedLink: boolean;
+  sort: number;
 }
 
 export interface PostComposeUploadByResourceLinkReq {
@@ -154,4 +158,18 @@ export interface PostComposeUploadByResourceLinkReq {
   tagList: string[];
   title: string;
   bodyText: string;
+}
+
+export interface SnsPostComposeCreateReqInterface {
+  address: string;
+  tagList: string[];
+  title: string;
+  bodyText: string;
+  postContentLinkList: PostContentInterface[];
+  targetAudienceValue: number;
+}
+
+export interface PostUploadContentSort {
+  name: string;
+  sort: number;
 }

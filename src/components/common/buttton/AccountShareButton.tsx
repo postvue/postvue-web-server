@@ -1,23 +1,33 @@
 import { ReactComponent as AccountShareButtonIcon } from 'assets/images/icon/svg/AccountShareButtonIcon.svg';
 import React from 'react';
 import { useSetRecoilState } from 'recoil';
-import { isSharePopupAtom } from 'states/ShareAtom';
+import { sharePopupInfoAtom } from 'states/ShareAtom';
 import styled from 'styled-components';
 
 interface AccountShareButtonProps {
   url: string;
   text?: string;
   title?: string;
+  mainImageUrl: string;
 }
 
 const AccountShareButton: React.FC<AccountShareButtonProps> = ({
   url,
   text,
   title,
+  mainImageUrl,
 }) => {
-  const setIsSharePopup = useSetRecoilState(isSharePopupAtom);
+  const setShareInfoPopup = useSetRecoilState(sharePopupInfoAtom);
   return (
-    <ShareButtonWrap onClick={() => setIsSharePopup(true)}>
+    <ShareButtonWrap
+      onClick={() => {
+        setShareInfoPopup({
+          isActive: true,
+          shareLink: url,
+          mainImageUrl: mainImageUrl,
+        });
+      }}
+    >
       <AccountShareButtonIcon />
     </ShareButtonWrap>
   );

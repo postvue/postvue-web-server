@@ -52,9 +52,6 @@ const SearchPostListInfiniteScrollBeta: React.FC<RepostInfiniteScrollProps> = ({
       });
   };
   useEffect(() => {
-    console.log('보인닷');
-    console.log(searchWord);
-    console.log(cursorNum);
 
     if (inView) {
       callback();

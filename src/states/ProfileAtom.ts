@@ -2,35 +2,28 @@ import { atom } from 'recoil';
 import { GetProfileScrapInfoRsp } from 'services/profile/getProfileScrapInfo';
 import { INIT_CURSOR_ID } from '../const/PageConfigConst';
 import { TargetAudienceCategory } from '../const/ScrapConst';
-import { PostProfileInfoRsp, PostRsp } from '../global/interface/post';
+import { PostProfileInfoRsp } from '../global/interface/post';
 import {
-  MyProfileClip,
-  MyProfileScrap,
-  ProfileScrapList,
+  ProfileScrap,
   TargetAudienceInterface,
 } from '../global/interface/profile';
-
-export const myProfileScrapListAtom = atom<ProfileScrapList[]>({
-  key: 'myProfileScrapList',
-  default: [],
-});
 
 export const cursorIdByScrapListAtom = atom<string>({
   key: 'cursorIdByScrapList',
   default: INIT_CURSOR_ID,
 });
 
-export const myProfileClipHashMapAtom = atom<Map<string, MyProfileClip>>({
-  key: 'myProfileClipHashMap',
-  default: new Map(),
-});
+// export const myProfileClipHashMapAtom = atom<Map<string, MyProfileClip>>({
+//   key: 'myProfileClipHashMap',
+//   default: new Map(),
+// });
 
 export const cursorIdByClipListAtom = atom<string>({
   key: 'cursorIdByClipList',
   default: INIT_CURSOR_ID,
 });
 
-export const myProfileScrapAtom = atom<MyProfileScrap[]>({
+export const myProfileScrapAtom = atom<ProfileScrap[]>({
   key: 'myProfileScrap',
   default: [],
 });
@@ -45,10 +38,10 @@ export const scrapTargetAudienceAtom = atom<TargetAudienceInterface>({
   default: TargetAudienceCategory.PUBLIC_TARGET_AUDIENCE,
 });
 
-export const profilePostHashMapAtom = atom<Map<string, PostRsp>>({
-  key: 'profilePostHashMap',
-  default: new Map(),
-});
+// export const profilePostHashMapAtom = atom<Map<string, PostRsp>>({
+//   key: 'profilePostHashMap',
+//   default: new Map(),
+// });
 
 export const cursorIdByProfilePostListAtom = atom<string>({
   key: 'cursorIdByProfilePostList',
@@ -79,7 +72,18 @@ export const cursorIdByMyProfileFollowingAtom = atom<string>({
 
 export const profileScrapInfoAtom = atom<GetProfileScrapInfoRsp>({
   key: 'myProfileScrapInfo',
-  default: { scrapId: '', scrapName: '', scrapNum: 0, lastPostedAt: '' },
+  default: {
+    scrapId: '',
+    scrapName: '',
+    scrapNum: 0,
+    lastPostedAt: '',
+    isMe: false,
+    targetAudience: '',
+    userId: '',
+    username: '',
+    nickname: '',
+    profilePath: '',
+  },
 });
 
 export const isActiveProfileScarpTargetAudPopupAtom = atom<boolean>({

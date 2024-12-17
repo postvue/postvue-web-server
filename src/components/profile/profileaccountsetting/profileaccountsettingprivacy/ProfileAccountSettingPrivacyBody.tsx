@@ -55,7 +55,7 @@ const ProfileAccountSettingPrivacyBodyContainer = styled.div`
 const ProfileAccountSettingPrivacyBodyWrap = styled.div`
     display: flex;
     flex-flow: column;
-    gap: 16px;
+    gap: ${({ theme }) => theme.systemSize.settingGap};
     padding-top: 35px;
 }`;
 

@@ -1,5 +1,5 @@
 import { OVERFLOW_DEFAULT, OVERFLOW_HIDDEN } from 'const/AttributeConst';
-import React, { ReactNode, useEffect } from 'react';
+import React, { ReactElement, ReactNode, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { animationStyle } from '../../styles/animations';
 
@@ -9,7 +9,8 @@ interface RoundSquarePopupLayoutProps {
   popupContainerStyle?: React.CSSProperties;
   popupWrapStyle?: React.CSSProperties;
   popupContentWrapStyle?: React.CSSProperties;
-  setIsPopup: React.Dispatch<React.SetStateAction<boolean>>;
+  isCloseByOverlay?: boolean;
+  onClose: () => void;
   hasTransparentOverLay?: boolean;
   hasFixedActive?: boolean;
 }
@@ -20,7 +21,8 @@ const RoundSquareCenterPopupLayout: React.FC<RoundSquarePopupLayoutProps> = ({
   popupContainerStyle,
   popupContentWrapStyle,
   popupWrapStyle,
-  setIsPopup,
+  isCloseByOverlay = true,
+  onClose,
   hasTransparentOverLay = false,
   hasFixedActive = true,
 }) => {
@@ -34,9 +36,19 @@ const RoundSquareCenterPopupLayout: React.FC<RoundSquarePopupLayoutProps> = ({
     };
   }, []);
 
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleOverlayClick = () => {
+    if (!isDragging) {
+      onClose();
+    }
+  };
+
   return (
     <PopupLayoutOverlay
-      onClick={() => setIsPopup(false)}
+      onClick={() => {
+        isCloseByOverlay && handleOverlayClick();
+      }}
       style={popupOverLayContainerStyle}
       $hasTransparentOverLay={hasTransparentOverLay}
     >
@@ -48,7 +60,11 @@ const RoundSquareCenterPopupLayout: React.FC<RoundSquarePopupLayoutProps> = ({
           }}
         >
           <PopupContentWrap style={popupContentWrapStyle}>
-            {children}
+            {React.isValidElement(children)
+              ? React.cloneElement(children as ReactElement, {
+                  setIsDragging, // 자식 컴포넌트에 드래그 상태 전달
+                })
+              : children}
           </PopupContentWrap>
         </PopupWrap>
       </PopupContainer>
@@ -93,17 +109,19 @@ const PopupWrap = styled.div`
   position: fixed;
   max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
   width: 100%;
-  height: 100%;
+  height: calc(100% - 20px);
   background: white;
   border-radius: 30px;
   animation: ${animationStyle.fadeIn} 0.15s ease-in-out;
 `;
 
+const headerTopGap = 26;
 const PopupContentWrap = styled.div`
   display: flex;
   flex-flow: column;
   width: 100%;
-  height: 100%;
+  height: calc(100% - ${headerTopGap}px);
+  padding-top: ${headerTopGap}px;
 `;
 
 export default RoundSquareCenterPopupLayout;

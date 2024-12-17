@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { useRecoilState, useSetRecoilState } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import {
   isActivPostComposeBySourceUrlPopupAtom,
-  isActivPostComposePopupAtom,
+  isActivPostComposeSelectPopupAtom,
 } from 'states/PostComposeAtom';
 import {
   ACTIVE_CLASS_NAME,
@@ -19,18 +19,22 @@ import {
   PROFILE_SCRAP_LIST_PATH,
 } from '../const/PathConst';
 import PostComposeButton from './common/buttton/PostComposeButton';
-import PostComposeBySourceUrlPopup from './popups/postcompose/PostComposeBySourceUrlPopup';
-import PostComposePopup from './popups/postcompose/PostComposePopup';
 
 import { ReactComponent as HomeTabActiveIcon } from 'assets/images/icon/svg/navbar/HomeTabActiveIcon.svg';
 import { ReactComponent as HomeTabNotActiveIcon } from 'assets/images/icon/svg/navbar/HomeTabNotActiveIcon.svg';
 import { ReactComponent as MapTabActiveIcon } from 'assets/images/icon/svg/navbar/MapTabActiveIcon.svg';
 import { ReactComponent as MapTabNotActiveIcon } from 'assets/images/icon/svg/navbar/MapTabNotActiveIcon.svg';
 import { ReactComponent as MessageTabActiveIcon } from 'assets/images/icon/svg/navbar/MessageTabActiveIcon.svg';
+import { ReactComponent as MessageTabActiveIconByUnread } from 'assets/images/icon/svg/navbar/MessageTabActiveIconByUnread.svg';
 import { ReactComponent as MessageTabNotActiveIcon } from 'assets/images/icon/svg/navbar/MessageTabNotActiveIcon.svg';
+import { ReactComponent as MessageTabNotActiveIconByUnread } from 'assets/images/icon/svg/navbar/MessageTabNotActiveIconByUnread.svg';
 import { ReactComponent as ProfileTabActiveIcon } from 'assets/images/icon/svg/navbar/ProfileTabActiveIcon.svg';
 import { ReactComponent as ProfileTabNotActiveIcon } from 'assets/images/icon/svg/navbar/ProfileTabNotActiveIcon.svg';
 import { MEDIA_MOBILE_MAX_WIDTH } from 'const/SystemAttrConst';
+import { isUserLoggedIn } from 'global/util/AuthUtil';
+import { QueryStateMsgInboxListInfinite } from 'hook/queryhook/QueryStateMsgInboxListInfinite';
+import { sendedMsgListInfoAtom } from 'states/MessageAtom';
+import { notificationMsgHashMapAtom } from 'states/NotificationAtom';
 import { isPostDetailInfoPopupAtom } from 'states/PostAtom';
 
 interface BottomNavBarProps {
@@ -42,15 +46,20 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({
 }) => {
   const [selectedPath, setSelectedPath] = useState<string>();
 
-  const [isActivePostComposePopup, setIsActivePostComposePopup] =
-    useRecoilState(isActivPostComposePopupAtom);
+  const setIsActivePostComposeSelectPopup = useSetRecoilState(
+    isActivPostComposeSelectPopupAtom,
+  );
 
   const setIsPostDetailInfoPopup = useSetRecoilState(isPostDetailInfoPopupAtom);
 
-  const [
-    isActivePostComposeBySourceUrlPopup,
-    setIsActivePostComposeBySourceUrlPopup,
-  ] = useRecoilState(isActivPostComposeBySourceUrlPopupAtom);
+  const setIsActivePostComposeBySourceUrlPopup = useSetRecoilState(
+    isActivPostComposeBySourceUrlPopupAtom,
+  );
+
+  const { data: msgInboxMessageList } =
+    QueryStateMsgInboxListInfinite(isUserLoggedIn());
+  const sendedMsgListInfo = useRecoilValue(sendedMsgListInfoAtom);
+  const notificationMsgHashMap = useRecoilValue(notificationMsgHashMapAtom);
 
   const onClickNavTab = () => {
     setIsPostDetailInfoPopup(false);
@@ -58,7 +67,7 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({
 
   useEffect(() => {
     return () => {
-      setIsActivePostComposePopup(false);
+      setIsActivePostComposeSelectPopup(false);
       setIsActivePostComposeBySourceUrlPopup(false);
     };
   }, []);
@@ -125,9 +134,35 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({
             }}
           >
             {selectedPath == MESSAGE_INBOX_PATH ? (
-              <MessageTabActiveIcon />
+              <>
+                {sendedMsgListInfo.unreadMsgNum > 0 ||
+                Array.from(notificationMsgHashMap.entries()).some(
+                  (value) => value[1].isRead === false,
+                ) ||
+                (msgInboxMessageList &&
+                  msgInboxMessageList?.pages
+                    .flatMap((v) => v)
+                    .filter((v) => v.unreadCount > 0).length > 0) ? (
+                  <MessageTabActiveIconByUnread />
+                ) : (
+                  <MessageTabActiveIcon />
+                )}
+              </>
             ) : (
-              <MessageTabNotActiveIcon />
+              <>
+                {sendedMsgListInfo.unreadMsgNum > 0 ||
+                Array.from(notificationMsgHashMap.entries()).some(
+                  (value) => value[1].isRead === false,
+                ) ||
+                (msgInboxMessageList &&
+                  msgInboxMessageList?.pages
+                    .flatMap((v) => v)
+                    .filter((v) => v.unreadCount > 0).length > 0) ? (
+                  <MessageTabNotActiveIconByUnread />
+                ) : (
+                  <MessageTabNotActiveIcon />
+                )}
+              </>
             )}
             <TabText>메시지</TabText>
           </NavLink>
@@ -145,16 +180,19 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({
           >
             {selectedPath === PROFILE_CLIP_LIST_PATH ||
             selectedPath === PROFILE_SCRAP_LIST_PATH ? (
-              <ProfileTabActiveIcon />
+              <>
+                <ProfileTabActiveIcon />
+                <ActiveTabText>프로필</ActiveTabText>
+              </>
             ) : (
-              <ProfileTabNotActiveIcon />
+              <>
+                <ProfileTabNotActiveIcon />
+                <TabText>프로필</TabText>
+              </>
             )}
-            <TabText>프로필</TabText>
           </NavLink>
         </StyleTab>
       </BottomNavBarContainer>
-      {isActivePostComposePopup && <PostComposePopup />}
-      {isActivePostComposeBySourceUrlPopup && <PostComposeBySourceUrlPopup />}
     </>
   );
 };
@@ -168,7 +206,7 @@ const BottomNavBarContainer = styled.div`
   right: 0;
   width: 100%;
   margin: 0px auto;
-  padding: 10px 0 3vh 0;
+  padding: 10px 0 10px 0;
   background-color: white;
   border-top: 1px solid ${({ theme }) => theme.grey.Grey2};
 
@@ -200,6 +238,12 @@ const TabText = styled.span`
   padding-top: 5px;
   font: ${({ theme }) => theme.fontSizes.Body1};
   color: ${({ theme }) => theme.grey.Grey4};
+`;
+
+const ActiveTabText = styled(TabText)`
+  padding-top: 5px;
+  font: ${({ theme }) => theme.fontSizes.Body1};
+  color: ${({ theme }) => theme.mainColor.Black};
 `;
 
 export default BottomNavBar;

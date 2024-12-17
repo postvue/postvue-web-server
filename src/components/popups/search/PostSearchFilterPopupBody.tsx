@@ -1,33 +1,60 @@
 import { ReactComponent as ScrapComposeTargetAudTabIcon } from 'assets/images/icon/svg/CategoryCheckIcon.svg';
 import { ReactComponent as ScrapComposeTargetAudNotActiveTabIcon } from 'assets/images/icon/svg/CategoryNotCheckIcon.svg';
 import MyAccountSettingInfoState from 'components/common/state/MyAccountSettingInfoState';
-import { SEARCH_POST_PATH } from 'const/PathConst';
-import React from 'react';
-import { useLocation } from 'react-router-dom';
+import {
+  SEARCH_POST_PATH,
+  SEARCH_PROFILE_PATH,
+  SEARCH_SCRAP_PATH,
+} from 'const/PathConst';
+import React, { useRef } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useRecoilState } from 'recoil';
+import { isActiveSearchPostFilterPopupAtom } from 'states/SearchPostAtom';
 import styled from 'styled-components';
 
 interface PostSearchFilterPopupBodyProps {
   searchWord: string;
+  FilterPopupContainrStyle?: React.CSSProperties;
+  FilterPopupTitleStyle?: React.CSSProperties;
 }
 
 const PostSearchFilterPopupBody: React.FC<PostSearchFilterPopupBodyProps> = ({
   searchWord,
+  FilterPopupContainrStyle,
+  FilterPopupTitleStyle,
 }) => {
+  const navigate = useNavigate();
   const filterInfoList = [
     { name: '게시글', url: SEARCH_POST_PATH },
-    { name: '스크랩', url: '/search/scraps' },
-    { name: '프로필', url: '/search/profiles' },
+    { name: '스크랩', url: SEARCH_SCRAP_PATH },
+    { name: '프로필', url: SEARCH_PROFILE_PATH },
   ];
 
   const location = useLocation();
 
+  const [isActiveSearchPostFilterPopup, setIsActiveSearchPostFilterPopup] =
+    useRecoilState(isActiveSearchPostFilterPopupAtom);
+
+  const PostSearchFilterPopupContainerRef = useRef<HTMLDivElement>(null);
+
   return (
-    <PostSearchFilterPopupContainer>
-      <PostSearchFilterTitle>검색 필터</PostSearchFilterTitle>
+    <PostSearchFilterPopupContainer
+      style={FilterPopupContainrStyle}
+      ref={PostSearchFilterPopupContainerRef}
+    >
+      <PostSearchFilterTitle style={FilterPopupTitleStyle}>
+        검색 필터
+      </PostSearchFilterTitle>
       <PostSearchFilterPopupWrap>
         {filterInfoList.map((value, key) => {
           return (
-            <ProfileScrapTargetWrap key={key}>
+            <ProfileScrapTargetWrap
+              key={key}
+              onClick={() => {
+                setIsActiveSearchPostFilterPopup(false);
+                navigate(`${value.url}/${searchWord}`);
+              }}
+            >
               <ProfileScrapTargetAudienceTab>
                 {value.name}
               </ProfileScrapTargetAudienceTab>
@@ -51,7 +78,6 @@ const PostSearchFilterPopupBody: React.FC<PostSearchFilterPopupBodyProps> = ({
 const PostSearchFilterPopupContainer = styled.div`
   display: flex;
   flex-flow: column;
-  padding-bottom: 20px;
 `;
 
 const PostSearchFilterPopupWrap = styled.div`
@@ -64,7 +90,7 @@ const PostSearchFilterPopupWrap = styled.div`
 const PostSearchFilterTitle = styled.div`
   font: ${({ theme }) => theme.fontSizes.Subhead3};
   text-align: center;
-  padding: 32px 0 41px 0;
+  padding: 0 0 px 0;
 `;
 
 const ProfileScrapTargetWrap = styled.div`
@@ -75,8 +101,7 @@ const ProfileScrapTargetWrap = styled.div`
 `;
 
 const ProfileScrapTargetAudienceTab = styled.div`
-  font: ${({ theme }) => theme.fontSizes.Body3};
-  font-size: 18px;
+  font: ${({ theme }) => theme.fontSizes.Body4};
 `;
 
 const ProfileScrapTargetAudTabWrap = styled.div`

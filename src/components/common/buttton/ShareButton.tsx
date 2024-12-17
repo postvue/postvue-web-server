@@ -1,13 +1,21 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { ReactComponent as ProfilePostShareButtonIcon } from 'assets/images/icon/svg/profilepost/ProfilePostShareButtonIcon.svg';
+import { ReactComponent as ProfilePostShareButtonIcon } from 'assets/images/icon/svg/post/ProfilePostShareButtonIcon.svg';
 import { useSetRecoilState } from 'recoil';
-import { isSharePopupAtom } from 'states/ShareAtom';
+import { sharePopupInfoAtom } from 'states/ShareAtom';
 import LongPressToResizeButton from './LongPressToResizeButton';
 
-const ShareButton: React.FC = () => {
-  const setIsSharePopup = useSetRecoilState(isSharePopupAtom);
+interface ShareButtonProps {
+  shareLink: string;
+  mainImageUrl: string;
+}
+
+const ShareButton: React.FC<ShareButtonProps> = ({
+  shareLink,
+  mainImageUrl,
+}) => {
+  const setSharePopupInfo = useSetRecoilState(sharePopupInfoAtom);
   return (
     <LongPressToResizeButton
       resize={0.85}
@@ -17,7 +25,11 @@ const ShareButton: React.FC = () => {
       <ShareButtonWrap
         onClick={(e) => {
           e.stopPropagation();
-          setIsSharePopup(true);
+          setSharePopupInfo({
+            isActive: true,
+            shareLink: shareLink,
+            mainImageUrl: mainImageUrl,
+          });
         }}
       >
         <ProfilePostShareButtonIcon />

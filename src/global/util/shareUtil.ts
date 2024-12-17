@@ -15,3 +15,11 @@ export const handleShareUtil = async (props: {
     }
   }
 };
+
+export const getRandomImage = (list: string[], extraImage: string): string => {
+  if (list.length === 0) {
+    return extraImage;
+  }
+  const randomIndex = Math.floor(Math.random() * list.length);
+  return list[randomIndex];
+};

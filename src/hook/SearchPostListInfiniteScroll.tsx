@@ -4,7 +4,7 @@ import { isValidSearchWordAndFilterKey } from 'global/util/SearchPostUtil';
 import React, { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 import styled from 'styled-components';
-import { QueryStatePostSearchListInfinite } from './queryhook/QueryStatePostSearchListInfinite';
+import { QueryStateSearchPostListInfinite } from './queryhook/QueryStateSearchPostListInfinite';
 
 interface RepostInfiniteScrollProps {
   searchQueryAndFilterKey: string;
@@ -21,7 +21,7 @@ const SearchPostListInfiniteScroll: React.FC<RepostInfiniteScrollProps> = ({
   const { ref, inView } = useInView();
 
   const { fetchNextPage, hasNextPage, isFetchingNextPage } =
-    QueryStatePostSearchListInfinite(searchQueryAndFilterKey);
+    QueryStateSearchPostListInfinite(searchQueryAndFilterKey);
   // useInfiniteQuery<
   //   GetSearchPostsRsp,
   //   AxiosError,

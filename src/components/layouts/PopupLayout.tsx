@@ -1,6 +1,5 @@
 import { OVERFLOW_DEFAULT, OVERFLOW_HIDDEN } from 'const/AttributeConst';
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
-import { throttle } from 'lodash';
 import React, {
   ReactNode,
   useCallback,
@@ -17,10 +16,11 @@ interface PopupLayoutProps {
   popupContainerStyle?: React.CSSProperties;
   popupWrapStyle?: React.CSSProperties;
   popupContentWrapStyle?: React.CSSProperties;
-  setIsPopup: React.Dispatch<React.SetStateAction<boolean>>;
+  onClose: () => void;
   isTouchScrollBar?: boolean;
   hasTransparentOverLay?: boolean;
   hasFixedActive?: boolean;
+  headerBorderRadiusNum?: number;
 }
 
 const PopupLayout: React.FC<PopupLayoutProps> = ({
@@ -29,10 +29,11 @@ const PopupLayout: React.FC<PopupLayoutProps> = ({
   popupContainerStyle,
   popupContentWrapStyle,
   popupWrapStyle,
-  setIsPopup,
+  onClose,
   isTouchScrollBar = true,
   hasTransparentOverLay = false,
   hasFixedActive = true,
+  headerBorderRadiusNum = 15,
 }) => {
   const [startY, setStartY] = useState(0);
   const [translateY, setTranslateY] = useState(0);
@@ -41,15 +42,18 @@ const PopupLayout: React.FC<PopupLayoutProps> = ({
 
   const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
     setStartY(e.touches[0].clientY);
+    setTranslateY(0);
+
     if (animationFrameRef.current) {
       cancelAnimationFrame(animationFrameRef.current);
     }
   };
 
   const handleTouchMove = useCallback(
-    throttle((e: React.TouchEvent<HTMLDivElement>) => {
+    (e: React.TouchEvent<HTMLDivElement>) => {
       const currentY = e.touches[0].clientY;
       const deltaY = currentY - startY;
+      document.body.style.overscrollBehavior = 'none'; // Prevent overscroll behavior
 
       if (deltaY > 0) {
         if (animationFrameRef.current) {
@@ -60,16 +64,21 @@ const PopupLayout: React.FC<PopupLayoutProps> = ({
         });
       }
 
-      e.stopPropagation(); // 터치 이동 이벤트가 부모에게 전파되지 않도록
-    }, 16),
+      e.stopPropagation();
+      e.preventDefault();
+    },
     [startY],
   );
 
   const handleTouchEnd = () => {
+    document.body.style.overscrollBehavior = 'auto'; // Prevent overscroll behavior
     if (translateY > 100) {
       requestAnimationFrame(() => {
         setTranslateY(window.innerHeight);
-        setTimeout(() => setIsPopup(false), 150);
+        setTimeout(() => {
+          onClose();
+          setTranslateY(0);
+        }, 150);
       });
     } else {
       requestAnimationFrame(() => {
@@ -81,21 +90,12 @@ const PopupLayout: React.FC<PopupLayoutProps> = ({
   const [isMobile, setIsMobile] = useState<boolean>(false);
   useEffect(() => {
     const checkSize = () => {
-      if (window.innerWidth > MEDIA_MOBILE_MAX_WIDTH_NUM) {
-        // 화면 크기가 768px 이상이면 홈페이지로 리다이렉트
-        setIsMobile(false);
-      } else {
-        setIsMobile(true);
-      }
+      setIsMobile(window.innerWidth <= MEDIA_MOBILE_MAX_WIDTH_NUM);
     };
 
-    // 페이지 로드시 크기 확인
     checkSize();
-
-    // 창 크기 변경시 크기 확인
     window.addEventListener('resize', checkSize);
 
-    // 컴포넌트가 언마운트될 때 이벤트 리스너 제거
     return () => {
       window.removeEventListener('resize', checkSize);
     };
@@ -103,28 +103,38 @@ const PopupLayout: React.FC<PopupLayoutProps> = ({
 
   useEffect(() => {
     if (!hasFixedActive) return;
-    const originalOverflow = document.body.style.overflow;
+
+    const scrollY = window.scrollY;
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollY}px`;
+    // document.body.style.top = `0px`;
+    document.body.style.left = '0';
+    document.body.style.right = '0';
+
     document.body.style.overflow = OVERFLOW_HIDDEN;
+    document.body.style.width = '100%';
 
     return () => {
-      //@REFER: 참고 바람
-      // document.body.style.overflow = originalOverflow;
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
       document.body.style.overflow = OVERFLOW_DEFAULT;
+      document.body.style.width = '';
+      window.scrollTo(0, scrollY);
     };
-  }, []);
+  }, [hasFixedActive]);
 
   useEffect(() => {
     const element = touchRef.current;
     const preventDefault = (e: TouchEvent) => e.preventDefault();
     if (element) {
-      // DOM 이벤트 리스너 추가
       element.addEventListener('touchmove', preventDefault as EventListener, {
         passive: false,
       });
     }
     return () => {
       if (element) {
-        // DOM 이벤트 리스너 제거
         element.removeEventListener(
           'touchmove',
           preventDefault as EventListener,
@@ -136,13 +146,14 @@ const PopupLayout: React.FC<PopupLayoutProps> = ({
   return (
     <PopupLayoutOverlay
       $translateY={translateY}
-      onClick={() => setIsPopup(false)}
+      onClick={() => onClose()}
       style={popupOverLayContainerStyle}
       $hasTransparentOverLay={hasTransparentOverLay}
     >
       <PopupContainer $translateY={translateY} style={popupContainerStyle}>
         <PopupWrap
           style={popupWrapStyle}
+          $headerBorderRadiusNum={headerBorderRadiusNum}
           onClick={(e) => {
             e.stopPropagation();
           }}
@@ -164,8 +175,6 @@ const PopupLayout: React.FC<PopupLayoutProps> = ({
           </PopupContentWrap>
         </PopupWrap>
       </PopupContainer>
-      {/* @REFER: 현재 주석 처리 했으나 나중에 문제 발생할 수 있으닌 참고 바람 */}
-      {/* {hasFixedActive && <BodyFixScrollElement />} */}
     </PopupLayoutOverlay>
   );
 };
@@ -175,7 +184,7 @@ const PopupLayoutOverlay = styled.div<{
   $hasTransparentOverLay: boolean;
 }>`
   position: fixed;
-  z-index: 1000;
+  z-index: 1050;
   top: 0;
   left: 0;
   width: 100%;
@@ -183,6 +192,7 @@ const PopupLayoutOverlay = styled.div<{
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
+  overflow: hidden;
   background: rgba(
     0,
     0,
@@ -203,13 +213,14 @@ const PopupContainer = styled.div<{ $translateY: number }>`
   height: 100%;
   justify-content: center;
   align-items: center;
-  transition: transform 0.3s ease-out;
+  transition: transform 0.1s ease-out;
   transform: translate3d(0, ${({ $translateY }) => $translateY}px, 0);
   will-change: transform;
-  touch-action: auto; /* 터치 동작 허용 */
+  touch-action: none;
+  overflow: hidden;
 `;
 
-const PopupWrap = styled.div`
+const PopupWrap = styled.div<{ $headerBorderRadiusNum: number }>`
   bottom: 0;
   z-index: 1000;
   position: fixed;
@@ -217,7 +228,9 @@ const PopupWrap = styled.div`
   width: 100%;
   height: 100%;
   background: white;
-  border-radius: 15px 15px 0 0;
+  border-radius: ${(props) => props.$headerBorderRadiusNum}px
+    ${(props) => props.$headerBorderRadiusNum} 0 0;
+  overflow: hidden;
   animation: ${animationStyle.slideUp} 0.15s ease-in-out;
 `;
 
@@ -226,9 +239,9 @@ const PopupContentWrap = styled.div`
   flex-flow: column;
   width: 100%;
   height: 100%;
-  overflow-y: auto; /* 내부 스크롤 허용 */
-  -webkit-overflow-scrolling: touch; /* iOS에서 부드러운 스크롤 */
-  touch-action: auto; /* 터치 동작 허용 */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: auto;
 `;
 
 const PopupScrollBar = styled.div`
@@ -236,7 +249,7 @@ const PopupScrollBar = styled.div`
   transform: translate(-50%, 0px);
   left: 50%;
   height: 4px;
-  width: 14vw;
+  width: 50px;
   z-index: 1000;
   border-radius: 3px;
   margin-top: 7px;
@@ -245,11 +258,10 @@ const PopupScrollBar = styled.div`
 
 const PopupTopBodyBottomScrollArea = styled.div`
   z-index: 10;
-  position: fixed;
+  position: absolute;
   height: ${({ theme }) =>
     theme.systemSize.popupTopBodyBottomScrollArea.height};
   width: 100%;
-  max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
 `;
 
 const PopupTopBodyBottomScrollHeader = styled.div``;

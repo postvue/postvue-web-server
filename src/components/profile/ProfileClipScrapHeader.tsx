@@ -1,5 +1,5 @@
 import HeaderLayout from 'components/layouts/HeaderLayout';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { ACTIVE_CLASS_NAME } from '../../const/ClassNameConst';
@@ -17,23 +17,21 @@ import { QueryStateMyProfileInfo } from 'hook/queryhook/QueryStateMyProfileInfo'
 const ProfileClipScrapHeader: React.FC = () => {
   const { data: myAccountSettingInfo } = QueryStateMyProfileInfo();
 
-  const [currentPathName, setCurrentPathName] = useState<string>(
-    location.pathname,
-  );
+  const currentPathName = location.pathname;
+
   const navigate = useNavigate();
 
   const ProfileTabWrapRef = useRef<HTMLDivElement>(null);
 
-  const [tabHeight, setTabHeight] = useState<number>(0);
-
-  useEffect(() => {
-    if (!ProfileTabWrapRef.current) return;
-    setTabHeight(ProfileTabWrapRef.current.offsetHeight);
-  }, [ProfileTabWrapRef.current]);
-
   return (
     <>
-      <HeaderLayout>
+      <HeaderLayout
+        HeaderLayoutStyle={{
+          backdropFilter: 'blur(10px)',
+          WebkitBackdropFilter: 'blur(10px)',
+          backgroundColor: 'rgba(255,255,255,0.95)',
+        }}
+      >
         <MyAccountSettingInfoState />
         <ProfileClipScrapHeaderWrap>
           <ProfileAccountButton>
@@ -47,7 +45,7 @@ const ProfileClipScrapHeader: React.FC = () => {
               }
             />
           </ProfileAccountButton>
-          <ProfileCategoryContainer $tabHeight={tabHeight}>
+          <ProfileCategoryContainer>
             <ProfileCategoryWrap ref={ProfileTabWrapRef}>
               <ProfileClipButton
                 className={
@@ -88,7 +86,6 @@ const ProfileClipScrapHeader: React.FC = () => {
 };
 
 const ProfileImgSize = 38;
-
 const ProfileClipScrapHeaderWrap = styled.div`
   display: flex;
   position: relative;
@@ -108,6 +105,7 @@ const ProfileAccountButtonImg = styled.img`
   height: ${ProfileImgSize}px;
   border-radius: 20px;
   cursor: pointer;
+  object-fit: cover;
 `;
 
 const ProfileSettingButton = styled.div`
@@ -116,10 +114,10 @@ const ProfileSettingButton = styled.div`
   margin: auto 0;
 `;
 
-const ProfileCategoryContainer = styled.div<{ $tabHeight: number }>`
+const ProfileCategoryContainer = styled.div`
   position: absolute;
-  transform: translate(-50%, 50%);
-  top: calc(50% - ${(props) => props.$tabHeight}px);
+  transform: translate(-50%, -50%);
+  top: 50%;
   left: 50%;
 `;
 

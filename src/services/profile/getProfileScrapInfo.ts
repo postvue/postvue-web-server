@@ -6,6 +6,12 @@ export interface GetProfileScrapInfoRsp {
   scrapId: string;
   scrapNum: number;
   lastPostedAt: string;
+  isMe: boolean;
+  targetAudience: string;
+  userId: string;
+  username: string;
+  nickname: string;
+  profilePath: string;
 }
 
 export const getProfileScrapInfo = (

@@ -1,22 +1,22 @@
-import { ReactComponent as PostComposeButtonIcon } from 'assets/images/icon/svg/post/PostComposeButtonIcon.svg';
+import { ReactComponent as PostComposeNavIcon } from 'assets/images/icon/svg/post/PostComposeNavIcon.svg';
 import React from 'react';
 import { useSetRecoilState } from 'recoil';
-import { isActivPostComposePopupAtom } from 'states/PostComposeAtom';
+import { isActivPostComposeSelectPopupAtom } from 'states/PostComposeAtom';
 import styled from 'styled-components';
 
 const PostComposeButton: React.FC = () => {
-  const setIsActivePostComposePopup = useSetRecoilState(
-    isActivPostComposePopupAtom,
+  const setIsActivePostComposeSelectPopup = useSetRecoilState(
+    isActivPostComposeSelectPopupAtom,
   );
   return (
     <PostComposeButtonContainer
       onClick={(e) => {
         e.stopPropagation();
-        setIsActivePostComposePopup(true);
+        setIsActivePostComposeSelectPopup(true);
       }}
     >
       <PostWritingButtonWrap>
-        <PostComposeButtonIcon />
+        <PostComposeNavIcon />
       </PostWritingButtonWrap>
     </PostComposeButtonContainer>
   );

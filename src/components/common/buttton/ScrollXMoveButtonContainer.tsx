@@ -1,5 +1,5 @@
-import { ReactComponent as LightScrollXmoveButtonIcon } from 'assets/images/icon/svg/LightScrollXMoveButtonIcon.svg';
-import { ReactComponent as RightScrollXmoveButtonIcon } from 'assets/images/icon/svg/RightScrollXMoveButtonIcon.svg';
+import { ReactComponent as LightScrollXmoveButtonIcon } from 'assets/images/icon/svg/scrollx/LightScrollXMoveButtonIcon.svg';
+import { ReactComponent as RightScrollXmoveButtonIcon } from 'assets/images/icon/svg/scrollx/RightScrollXMoveButtonIcon.svg';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -12,6 +12,10 @@ interface ScrollXMoveButtonProps {
   leftMoveNum: number;
   children: React.ReactNode;
   scrollContainerStyle?: React.CSSProperties;
+  LeftScrollXButtonStyle?: React.CSSProperties;
+  RightScrollXButtonStyle?: React.CSSProperties;
+  ScrollLeftIcon?: React.ReactNode; // 왼쪽 버튼 아이콘
+  ScrollRightIcon?: React.ReactNode; // 오른쪽 버튼 아이콘
 }
 
 const ScrollXMoveButtonContainer: React.FC<ScrollXMoveButtonProps> = ({
@@ -19,6 +23,10 @@ const ScrollXMoveButtonContainer: React.FC<ScrollXMoveButtonProps> = ({
   leftMoveNum,
   children,
   scrollContainerStyle,
+  LeftScrollXButtonStyle,
+  RightScrollXButtonStyle,
+  ScrollLeftIcon,
+  ScrollRightIcon,
 }) => {
   const [showLeftButton, setShowLeftButton] = useState(false);
   const [showRightButton, setShowRightButton] = useState(true);
@@ -37,7 +45,8 @@ const ScrollXMoveButtonContainer: React.FC<ScrollXMoveButtonProps> = ({
     }
   };
 
-  const scrollLeft = () => {
+  const scrollLeft = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    e.stopPropagation();
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollBy({
         left: -leftMoveNum,
@@ -46,7 +55,8 @@ const ScrollXMoveButtonContainer: React.FC<ScrollXMoveButtonProps> = ({
     }
   };
 
-  const scrollRight = () => {
+  const scrollRight = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    e.stopPropagation();
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollBy({
         left: leftMoveNum,
@@ -86,13 +96,19 @@ const ScrollXMoveButtonContainer: React.FC<ScrollXMoveButtonProps> = ({
       {children}
       <div>
         {showLeftButton && (
-          <LeftScrollXButton onClick={scrollLeft}>
-            <LightScrollXmoveButtonIcon />
+          <LeftScrollXButton
+            onClick={scrollLeft}
+            style={LeftScrollXButtonStyle}
+          >
+            {ScrollLeftIcon ? ScrollLeftIcon : <LightScrollXmoveButtonIcon />}
           </LeftScrollXButton>
         )}
         {showRightButton && (
-          <RightScrollXButton onClick={scrollRight}>
-            <RightScrollXmoveButtonIcon />
+          <RightScrollXButton
+            onClick={scrollRight}
+            style={RightScrollXButtonStyle}
+          >
+            {ScrollRightIcon ? ScrollRightIcon : <RightScrollXmoveButtonIcon />}
           </RightScrollXButton>
         )}
       </div>

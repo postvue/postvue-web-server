@@ -1,11 +1,11 @@
+import { PostRsp } from 'global/interface/post';
 import { privateApi } from '..';
-import { MyProfileClip } from '../../global/interface/profile';
 import { CLIP_LIST_PATH, PROFILE_LIST_PATH } from '../appApiPath';
 import { CURSOR_PARAM } from '../appApiQueryParam';
 
-interface GetMyProfileClipListRsp {
+export interface GetMyProfileClipListRsp {
   cursorId: string;
-  myClipRspList: MyProfileClip[];
+  snsPostRspList: PostRsp[];
 }
 
 export const getMyProfileClipList = (

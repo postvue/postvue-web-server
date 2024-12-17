@@ -5,7 +5,7 @@ import { SEARCH_POST_PATH } from '../../../../const/PathConst';
 
 import LinkifyTextComponent from 'components/LinkifyTextComponent';
 import { isValidString } from 'global/util/ValidUtil';
-import { convertDtStrToDTStr } from '../../../../global/util/DateTimeUtil';
+import { convertDiffrenceDateTime } from '../../../../global/util/DateTimeUtil';
 
 interface PostTextContentProps {
   postTitle: string;
@@ -70,7 +70,7 @@ const PostTextContent: React.FC<PostTextContentProps> = ({
           )}
         </PostTextFieldContentWrap>
       )}
-      <PostDateTime>{convertDtStrToDTStr(postedAt)}</PostDateTime>
+      <PostDateTime>{convertDiffrenceDateTime(postedAt)}</PostDateTime>
       <PostTagWrap onClick={(e) => e.stopPropagation()}>
         {tags.map((v, i) => (
           <Link to={`${SEARCH_POST_PATH}/${v}`} key={i}>
@@ -96,6 +96,7 @@ const PostTextFieldContent = styled.div<{
   $maxLines: number;
 }>`
   font: ${({ theme }) => theme.fontSizes.Body2};
+  font-size: 15px;
   color: ${({ theme }) => theme.grey.Grey8};
   margin-bottom: 15px;
 
@@ -119,7 +120,7 @@ const PostTagWrap = styled.div`
   margin-bottom: 10px;
 `;
 const PostTag = styled.div`
-  font: ${({ theme }) => theme.fontSizes.Body1};
+  font: ${({ theme }) => theme.fontSizes.Body2};
   color: ${({ theme }) => theme.grey.Grey5};
   cursor: pointer;
 `;

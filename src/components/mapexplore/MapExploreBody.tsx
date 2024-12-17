@@ -1,6 +1,6 @@
 import React from 'react';
 
-import SnsPostMasonryLayout from 'components/layouts/SnsPostMasonryLayout';
+import SnsPostMasonryLayout_ from 'components/layouts/SnsPostMasonryLayout_';
 import {
   MAP_CONTENT_LOCATION_TYPE,
   MAP_CONTENT_POST_TYPE,
@@ -22,6 +22,7 @@ interface MapExploreBodyProps {
   mapExploreBodyStyle?: React.CSSProperties;
   MapSnsPostLayoutStyle?: React.CSSProperties;
   MapExploreInfiniteScrollStyle?: React.CSSProperties;
+  masonryLayoutNum?: number;
 }
 
 const MapExploreBody: React.FC<MapExploreBodyProps> = ({
@@ -30,6 +31,7 @@ const MapExploreBody: React.FC<MapExploreBodyProps> = ({
   mapExploreBodyStyle,
   MapSnsPostLayoutStyle,
   MapExploreInfiniteScrollStyle,
+  masonryLayoutNum = 2,
 }) => {
   const mapExploreFilterTab = useRecoilValue(mapExploreFilterTabAtom);
   const mapContentType = useRecoilValue(mapContentTypeAtom);
@@ -47,7 +49,7 @@ const MapExploreBody: React.FC<MapExploreBodyProps> = ({
     <MapExloreBodyContainer style={mapExploreBodyStyle}>
       {mapContentType === MAP_CONTENT_LOCATION_TYPE && postMapLocation && (
         <>
-          <SnsPostMasonryLayout
+          <SnsPostMasonryLayout_
             SnsPostMasonryLayoutStyle={MapSnsPostLayoutStyle}
             snsPostList={postMapLocation?.pages.flatMap((v) =>
               v.map((value) => value),
@@ -63,7 +65,7 @@ const MapExploreBody: React.FC<MapExploreBodyProps> = ({
       )}
       {mapContentType === MAP_CONTENT_POST_TYPE && postMapPost && (
         <>
-          <SnsPostMasonryLayout
+          <SnsPostMasonryLayout_
             SnsPostMasonryLayoutStyle={MapSnsPostLayoutStyle}
             snsPostList={postMapPost?.pages.flatMap((v) =>
               v.map((value) => value),

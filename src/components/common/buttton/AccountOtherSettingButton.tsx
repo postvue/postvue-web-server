@@ -2,11 +2,11 @@ import { ReactComponent as SettingVerticalDotIcon } from 'assets/images/icon/svg
 import ContextMenuPopup from 'components/popups/ContextMenuPopup';
 import ProfileOtherAccountPopupBody from 'components/profile/profileaccount/ProfileOtherAccountPopupBody';
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
-import React, { useRef, useState } from 'react';
+import useWindowSize from 'hook/customhook/useWindowSize';
+import React, { useRef } from 'react';
 import { useRecoilState } from 'recoil';
 import { isActiveProfileAccountPopupAtom } from 'states/ProfileAtom';
 import styled from 'styled-components';
-import WindowResizeSenceComponent from '../container/WindowResizeSenseComponent';
 
 const AccountOtherSettingButton: React.FC = () => {
   const [isActiveProfileAccountPopup, setIsActiveProfileAccountPopup] =
@@ -14,10 +14,7 @@ const AccountOtherSettingButton: React.FC = () => {
 
   const AccountSettingButtonRef = useRef<HTMLDivElement>(null);
 
-  const [windowSize, setWindowSize] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
-  });
+  const { windowWidth } = useWindowSize();
   return (
     <>
       <AccountSettingButtonWrap
@@ -27,7 +24,7 @@ const AccountOtherSettingButton: React.FC = () => {
         <SettingVerticalDotIcon />
       </AccountSettingButtonWrap>
       {isActiveProfileAccountPopup &&
-        windowSize.width > MEDIA_MOBILE_MAX_WIDTH_NUM &&
+        windowWidth > MEDIA_MOBILE_MAX_WIDTH_NUM &&
         AccountSettingButtonRef.current && (
           <>
             <ContextMenuPopup
@@ -40,7 +37,6 @@ const AccountOtherSettingButton: React.FC = () => {
             </ContextMenuPopup>
           </>
         )}
-      <WindowResizeSenceComponent setWindowSize={setWindowSize} />
     </>
   );
 };

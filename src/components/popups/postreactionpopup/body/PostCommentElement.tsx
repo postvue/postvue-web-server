@@ -167,7 +167,6 @@ const PostCommentElement: React.FC<PostCommentElementProps> = ({
   };
 
   const onClickGetPostReplyMore = () => {
-    console.log('실행?');
     getPostReplyReplies(postId, commentIdIndex).then((value) => {
       console.log(activeCommentByPostCommentThread.commentId);
       queryClient.setQueryData(
@@ -181,7 +180,7 @@ const PostCommentElement: React.FC<PostCommentElementProps> = ({
           if (!oldData) {
             return oldData;
           }
-          console.log('호잇', oldData.pages);
+
           const updatedPages = oldData.pages.map((page, index) => {
             if (index === 0) {
               // 첫 번째 페이지에 새로운 아이템을 추가
@@ -195,8 +194,6 @@ const PostCommentElement: React.FC<PostCommentElementProps> = ({
             }
             return page;
           });
-
-          console.log('변신', updatedPages);
 
           return {
             ...oldData,
@@ -246,10 +243,10 @@ const PostCommentElement: React.FC<PostCommentElementProps> = ({
               </PostCommentDatetime>
             </ProfileUserNameDateWrap>
             <PostReactionCommentSettingButton
-              postId={commentIdIndex}
+              postId={postId}
               userId={postComment.commentUserId}
               username={postComment.username}
-              commentId={postComment.postCommentId}
+              commentId={commentIdIndex}
             />
           </ProfileNameDateSettingWrap>
           {postComment.commentMediaType === POST_COMMENT_MEDIA_IMAGE_TYPE && (
@@ -380,6 +377,7 @@ const PorfileImg = styled.img`
   width: ${PROFILE_IMG_SIZE};
   height: ${PROFILE_IMG_SIZE};
   border-radius: 30px;
+  object-fit: cover;
 `;
 
 const ProfileContentWrap = styled.div`

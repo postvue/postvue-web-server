@@ -5,7 +5,7 @@ import PrevButtonHeaderHeader from '../layouts/PrevButtonHeaderHeader';
 const MsgHiddenListHeader: React.FC = () => {
   return (
     <MsgHiddenListHeaderContainer>
-      <PrevButtonHeaderHeader titleName={'숨긴 관리'} />
+      <PrevButtonHeaderHeader titleName={'숨김 목록'} />
       <BoundaryBarStick />
     </MsgHiddenListHeaderContainer>
   );

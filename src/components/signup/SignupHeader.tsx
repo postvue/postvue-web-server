@@ -1,5 +1,6 @@
 import { ReactComponent as PrevButtonIcon } from 'assets/images/icon/svg/PrevButtonIcon.svg';
 import PrevButtonHeaderHeader from 'components/layouts/PrevButtonHeaderHeader';
+import { HOME_PATH } from 'const/PathConst';
 import { SIGNUP_STEP_QUERY_PARAM } from 'const/QueryParamConst';
 import {
   SIGNUP_BIRTHDATE_GENDER_INPUT_STEP_QUERY_PARAM_VALUE,
@@ -14,7 +15,7 @@ import {
   SIGNUP_USERNAME_INPUT_STEP_VALUE,
 } from 'const/SignupConst';
 import React, { useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import { signupStepNumAtom } from 'states/SignupAtom';
 import styled from 'styled-components';
@@ -47,6 +48,12 @@ const SignupHeader: React.FC = () => {
     },
   ];
 
+  const naviage = useNavigate();
+
+  const onClose = () => {
+    naviage(HOME_PATH, { replace: true });
+  };
+
   useEffect(() => {
     searchParams.set(
       SIGNUP_STEP_QUERY_PARAM,
@@ -62,6 +69,8 @@ const SignupHeader: React.FC = () => {
       actionFunc={() => {
         if (signupStepNum > 1) {
           setSignupStepNum(signupStepNum - 1);
+        } else {
+          onClose();
         }
       }}
       preNodeByState={

@@ -23,7 +23,6 @@ const LocationPositionElement: React.FC<LocationPositionElementProps> = ({
 };
 
 const LocatoinPositionWrap = styled.div`
-  padding: 0 ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding};
   cursor: pointer;
 `;
 

@@ -1,15 +1,17 @@
 import { ReactComponent as LinkButtonIcon } from 'assets/images/icon/svg/LinkButtonIcon.svg';
 import { ReactComponent as PostClipButtonIcon } from 'assets/images/icon/svg/post/PostClipButton20x20Icon.svg';
-import { ReactComponent as ProfilePostShareButtonIcon } from 'assets/images/icon/svg/profilepost/ProfilePostShareButtonIcon.svg';
+import { ReactComponent as ProfilePostShareButtonIcon } from 'assets/images/icon/svg/post/ProfilePostShareButtonIcon.svg';
 import { ReactComponent as SettingHorizontalDotIcon } from 'assets/images/icon/svg/SettingHorizontalDotIcon.svg';
 import ContextMenuPopup from 'components/popups/ContextMenuPopup';
-import { SERVER_PATH } from 'const/SystemAttrConst';
+import { POST_IMAGE_TYPE } from 'const/PostContentTypeConst';
+import { MEDIA_MOBILE_MAX_WIDTH, SERVER_PATH } from 'const/SystemAttrConst';
 import { MasonryPostRsp, PostRsp } from 'global/interface/post';
+import { getRandomImage } from 'global/util/shareUtil';
 import { onClickClipBoardCopyButton } from 'global/util/ToastUtil';
 import React, { useRef, useState } from 'react';
 import { useSetRecoilState } from 'recoil';
 import { isActiveScrapViewPopupByMasonryAtom } from 'states/ProfileAtom';
-import { isSharePopupAtom } from 'states/ShareAtom';
+import { sharePopupInfoAtom } from 'states/ShareAtom';
 import styled from 'styled-components';
 import { hoverRoundCoverStyle } from 'styles/commonStyles';
 import theme from 'styles/theme';
@@ -34,7 +36,7 @@ const PostSettingButton: React.FC<PostSettingButtonProps> = ({
 
   const postSettingRef = useRef<HTMLDivElement>(null);
 
-  const setIsSharePopup = useSetRecoilState(isSharePopupAtom);
+  const setSharePopupInfo = useSetRecoilState(sharePopupInfoAtom);
 
   const onClickCopyPostLink = () => {
     setIsActiveSettingContextMenuPopup(false);
@@ -63,7 +65,6 @@ const PostSettingButton: React.FC<PostSettingButtonProps> = ({
         <ContextMenuPopup
           contextMenuRef={postSettingRef.current}
           setIsActive={setIsActiveSettingContextMenuPopup}
-          ContextMenuPopupContainerStyle={{ width: '100%' }}
         >
           <PostSettingContextWrap>
             <PostSettingTab onClick={onClickAddScrap}>
@@ -75,7 +76,18 @@ const PostSettingButton: React.FC<PostSettingButtonProps> = ({
             <PostSettingTab
               onClick={() => {
                 setIsActiveSettingContextMenuPopup(false);
-                setIsSharePopup(true);
+                setSharePopupInfo({
+                  isActive: true,
+                  shareLink: `${SERVER_PATH}/${snsPostRsp.username}/${snsPostRsp.postId}`,
+                  mainImageUrl: getRandomImage(
+                    snsPostRsp.postContents
+                      .filter(
+                        (value) => value.postContentType === POST_IMAGE_TYPE,
+                      )
+                      .map((v) => v.content),
+                    snsPostRsp.profilePath,
+                  ),
+                });
               }}
             >
               <PostSettingIconWrap>
@@ -100,6 +112,7 @@ const PostSettingButtonContainer = styled.div`
   display: flex;
   justify-content: end;
   position: relative;
+  flex-shrink: 1;
 `;
 
 const PostSettingButtonWrap = styled.div`
@@ -107,7 +120,9 @@ const PostSettingButtonWrap = styled.div`
   margin: auto 0px;
   cursor: pointer;
 
-  ${hoverRoundCoverStyle}
+  @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
+    ${hoverRoundCoverStyle}
+  }
 `;
 
 const PostSettingContextWrap = styled.div`

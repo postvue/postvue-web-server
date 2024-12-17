@@ -144,6 +144,7 @@ const ConfirmPopupSubTitle = styled.div`
 
   padding: 0 24px;
   padding-bottom: 20px;
+  white-space: pre-line;
 `;
 
 const ConfirmPopupSelectButtonWrap = styled.div`

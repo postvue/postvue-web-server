@@ -4,6 +4,7 @@ import {
   QUERY_STATE_PROFILE_SCRAP_INFO,
   STALE_30_MINUTES_TIME,
 } from 'const/QueryClientConst';
+import { isValidString } from 'global/util/ValidUtil';
 import {
   getProfileScrapInfo,
   GetProfileScrapInfoRsp,
@@ -16,5 +17,6 @@ export const QueryStateProfileScrapInfo = (
     queryKey: [QUERY_STATE_PROFILE_SCRAP_INFO, scrapId],
     queryFn: () => getProfileScrapInfo(scrapId),
     staleTime: STALE_30_MINUTES_TIME,
+    enabled: isValidString(scrapId),
   });
 };

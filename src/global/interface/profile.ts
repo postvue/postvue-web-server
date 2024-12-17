@@ -39,10 +39,10 @@ export interface myPostScrapPreview {
 }
 [];
 
-export interface ProfileScrapList {
+export interface ProfileThumbnailScrapList {
   scrapId: string;
   scrapName: string;
-  myPostScrapPreviewList: myPostScrapPreview[];
+  postScrapPreviewList: myPostScrapPreview[];
   scrapNum: number;
   lastPostedAt: string;
 }
@@ -57,11 +57,12 @@ export interface MyProfileClip {
   postedAt: string;
 }
 
-export interface MyProfileScrap {
+export interface ProfileScrap {
   postId: string;
   location: Location;
   postThumbnailContent: string;
   postThumbnailContentType: string;
+  postThumbnailPreviewImg: string;
   userId: string;
   username: string;
   postedAt: string;
@@ -108,4 +109,5 @@ export interface ProfileUsername {
   username: string;
   nickname: string;
   profilePath: string;
+  isFollowed: boolean;
 }

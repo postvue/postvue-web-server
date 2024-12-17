@@ -1,39 +1,69 @@
+import { AxiosError } from 'axios';
 import BottomNextButton from 'components/common/buttton/BottomNextButton';
 import BoundaryStickBar from 'components/common/container/BoundaryStickBar';
+import LoadingPopup from 'components/popups/LoadingPopup';
 import { PROFILE_LIST_PATH } from 'const/PathConst';
+import { uploadImgUtil } from 'global/util/ImageInputUtil';
 import { isValidString } from 'global/util/ValidUtil';
 import { QueryMutationPutMyProfileInfo } from 'hook/queryhook/QueryMutationPutMyProfileInfo';
 import { QueryStateMyProfileInfo } from 'hook/queryhook/QueryStateMyProfileInfo';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useRecoilState } from 'recoil';
 import { PutMyProfileInfoReq } from 'services/profile/putMyProfileInfo';
+import { isLoadingPopupAtom } from 'states/SystemConfigAtom';
 import styled from 'styled-components';
 
 const MyProfileEditBody: React.FC = () => {
   const { data: myAccountSettingInfo } = QueryStateMyProfileInfo();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(true);
 
   const [userNickname, setUserNickname] = useState<string>('');
   const [userIntroduce, setUserIntruoduce] = useState<string>('');
   const [userLink, setUserLink] = useState<string>('');
   const [userProfilePath, setUserProfilePath] = useState<string>('');
+  const [profileUploadImgFile, setProfileUploadImgFile] = useState<Blob | null>(
+    null,
+  );
 
   const putMyProfileInfoMutation = QueryMutationPutMyProfileInfo();
 
+  const [isLoadingPopup, setIsLoadingPopup] =
+    useRecoilState(isLoadingPopupAtom);
+
   const onClickPutProfileInfo = () => {
+    const formData = new FormData();
     const putMyProfileInfoReq: PutMyProfileInfoReq = {
       nickname: userNickname,
       website: userLink,
       introduce: userIntroduce,
-      profilePath: '',
     };
-    putMyProfileInfoMutation.mutate(putMyProfileInfoReq);
-
-    if (myAccountSettingInfo?.userId) {
-      navigate(`${PROFILE_LIST_PATH}/${myAccountSettingInfo?.username}`, {
-        replace: true,
-      });
+    const putMyProfileInfoReqBlob = new Blob(
+      [JSON.stringify(putMyProfileInfoReq)],
+      {
+        type: 'application/json',
+      },
+    );
+    formData.append('putMyProfileInfoReq', putMyProfileInfoReqBlob);
+    if (profileUploadImgFile) {
+      formData.append('profileImgFile', profileUploadImgFile);
     }
+
+    setIsLoadingPopup(true);
+    putMyProfileInfoMutation
+      .mutateAsync(formData)
+      .then(() => {
+        if (myAccountSettingInfo?.userId) {
+          setIsLoadingPopup(false);
+          navigate(`${PROFILE_LIST_PATH}/${myAccountSettingInfo?.username}`, {
+            replace: true,
+          });
+        }
+      })
+      .catch((error: AxiosError) => {
+        throw error;
+      });
   };
 
   useEffect(() => {
@@ -42,68 +72,95 @@ const MyProfileEditBody: React.FC = () => {
     setUserIntruoduce(myAccountSettingInfo.introduce);
     setUserLink(myAccountSettingInfo.website);
     setUserProfilePath(myAccountSettingInfo.profilePath);
+    setLoading(false);
   }, [myAccountSettingInfo]);
 
-  return (
-    <MyProfileEditBodyContainer>
-      <MyProfileImgEditWrap>
-        <MyProfileImgEditImgSubWrap>
-          <MyProfileImgEditImg $src={userProfilePath}>
-            <MyProfileImgEdit>수정</MyProfileImgEdit>
-          </MyProfileImgEditImg>
-        </MyProfileImgEditImgSubWrap>
-      </MyProfileImgEditWrap>
-      <ProfileAccountSettingElementWrap>
-        <ProfileAccountSettingElementTitle>
-          이름
-        </ProfileAccountSettingElementTitle>
-        <ProfileNicknameContent
-          value={userNickname}
-          onChange={(e) => setUserNickname(e.target.value)}
-          placeholder={'프로필에 이름을 입력하세요.'}
-        />
-      </ProfileAccountSettingElementWrap>
-      <BoundaryStickBar />
-      <ProfileAccountSettingElementWrap>
-        <ProfileAccountSettingElementTitle>
-          소개
-        </ProfileAccountSettingElementTitle>
-      </ProfileAccountSettingElementWrap>
-      <ProfileIntroduceContentWrap>
-        <ProfileIntroduceTextarea
-          maxLength={150}
-          rows={4}
-          placeholder={`회원님을 소개해 주세요.`}
-          value={userIntroduce}
-          onChange={(e) => setUserIntruoduce(e.target.value)}
-        ></ProfileIntroduceTextarea>
-      </ProfileIntroduceContentWrap>
-      <BoundaryStickBar />
-      <ProfileAccountSettingElementWrap>
-        <ProfileAccountSettingElementTitle>
-          링크
-        </ProfileAccountSettingElementTitle>
-        <ProfileNicknameContent
-          value={userLink}
-          onChange={(e) => setUserLink(e.target.value)}
-        />
-      </ProfileAccountSettingElementWrap>
-      <BoundaryStickBar />
+  const profileUploadImgId = 'profile-img-edit-id';
 
-      <BottomNextButton
-        title={'저장'}
-        isActive={isValidString(userNickname)}
-        hasNotActiveElement={true}
-        notActiveTitle={'저장'}
-        actionFunc={onClickPutProfileInfo}
-      />
-    </MyProfileEditBodyContainer>
+  return (
+    <>
+      {!loading && (
+        <MyProfileEditBodyContainer>
+          <MyProfileImgEditWrap>
+            <MyProfileImgEditImgSubWrap>
+              <ProfileImgUploadImgLabel htmlFor={profileUploadImgId}>
+                <MyProfileImgEditImg $src={userProfilePath}>
+                  <MyProfileImgEdit>수정</MyProfileImgEdit>
+                </MyProfileImgEditImg>
+
+                <ProfileImgUploadInput
+                  id={profileUploadImgId}
+                  accept="image/*"
+                  type="file"
+                  onChange={(e) => {
+                    uploadImgUtil(
+                      e,
+                      setProfileUploadImgFile,
+                      setUserProfilePath,
+                    );
+                  }}
+                />
+              </ProfileImgUploadImgLabel>
+            </MyProfileImgEditImgSubWrap>
+          </MyProfileImgEditWrap>
+          <ProfileAccountSettingElementWrap>
+            <ProfileAccountSettingElementTitle>
+              이름
+            </ProfileAccountSettingElementTitle>
+            <ProfileNicknameContent
+              value={userNickname}
+              onChange={(e) => setUserNickname(e.target.value)}
+              placeholder={'프로필에 이름을 입력하세요.'}
+            />
+          </ProfileAccountSettingElementWrap>
+          <BoundaryStickBar />
+          <ProfileAccountSettingElementWrap>
+            <ProfileAccountSettingElementTitle>
+              소개
+            </ProfileAccountSettingElementTitle>
+          </ProfileAccountSettingElementWrap>
+          <ProfileIntroduceContentWrap>
+            <ProfileIntroduceTextarea
+              maxLength={150}
+              rows={4}
+              placeholder={`회원님을 소개해 주세요.`}
+              value={userIntroduce}
+              onChange={(e) => setUserIntruoduce(e.target.value)}
+            ></ProfileIntroduceTextarea>
+          </ProfileIntroduceContentWrap>
+          <BoundaryStickBar />
+          <ProfileAccountSettingElementWrap>
+            <ProfileAccountSettingElementTitle>
+              링크
+            </ProfileAccountSettingElementTitle>
+            <ProfileNicknameContent
+              value={userLink}
+              onChange={(e) => setUserLink(e.target.value)}
+            />
+          </ProfileAccountSettingElementWrap>
+          <BoundaryStickBar />
+
+          <BottomNextButton
+            title={'저장'}
+            isActive={
+              (isValidString(userNickname) &&
+                myAccountSettingInfo?.nickname !== userNickname) ||
+              myAccountSettingInfo?.introduce !== userIntroduce ||
+              profileUploadImgFile !== null ||
+              myAccountSettingInfo.website !== userLink
+            }
+            hasNotActiveElement={true}
+            notActiveTitle={'저장'}
+            actionFunc={onClickPutProfileInfo}
+          />
+        </MyProfileEditBodyContainer>
+      )}
+      {isLoadingPopup && <LoadingPopup />}
+    </>
   );
 };
 
-const MyProfileEditBodyContainer = styled.div`
-  height: calc(100vh - ${({ theme }) => theme.systemSize.header.height});
-`;
+const MyProfileEditBodyContainer = styled.div``;
 
 const MyProfileImgEditWrap = styled.div`
   display: flex;
@@ -169,6 +226,14 @@ const ProfileIntroduceTextarea = styled.textarea`
   outline: none;
   color: ${({ theme }) => theme.grey.Grey8};
   font: ${({ theme }) => theme.fontSizes.Body3};
+`;
+
+const ProfileImgUploadImgLabel = styled.label`
+  display: flex;
+  cursor: pointer;
+`;
+const ProfileImgUploadInput = styled.input`
+  display: none;
 `;
 
 export default MyProfileEditBody;

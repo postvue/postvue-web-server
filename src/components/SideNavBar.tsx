@@ -2,10 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { useRecoilState, useSetRecoilState } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import {
   isActivPostComposeBySourceUrlPopupAtom,
-  isActivPostComposePopupAtom,
+  isActivPostComposeSelectPopupAtom,
 } from 'states/PostComposeAtom';
 import {
   ACTIVE_CLASS_NAME,
@@ -26,14 +26,18 @@ import { ReactComponent as FeelogLogo } from 'assets/images/icon/svg/pc/FeelogLo
 import { ReactComponent as FeelogSmallLogo } from 'assets/images/icon/svg/pc/FeelogSmallLogo.svg';
 import { ReactComponent as AccountSettingActiveIcon } from 'assets/images/icon/svg/pc/navbar/AccountSettingActiveIcon.svg';
 import { ReactComponent as AccountSettingNotActiveIcon } from 'assets/images/icon/svg/pc/navbar/AccountSettingNotActiveIcon.svg';
-import { ReactComponent as AlarmTabActiveIcon } from 'assets/images/icon/svg/pc/navbar/AlarmTabActiveIcon.svg';
-import { ReactComponent as AlarmTabNotActiveIcon } from 'assets/images/icon/svg/pc/navbar/AlarmTabNotActiveIcon.svg';
 import { ReactComponent as HomeTabActiveIcon } from 'assets/images/icon/svg/pc/navbar/HomeTabActiveIcon.svg';
 import { ReactComponent as HomeTabNotActiveIcon } from 'assets/images/icon/svg/pc/navbar/HomeTabNotActiveIcon.svg';
 import { ReactComponent as MapTabActiveIcon } from 'assets/images/icon/svg/pc/navbar/MapTabActiveIcon.svg';
 import { ReactComponent as MapTabNotActiveIcon } from 'assets/images/icon/svg/pc/navbar/MapTabNotActiveIcon.svg';
 import { ReactComponent as MessageTabActiveIcon } from 'assets/images/icon/svg/pc/navbar/MessageTabActiveIcon.svg';
+import { ReactComponent as MessageTabActiveIconByUnread } from 'assets/images/icon/svg/pc/navbar/MessageTabActiveIconByUnread.svg';
 import { ReactComponent as MessageTabNotActiveIcon } from 'assets/images/icon/svg/pc/navbar/MessageTabNotActiveIcon.svg';
+import { ReactComponent as MessageTabNotActiveIconByUnread } from 'assets/images/icon/svg/pc/navbar/MessageTabNotActiveIconByUnread.svg';
+import { ReactComponent as NotificationActiveIcon } from 'assets/images/icon/svg/pc/navbar/NotificationActiveIcon.svg';
+import { ReactComponent as NotificationActiveIconByUnread } from 'assets/images/icon/svg/pc/navbar/NotificationActiveIconByUnread.svg';
+import { ReactComponent as NotificationNotActiveIcon } from 'assets/images/icon/svg/pc/navbar/NotificationNotActiveIcon.svg';
+import { ReactComponent as NotificationNotActiveIconByUnread } from 'assets/images/icon/svg/pc/navbar/NotificationNotActiveIconByUnread.svg';
 import { ReactComponent as ProfileTabActiveIcon } from 'assets/images/icon/svg/pc/navbar/ProfileTabActiveIcon.svg';
 import { ReactComponent as ProfileTabNotActiveIcon } from 'assets/images/icon/svg/pc/navbar/ProfileTabNotActiveIcon.svg';
 import {
@@ -41,9 +45,13 @@ import {
   MEDIA_MIDDLE_1300_WIDTH_NUM,
   MEDIA_MOBILE_MAX_WIDTH,
 } from 'const/SystemAttrConst';
+import useWindowSize from 'hook/customhook/useWindowSize';
+import { QueryStateMsgInboxListInfinite } from 'hook/queryhook/QueryStateMsgInboxListInfinite';
+import { sendedMsgListInfoAtom } from 'states/MessageAtom';
+import { notificationMsgHashMapAtom } from 'states/NotificationAtom';
+import { filterBrigntnessStyle } from 'styles/commonStyles';
 import LongPressToResizeButton from './common/buttton/LongPressToResizeButton';
 import PostComposeButton from './common/buttton/PostComposeButton';
-import WindowResizeSenceComponent from './common/container/WindowResizeSenseComponent';
 
 const SideNavBar: React.FC = () => {
   const location = useLocation();
@@ -52,34 +60,33 @@ const SideNavBar: React.FC = () => {
     location.pathname || INVALID_URL,
   );
 
-  const setIsActivePostComposePopup = useSetRecoilState(
-    isActivPostComposePopupAtom,
+  const setIsActivePostComposeSelectPopup = useSetRecoilState(
+    isActivPostComposeSelectPopupAtom,
   );
 
-  const [
-    isActivePostComposeBySourceUrlPopup,
-    setIsActivePostComposeBySourceUrlPopup,
-  ] = useRecoilState(isActivPostComposeBySourceUrlPopupAtom);
+  const setIsActivePostComposeBySourceUrlPopup = useSetRecoilState(
+    isActivPostComposeBySourceUrlPopupAtom,
+  );
+  const { data: msgInboxMessageList } = QueryStateMsgInboxListInfinite();
+  const sendedMsgListInfo = useRecoilValue(sendedMsgListInfoAtom);
+  const notificationMsgHashMap = useRecoilValue(notificationMsgHashMapAtom);
 
   useEffect(() => {
     setSelectedPath(location.pathname);
     return () => {
-      setIsActivePostComposePopup(false);
+      setIsActivePostComposeSelectPopup(false);
       setIsActivePostComposeBySourceUrlPopup(false);
     };
   }, []);
 
-  const [windowSize, setWindowSize] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
-  });
+  const { windowWidth } = useWindowSize();
 
   return (
     <>
       <HeaderSidebarWrap>
         <HeaderSidebarLogoWrap onClick={() => navigate(HOME_PATH)}>
           <LongPressToResizeButton resize={0.85} resizeSpeedRate={0.3}>
-            {windowSize.width >= MEDIA_MIDDLE_1300_WIDTH_NUM ? (
+            {windowWidth >= MEDIA_MIDDLE_1300_WIDTH_NUM ? (
               <FeelogLogo />
             ) : (
               <FeelogSmallLogo />
@@ -145,9 +152,29 @@ const SideNavBar: React.FC = () => {
               <TabWrap>
                 <NavTab>
                   {selectedPath == MESSAGE_INBOX_PATH ? (
-                    <MessageTabActiveIcon />
+                    <>
+                      {sendedMsgListInfo.unreadMsgNum > 0 ||
+                        (msgInboxMessageList &&
+                        msgInboxMessageList?.pages
+                          .flatMap((v) => v)
+                          .filter((v) => v.unreadCount > 0).length > 0 ? (
+                          <MessageTabActiveIconByUnread />
+                        ) : (
+                          <MessageTabActiveIcon />
+                        ))}
+                    </>
                   ) : (
-                    <MessageTabNotActiveIcon />
+                    <>
+                      {sendedMsgListInfo.unreadMsgNum > 0 ||
+                        (msgInboxMessageList &&
+                        msgInboxMessageList?.pages
+                          .flatMap((v) => v)
+                          .filter((v) => v.unreadCount > 0).length > 0 ? (
+                          <MessageTabNotActiveIconByUnread />
+                        ) : (
+                          <MessageTabNotActiveIcon />
+                        ))}
+                    </>
                   )}
                   <TabText>메시지</TabText>
                 </NavTab>
@@ -168,9 +195,25 @@ const SideNavBar: React.FC = () => {
               <TabWrap>
                 <NavTab>
                   {selectedPath == NOTIFICATION_LIST_PATH ? (
-                    <AlarmTabActiveIcon />
+                    <>
+                      {Array.from(notificationMsgHashMap.entries()).some(
+                        (value) => value[1].isRead === false,
+                      ) ? (
+                        <NotificationActiveIconByUnread />
+                      ) : (
+                        <NotificationActiveIcon />
+                      )}
+                    </>
                   ) : (
-                    <AlarmTabNotActiveIcon />
+                    <>
+                      {Array.from(notificationMsgHashMap.entries()).some(
+                        (value) => value[1].isRead === false,
+                      ) ? (
+                        <NotificationNotActiveIconByUnread />
+                      ) : (
+                        <NotificationNotActiveIcon />
+                      )}
+                    </>
                   )}
                   <TabText>알림</TabText>
                 </NavTab>
@@ -179,24 +222,21 @@ const SideNavBar: React.FC = () => {
           </StyleTab>
 
           <StyleTab>
-            <NavLink
-              to={PROFILE_CLIP_LIST_PATH}
-              className={({ isActive }) => {
-                return (
-                  (isActive ? ACTIVE_CLASS_NAME : '') +
-                  ` ${TABBAR_NAV_CLASS_NAME}`
-                );
-              }}
-            >
+            <NavLink to={PROFILE_CLIP_LIST_PATH}>
               <TabWrap>
                 <NavTab>
                   {selectedPath === PROFILE_CLIP_LIST_PATH ||
                   selectedPath === PROFILE_SCRAP_LIST_PATH ? (
-                    <ProfileTabActiveIcon />
+                    <>
+                      <ProfileTabActiveIcon />
+                      <ActiveTabText>프로필</ActiveTabText>
+                    </>
                   ) : (
-                    <ProfileTabNotActiveIcon />
+                    <>
+                      <ProfileTabNotActiveIcon />
+                      <TabText>프로필</TabText>
+                    </>
                   )}
-                  <TabText>프로필</TabText>
                 </NavTab>
               </TabWrap>
             </NavLink>
@@ -225,11 +265,11 @@ const SideNavBar: React.FC = () => {
           </StyleTab>
         </Container>
         <PoseComposeButtonWrap>
-          {windowSize.width >= MEDIA_MIDDLE_1300_WIDTH_NUM ? (
+          {windowWidth >= MEDIA_MIDDLE_1300_WIDTH_NUM ? (
             <PoseComposeButton
               onClick={(e) => {
                 e.stopPropagation();
-                setIsActivePostComposePopup(true);
+                setIsActivePostComposeSelectPopup(true);
               }}
             >
               게시하기
@@ -239,7 +279,6 @@ const SideNavBar: React.FC = () => {
           )}
         </PoseComposeButtonWrap>
       </HeaderSidebarWrap>
-      <WindowResizeSenceComponent setWindowSize={setWindowSize} />
     </>
   );
 };
@@ -318,6 +357,10 @@ const TabText = styled.span`
   }
 `;
 
+const ActiveTabText = styled(TabText)`
+  color: black;
+`;
+
 const HeaderSidebarLogoWrap = styled.div`
   padding-top: 10px;
   cursor: pointer;
@@ -337,6 +380,7 @@ const PoseComposeButton = styled.div`
   color: ${({ theme }) => theme.mainColor.White};
   border-radius: 30px;
   cursor: pointer;
+  ${filterBrigntnessStyle}
 `;
 
 export default SideNavBar;

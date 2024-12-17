@@ -1,22 +1,26 @@
 import { ReactComponent as LocationSmallIcon } from 'assets/images/icon/svg/LocationSmallIcon.svg';
 import LongPressToResizeButton from 'components/common/buttton/LongPressToResizeButton';
 import PostSettingButton from 'components/common/buttton/PostSettingButton';
+import PostImagePreviewElement from 'components/common/posts/element/PostImagePreviewElement';
+import PostVideoPreviewElement from 'components/common/posts/element/PostVideoPreviewElement';
 import SystemSnsPostState from 'components/common/state/SystemSnsPostState';
-import ScrapViewPopup from 'components/popups/ScrapViewPopup';
-import SnsSharePopup from 'components/popups/SnsSharePopup';
+import ScrapViewPopup from 'components/popups/profilescrap/ScrapViewPopup';
 import { POST_IMAGE_TYPE, POST_VIDEO_TYPE } from 'const/PostContentTypeConst';
-import { SERVER_PATH } from 'const/SystemAttrConst';
+import {
+  MEDIA_MOBILE_MAX_WIDTH,
+  MEDIA_MOBILE_MAX_WIDTH_NUM,
+} from 'const/SystemAttrConst';
 import { isValidString } from 'global/util/ValidUtil';
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useRecoilState, useSetRecoilState } from 'recoil';
+import { useRecoilState } from 'recoil';
 import {
   isPostDetailInfoPopupAtom,
   postDetailInfoPopupAtom,
   PostRspDefaultValue,
 } from 'states/PostAtom';
 import { isActiveScrapViewPopupByMasonryAtom } from 'states/ProfileAtom';
-import { isSharePopupAtom } from 'states/ShareAtom';
+import { systemPostRspHashMapAtom } from 'states/SystemConfigAtom';
 import styled from 'styled-components';
 import { MasonryPostRsp, PostRsp } from '../../global/interface/post';
 import { getHiddenPostIdList } from '../../global/util/HiddenPostIdListUtil';
@@ -27,6 +31,7 @@ interface SnsPostMasonryLayoutProps {
   actionFuncByRef?: (value: HTMLImageElement | HTMLVideoElement) => void;
   longPressToResizeNum?: number;
   SnsPostMasonryLayoutStyle?: React.CSSProperties;
+  isAutoPlay?: boolean;
 }
 
 const SnsPostMasonryLayout: React.FC<SnsPostMasonryLayoutProps> = ({
@@ -35,14 +40,23 @@ const SnsPostMasonryLayout: React.FC<SnsPostMasonryLayoutProps> = ({
   actionFuncByRef,
   longPressToResizeNum,
   SnsPostMasonryLayoutStyle,
+  isAutoPlay = true,
 }) => {
   const navigate = useNavigate();
 
   const [selectPostRsp, setSelectPostRsp] =
     useState<PostRsp>(PostRspDefaultValue);
 
-  const setPostDetailInfo = useSetRecoilState(postDetailInfoPopupAtom);
-  const setIsPostDetailInfoPopup = useSetRecoilState(isPostDetailInfoPopupAtom);
+  const [systemPostHashMap, setSystemPostHashMap] = useRecoilState(
+    systemPostRspHashMapAtom,
+  );
+
+  const [postDetailInfo, setPostDetailInfo] = useRecoilState(
+    postDetailInfoPopupAtom,
+  );
+  const [isPostDetailInfoPopup, setIsPostDetailInfoPopup] = useRecoilState(
+    isPostDetailInfoPopupAtom,
+  );
 
   const mansoryContentClass = 'masnory-content';
   const containerRef = useRef<HTMLDivElement>(null);
@@ -50,16 +64,13 @@ const SnsPostMasonryLayout: React.FC<SnsPostMasonryLayoutProps> = ({
   const [hiddenPostIdList, setHiddenPostIdList] = useState<string[]>(
     getHiddenPostIdList(),
   );
-  const [isSharePopup, setIsSharePopup] = useRecoilState(isSharePopupAtom);
+
   const [isActiveScrapViewPopupByMasonry, setIsActiveScrapViewPopupByMasonry] =
     useRecoilState(isActiveScrapViewPopupByMasonryAtom);
 
-  // 이미지 및 비디오의 ref 리스트 관리
-  const imageRefs = useRef<(HTMLImageElement | null)[]>([]);
-  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
-
   const masonryLayout = () => {
     if (!containerRef.current) return;
+    console.log('호잉');
 
     const masonryContainerStyle = getComputedStyle(containerRef.current);
 
@@ -70,7 +81,7 @@ const SnsPostMasonryLayout: React.FC<SnsPostMasonryLayoutProps> = ({
     containerRef.current
       .querySelectorAll<HTMLDivElement>('.masonry-item')
       .forEach((elt) => {
-        const pseudoImg = elt.querySelector<HTMLImageElement>(
+        const pseudoImg = elt.querySelector<HTMLDivElement>(
           `.${mansoryContentClass}`,
         );
 
@@ -85,8 +96,43 @@ const SnsPostMasonryLayout: React.FC<SnsPostMasonryLayoutProps> = ({
   useEffect(() => {
     masonryLayout();
     window.addEventListener('resize', masonryLayout);
-    return () => window.removeEventListener('resize', masonryLayout);
+    const tempSystemPostHashMap = new Map(systemPostHashMap);
+    snsPostList.forEach((post) => {
+      const postRsp = tempSystemPostHashMap.get(post.postId);
+      if (!postRsp) {
+        tempSystemPostHashMap.set(post.postId, post);
+      }
+    });
+    setSystemPostHashMap(tempSystemPostHashMap);
+
+    return () => {
+      window.removeEventListener('resize', masonryLayout);
+    };
   }, []);
+
+  const [errorPostIds, setErrorPostIds] = useState<Set<string>>(new Set());
+
+  const handleImageError = (postId: string) => {
+    setErrorPostIds((prev) => new Set(prev).add(postId));
+  };
+
+  const handleVideoError = (postId: string) => {
+    setErrorPostIds((prev) => new Set(prev).add(postId));
+  };
+
+  const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
+
+  const handleVideoPlay = (postId: string) => {
+    // 비디오가 화면에 보이면 해당 비디오만 재생하고, 다른 비디오는 멈춤
+    setActiveVideoId(postId);
+  };
+
+  const handleVideoPause = (postId: string) => {
+    // 비디오가 화면에서 벗어나면 재생 중지
+    if (activeVideoId === postId) {
+      setActiveVideoId(null);
+    }
+  };
 
   return (
     <>
@@ -101,72 +147,99 @@ const SnsPostMasonryLayout: React.FC<SnsPostMasonryLayoutProps> = ({
             postContentType: postContent.postContentType,
             username: v.username,
             location: v.location,
+            previewImg: postContent.previewImg,
           };
+
+          if (errorPostIds.has(v.postId)) return null;
           return (
-            <MasonryItem className="masonry-item" key={index}>
+            <MasonryItem
+              className={
+                masonryPostRsp.postContentType === POST_VIDEO_TYPE
+                  ? 'masonry-video-item'
+                  : 'masonry-item'
+              }
+              key={index}
+              style={
+                masonryPostRsp.postContentType === POST_VIDEO_TYPE
+                  ? {
+                      gridRowEnd: 'span 40',
+                    }
+                  : {}
+              }
+            >
               {!hiddenPostIdList.includes(v.postId) && (
                 <PostWrap className={mansoryContentClass}>
                   <LongPressToResizeButton
-                    resize={longPressToResizeNum || 0.94}
+                    resize={longPressToResizeNum || 0.98}
+                    LongPressToResizeButtonContainerStyle={
+                      masonryPostRsp.postContentType === POST_VIDEO_TYPE
+                        ? {
+                            height: '100%',
+                          }
+                        : {}
+                    }
                   >
                     <PostImgAddressWrap
                       $hasAddress={isValidString(v.location.address)}
                       onClick={() => {
                         if (!isActiveNavToPost) return;
 
-                        navigate(`/${v.username}/${v.postId}`);
+                        // navigate(`/${v.username}/${v.postId}`);
                         //@REFER: 일단 url로 이동하는 걸로
-                        // if (window.innerWidth > MEDIA_MOBILE_MAX_WIDTH_NUM) {
-                        //   // 데스크탑 크기
-                        //   // url로 이동
-                        //   navigate(`/${v.username}/${v.postId}`, {
-                        //     state: { isDetailPopup: true },
-                        //   });
-                        // } else {
-                        //   // 모바일 크기
-                        //   // url만 바뀌도록 변경
-                        //   window.history.pushState(
-                        //     null,
-                        //     '',
-                        //     `/${v.username}/${v.postId}`,
-                        //   );
-                        //   setIsPostDetailInfoPopup(true);
-                        //   setPostDetailInfo({
-                        //     postId: v.postId,
-                        //     userId: v.username,
-                        //   });
-                        // }
+                        if (window.innerWidth > MEDIA_MOBILE_MAX_WIDTH_NUM) {
+                          // 데스크탑 크기
+                          // url로 이동
+                          navigate(`/${v.username}/${v.postId}`, {
+                            state: { isDetailPopup: true },
+                          });
+                        } else {
+                          // 모바일 크기
+                          // url만 바뀌도록 변경
+                          // window.history.pushState(
+                          //   null,
+                          //   '',
+                          //   `/${v.username}/${v.postId}`,
+                          // );
+                          setIsPostDetailInfoPopup(true);
+                          setPostDetailInfo({
+                            postId: v.postId,
+                            userId: v.username,
+                          });
+                        }
                       }}
                     >
                       {masonryPostRsp.postContentType === POST_IMAGE_TYPE && (
-                        <PostContentImg
-                          src={masonryPostRsp.postContent}
+                        <PostImagePreviewElement
+                          imageSrc={masonryPostRsp.postContent}
                           onLoad={masonryLayout}
-                          ref={(el) => (imageRefs.current[index] = el)}
-                          onClick={() => {
-                            const imageRef = imageRefs.current[index];
-                            if (actionFuncByRef && imageRef) {
-                              actionFuncByRef(imageRef);
-                            }
+                          actionFuncByRef={actionFuncByRef}
+                          PostImageStyle={{
+                            borderRadius: `${ContentBorderRadius}px`,
                           }}
+                          onError={() => handleImageError(v.postId)}
                         />
                       )}
                       {masonryPostRsp.postContentType === POST_VIDEO_TYPE && (
-                        <PostContentVideo
-                          autoPlay
-                          muted
-                          loop
-                          playsInline
-                          webkit-playsinline="true"
-                          src={masonryPostRsp.postContent}
+                        <PostVideoPreviewElement
+                          postId={masonryPostRsp.postId}
+                          activeVideoId={activeVideoId}
+                          onPlay={() => handleVideoPlay(masonryPostRsp.postId)}
+                          onPause={() =>
+                            handleVideoPause(masonryPostRsp.postId)
+                          }
+                          autoPlayMode={isAutoPlay}
+                          videoSrc={masonryPostRsp.postContent}
+                          posterImg={masonryPostRsp.previewImg}
                           onLoadedData={masonryLayout}
-                          ref={(el) => (videoRefs.current[index] = el)}
-                          crossOrigin={'anonymous'}
-                          onClick={() => {
-                            const videoRef = videoRefs.current[index];
-                            if (actionFuncByRef && videoRef) {
-                              actionFuncByRef(videoRef);
-                            }
+                          actionFuncByRef={actionFuncByRef}
+                          PostVideoStyle={{
+                            borderRadius: `${ContentBorderRadius}px`,
+                            backgroundColor: 'black',
+                          }}
+                          isVisibilityDetection={true}
+                          onError={() => {
+                            handleVideoError(v.postId);
+                            setActiveVideoId(null);
                           }}
                         />
                       )}
@@ -194,14 +267,8 @@ const SnsPostMasonryLayout: React.FC<SnsPostMasonryLayoutProps> = ({
           );
         })}
       </MasonryContainer>
-      {isSharePopup && (
-        <SnsSharePopup
-          shareLink={`${SERVER_PATH}/${selectPostRsp.username}/${selectPostRsp.postId}`}
-          setIsSharePopup={setIsSharePopup}
-        />
-      )}
-      {isActiveScrapViewPopupByMasonry &&
-        isValidString(selectPostRsp.postId) &&
+
+      {isValidString(selectPostRsp.postId) &&
         isValidString(selectPostRsp.postContents[0].content) &&
         isValidString(selectPostRsp.postContents[0].content) && (
           <ScrapViewPopup
@@ -210,6 +277,7 @@ const SnsPostMasonryLayout: React.FC<SnsPostMasonryLayoutProps> = ({
             postContentType={selectPostRsp.postContents[0].postContentType}
             snsPost={selectPostRsp}
             setSnsPost={setSelectPostRsp}
+            isActiveScrapViewPopup={isActiveScrapViewPopupByMasonry}
             setIsActiveScrapViewPopup={setIsActiveScrapViewPopupByMasonry}
           />
         )}
@@ -221,7 +289,6 @@ const SnsPostMasonryLayout: React.FC<SnsPostMasonryLayoutProps> = ({
 const ContentBorderRadius = 22;
 
 const VerticalMarginGap = 5;
-
 const MasonryContainer = styled.div`
   --gap: 10px;
 
@@ -230,7 +297,7 @@ const MasonryContainer = styled.div`
   column-gap: var(--gap);
   grid-auto-rows: 10px;
 
-  min-height: 90vh;
+  // height: 90vh;
   padding: 0 6px;
 `;
 
@@ -243,11 +310,16 @@ const MasonryItem = styled.div`
   // }
 `;
 
-const PostWrap = styled.div``;
+const PostWrap = styled.div`
+  height: 100%;
+  display: flex;
+  flex-flow: column;
+`;
 
 const PostImgAddressWrap = styled.div<{ $hasAddress: boolean }>`
   position: relative;
   cursor: pointer;
+  height: 100%;
 
   ${(props) =>
     props.$hasAddress &&
@@ -261,22 +333,6 @@ const PostImgAddressWrap = styled.div<{ $hasAddress: boolean }>`
     background: linear-gradient(to top, rgba(0, 0, 0, 0.4), transparent);
     border-radius: 0 0 ${ContentBorderRadius}px ${ContentBorderRadius}px;
   }`}
-`;
-
-const PostContentImg = styled.img`
-  width: 100%;
-  height: auto;
-  object-fit: contain;
-  border-radius: ${ContentBorderRadius}px;
-  vertical-align: bottom;
-`;
-
-const PostContentVideo = styled.video`
-  width: 100%;
-  height: auto;
-  object-fit: contain;
-  border-radius: ${ContentBorderRadius}px;
-  vertical-align: bottom;
 `;
 
 const PostAddressWrap = styled.div`
@@ -294,6 +350,10 @@ const PostAddressSubWrap = styled.div`
 
 const PostAddress = styled.div`
   font: ${({ theme }) => theme.fontSizes.BoxText};
+
+  @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
+    font: ${({ theme }) => theme.fontSizes.Body3};
+  }
   color: ${({ theme }) => theme.mainColor.White};
 
   white-space: nowrap;

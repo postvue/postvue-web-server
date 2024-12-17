@@ -1,7 +1,7 @@
-import WindowResizeSenceComponent from 'components/common/container/WindowResizeSenseComponent';
 import MsgBlockHiddenManagePopup from 'components/messageinbox/popup/MsgBlockHiddenManagePopup';
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
-import React, { useEffect, useState } from 'react';
+import useWindowSize from 'hook/customhook/useWindowSize';
+import React, { useEffect } from 'react';
 import { useRecoilState } from 'recoil';
 import BottomNavBar from '../components/BottomNavBar';
 import AppBaseTemplate from '../components/layouts/AppBaseTemplate';
@@ -15,10 +15,7 @@ const MessageInboxPage: React.FC = () => {
     setIsActiveMsgBlockHiddenManagePopup,
   ] = useRecoilState(isActiveMsgBlockHiddenManagePopupAtom);
 
-  const [windowSize, setWindowSize] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
-  });
+  const { windowWidth } = useWindowSize();
 
   useEffect(() => {
     return () => {
@@ -31,9 +28,9 @@ const MessageInboxPage: React.FC = () => {
       <MessageInboxHeader />
       <MessageInboxBody />
       <BottomNavBar />
-      {windowSize.width <= MEDIA_MOBILE_MAX_WIDTH_NUM &&
-        isActiveMsgBlockHiddenManagePopup && <MsgBlockHiddenManagePopup />}
-      <WindowResizeSenceComponent setWindowSize={setWindowSize} />
+      {windowWidth <= MEDIA_MOBILE_MAX_WIDTH_NUM && (
+        <MsgBlockHiddenManagePopup />
+      )}
     </AppBaseTemplate>
   );
 };

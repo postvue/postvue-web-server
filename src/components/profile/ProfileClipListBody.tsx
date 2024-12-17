@@ -1,32 +1,32 @@
-import { MasonryPostRsp } from 'global/interface/post';
+import ProfileClipListInfiniteScroll from 'hook/ProfileClipListInfiniteScroll';
 import React from 'react';
-import { useRecoilValue } from 'recoil';
 import styled from 'styled-components';
-import ProfileClipListInfiniteScroll from '../../hook/ProfileClipListInfiniteScroll';
-import { myProfileClipHashMapAtom } from '../../states/ProfileAtom';
+
+import SnsPostMasonryLayout from 'components/layouts/SnsPostMasonryLayout';
+import { QueryStateProfileClipListInfinite } from 'hook/queryhook/QueryStateProfileClipListInfinite';
 import theme from '../../styles/theme';
-import MasonryLayout from '../layouts/MasonryLayout';
 const ProfileClipListBody: React.FC = () => {
-  const myProfileClipHashMap = useRecoilValue(myProfileClipHashMapAtom);
+  const { data: myProfileClipList } = QueryStateProfileClipListInfinite();
 
   return (
     <ProfileClipBodyContainer>
-      <MasonryLayout
-        snsPostUrlList={Array.from(myProfileClipHashMap.entries()).map(
-          ([, v]) => {
-            const homePostRsp: MasonryPostRsp = {
-              postId: v.postId,
-              userId: v.userId,
-              postContent: v.postThumbnailContent,
-              postContentType: v.postThumbnailContentType,
-              username: v.username,
-              location: v.location,
-            };
-
-            return homePostRsp;
-          },
+      {myProfileClipList && (
+        <SnsPostMasonryLayout
+          snsPostList={myProfileClipList?.pages.flatMap((v) =>
+            v.snsPostRspList.map((value) => value),
+          )}
+        />
+      )}
+      {myProfileClipList &&
+        myProfileClipList?.pages.flatMap((v) => v.snsPostRspList).length <=
+          0 && (
+          <ProifileNotClipTitleWrap>
+            <ProifileNotClipTitle>
+              아직 저장한 클립이 없네요... 😢
+            </ProifileNotClipTitle>
+          </ProifileNotClipTitleWrap>
         )}
-      />
+
       <ProfileClipListInfiniteScroll />
     </ProfileClipBodyContainer>
   );
@@ -43,6 +43,18 @@ const ProfileClipBodyContainer = styled.div`
   &::-webkit-scrollbar {
     display: none;
   }
+`;
+
+const ProifileNotClipTitleWrap = styled.div`
+  display: flex;
+`;
+
+const ProifileNotClipTitle = styled.div`
+  font: ${({ theme }) => theme.fontSizes.Body5};
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 `;
 
 export default ProfileClipListBody;

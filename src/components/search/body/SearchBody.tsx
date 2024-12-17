@@ -1,3 +1,4 @@
+import { MEDIA_MOBILE_MAX_WIDTH } from 'const/SystemAttrConst';
 import { QueryStateSearchFavoriteTermList } from 'hook/queryhook/QueryStateSearchFavoriteTermList';
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -15,9 +16,13 @@ import ScrollXMoveButtonContainer from '../../common/buttton/ScrollXMoveButtonCo
 
 interface SearchBodyProps {
   SearchBodyStyle?: React.CSSProperties;
+  isDisplayFavoriteTerm?: boolean;
 }
 
-const SearchBody: React.FC<SearchBodyProps> = ({ SearchBodyStyle }) => {
+const SearchBody: React.FC<SearchBodyProps> = ({
+  SearchBodyStyle,
+  isDisplayFavoriteTerm = true,
+}) => {
   const naviate = useNavigate();
   const [recommTagList, setRecommTagList] = useRecoilState(recommTagListAtom);
   const { data } = QueryStateSearchFavoriteTermList();
@@ -48,7 +53,7 @@ const SearchBody: React.FC<SearchBodyProps> = ({ SearchBodyStyle }) => {
   return (
     <>
       <SearchBodyContainer style={SearchBodyStyle}>
-        {data !== undefined && data.length > 0 && (
+        {isDisplayFavoriteTerm && data !== undefined && data.length > 0 && (
           <SearchFavoriteTermContainer>
             <FavoriteTermListWrap>
               <FavoriteTermListTitle>즐겨찾는 검색어</FavoriteTermListTitle>
@@ -126,7 +131,9 @@ const SearchRelatedTitle = styled.div`
 `;
 
 const SearchSuggestItemListContainer = styled.div`
-  padding-bottom: 20px;
+  @media (max-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
+    padding-bottom: ${({ theme }) => theme.systemSize.bottomNavBar.height};
+  }
 `;
 const SearchSuggestItemListWrap = styled.div`
   display: grid;
@@ -174,11 +181,11 @@ const FavoriteTermListTitle = styled(SearchRelatedTitle)`
 
 const FavoriteTermListEdit = styled.div`
   font: ${({ theme }) => theme.fontSizes.Subhead2};
+  font-size: 15px;
   margin: auto 0;
   text-decoration-line: underline;
   letter-spacing: -0.3px;
   text-underline-offset: 2px;
-  font-weight: 600;
   cursor: pointer;
 `;
 

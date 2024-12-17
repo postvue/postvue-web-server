@@ -70,6 +70,7 @@ const SearchInput = styled.input`
   padding-left: 7px;
 
   font: ${({ theme }) => theme.fontSizes.Body3};
+  font-size: 15px;
   color: ${({ theme }) => theme.grey.Grey6};
 
   &: focus {
@@ -82,7 +83,7 @@ const SearchInput = styled.input`
 
 const DeleteSearchButton = styled.div`
   display: flex;
-  padding-right: 10px;
+  padding-right: 5px;
   cursor: pointer;
 `;
 

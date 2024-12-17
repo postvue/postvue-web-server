@@ -4,12 +4,12 @@ import {
 } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { PAGE_NUM } from 'const/PageConfigConst';
-import { QUERY_STATE_PROFILE_POST_LIST } from 'const/QueryClientConst';
-import { ProfileScrapList } from 'global/interface/profile';
+import { QUERY_STATE_PROFILE_SCRAP_LIST } from 'const/QueryClientConst';
+import { ProfileThumbnailScrapList } from 'global/interface/profile';
 import { getProfileScrapList } from 'services/profile/getProfileScrapList';
 
 export interface SearchPostQueryInterface {
-  pages: ProfileScrapList[][];
+  pages: ProfileThumbnailScrapList[][];
   pageParams: unknown[];
 }
 
@@ -18,12 +18,12 @@ export const QueryStateProfileScrapList = (): UseInfiniteQueryResult<
   AxiosError<unknown, any>
 > => {
   return useInfiniteQuery<
-    ProfileScrapList[],
+    ProfileThumbnailScrapList[],
     AxiosError,
     SearchPostQueryInterface,
     [string]
   >({
-    queryKey: [QUERY_STATE_PROFILE_POST_LIST], // query key
+    queryKey: [QUERY_STATE_PROFILE_SCRAP_LIST], // query key
     queryFn: async ({ pageParam }) => {
       // pageParam이 string인지 확인
 

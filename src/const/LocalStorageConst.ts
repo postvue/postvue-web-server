@@ -13,8 +13,8 @@ export const RECENTLY_KEYWORD_LIST = 'recently-keyword-list';
 
 // 알림
 export const NOTIFICATION_MSG_LIST = 'notification-msg-list';
-export const NOTIFICATION_LAST_READ_DATE_TIME =
-  'notification-last-read-datetime';
+// export const NOTIFICATION_LAST_READ_DATE_TIME =
+//   'notification-last-read-datetime';
 
 // 지도 페이지
 export const MAP_RECENTLY_SEARCH_WORD_LIST_LOCAL_STORAGE =

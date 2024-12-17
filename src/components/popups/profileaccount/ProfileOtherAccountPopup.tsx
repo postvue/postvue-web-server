@@ -1,28 +1,37 @@
-import WindowResizeSenceComponent from 'components/common/container/WindowResizeSenseComponent';
-import PopupLayout from 'components/layouts/PopupLayout';
+import BottomSheetLayout from 'components/layouts/BottomSheetLayout';
 import ProfileOtherAccountPopupBody from 'components/profile/profileaccount/ProfileOtherAccountPopupBody';
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
-import React, { useState } from 'react';
-import { useSetRecoilState } from 'recoil';
+import useWindowSize from 'hook/customhook/useWindowSize';
+import React from 'react';
+import { useRecoilState } from 'recoil';
 import { isActiveProfileAccountPopupAtom } from 'states/ProfileAtom';
 import styled from 'styled-components';
 
 const ProfileOtherAccountPopup: React.FC = () => {
-  const setIsActiveProfileAccountPopup = useSetRecoilState(
-    isActiveProfileAccountPopupAtom,
-  );
+  const [isActiveProfileAccountPopup, setIsActiveProfileAccountPopup] =
+    useRecoilState(isActiveProfileAccountPopupAtom);
 
-  const [windowSize, setWindowSize] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
-  });
+  const { windowWidth } = useWindowSize();
 
   return (
     <>
-      {windowSize.width <= MEDIA_MOBILE_MAX_WIDTH_NUM && (
-        <PopupLayout
-          setIsPopup={setIsActiveProfileAccountPopup}
-          popupWrapStyle={{ height: 'auto' }}
+      {windowWidth <= MEDIA_MOBILE_MAX_WIDTH_NUM && (
+        // <PopupLayout
+        //   setIsPopup={setIsActiveProfileAccountPopup}
+        //   popupWrapStyle={{ height: 'auto' }}
+        // >
+        //   <SettingPopupWrap
+        //     onClick={(e) => {
+        //       e.stopPropagation();
+        //     }}
+        //   >
+        //     <ProfileOtherAccountPopupBody />
+        //   </SettingPopupWrap>
+        // </PopupLayout>
+        <BottomSheetLayout
+          isOpen={isActiveProfileAccountPopup}
+          onClose={() => setIsActiveProfileAccountPopup(false)}
+          heightNum={300}
         >
           <SettingPopupWrap
             onClick={(e) => {
@@ -31,9 +40,8 @@ const ProfileOtherAccountPopup: React.FC = () => {
           >
             <ProfileOtherAccountPopupBody />
           </SettingPopupWrap>
-        </PopupLayout>
+        </BottomSheetLayout>
       )}
-      <WindowResizeSenceComponent setWindowSize={setWindowSize} />
     </>
   );
 };
@@ -42,7 +50,6 @@ const SettingPopupWrap = styled.div`
   bottom: 0;
   height: auto;
 
-  margin-top: 50px;
   padding-bottom: 50px;
   width: 100%;
   background: white;

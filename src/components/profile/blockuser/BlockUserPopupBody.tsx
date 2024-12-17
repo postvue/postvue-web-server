@@ -93,7 +93,7 @@ const BlockUserPopupBody: React.FC<BlockUserPopupBodyProps> = ({
 };
 
 const ProfileNameBlockWrap = styled.div`
-  padding: 50px 0 28px 0;
+  padding: 0 0 28px 0;
   display: flex;
   justify-content: center;
 `;
@@ -116,10 +116,8 @@ const ProfileBlockDescContent = styled.div`
 `;
 
 const ScrapMakeButtonWrap = styled.div`
-  bottom: 45px;
-  position: absolute;
+  padding-top: 40px;
   width: 100%;
-  max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
 `;
 
 const ScrapMakeButton = styled.div`

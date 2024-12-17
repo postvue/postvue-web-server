@@ -1,17 +1,25 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
-import ProfilePostDetailPopup from 'components/popups/ProfilePostDeatilPopup';
-import { useRecoilState } from 'recoil';
-import { isPostDetailInfoPopupAtom } from 'states/PostAtom';
-import BottomNavBar from '../components/BottomNavBar';
-import HomeBody from '../components/home/HomeBody';
+import BottomNavBar from 'components/BottomNavBar';
+import HomeBody from 'components/home/HomeBody';
+import useWindowScrollY from 'hook/customhook/useWindowScrollY';
+import { useLocation } from 'react-router-dom';
 import HomeHeader from '../components/home/header/HomeHeader';
 import AppBaseTemplate from '../components/layouts/AppBaseTemplate';
 
 const HomePage: React.FC = () => {
-  const [isPostDetailInfoPopup, setIsPostDetailInfoPopup] = useRecoilState(
-    isPostDetailInfoPopupAtom,
-  );
+  const location = useLocation();
+  const { scrollInfos, scrollRemove } = useWindowScrollY({
+    path: location.pathname,
+  });
+
+  // 스크롤 위치 저장 및 복원
+  useEffect(() => {
+    setTimeout(() => {
+      window.scrollTo({ top: scrollInfos });
+      scrollRemove();
+    }, 30);
+  }, [location.pathname]);
 
   return (
     <AppBaseTemplate>
@@ -23,7 +31,6 @@ const HomePage: React.FC = () => {
         </PostContainer> */}
       <HomeBody />
       <BottomNavBar />
-      {isPostDetailInfoPopup && <ProfilePostDetailPopup />}
     </AppBaseTemplate>
   );
 };

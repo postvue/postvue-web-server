@@ -8,12 +8,9 @@ import { ACTIVE_CLASS_NAME } from 'const/ClassNameConst';
 import { SEARCH_POST_PATH } from 'const/PathConst';
 import { SEARCH_POST_FILTER_QUERY_PARAM } from 'const/QueryParamConst';
 import { isValidString } from 'global/util/ValidUtil';
-import { QueryStatePostSearchListInfinite } from 'hook/queryhook/QueryStatePostSearchListInfinite';
-import SearchPostListInfiniteScroll from 'hook/SearchPostListInfiniteScroll';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilValue } from 'recoil';
 import {
-  isActiveSearchPostFilterPopupAtom,
   searchQueryAndFilterKeyAtom,
   searchWordAtom,
 } from 'states/SearchPostAtom';
@@ -30,7 +27,20 @@ import {
 } from '../../../const/TabConfigConst';
 import theme from '../../../styles/theme';
 
-import { ReactComponent as PostSearchFilterButtonIcon } from 'assets/images/icon/svg/post/PostSearchFilterButtonIcon.svg';
+import NoResultComponent from 'components/common/container/NoResultComponent';
+import {
+  MEDIA_MOBILE_MAX_WIDTH,
+  MEDIA_MOBILE_MAX_WIDTH_NUM,
+} from 'const/SystemAttrConst';
+import { getCurrentPositionAsync } from 'global/util/PositionUtil';
+import useWindowSize from 'hook/customhook/useWindowSize';
+import { QueryStateSearchPostNearListInfinite } from 'hook/queryhook/QueryStateSearchPostNearListInfinite';
+import { QueryStateSearchPostPopularListInfinite } from 'hook/queryhook/QueryStateSearchPostPopularListInfinite';
+import { QueryStateSearchPostRecentlyListInfinite } from 'hook/queryhook/QueryStateSearchPostRecentlyListInfinite';
+import SearchPostNearListInfiniteScroll from 'hook/SearchPostNearListInfiniteScroll';
+import SearchPostPopularListInfiniteScroll from 'hook/SearchPostPopularListInfiniteScroll';
+import SearchPostRecentlyListInfiniteScroll from 'hook/SearchPostRecentlyListInfiniteScroll';
+import SearchFilterButton from './SearchFilterButton';
 
 const SearchPostBody: React.FC = () => {
   // navigate 객체
@@ -59,31 +69,69 @@ const SearchPostBody: React.FC = () => {
   ];
 
   const [queryParam] = useSearchParams();
-  const [searchPostFilterTab, setSearchPostFilterTab] = useState<string>(
-    searchPostTabList[0].queryParam,
+  const [searchPostFilterTab, setSearchPostFilterTab] = useState<string>('');
+
+  const [currentPosition, setCurrentPosition] = useState<{
+    latitude?: number;
+    longitude?: number;
+  }>({
+    latitude: undefined,
+    longitude: undefined,
+  });
+
+  const {
+    data: searchPostPopularList,
+    isFetched: isFetchedBySearchPostPopular,
+  } = QueryStateSearchPostPopularListInfinite(
+    searchQueryAndFilterKey,
+    searchPostFilterTab === SEARCH_POST_POPULAR_QUERY_PARAM,
   );
 
-  const { data } = QueryStatePostSearchListInfinite(searchQueryAndFilterKey);
+  const { data: searchPostNearList, isFetched: isFetchedBySearchPostNear } =
+    QueryStateSearchPostNearListInfinite(
+      searchQueryAndFilterKey,
+      searchPostFilterTab === SEARCH_POST_MY_NEAR_QUERY_PARAM,
+      currentPosition.latitude,
+      currentPosition.longitude,
+    );
 
-  const setIsActiveSearchPostFilterPopup = useSetRecoilState(
-    isActiveSearchPostFilterPopupAtom,
+  const {
+    data: searchPostRecentlyList,
+    isFetched: isFetchedBySearchPostRecently,
+  } = QueryStateSearchPostRecentlyListInfinite(
+    searchQueryAndFilterKey,
+    searchPostFilterTab === SEARCH_POST_LASTEST_QUERY_PARAM,
   );
+
+  const { windowWidth } = useWindowSize();
 
   useEffect(() => {
     setSearchPostFilterTab(
       queryParam.get(SEARCH_POST_FILTER_QUERY_PARAM) ||
         searchPostTabList[0].queryParam,
     );
+    if (
+      queryParam.get(SEARCH_POST_FILTER_QUERY_PARAM) ===
+      SEARCH_POST_MY_NEAR_QUERY_PARAM
+    ) {
+      getCurrentPositionAsync().then((value) => {
+        setCurrentPosition({
+          latitude: value.latitude,
+          longitude: value.longitude,
+        });
+      });
+    }
   }, [queryParam]);
 
   return (
-    <SearchPostBodyContinaer>
+    <>
       <SearchFilterContainer>
         <SearchFilterWrap>
-          {searchPostTabList.map((v, i) => (
+          {searchPostTabList.map((v) => (
             <BorderCircleButton
               key={v.tabId}
               contentText={v.tabName}
+              BorderCircleButtonStyle={{ fontSize: '15px' }}
               className={
                 searchPostFilterTab === v.queryParam ? ACTIVE_CLASS_NAME : ''
               }
@@ -106,29 +154,92 @@ const SearchPostBody: React.FC = () => {
             />
           ))}
         </SearchFilterWrap>
-        <SearchPostFilterButtonWrap
-          onClick={() => setIsActiveSearchPostFilterPopup(true)}
-        >
-          <PostSearchFilterButtonIcon />
-        </SearchPostFilterButtonWrap>
+        {windowWidth < MEDIA_MOBILE_MAX_WIDTH_NUM && <SearchFilterButton />}
       </SearchFilterContainer>
-      <SearchPostContainer>
-        {data && (
-          <SnsPostMasonryLayout
-            snsPostList={data.pages.flatMap((page) =>
-              page.snsPostRspList.map((v) => v),
-            )}
-          />
-        )}
-        <SearchPostListInfiniteScroll
-          searchQueryAndFilterKey={searchQueryAndFilterKey}
-        />
-      </SearchPostContainer>
-    </SearchPostBodyContinaer>
+      <SearchPostBodyContinaer>
+        <SearchPostContainer>
+          {searchPostFilterTab === SEARCH_POST_POPULAR_QUERY_PARAM && (
+            <>
+              {isFetchedBySearchPostPopular && (
+                <>
+                  {!!searchPostPopularList &&
+                  searchPostPopularList.pages.flatMap(
+                    (value) => value.snsPostRspList,
+                  ).length > 0 ? (
+                    <SnsPostMasonryLayout
+                      snsPostList={searchPostPopularList.pages.flatMap((page) =>
+                        page.snsPostRspList.map((v) => v),
+                      )}
+                    />
+                  ) : (
+                    <NoResultComponent />
+                  )}
+                </>
+              )}
+              <SearchPostPopularListInfiniteScroll
+                searchQueryAndFilterKey={searchQueryAndFilterKey}
+              />
+            </>
+          )}
+          {searchPostFilterTab === SEARCH_POST_LASTEST_QUERY_PARAM && (
+            <>
+              {isFetchedBySearchPostRecently && (
+                <>
+                  {!!searchPostRecentlyList &&
+                  searchPostRecentlyList.pages.flatMap(
+                    (value) => value.snsPostRspList,
+                  ).length > 0 ? (
+                    <SnsPostMasonryLayout
+                      snsPostList={searchPostRecentlyList.pages.flatMap(
+                        (page) => page.snsPostRspList.map((v) => v),
+                      )}
+                    />
+                  ) : (
+                    <NoResultComponent />
+                  )}
+                </>
+              )}
+              <SearchPostRecentlyListInfiniteScroll
+                searchQueryAndFilterKey={searchQueryAndFilterKey}
+              />
+            </>
+          )}
+          {searchPostFilterTab === SEARCH_POST_MY_NEAR_QUERY_PARAM && (
+            <>
+              {isFetchedBySearchPostNear && (
+                <>
+                  {!!searchPostNearList &&
+                  searchPostNearList.pages.flatMap(
+                    (value) => value.snsPostRspList,
+                  ).length > 0 ? (
+                    <SnsPostMasonryLayout
+                      snsPostList={searchPostNearList.pages.flatMap((page) =>
+                        page.snsPostRspList.map((v) => v),
+                      )}
+                    />
+                  ) : (
+                    <NoResultComponent />
+                  )}
+                </>
+              )}
+              {!!currentPosition.latitude && !!currentPosition.longitude && (
+                <SearchPostNearListInfiniteScroll
+                  searchQueryAndFilterKey={searchQueryAndFilterKey}
+                  latitude={currentPosition.latitude}
+                  longitude={currentPosition.longitude}
+                />
+              )}
+            </>
+          )}
+        </SearchPostContainer>
+      </SearchPostBodyContinaer>
+    </>
   );
 };
 
-const SearchPostBodyContinaer = styled.div``;
+const SearchPostBodyContinaer = styled.div`
+  height: 100%;
+`;
 
 const SearchFilterWrap = styled.div`
   padding: 6px;
@@ -137,23 +248,23 @@ const SearchFilterWrap = styled.div`
 `;
 
 const SearchFilterContainer = styled.div`
-  position: sticky;
+  position: fixed;
+  max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
+  @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
+    max-width: ${({ theme }) => theme.systemSize.appDisplaySize.widthByPc};
+  }
   z-index: 10;
   width: 100%;
   top: ${({ theme }) => theme.systemSize.header.height};
   background-color: ${({ theme }) => theme.mainColor.White};
+  height: ${({ theme }) => theme.systemSize.header.height};
 
   display: flex;
   justify-content: space-between;
 `;
 
 const SearchPostContainer = styled.div`
-  padding-top: 10px;
-`;
-
-const SearchPostFilterButtonWrap = styled.div`
-  margin: auto 10px auto 0px;
-  display: flex;
+  margin-top: ${({ theme }) => theme.systemSize.header.heightNumber * 1}px;
 `;
 
 export default SearchPostBody;

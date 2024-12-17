@@ -24,8 +24,8 @@ const ProfileScarpInfiniteScrollBeta: React.FC<
   const callback = () => {
     getProfileScrap(cursorNum, scrapId)
       .then((res) => {
-        if (res.myScrapPostList.length > 0) {
-          setMyProfileScrap((prev) => [...prev, ...res.myScrapPostList]);
+        if (res.scrapPostList.length > 0) {
+          setMyProfileScrap((prev) => [...prev, ...res.scrapPostList]);
         }
 
         setCursorNum(res.cursorId);

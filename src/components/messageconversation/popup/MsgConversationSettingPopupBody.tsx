@@ -1,8 +1,10 @@
+import { queryClient } from 'App';
 import {
   MSG_BLOCK_LIST_MANAGE_PATH,
   MSG_HIDDEN_LIST_MANAGE_PATH,
   PROFILE_LIST_PATH,
 } from 'const/PathConst';
+import { QUERY_STATE_MSG_INBOX_LIST } from 'const/QueryClientConst';
 import { ProfileInfoByDirectMsg } from 'global/interface/profile';
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -21,13 +23,19 @@ const MsgConversationSettingPopupBody: React.FC<
 
   const onClickHidingUser = (targetUserId: string) => {
     putHiddenUser(targetUserId).then(() => {
-      navigate(MSG_HIDDEN_LIST_MANAGE_PATH);
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_STATE_MSG_INBOX_LIST],
+      });
+      navigate(MSG_HIDDEN_LIST_MANAGE_PATH, { replace: true });
     });
   };
 
   const onClickBlockingUser = (targetUserId: string) => {
     putBlockingUser(targetUserId).then(() => {
-      navigate(MSG_BLOCK_LIST_MANAGE_PATH);
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_STATE_MSG_INBOX_LIST],
+      });
+      navigate(MSG_BLOCK_LIST_MANAGE_PATH, { replace: true });
     });
   };
   return (
@@ -59,7 +67,7 @@ const MsgConversationSettingPopupBody: React.FC<
 };
 
 const MsgSettingContainer = styled.div`
-  padding: 50px 0 50px 20px;
+  padding: 0px 0 20px 20px;
   display: flex;
   gap: 28px;
   flex-flow: column;

@@ -10,19 +10,19 @@ import {
   GetTasteForMeListRsp,
 } from 'services/post/home/getFollowForMeList';
 
-export interface ProfilePostListQueryInterface {
+export interface FollowForMeListQueryInterface {
   pages: GetTasteForMeListRsp[];
   pageParams: unknown[];
 }
 
 export const QueryStateFollowForMeListInfinite = (): UseInfiniteQueryResult<
-  ProfilePostListQueryInterface,
+  FollowForMeListQueryInterface,
   AxiosError<unknown, any>
 > => {
   return useInfiniteQuery<
     GetTasteForMeListRsp,
     AxiosError,
-    ProfilePostListQueryInterface,
+    FollowForMeListQueryInterface,
     [string]
   >({
     queryKey: [QUERY_STATE_FOLLOW_FOR_ME_LIST], // query key

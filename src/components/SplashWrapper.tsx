@@ -36,7 +36,7 @@ const splashScreenStyle = {
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
-  height: '100vh',
+  height: '100dvh',
   backgroundColor: 'white',
   color: 'white',
 };

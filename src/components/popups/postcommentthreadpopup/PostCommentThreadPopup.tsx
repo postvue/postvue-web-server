@@ -5,9 +5,9 @@ import {
   PostRsp,
 } from '../../../global/interface/post';
 
-import WindowResizeSenceComponent from 'components/common/container/WindowResizeSenseComponent';
 import RoundSquareCenterPopupLayout from 'components/layouts/RoundSquareCenterPopupLayout';
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
+import useWindowSize from 'hook/customhook/useWindowSize';
 import { activeCommentByPostCommentThreadAtom } from '../../../states/PostThreadAtom';
 import PopupLayout from '../../layouts/PopupLayout';
 import PostCommentThreadPopupBody from './PostCommentThreadPopupBody';
@@ -33,7 +33,7 @@ interface PostCommentThreadProps {
     [key: string]: HTMLDivElement | null;
   }>;
 }
-const PostCommentThread: React.FC<PostCommentThreadProps> = ({
+const PostCommentThreadPopup: React.FC<PostCommentThreadProps> = ({
   snsPost,
   postCommentTextareaRef,
   replyMsg,
@@ -52,10 +52,7 @@ const PostCommentThread: React.FC<PostCommentThreadProps> = ({
     activeCommentByPostCommentThread.isActive,
   );
 
-  const [windowSize, setWindowSize] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
-  });
+  const { windowWidth } = useWindowSize();
 
   useEffect(() => {
     if (!isActiveThreadPopup) {
@@ -73,9 +70,9 @@ const PostCommentThread: React.FC<PostCommentThreadProps> = ({
 
   return (
     <>
-      {windowSize.width > MEDIA_MOBILE_MAX_WIDTH_NUM ? (
+      {windowWidth > MEDIA_MOBILE_MAX_WIDTH_NUM ? (
         <RoundSquareCenterPopupLayout
-          setIsPopup={setIsActiveThreadPopup}
+          onClose={() => setIsActiveThreadPopup(false)}
           popupWrapStyle={{ height: '90%' }}
         >
           <PostCommentThreadPopupBody
@@ -92,7 +89,7 @@ const PostCommentThread: React.FC<PostCommentThreadProps> = ({
         </RoundSquareCenterPopupLayout>
       ) : (
         <PopupLayout
-          setIsPopup={setIsActiveThreadPopup}
+          onClose={() => setIsActiveThreadPopup(false)}
           isTouchScrollBar={false}
           popupOverLayContainerStyle={popupWrapStyle}
           hasTransparentOverLay={true}
@@ -112,10 +109,8 @@ const PostCommentThread: React.FC<PostCommentThreadProps> = ({
           />
         </PopupLayout>
       )}
-
-      <WindowResizeSenceComponent setWindowSize={setWindowSize} />
     </>
   );
 };
 
-export default PostCommentThread;
+export default PostCommentThreadPopup;

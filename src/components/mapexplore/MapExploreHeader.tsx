@@ -5,17 +5,25 @@ interface MapExploreHeaderProps {
   address: string;
   MapExploreActiveHeaderStyle?: React.CSSProperties;
   MapExploreNotActiveHeaderStyle?: React.CSSProperties;
+  SearchButtonInputLayoutActiveStyle?: React.CSSProperties;
+  SearchButtonInputLayoutNotActiveStyle?: React.CSSProperties;
 }
 
 const MapExploreHeader: React.FC<MapExploreHeaderProps> = ({
   address,
   MapExploreActiveHeaderStyle,
   MapExploreNotActiveHeaderStyle,
+  SearchButtonInputLayoutActiveStyle,
+  SearchButtonInputLayoutNotActiveStyle,
 }) => {
   return (
     <MapExploreSearchHeader
       MapExploreHeaderActiveContainer={MapExploreActiveHeaderStyle}
       MapExploreHeaderNotActiveContainer={MapExploreNotActiveHeaderStyle}
+      SearchButtonInputLayoutActiveStyle={SearchButtonInputLayoutActiveStyle}
+      SearchButtonInputLayoutNotActiceStyle={
+        SearchButtonInputLayoutNotActiveStyle
+      }
       address={address}
     />
   );

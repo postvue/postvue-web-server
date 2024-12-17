@@ -1,4 +1,5 @@
 import SplashWrapper from 'components/SplashWrapper';
+import EditScrapPage from 'pages/EditScrapPage';
 import LoginPage from 'pages/LoginPage';
 import MapExplorePage from 'pages/MapExplorePage';
 import MessageDirectConversationPage from 'pages/MessageDirectConversationPage';
@@ -17,8 +18,13 @@ import ProfileAccountSettingPage from 'pages/ProfileAccountSettingPage';
 import ProfileAccountSettingPrivacyPage from 'pages/ProfileAccountSettingPrivacyPage';
 import ProfileBlockedUserListManagePage from 'pages/ProfileBlockedUserListManagePage';
 import ProfileFollowListPage from 'pages/ProfileFolllowListPage';
+import ProfilePostPage_ from 'pages/ProfilePostPage_';
+import ProfileScrapPage from 'pages/ProfileScrapPage';
 import SearchFavoriteTermEditPage from 'pages/SearchFavoriteTermEditPage';
+import SearchProfilePage from 'pages/SearchProfilePage';
+import SearchScrapPage from 'pages/SearchScrapPage';
 import SignupPage from 'pages/SignupPage';
+import TestPage from 'pages/TestPage';
 import React from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import {
@@ -37,6 +43,7 @@ import {
   PROFILE_CLIP_LIST_PATH,
   PROFILE_DELETE_ACCOUNT_PATH,
   PROFILE_EDIT_PATH,
+  PROFILE_EDIT_SCRAP_ROUTE_PATH,
   PROFILE_EMAIL_EDIT_PATH,
   PROFILE_FOLLOW_LIST_PATH,
   PROFILE_GENDER_EDIT_PATH,
@@ -53,6 +60,8 @@ import {
   SEARCH_FAVORITE_LIST_PATH,
   SEARCH_PATH,
   SEARCH_POST_ROUTE_PATH,
+  SEARCH_PROFILE_ROUTE_PATH,
+  SEARCH_SCRAP_ROUTE_PATH,
   SIGNUP_PATH,
 } from './const/PathConst';
 import HomePage from './pages/HomePage';
@@ -61,10 +70,8 @@ import MessageInboxPage from './pages/MessageInboxPage';
 import MsgBlockListManagePage from './pages/MsgBlockListManagePage';
 import MsgHiddenListManagePage from './pages/MsgHiddenListManagePage';
 import MyProfileClipPage from './pages/MyProfileClipListPage';
-import MyProfileScrap from './pages/MyProfileScrap';
 import MyProfileScrapListPage from './pages/MyProfileScrapListPage';
 import ProfileAccountPage from './pages/ProfileAccountPage';
-import ProfilePostPage from './pages/ProfilePostPage';
 import SearchPage from './pages/SearchPage';
 import SearchPostPage from './pages/SearchPostPage';
 
@@ -74,9 +81,14 @@ const AppRouter: React.FC = (): JSX.Element => {
       <SplashWrapper>
         <Routes>
           <Route path={HOME_PATH} element={<HomePage />} />
-          <Route path={PROFILE_POST_LIST_PATH} element={<ProfilePostPage />} />
+          <Route path={PROFILE_POST_LIST_PATH} element={<ProfilePostPage_ />} />
           <Route path={SEARCH_PATH} element={<SearchPage />} />
           <Route path={SEARCH_POST_ROUTE_PATH} element={<SearchPostPage />} />
+          <Route
+            path={SEARCH_PROFILE_ROUTE_PATH}
+            element={<SearchProfilePage />}
+          />
+          <Route path={SEARCH_SCRAP_ROUTE_PATH} element={<SearchScrapPage />} />
           <Route path={MESSAGE_INBOX_PATH} element={<MessageInboxPage />} />
           <Route
             path={MESSAGE_CONVERSTAION_PATH}
@@ -90,8 +102,12 @@ const AppRouter: React.FC = (): JSX.Element => {
             path={PROFILE_SCRAP_LIST_PATH}
             element={<MyProfileScrapListPage />}
           />
-          <Route path={PROFILE_SCRAP_PATH} element={<MyProfileScrap />} />
+          <Route path={PROFILE_SCRAP_PATH} element={<ProfileScrapPage />} />
           <Route path={PROFILE_NEW_SCRAP_PATH} element={<MakeScrapPage />} />
+          <Route
+            path={PROFILE_EDIT_SCRAP_ROUTE_PATH}
+            element={<EditScrapPage />}
+          />
           <Route path={PROFILE_ACCOUNT_PATH} element={<ProfileAccountPage />} />
           <Route
             path={MSG_BLOCK_LIST_MANAGE_PATH}
@@ -164,6 +180,11 @@ const AppRouter: React.FC = (): JSX.Element => {
           <Route path={NOTIFICATION_LIST_PATH} element={<NotificatinoPage />} />
           <Route path={EXPLORE_PATH} element={<MapExplorePage />} />
           <Route path={PROFILE_POST_EDIT_PATH} element={<PostEditPage />} />
+          <Route path={'/test'} element={<TestPage />} />
+          {/* <Route
+            path="*"
+            element={<Navigate to="/?show_error=true" replace />}
+          /> */}
         </Routes>
       </SplashWrapper>
     </BrowserRouter>

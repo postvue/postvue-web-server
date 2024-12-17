@@ -34,7 +34,7 @@ const MsgBlockHiddenManagePopupBody: React.FC<
 };
 
 const BlockedHiddenManageContainer = styled.div`
-  margin: 50px 0 50px 20px;
+  margin: 0px 0 20px 20px;
   z-index: 100;
 `;
 const BlockedHiddenManageWrap = styled.div`

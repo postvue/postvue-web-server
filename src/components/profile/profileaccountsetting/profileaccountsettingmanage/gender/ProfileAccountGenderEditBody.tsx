@@ -22,6 +22,8 @@ const ProfileAccountGenderEditBody: React.FC = () => {
   const { data } = QueryStateMyProfileInfo();
   const [gender, setGender] = useState<string>(SIGNUP_GENDER_FEMALE_CATEGORY);
 
+  const [loading, setLoading] = useState<boolean>(true);
+
   const putProfileGenderInfoMutation = QueryMutationPutMyProfileGenderInfo();
 
   const genderCategoryList = [
@@ -46,38 +48,41 @@ const ProfileAccountGenderEditBody: React.FC = () => {
 
   useEffect(() => {
     setGender(data?.gender || INIT_EMPTY_STRING_VALUE);
+    setLoading(false);
   }, [data]);
 
   return (
     <>
-      <ProfileEditEmailContainer>
-        <ProfileGenderEditContainer>
-          {genderCategoryList.map((value, key) => (
-            <ProfileGenderEditItemWrap
-              key={key}
-              onClick={() => setGender(value.value)}
-            >
-              <ProfileGenderEditTitle>{value.titleName}</ProfileGenderEditTitle>
-              <ProfileGenderEditCheckWarp>
-                {gender === value.value ? (
-                  <GenderCategoryCheckIcon />
-                ) : (
-                  <GenderCategoryNotCheckIcon />
-                )}
-              </ProfileGenderEditCheckWarp>
-            </ProfileGenderEditItemWrap>
-          ))}
-        </ProfileGenderEditContainer>
+      {!loading && (
+        <ProfileEditEmailContainer>
+          <ProfileGenderEditContainer>
+            {genderCategoryList.map((value, key) => (
+              <ProfileGenderEditItemWrap
+                key={key}
+                onClick={() => setGender(value.value)}
+              >
+                <ProfileGenderEditTitle>
+                  {value.titleName}
+                </ProfileGenderEditTitle>
+                <ProfileGenderEditCheckWarp>
+                  {gender === value.value ? (
+                    <GenderCategoryCheckIcon />
+                  ) : (
+                    <GenderCategoryNotCheckIcon />
+                  )}
+                </ProfileGenderEditCheckWarp>
+              </ProfileGenderEditItemWrap>
+            ))}
+          </ProfileGenderEditContainer>
 
-        <BottomNextButton
-          title={SETTING_EDIT_BUTTON_PHASE_TEXT}
-          notActiveTitle={SETTING_EDIT_BUTTON_PHASE_TEXT}
-          isActive={genderCategoryList
-            .map((value) => value.value)
-            .includes(gender)}
-          actionFunc={onClickEditGender}
-        />
-      </ProfileEditEmailContainer>
+          <BottomNextButton
+            title={SETTING_EDIT_BUTTON_PHASE_TEXT}
+            notActiveTitle={SETTING_EDIT_BUTTON_PHASE_TEXT}
+            isActive={(data?.gender || '') !== gender}
+            actionFunc={onClickEditGender}
+          />
+        </ProfileEditEmailContainer>
+      )}
     </>
   );
 };
@@ -97,6 +102,7 @@ const ProfileGenderEditContainer = styled.div`
 const ProfileGenderEditItemWrap = styled.div`
   display: flex;
   justify-content: space-between;
+  cursor: pointer;
 `;
 
 const ProfileGenderEditCheckWarp = styled.div`

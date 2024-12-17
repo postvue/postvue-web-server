@@ -1,46 +1,32 @@
-import WindowResizeSenceComponent from 'components/common/container/WindowResizeSenseComponent';
+import MyAccountSettingInfoState from 'components/common/state/MyAccountSettingInfoState';
 import RoundSquareCenterPopupLayout from 'components/layouts/RoundSquareCenterPopupLayout';
-import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
-import React, { useState } from 'react';
-import { useSetRecoilState } from 'recoil';
+import React from 'react';
+import { useRecoilState } from 'recoil';
 import { isActivPostComposePopupAtom } from 'states/PostComposeAtom';
-import PopupLayout from '../../layouts/PopupLayout';
-import PostComposePopupBody from './PostComposePopupBody';
-
-const popupWrapStyle: React.CSSProperties = {
-  height: 'auto',
-};
+import PostComposePageBody from './PostComposePageBody';
 
 const PostComposePopup: React.FC = () => {
-  const setIsActivePostComposePopup = useSetRecoilState(
+  const [isActivPostComposePopup, setIsActivPostComposePopup] = useRecoilState(
     isActivPostComposePopupAtom,
   );
 
-  const [windowSize, setWindowSize] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
-  });
-
   return (
     <>
-      {windowSize.width <= MEDIA_MOBILE_MAX_WIDTH_NUM ? (
-        <PopupLayout
-          setIsPopup={setIsActivePostComposePopup}
-          isTouchScrollBar={true}
-          popupWrapStyle={popupWrapStyle}
-        >
-          <PostComposePopupBody />
-        </PopupLayout>
-      ) : (
-        <RoundSquareCenterPopupLayout
-          setIsPopup={setIsActivePostComposePopup}
-          popupWrapStyle={{ height: '250px', width: '400px' }}
-        >
-          <PostComposePopupBody />
-        </RoundSquareCenterPopupLayout>
-      )}
-
-      <WindowResizeSenceComponent setWindowSize={setWindowSize} />
+      <RoundSquareCenterPopupLayout
+        onClose={() => setIsActivPostComposePopup(false)}
+        popupWrapStyle={{ height: '90%' }}
+        isCloseByOverlay={false}
+      >
+        <PostComposePageBody
+          hasTransparentOverLay={true}
+          hasPrevButton={false}
+          actionFuncByCompose={() => setIsActivPostComposePopup(false)}
+          onClose={() => {
+            setIsActivPostComposePopup(false);
+          }}
+        />
+      </RoundSquareCenterPopupLayout>
+      {isActivPostComposePopup && <MyAccountSettingInfoState />}
     </>
   );
 };

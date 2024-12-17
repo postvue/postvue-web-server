@@ -3,7 +3,7 @@ import { PostReportType } from 'const/PostReportConst';
 import { isValidString } from 'global/util/ValidUtil';
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useSetRecoilState } from 'recoil';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 import { createPostReport } from 'services/post/createPostReport';
 import {
   isActivePostComplaintCompletePopupAtom,
@@ -12,12 +12,17 @@ import {
 import styled from 'styled-components';
 import theme from 'styles/theme';
 
-const PostComplaintPopupBody: React.FC = () => {
+interface PostComplainPopup {
+  setIsExternalCloseFunc?: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const PostComplaintPopupBody: React.FC<PostComplainPopup> = ({
+  setIsExternalCloseFunc,
+}) => {
   const param = useParams();
 
-  const setIsActivePostComplaintPopup = useSetRecoilState(
-    isActivePostComplaintPopupAtom,
-  );
+  const [isActivePostComplaintPopup, setIsActivePostComplaintPopup] =
+    useRecoilState(isActivePostComplaintPopupAtom);
 
   const setIsActivePostComplaintCompletePopup = useSetRecoilState(
     isActivePostComplaintCompletePopupAtom,
@@ -39,6 +44,9 @@ const PostComplaintPopupBody: React.FC = () => {
     createPostReport(postId, { postReportReason, postReportReasonType })
       .then(() => {
         setIsActivePostComplaintPopup(false);
+        if (setIsExternalCloseFunc) {
+          setIsExternalCloseFunc(true);
+        }
         setIsActivePostComplaintCompletePopup(true);
       })
       .catch((error) => {
@@ -68,7 +76,7 @@ const PostComplaintPopupBody: React.FC = () => {
             onClickSendComplaint(null, PostReportType.SPAM_OR_SCAM);
           }}
         >
-          스팸, 사기 또는 스팸
+          스팸, 사기 또는 스캠
         </PostComplaintTypeWrap>
         <PostComplaintTypeWrap
           onClick={() => {
@@ -112,7 +120,7 @@ const PostComplaintPopupBody: React.FC = () => {
           />
         </PostComplaintTypeWrap>
       </PostComplaintPopupWrap>
-      <MyAccountSettingInfoState />
+      {isActivePostComplaintPopup && <MyAccountSettingInfoState />}
     </PostComplaintPopupContainer>
   );
 };
@@ -132,7 +140,7 @@ const PostComplaintPopupWrap = styled.div`
 const PostComplaintTitle = styled.div`
   font: ${({ theme }) => theme.fontSizes.Headline1};
   text-align: center;
-  padding: 32px 0 41px 0;
+  padding: 0 0 32px 0;
 `;
 
 const PostComplaintTypeWrap = styled.div`
@@ -153,6 +161,7 @@ const PostReportOtherContentInput = styled.input<{ $isReportError: boolean }>`
   font: ${({ theme }) => theme.fontSizes.Body2};
   color: ${({ theme }) => theme.grey.Grey8};
   width: 100%;
+  padding: 0;
 `;
 
 export default PostComplaintPopupBody;

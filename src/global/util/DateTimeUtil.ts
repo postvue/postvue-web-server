@@ -16,14 +16,17 @@ export const convertDtStrToDTStr = (dateTimeString: string): string => {
   try {
     const dateTime = new Date(dateTimeString);
 
-    const formattedDateTime = `${dateTime.getFullYear()}년 ${String(
-      dateTime.getMonth() + 1,
-    ).padStart(2, '0')}월 ${String(dateTime.getDate()).padStart(
-      2,
-      '0',
-    )}일 \n${String(dateTime.getHours()).padStart(2, '0')}:${String(
-      dateTime.getMinutes(),
-    ).padStart(2, '0')}`;
+    const year = dateTime.getFullYear();
+    const monthNum = dateTime.getMonth() + 1;
+    const month = String(monthNum).padStart(2, '0');
+    const dayNum = dateTime.getDate();
+    const day = String(dayNum).padStart(2, '0');
+    const hourNum = dateTime.getHours();
+    const hour = String(hourNum).padStart(2, '0');
+    const minutesNum = dateTime.getMinutes();
+    const minutes = String(minutesNum).padStart(2, '0');
+
+    const formattedDateTime = `${year}년 ${month}월 ${day}일 \n${hour}시 ${minutes}분`;
     return formattedDateTime;
   } catch (e) {
     return NOT_DATE_TIME;

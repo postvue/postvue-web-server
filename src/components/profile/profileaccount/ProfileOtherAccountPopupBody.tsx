@@ -1,11 +1,11 @@
 import { onClickClipBoardCopyButton } from 'global/util/ToastUtil';
 import React from 'react';
-import { useSetRecoilState } from 'recoil';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 import {
   isActiveProfileAccountPopupAtom,
   isActiveProfileBlockPopupAtom,
 } from 'states/ProfileAtom';
-import { isSharePopupAtom } from 'states/ShareAtom';
+import { sharePopupInfoAtom } from 'states/ShareAtom';
 import styled from 'styled-components';
 
 const ProfileOtherAccountPopupBody: React.FC = () => {
@@ -16,7 +16,8 @@ const ProfileOtherAccountPopupBody: React.FC = () => {
   const setIsActiveProfileBlockPopup = useSetRecoilState(
     isActiveProfileBlockPopupAtom,
   );
-  const setIsSharePopup = useSetRecoilState(isSharePopupAtom);
+  const [shareSharePopupInfo, setSharePopupInfo] =
+    useRecoilState(sharePopupInfoAtom);
   return (
     <SettingPopupContentWrap>
       <SettingPopupContent
@@ -30,7 +31,11 @@ const ProfileOtherAccountPopupBody: React.FC = () => {
       <SettingPopupContent
         onClick={() => {
           setIsActiveProfileAccountPopup(false);
-          setIsSharePopup(true);
+          setSharePopupInfo({
+            isActive: true,
+            shareLink: window.location.href,
+            mainImageUrl: shareSharePopupInfo.mainImageUrl,
+          });
         }}
       >
         프로필 공유

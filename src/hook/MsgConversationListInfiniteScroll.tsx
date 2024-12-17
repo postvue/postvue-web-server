@@ -20,11 +20,11 @@ const MsgConversationListInfiniteScroll: React.FC<
     if (inView && hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
-  }, [inView]); //hasNextPage, isFetchingNextPage
+  }, [inView]);
 
   return (
     <ScrollBottomContainer ref={ref}>
-      <InViewComponent />
+      <InViewComponent inViewBottomNumByPc={66} />
     </ScrollBottomContainer>
   );
 };

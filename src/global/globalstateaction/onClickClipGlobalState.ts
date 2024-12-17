@@ -1,67 +1,102 @@
-import { SetterOrUpdater } from 'recoil';
-
 import { queryClient } from 'App';
 import {
   QUERY_STATE_POST_SCRAP_PREVIEW_LIST,
-  QUERY_STATE_PROFILE_POST_LIST,
+  QUERY_STATE_PROFILE_ACCOUNT_POST_LIST,
+  QUERY_STATE_PROFILE_CLIP_LIST,
+  QUERY_STATE_PROFILE_SCRAP_LIST,
 } from 'const/QueryClientConst';
-import { Location, PostRsp } from 'global/interface/post';
-import { MyProfileClip } from 'global/interface/profile';
+import { PostRsp } from 'global/interface/post';
+import { ProfilePostListQueryInterface } from 'hook/queryhook/QueryStateProfileAccountPostList';
+import { ProfileClipListQueryInterface } from 'hook/queryhook/QueryStateProfileClipListInfinite';
 import 'swiper/css';
 
 export const onClickClipGlobalState = (
+  username: string,
   postId: string,
-  profilePostHashMap: Map<string, PostRsp>,
-  setProfilePostHashMap: SetterOrUpdater<Map<string, PostRsp>>,
-  myProfileClipHashMap: Map<string, MyProfileClip>,
-  setMyProfileClipHashMap: SetterOrUpdater<Map<string, MyProfileClip>>,
   isClipped: boolean,
-  postInfo: {
-    location: Location;
-    postThumbnailContent: string;
-    userId: string;
-    username: string;
-    postedAt: string;
-  },
+  snsPost: PostRsp,
 ): void => {
-  const tempProfilePostHashMap = new Map(profilePostHashMap);
+  // 프로필 계정 페이지 내 상태 변경
+  queryClient.setQueryData(
+    [QUERY_STATE_PROFILE_ACCOUNT_POST_LIST, username],
+    (oldData: ProfilePostListQueryInterface) => {
+      if (!oldData) {
+        return oldData;
+      }
+      return {
+        ...oldData,
+        pages: oldData.pages.map((page) => {
+          // 삭제할 댓글을 제외한 새로운 리스트를 반환
+          const updatedSnsPostRspList = page.snsPostRspList.map(
+            (snsPostRsp) => {
+              if (snsPostRsp.postId === postId) {
+                return { ...snsPostRsp, isClipped: isClipped };
+              } else {
+                return snsPostRsp;
+              }
+            },
+          );
 
-  const tempProfilePost = tempProfilePostHashMap.get(postId);
-  if (tempProfilePost) {
-    tempProfilePostHashMap.set(postId, {
-      ...tempProfilePost,
-      isClipped: isClipped,
-    });
-    setProfilePostHashMap(tempProfilePostHashMap);
-  }
+          return {
+            ...page,
+            snsPostRspList: updatedSnsPostRspList,
+          };
+        }),
+      };
+    },
+  );
 
   if (isClipped) {
-    setMyProfileClipHashMap(
-      new Map([
-        [
-          postId,
-          {
-            postId: postId,
-            location: postInfo.location,
-            postThumbnailContent: postInfo.postThumbnailContent,
-            userId: postInfo.userId,
-            username: postInfo.username,
-            postedAt: postInfo.postedAt,
-          } as MyProfileClip,
-        ],
-        ...Array.from(myProfileClipHashMap),
-      ]),
+    queryClient.setQueryData(
+      [QUERY_STATE_PROFILE_CLIP_LIST],
+      (oldData: ProfileClipListQueryInterface) => {
+        if (!oldData) {
+          return oldData;
+        }
+        return {
+          ...oldData,
+          pages: oldData.pages.map((page) => {
+            // 삭제할 댓글을 제외한 새로운 리스트를 반환
+            const updatedProfileClipList = { ...page.snsPostRspList };
+            updatedProfileClipList.push(snsPost);
+
+            return {
+              ...page,
+              myClipRspList: updatedProfileClipList,
+            };
+          }),
+        };
+      },
     );
   } else {
-    const tempMyProfileClipHashMap = new Map(myProfileClipHashMap);
-    tempMyProfileClipHashMap.delete(postId);
+    queryClient.setQueryData(
+      [QUERY_STATE_PROFILE_CLIP_LIST],
+      (oldData: ProfileClipListQueryInterface) => {
+        if (!oldData) {
+          return oldData;
+        }
+        return {
+          ...oldData,
+          pages: oldData.pages.map((page) => {
+            // 삭제할 댓글을 제외한 새로운 리스트를 반환
+            const updatedProfileClipList = page.snsPostRspList.filter(
+              (value) => value.postId !== postId,
+            );
 
-    setMyProfileClipHashMap(tempMyProfileClipHashMap);
+            return {
+              ...page,
+              myClipRspList: updatedProfileClipList,
+            };
+          }),
+        };
+      },
+    );
   }
-  queryClient.invalidateQueries({
-    queryKey: [QUERY_STATE_PROFILE_POST_LIST],
-  });
+
   queryClient.invalidateQueries({
     queryKey: [QUERY_STATE_POST_SCRAP_PREVIEW_LIST, postId],
+  });
+  queryClient.invalidateQueries({
+    queryKey: [QUERY_STATE_PROFILE_SCRAP_LIST],
   });
 };

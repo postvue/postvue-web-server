@@ -1,9 +1,9 @@
 // 홈 페이지
 export const TASTE_FOR_ME_TAB_NAME = '추천';
-export const TASTE_FOR_ME_TAB_ID = 1;
+export const TASTE_FOR_ME_TAB_ID = 0;
 
 export const FOLLOW_FOR_ME_TAB_NAME = '팔로잉';
-export const FOLLOW_FOR_ME_TAB_ID = 2;
+export const FOLLOW_FOR_ME_TAB_ID = 1;
 
 // 반응 팝업 페이지
 export const POST_REACTION_COMMENT_NAME = '댓글';

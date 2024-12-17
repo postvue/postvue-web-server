@@ -1,7 +1,9 @@
+import { queryClient } from 'App';
+import { QUERY_STATE_MSG_INBOX_LIST } from 'const/QueryClientConst';
+import { MSG_MANAGE_SERACH_INPUT_PHASE_TEXT } from 'const/SystemPhraseConst';
 import React, { useState } from 'react';
 import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
-import { FOLLOW_MANAGE_SERACH_INPUT_PHASE_TEXT } from '../../const/SystemPhraseConst';
 import MsgBlockUserListInfiniteScroll from '../../hook/MsgBlockUserListInfiniteScroll';
 import { putUnblockingUser } from '../../services/message/putUnblockingUser';
 import { msgBlockUserHashMapAtom } from '../../states/MessageAtom';
@@ -18,6 +20,9 @@ const MsgBlockListBody: React.FC = () => {
       const tempMsgBlockUserHashMap = new Map(msgBlockUserHashMap);
       tempMsgBlockUserHashMap.delete(putUnblockingUser.targetUserId);
       setMsgBlockUserHashMap(tempMsgBlockUserHashMap);
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_STATE_MSG_INBOX_LIST],
+      });
     });
   };
 
@@ -33,7 +38,7 @@ const MsgBlockListBody: React.FC = () => {
     <MsgBlockListBodyContainer>
       <MessageSearchContainer>
         <SearchButtonInput
-          placeholder={FOLLOW_MANAGE_SERACH_INPUT_PHASE_TEXT}
+          placeholder={MSG_MANAGE_SERACH_INPUT_PHASE_TEXT}
           onSearchInputChange={onSearchInputChange}
           onClickDelete={onSearchInputDelete}
           value={blockSearchInput}

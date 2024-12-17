@@ -1,8 +1,8 @@
+import BottomSheetLayout from 'components/layouts/BottomSheetLayout';
 import { ProfileInfoByDirectMsg } from 'global/interface/profile';
 import React from 'react';
-import { useSetRecoilState } from 'recoil';
+import { useRecoilState } from 'recoil';
 import { isSettingByMsgConversationAtom } from '../../../states/MessageAtom';
-import PopupLayout from '../../layouts/PopupLayout';
 import MsgConversationSettingPopupBody from './MsgConversationSettingPopupBody';
 
 interface MsgConversationSettingPopupProps {
@@ -12,22 +12,24 @@ interface MsgConversationSettingPopupProps {
 const MsgConversationSettingPopup: React.FC<
   MsgConversationSettingPopupProps
 > = ({ targetProfileInfo }) => {
-  const setIsSettingByMsgConversation = useSetRecoilState(
-    isSettingByMsgConversationAtom,
-  );
+  const [isSettingByMsgConversation, setIsSettingByMsgConversation] =
+    useRecoilState(isSettingByMsgConversationAtom);
 
   return (
-    <PopupLayout
-      setIsPopup={setIsSettingByMsgConversation}
-      popupWrapStyle={PopupWrapStyle}
+    // <PopupLayout
+    //   setIsPopup={setIsSettingByMsgConversation}
+    //   popupWrapStyle={PopupWrapStyle}
+    // >
+    //   <MsgConversationSettingPopupBody targetProfileInfo={targetProfileInfo} />
+    // </PopupLayout>
+    <BottomSheetLayout
+      isOpen={isSettingByMsgConversation}
+      onClose={() => setIsSettingByMsgConversation(false)}
+      heightNum={250}
     >
       <MsgConversationSettingPopupBody targetProfileInfo={targetProfileInfo} />
-    </PopupLayout>
+    </BottomSheetLayout>
   );
-};
-
-const PopupWrapStyle: React.CSSProperties = {
-  height: 'auto',
 };
 
 export default MsgConversationSettingPopup;

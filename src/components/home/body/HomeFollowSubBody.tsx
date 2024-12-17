@@ -81,6 +81,7 @@ const HomeFollowSubBody: React.FC = () => {
 
 const HomeFollowSubBodyContainer = styled.div`
   padding: 0 21px;
+  padding-bottom: ${({ theme }) => theme.systemSize.bottomNavBar.heightNum}px;
 `;
 
 const HomeFollowSubTitleWrap = styled.div`
@@ -95,7 +96,7 @@ const HomeFollowSubscribeMainTitle = styled.div`
 `;
 
 const HomeFollowSubscribeSubTitle = styled.div`
-  font: ${({ theme }) => theme.fontSizes.Body1};
+  font: ${({ theme }) => theme.fontSizes.Body2};
   opacity: 0.6;
 `;
 
@@ -115,9 +116,10 @@ const RecommFollowProfileInfoWrap = styled.div`
 `;
 
 const RecommFollowProfileImg = styled.img`
-  width: 40px;
-  height: 40px;
+  width: 45px;
+  height: 45px;
   border-radius: 40px;
+  object-fit: cover;
 `;
 
 const FollowUsernameNumberWrap = styled.div``;
@@ -138,7 +140,8 @@ const RecommFollowFollowerTitle = styled.div`
 const RecommFollowFollowingTitle = styled(RecommFollowFollowerTitle)``;
 
 const RecommFollowFollowerNum = styled.div`
-  font: ${({ theme }) => theme.fontSizes.Subhead1};
+  font: ${({ theme }) => theme.fontSizes.Body3};
+  font-size: 13px;
   display: flex;
   gap: 2px;
 `;

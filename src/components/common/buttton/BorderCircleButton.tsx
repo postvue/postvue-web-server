@@ -69,6 +69,9 @@ const BorderCircleButtonContainer = styled.div<{
   border: 1px solid ${(props) => props.$deactiveBorderColor};
   color: ${(props) => props.$deactiveFontColor};
 
+  align-items: center;
+  display: flex;
+
   &.${ACTIVE_CLASS_NAME} {
     background-color: ${(props) => props.$activeBackgroundColor};
     border: 1px solid ${(props) => props.$activeBorderColor};

@@ -1,49 +1,56 @@
-import WindowResizeSenceComponent from 'components/common/container/WindowResizeSenseComponent';
+import MyAccountSettingInfoState from 'components/common/state/MyAccountSettingInfoState';
+import BottomSheetLayout from 'components/layouts/BottomSheetLayout';
 import RoundSquareCenterPopupLayout from 'components/layouts/RoundSquareCenterPopupLayout';
 import BlockUserPopupBody from 'components/profile/blockuser/BlockUserPopupBody';
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
-import React, { useState } from 'react';
-import { useSetRecoilState } from 'recoil';
+import useWindowSize from 'hook/customhook/useWindowSize';
+import React from 'react';
+import { useRecoilState } from 'recoil';
 import { isActiveProfileBlockPopupAtom } from '../../states/ProfileAtom';
-import PopupLayout from '../layouts/PopupLayout';
-
-const popupWrapStyle: React.CSSProperties = {
-  height: '55%',
-};
 
 interface BlockUserPopupProps {
   userInfo: { username: string; userId: string };
   isBlocked: boolean;
-  hasTransparentOverLay?: boolean;
   setIsBlocked?: React.Dispatch<React.SetStateAction<boolean>>;
   setIsSettingPopup?: React.Dispatch<React.SetStateAction<boolean>>;
+  isFixed?: boolean;
 }
 const BlockUserPopup: React.FC<BlockUserPopupProps> = ({
   userInfo,
   isBlocked,
-  hasTransparentOverLay = false,
   setIsBlocked,
   setIsSettingPopup,
+  isFixed = true,
 }) => {
-  const setIsActiveProfileBlock = useSetRecoilState(
+  const [isActiveProfileBlock, setIsActiveProfileBlock] = useRecoilState(
     isActiveProfileBlockPopupAtom,
   );
 
-  const [windowSize, setWindowSize] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
-  });
+  const { windowWidth } = useWindowSize();
 
   return (
     <>
-      {windowSize.width <= MEDIA_MOBILE_MAX_WIDTH_NUM ? (
-        <PopupLayout
-          setIsPopup={setIsActiveProfileBlock}
-          isTouchScrollBar={true}
-          popupWrapStyle={popupWrapStyle}
-          hasTransparentOverLay={hasTransparentOverLay}
-          popupOverLayContainerStyle={{ zIndex: '2000' }}
-          hasFixedActive={true}
+      {windowWidth <= MEDIA_MOBILE_MAX_WIDTH_NUM ? (
+        // <PopupLayout
+        //   setIsPopup={setIsActiveProfileBlock}
+        //   isTouchScrollBar={true}
+        //   popupWrapStyle={popupWrapStyle}
+        //   hasTransparentOverLay={hasTransparentOverLay}
+        //   popupOverLayContainerStyle={{ zIndex: '2000' }}
+        //   hasFixedActive={true}
+        // >
+        //   <BlockUserPopupBody
+        //     userInfo={userInfo}
+        //     isBlocked={isBlocked}
+        //     setIsBlocked={setIsBlocked}
+        //     setIsSettingPopup={setIsSettingPopup}
+        //   />
+        // </PopupLayout>
+        <BottomSheetLayout
+          isFixed={isFixed}
+          isOpen={isActiveProfileBlock}
+          onClose={() => setIsActiveProfileBlock(false)}
+          heightNum={350}
         >
           <BlockUserPopupBody
             userInfo={userInfo}
@@ -51,23 +58,26 @@ const BlockUserPopup: React.FC<BlockUserPopupProps> = ({
             setIsBlocked={setIsBlocked}
             setIsSettingPopup={setIsSettingPopup}
           />
-        </PopupLayout>
+        </BottomSheetLayout>
       ) : (
-        <RoundSquareCenterPopupLayout
-          setIsPopup={setIsActiveProfileBlock}
-          popupWrapStyle={{ height: '400px', width: '500px' }}
-          popupOverLayContainerStyle={{ zIndex: '2000' }}
-        >
-          <BlockUserPopupBody
-            userInfo={userInfo}
-            isBlocked={isBlocked}
-            setIsBlocked={setIsBlocked}
-            setIsSettingPopup={setIsSettingPopup}
-          />
-        </RoundSquareCenterPopupLayout>
+        <>
+          {isActiveProfileBlock && (
+            <RoundSquareCenterPopupLayout
+              onClose={() => setIsActiveProfileBlock(false)}
+              popupWrapStyle={{ height: '350px', width: '500px' }}
+              popupOverLayContainerStyle={{ zIndex: '2000' }}
+            >
+              <BlockUserPopupBody
+                userInfo={userInfo}
+                isBlocked={isBlocked}
+                setIsBlocked={setIsBlocked}
+                setIsSettingPopup={setIsSettingPopup}
+              />
+            </RoundSquareCenterPopupLayout>
+          )}
+        </>
       )}
-
-      <WindowResizeSenceComponent setWindowSize={setWindowSize} />
+      {isActiveProfileBlock && <MyAccountSettingInfoState />}
     </>
   );
 };

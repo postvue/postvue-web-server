@@ -3,6 +3,7 @@ import { SIGNUP_FAVORITE_TAG_INPUT_STEP_VALUE } from 'const/SignupConst';
 import React from 'react';
 import { useRecoilState } from 'recoil';
 import { signupStepNumAtom } from 'states/SignupAtom';
+import theme from 'styles/theme';
 
 interface SignupNextButtonProps {
   isActive: boolean;
@@ -21,6 +22,10 @@ const SignupNextButton: React.FC<SignupNextButtonProps> = ({ isActive }) => {
         if (signupStepNum <= SIGNUP_FAVORITE_TAG_INPUT_STEP_VALUE) {
           setSignupStepNum(signupStepNum + 1);
         }
+      }}
+      BottomNextButtonWrapContainerStyle={{
+        position: 'fixed',
+        maxWidth: theme.systemSize.appDisplaySize.maxWidth,
       }}
     />
   );

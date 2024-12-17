@@ -1,9 +1,7 @@
 import { ReactComponent as PrevButtonIcon } from 'assets/images/icon/svg/PrevButtonIcon.svg';
 import React from 'react';
 import styled from 'styled-components';
-import { hoverRoundCoverStyle } from 'styles/commonStyles';
 import { NAVIGATION_BACK } from '../const/AppConst';
-import theme from '../styles/theme';
 import AppLink from './AppLink';
 
 const PrevStyle: React.CSSProperties = {
@@ -25,26 +23,9 @@ const PrevButton: React.FC<PrevBtnProps> = ({
   to = location.pathname,
   type = NAVIGATION_BACK,
   style,
-  strokeColor = theme.mainColor.White,
 }) => {
   return (
     <AppLink isApp={isApp} to={to} type={type} style={style || PrevStyle}>
-      {/* <PrevIcon
-        xmlns="http://www.w3.org/2000/svg"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-      >
-        <path
-          d="M15 6L9 12L15 18"
-          stroke={strokeColor}
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </PrevIcon> */}
-
       <PrevButtonWrap>
         <PrevButtonIcon />
       </PrevButtonWrap>
@@ -52,14 +33,9 @@ const PrevButton: React.FC<PrevBtnProps> = ({
   );
 };
 
-const PrevIcon = styled.svg`
-  margin: auto 0;
-`;
-
 const PrevButtonWrap = styled.div`
   display: flex;
   margin: auto 0;
-  ${hoverRoundCoverStyle}
 `;
 
 export default PrevButton;

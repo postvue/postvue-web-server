@@ -131,7 +131,6 @@ const MasonryLayout: React.FC<MasonryLayoutProps> = ({
                           src={v.postContent}
                           onLoadedData={masonryLayout}
                           ref={(el) => (videoRefs.current[index] = el)}
-                          crossOrigin={'anonymous'}
                           onClick={() => {
                             const videoRef = videoRefs.current[index];
                             if (actionFuncByRef && videoRef) {
@@ -173,7 +172,6 @@ const MasonryContainer = styled.div`
   column-gap: var(--gap);
   grid-auto-rows: 10px;
 
-  min-height: 90vh;
   padding: 0 6px;
 `;
 
@@ -211,6 +209,7 @@ const PostContentImg = styled.img`
   object-fit: contain;
   border-radius: 22px;
   vertical-align: bottom;
+  background-color: hsl(0, 0%, 97%);
 `;
 
 const PostContentVideo = styled.video`
