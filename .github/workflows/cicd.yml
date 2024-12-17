@@ -26,6 +26,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+       # 3. .env 파일을 생성하고 환경 변수 설정 (GitHub Secrets에서 가져오기)
+      - name: Create .env file from secrets
+        run: |
+          echo "REACT_APP_KAKAO_CLIENT_ID=${{ secrets.REACT_APP_KAKAO_CLIENT_ID }}" >> .env
+          echo "REACT_APP_SERVER_PATH=${{ secrets.REACT_APP_SERVER_PATH }}" >> .env
+          echo "REACT_APP_SERVER_API_URL=${{ secrets.REACT_APP_SERVER_API_URL }}" >> .env
+          echo "REACT_APP_KAKAO_SDK_KEY=${{ secrets.REACT_APP_KAKAO_SDK_KEY }}" >> .env
+          echo "REACT_APP_KAUTH_URL=${{ secrets.REACT_APP_KAUTH_URL }}" >> .env
+          echo "REACT_APP_NAVER_CLIENT_ID=${{ secrets.REACT_APP_NAVER_CLIENT_ID }}" >> .env
+
       - name: Install dependencies and build
         run: |
           npm install --force
@@ -76,7 +86,7 @@ jobs:
           cd ${SERVICE_DIR}
           echo "Logging into Docker Hub..."
           echo "${DOCKER_HUB_ACCESS_TOKEN}" | docker login --username "${DOCKER_HUB_USERNAME}" --password-stdin
-          echo "${REMOTE_PASSWORD}" | sudo -S docker-compose down --volumes --remove-orphans
+          echo "${REMOTE_PASSWORD}" | sudo -S docker-compose down --volumes --remove-orphans --rmi all
           echo "${REMOTE_PASSWORD}" | sudo -S docker compose pull
           echo "${REMOTE_PASSWORD}" | sudo -S docker-compose up -d
         EOF
