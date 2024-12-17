@@ -56,7 +56,7 @@ const NaverLoginButton: React.FC = () => {
       .catch((err: AxiosError) => {
         // 인증 오류 날 시, 회원가입 페이지로 이동
         if (err.response?.status === STATUS_UNAUTHORIZED_CODE) {
-          console.log('주소로 이동 해랗');
+          console.log('주소로 이동 해랗', SIGNUP_PATH);
           navigate(SIGNUP_PATH);
         } else {
           // 나머지 오류는 회원가입 실패 알림 과 홈으로 이동
