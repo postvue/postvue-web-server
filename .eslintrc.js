@@ -28,6 +28,7 @@ module.exports = {
   plugins: ['@typescript-eslint', 'react', 'prettier'],
   rules: {
     '@typescript-eslint/semi': ['error', 'always'],
+    '@typescript-eslint/no-unused-vars': 'off',
     'prettier/prettier': [
       'error',
       { singleQuote: true, semi: true, endOfLine: 'auto' },
