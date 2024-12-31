@@ -17,10 +17,7 @@ import { getMyAccountSettingInfo } from '../global/util/MyAccountSettingUtil';
 import msgConversationWsService from './message/MsgConversationWsService';
 import notificationWsService from './notification/NotificationWsService';
 import sessionWsService from './session/SessionWsService';
-import {
-  WEBSOCKET_APPLICATION_PATH,
-  WEBSOCKET_ENDPOINT_URL,
-} from './websocketServicePath';
+import { WEBSOCKET_ENDPOINT_URL } from './websocketServicePath';
 
 class WebSocketService {
   private static instance: WebSocketService;
@@ -103,6 +100,7 @@ class WebSocketService {
       this.onConnectSession();
     };
   }
+
   public isWebSocketInitialized(): boolean {
     return this.isInitialized;
   }
@@ -158,10 +156,6 @@ class WebSocketService {
     }
   };
 
-  protected getSocketUrl(): string {
-    return `${WEBSOCKET_APPLICATION_PATH}`;
-  }
-
   public setSubscribe(
     destination: string,
     callback: (message: IMessage) => void,
@@ -184,6 +178,7 @@ class WebSocketService {
     // 구독 성공 시 구독된 채널 관리
     this.subscribedChannels.set(destination, stompSubscription);
   }
+
   public deleteSubscribe(sessionId: string): void {
     this.client.unsubscribe(sessionId);
   }

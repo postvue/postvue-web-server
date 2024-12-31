@@ -9,11 +9,13 @@ import LongPressToResizeButton from './LongPressToResizeButton';
 interface ShareButtonProps {
   shareLink: string;
   mainImageUrl: string;
+  isFixed: boolean;
 }
 
 const ShareButton: React.FC<ShareButtonProps> = ({
   shareLink,
   mainImageUrl,
+  isFixed,
 }) => {
   const setSharePopupInfo = useSetRecoilState(sharePopupInfoAtom);
   return (
@@ -29,6 +31,7 @@ const ShareButton: React.FC<ShareButtonProps> = ({
             isActive: true,
             shareLink: shareLink,
             mainImageUrl: mainImageUrl,
+            isFixed: isFixed,
           });
         }}
       >

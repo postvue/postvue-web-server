@@ -1,17 +1,21 @@
 import ProfileClipListInfiniteScroll from 'hook/ProfileClipListInfiniteScroll';
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
-import SnsPostMasonryLayout from 'components/layouts/SnsPostMasonryLayout';
+import SnsPostMasonryLayout_ from 'components/layouts/SnsPostMasonryLayout_';
 import { QueryStateProfileClipListInfinite } from 'hook/queryhook/QueryStateProfileClipListInfinite';
 import theme from '../../styles/theme';
 const ProfileClipListBody: React.FC = () => {
   const { data: myProfileClipList } = QueryStateProfileClipListInfinite();
 
+  useEffect(() => {
+    console.log(myProfileClipList);
+  }, [myProfileClipList]);
+
   return (
     <ProfileClipBodyContainer>
       {myProfileClipList && (
-        <SnsPostMasonryLayout
+        <SnsPostMasonryLayout_
           snsPostList={myProfileClipList?.pages.flatMap((v) =>
             v.snsPostRspList.map((value) => value),
           )}
@@ -34,7 +38,7 @@ const ProfileClipListBody: React.FC = () => {
 
 const ProfileClipBodyContainer = styled.div`
   padding-top: 10px;
-  // height: calc(100vh - 65px - ${theme.systemSize.bottomNavBar.height});
+  // height: calc(100dvh - 65px - ${theme.systemSize.bottomNavBar.height});
   // overflow: scroll;
   & {
     -ms-overflow-style: none;
@@ -55,6 +59,7 @@ const ProifileNotClipTitle = styled.div`
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  white-space: nowrap;
 `;
 
 export default ProfileClipListBody;

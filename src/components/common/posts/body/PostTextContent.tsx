@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { SEARCH_POST_PATH } from '../../../../const/PathConst';
 
 import LinkifyTextComponent from 'components/LinkifyTextComponent';
+import { stackRouterPush } from 'global/util/reactnative/StackRouter';
 import { isValidString } from 'global/util/ValidUtil';
 import { convertDiffrenceDateTime } from '../../../../global/util/DateTimeUtil';
 
@@ -27,6 +28,8 @@ const PostTextContent: React.FC<PostTextContentProps> = ({
   const [isExpanded, setIsExpanded] = useState<boolean>(isExpandedBodyText);
   const [isTruncated, setIsTruncated] = useState<boolean>(false);
   const textRef = useRef<HTMLDivElement>(null);
+
+  const navigate = useNavigate();
 
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);
@@ -73,9 +76,14 @@ const PostTextContent: React.FC<PostTextContentProps> = ({
       <PostDateTime>{convertDiffrenceDateTime(postedAt)}</PostDateTime>
       <PostTagWrap onClick={(e) => e.stopPropagation()}>
         {tags.map((v, i) => (
-          <Link to={`${SEARCH_POST_PATH}/${v}`} key={i}>
+          <div
+            onClick={() =>
+              stackRouterPush(navigate, `${SEARCH_POST_PATH}/${v}`)
+            }
+            key={i}
+          >
             <PostTag>#{v}</PostTag>
-          </Link>
+          </div>
         ))}
       </PostTagWrap>
     </>

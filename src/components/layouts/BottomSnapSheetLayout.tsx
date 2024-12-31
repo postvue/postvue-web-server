@@ -2,6 +2,7 @@ import { animated, config, useSpring } from '@react-spring/web';
 import { useDrag } from '@use-gesture/react';
 import { OVERFLOW_HIDDEN } from 'const/AttributeConst';
 import { MEDIA_MOBILE_MAX_WIDTH } from 'const/SystemAttrConst';
+import { sendPopupEvent } from 'global/util/reactnative/StackRouter';
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
@@ -64,6 +65,8 @@ const BottomSnapSheetLayout: React.FC<BottomSnapSheetLayoutProps> = ({
       immediate: false,
       config: config.stiff,
       onRest: () => {
+        console.log('헤헤헤헤');
+        removeFixedByClose();
         onClose(); // 애니메이션이 끝난 후 실행
       },
     });
@@ -178,34 +181,55 @@ const BottomSnapSheetLayout: React.FC<BottomSnapSheetLayoutProps> = ({
     opacity: y.to([0, height], [0.5, 0], 'clamp'),
   };
 
+  const fixedByOpen = () => {
+    // react native로 popup 고정 해제 전달
+
+    open({ canceled: false });
+    console.log('열려라?');
+    if (!isFixed) return;
+    console.log('열려라???');
+    sendPopupEvent(true);
+    document.documentElement.style.overflow = OVERFLOW_HIDDEN;
+    document.documentElement.style.touchAction = 'none';
+    document.body.style.overflow = OVERFLOW_HIDDEN;
+    document.body.style.touchAction = 'none';
+    document.documentElement.style.overscrollBehavior = 'none';
+    document.body.style.overscrollBehavior = 'none';
+    document.body.style.top = `-${window.scrollY}px`;
+    document.body.style.width = '100%';
+    setScrollY(window.scrollY);
+    document.body.style.position = 'fixed';
+  };
+
+  const removeFixedByClose = () => {
+    // react native로 popup 고정 해제 전달
+
+    console.log('실행?');
+    if (!isFixed) return;
+    console.log('실행???');
+    sendPopupEvent(false);
+    document.documentElement.style.overflow = '';
+    document.documentElement.style.touchAction = '';
+    document.body.style.overflow = '';
+    document.body.style.touchAction = '';
+    document.documentElement.style.overscrollBehavior = '';
+    document.body.style.overscrollBehavior = '';
+
+    document.body.style.position = '';
+
+    window.requestAnimationFrame(() => {
+      window.scrollTo({ top: scrollY });
+    });
+  };
+
   useEffect(() => {
     if (isOpen) {
-      open({ canceled: false });
-      if (!isFixed) return;
-      document.documentElement.style.overflow = OVERFLOW_HIDDEN;
-      document.documentElement.style.touchAction = 'none';
-      document.body.style.overflow = OVERFLOW_HIDDEN;
-      document.body.style.touchAction = 'none';
-      document.documentElement.style.overscrollBehavior = 'none';
-      document.body.style.overscrollBehavior = 'none';
-      document.body.style.top = `-${window.scrollY}px`;
-      document.body.style.width = '100%';
-      setScrollY(window.scrollY);
-      document.body.style.position = 'fixed';
+      // react native로 popup 고정 전달
+
+      fixedByOpen();
     } else {
-      if (!isFixed) return;
-      document.documentElement.style.overflow = '';
-      document.documentElement.style.touchAction = '';
-      document.body.style.overflow = '';
-      document.body.style.touchAction = '';
-      document.documentElement.style.overscrollBehavior = '';
-      document.body.style.overscrollBehavior = '';
-
-      document.body.style.position = '';
-
-      window.requestAnimationFrame(() => {
-        window.scrollTo({ top: scrollY });
-      });
+      // react native로 popup 고정 해제 전달
+      removeFixedByClose();
     }
   }, [isOpen]);
 

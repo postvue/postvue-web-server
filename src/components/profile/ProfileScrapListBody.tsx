@@ -1,5 +1,6 @@
+import { stackRouterPush } from 'global/util/reactnative/StackRouter';
 import React, { useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import {
   PROFILE_NEW_SCRAP_PATH,
@@ -18,11 +19,11 @@ const ProfileScrapListBody: React.FC = () => {
       <ProfileScrapViewBody
         profileScrapViewRef={MakeScrapScrollRef}
         onButtonEvent={(scrapId: string) => {
-          navigate(`${PROFILE_SCRAP_LIST_PATH}/${scrapId}`);
+          stackRouterPush(navigate, `${PROFILE_SCRAP_LIST_PATH}/${scrapId}`);
         }}
       />
       <FloatingActionButtonLayout bottomGap={56}>
-        <Link to={PROFILE_NEW_SCRAP_PATH}>
+        <div onClick={() => stackRouterPush(navigate, PROFILE_NEW_SCRAP_PATH)}>
           <MakeScrapButton>
             <MakeScrapButtonIconWrap>
               <MakeScrapButtonIcon
@@ -42,7 +43,7 @@ const ProfileScrapListBody: React.FC = () => {
             </MakeScrapButtonIconWrap>
             <MakeScrapButtonTitle>스크랩 추가하기</MakeScrapButtonTitle>
           </MakeScrapButton>
-        </Link>
+        </div>
       </FloatingActionButtonLayout>
     </ProfileScrapListBodyContainer>
   );

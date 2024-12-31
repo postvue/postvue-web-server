@@ -11,12 +11,14 @@ interface PostReactionSingleElementProps {
   username: string;
   postId: string;
   mainImageUrl: string;
+  isFixed: boolean;
 }
 
 const PostReactionSingleElement: React.FC<PostReactionSingleElementProps> = ({
   username,
   postId,
   mainImageUrl,
+  isFixed,
 }) => {
   const { windowWidth } = useWindowSize();
   return (
@@ -35,6 +37,7 @@ const PostReactionSingleElement: React.FC<PostReactionSingleElementProps> = ({
           <ShareButton
             shareLink={`/${username}/${postId}`}
             mainImageUrl={mainImageUrl}
+            isFixed={isFixed}
           />
         </HrtMsgShrReactionContainer>
         {postId && (

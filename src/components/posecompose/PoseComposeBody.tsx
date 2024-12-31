@@ -30,8 +30,6 @@ import { ReactComponent as PostComposeDeleteButtonIcon } from 'assets/images/ico
 
 import { ReactComponent as PostComposeButtonIcon } from 'assets/images/icon/svg/post/PostComposeButtonIcon.svg';
 import { ReactComponent as PostImageCropButtonIcon } from 'assets/images/icon/svg/post/PostImageCropButtonIcon.svg';
-import { ReactComponent as PostVideoPauseButtonIcon } from 'assets/images/icon/svg/post/PostVideoPauseButtonIcon.svg';
-import { ReactComponent as PostVideoPlayButtonIcon } from 'assets/images/icon/svg/post/PostVideoPlayButtonIcon.svg';
 import { ReactComponent as PostComposeTagDeleteButtonIcon } from 'assets/images/icon/svg/PostComposeTagDeleteButtonIcon.svg';
 import BoundaryStickBar from 'components/common/container/BoundaryStickBar';
 import HorizontalGrabScrollContainer from 'components/common/container/HorizontalGrabScrollContainer';
@@ -50,6 +48,7 @@ import { POST_IMAGE_TYPE, POST_VIDEO_TYPE } from 'const/PostContentTypeConst';
 import { MEDIA_MOBILE_MAX_WIDTH } from 'const/SystemAttrConst';
 import { useDropzone } from 'react-dropzone';
 import PostComposeButton from './PostComposeButton';
+import PostUploadVideoElement from './PostUploadVideoElement';
 
 interface PostComposeBodyProps {
   postTitle: string;
@@ -226,27 +225,6 @@ const PoseComposeBody: React.FC<PostComposeBodyProps> = ({
     },
   });
 
-  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
-  const videoPlayingMap = new Map<number, boolean>();
-
-  const handlePlayPauseVideo = (index: number) => {
-    const videoRef = videoRefs.current[index];
-    const videoPlaying = videoPlayingMap.get(index);
-    if (videoRef && videoPlaying !== undefined) {
-      if (videoPlaying) {
-        videoRef.pause();
-      } else {
-        videoRef.play();
-      }
-      videoPlayingMap.set(index, !videoPlaying);
-    }
-  };
-  const handleVideoEnded = (index: number) => {
-    const videoPlaying = videoPlayingMap.get(index);
-    if (!videoPlaying) return;
-    videoPlayingMap.set(index, !videoPlaying);
-  };
-
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [showCropper, setShowCropper] = useState(false); // cropper UI 상태
 
@@ -274,26 +252,7 @@ const PoseComposeBody: React.FC<PostComposeBodyProps> = ({
                     )}
                 </>
               ) : (
-                <>
-                  <PostUploadVideo
-                    ref={(el) => {
-                      videoPlayingMap.set(k, false);
-                      videoRefs.current[k] = el;
-                    }}
-                    onEnded={() => handleVideoEnded(k)}
-                  >
-                    <source src={value.contentUrl} type="video/mp4" />
-                  </PostUploadVideo>
-                  <PostUploadVideoPlayButtonWrap
-                    onClick={() => handlePlayPauseVideo(k)}
-                  >
-                    {videoRefs.current[k]?.paused ? (
-                      <PostVideoPauseButtonIcon />
-                    ) : (
-                      <PostVideoPlayButtonIcon />
-                    )}
-                  </PostUploadVideoPlayButtonWrap>
-                </>
+                <PostUploadVideoElement videoUrl={value.contentUrl} />
               )}
 
               {postUploadContentList.length > 1 && (
@@ -529,22 +488,6 @@ const PostImgCropButton = styled.div`
   vertical-align: bottom;
   margin: 0 5px 5px 0;
   cursor: pointer;
-`;
-
-const PostUploadVideoPlayButtonWrap = styled.div`
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  margin: 0 0 5px 5px;
-  cursor: pointer;
-`;
-
-const PostUploadVideo = styled.video`
-  width: 100%;
-  vertical-align: bottom;
-  aspect-ratio: 3 / 4;
-  border-radius: 8px;
-  background-color: #000000;
 `;
 
 const PostComposeTitleWrap = styled.div`

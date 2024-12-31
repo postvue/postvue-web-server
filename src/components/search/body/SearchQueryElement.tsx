@@ -69,7 +69,7 @@ const RecenSearchWordItemDeletedWrap = styled.div`
 `;
 
 const RecentSearchWordItem = styled.div`
-  font: ${({ theme }) => theme.fontSizes.Body4};
+  font: ${({ theme }) => theme.fontSizes.Body5};
 `;
 
 export default SearchQueryElement;

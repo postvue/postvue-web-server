@@ -24,12 +24,18 @@ const HomePage: React.FC = () => {
   return (
     <AppBaseTemplate>
       <HomeHeader />
+      {/* <PullToRefresh
+        onRefresh={() => window.location.reload()}
+        maxDistance={100}
+        loadingComponent={<div>테스트</div>}
+      > */}
       {/* refer: 수정 */}
       {/* <PostContainer>
           <PostComponent />
           <PostComponent />
         </PostContainer> */}
       <HomeBody />
+      {/* </PullToRefresh> */}
       <BottomNavBar />
     </AppBaseTemplate>
   );

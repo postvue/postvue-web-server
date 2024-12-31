@@ -3,6 +3,7 @@ import { SEARCH_INPUT_PHARSE_TEXT } from 'const/SystemPhraseConst';
 import React from 'react';
 
 import { RECENTLY_SEARCH_WORD_LIST_LOCAL_STORAGE } from 'const/LocalStorageConst';
+import { stackRouterPush } from 'global/util/reactnative/StackRouter';
 import { useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useRecoilState, useRecoilValue } from 'recoil';
@@ -120,7 +121,7 @@ const SearchButtonInputElement: React.FC<SearchButtonInputElementProps> = ({
   const onClickSearchButton = () => {
     if (searchTempWord !== '' && searchWord !== searchTempWord) {
       handleSearch(RECENTLY_SEARCH_WORD_LIST_LOCAL_STORAGE, searchTempWord);
-      navigate(`${searchUrl}/${searchTempWord}`);
+      stackRouterPush(navigate, `${searchUrl}/${searchTempWord}`);
     }
   };
 

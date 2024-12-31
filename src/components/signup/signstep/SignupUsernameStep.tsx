@@ -5,10 +5,11 @@ import {
 import { getSearchQueryByDebounce } from 'global/util/SearchUtil';
 import { isValidUsername } from 'global/util/ValidUtil';
 import React, { useEffect, useState } from 'react';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 import { getProfileExistenceByUsername } from 'services/profile/getProfileExistenceByUsername';
 import {
   signupInfoAtom,
+  signupStepNumAtom,
   signupUsernameExistenceHashMapAtom,
 } from 'states/SignupAtom';
 import styled from 'styled-components';
@@ -25,6 +26,8 @@ const SignupUsernameStep: React.FC = () => {
   const [isActive, setIsActive] = useState<boolean>(false);
 
   const [username, setUsername] = useState<string>(signupInfo.username);
+
+  const setSignupStepNum = useSetRecoilState(signupStepNumAtom);
 
   const debouncedGetSearchQuery = getSearchQueryByDebounce(
     (word: string) => {
@@ -75,6 +78,16 @@ const SignupUsernameStep: React.FC = () => {
     }
   }, [username, loading]);
 
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (
+      event.key === 'Enter' &&
+      event.nativeEvent.isComposing === false &&
+      isActive
+    ) {
+      setSignupStepNum((prev) => prev + 1);
+    }
+  };
+
   return (
     <>
       <SignupHeader />
@@ -87,6 +100,7 @@ const SignupUsernameStep: React.FC = () => {
           placeholder="아이디를 넣어주세요."
           value={username}
           onChange={(e) => onSearchInputChange(e)}
+          onKeyDown={handleKeyPress}
         />
       </SignupDateWrap>
 

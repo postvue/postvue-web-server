@@ -87,6 +87,7 @@ const PostSettingButton: React.FC<PostSettingButtonProps> = ({
                       .map((v) => v.content),
                     snsPostRsp.profilePath,
                   ),
+                  isFixed: true,
                 });
               }}
             >

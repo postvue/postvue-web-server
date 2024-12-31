@@ -39,6 +39,8 @@ const HomeBody: React.FC = () => {
         username: value.username,
         location: value.location,
         previewImg: postContent.previewImg,
+        videoDuration: postContent.videoDuration,
+        isUploaded: postContent.isUploaded,
       };
 
       return homePostRsp;

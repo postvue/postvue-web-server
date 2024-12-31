@@ -1,5 +1,18 @@
+import {
+  POST_DETAIL_POPUP_PARAM,
+  POST_DETAIL_POST_ID_PARAM,
+  POST_DETAIL_PROFILE_PARAM,
+  TRUE_PARAM,
+} from 'const/QueryParamConst';
+import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
+import { stackRouterPush } from 'global/util/reactnative/StackRouter';
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { useSetRecoilState } from 'recoil';
+import {
+  isPostDetailInfoPopupAtom,
+  postDetailInfoPopupAtom,
+} from 'states/PostAtom';
 import styled from 'styled-components';
 import { PROFILE_LIST_PATH } from '../../../const/PathConst';
 import { RecommFollowInfo } from '../../../global/interface/recomm';
@@ -11,6 +24,8 @@ const HomeFollowSubBody: React.FC = () => {
   const [recommFollowList, setRecommFollowList] = useState<RecommFollowInfo[]>(
     [],
   );
+  const setPostDetailInfo = useSetRecoilState(postDetailInfoPopupAtom);
+  const setIsPostDetailInfoPopup = useSetRecoilState(isPostDetailInfoPopupAtom);
   useEffect(() => {
     getRecommFollowList().then((value) => setRecommFollowList(value));
   }, []);
@@ -32,7 +47,14 @@ const HomeFollowSubBody: React.FC = () => {
             <RecommFollowProfileInfo>
               <RecommFollowProfileInfoWrap>
                 <RecommFollowProfileImg src={value.profilePath} />
-                <Link to={`${PROFILE_LIST_PATH}/${value.username}`}>
+                <div
+                  onClick={() =>
+                    stackRouterPush(
+                      navigate,
+                      `${PROFILE_LIST_PATH}/${value.username}`,
+                    )
+                  }
+                >
                   <FollowUsernameNumberWrap>
                     <RecommFollowUsername>
                       {value.username}
@@ -52,7 +74,7 @@ const HomeFollowSubBody: React.FC = () => {
                       </RecommFollowFollowerNum>
                     </RecommFollowWrap>
                   </FollowUsernameNumberWrap>
-                </Link>
+                </div>
               </RecommFollowProfileInfoWrap>
               <FollowButton
                 fontSize={theme.fontSizes.Subhead3}
@@ -65,7 +87,33 @@ const HomeFollowSubBody: React.FC = () => {
                 <MyProfileScrapImgWrap
                   key={k}
                   onClick={() => {
-                    navigate(`/${value.username}/${image.postId}`);
+                    if (window.innerWidth > MEDIA_MOBILE_MAX_WIDTH_NUM) {
+                      // 데스크탑 크기
+                      // url로 이동
+                      navigate(`/${value.username}/${image.postId}`, {
+                        state: { isDetailPopup: true },
+                      });
+                    } else {
+                      // 모바일 크기
+                      // url만 바뀌도록 변경
+                      // window.history.pushState(
+                      //   null,
+                      //   '',
+                      //   `/${v.username}/${v.postId}`,
+                      // );
+
+                      navigate(
+                        location.pathname +
+                          `?${POST_DETAIL_POPUP_PARAM}=${TRUE_PARAM}` +
+                          `&${POST_DETAIL_POST_ID_PARAM}=` +
+                          image.postId +
+                          `&${POST_DETAIL_PROFILE_PARAM}=` +
+                          value.username,
+                        {
+                          state: { isDetailPopup: true },
+                        },
+                      );
+                    }
                   }}
                 >
                   <MyProfileScrapImg src={image.content} />

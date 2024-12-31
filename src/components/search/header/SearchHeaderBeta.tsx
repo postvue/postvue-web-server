@@ -48,7 +48,6 @@ import {
   searchWordAtom,
 } from '../../../states/SearchPostAtom';
 import { animationStyle } from '../../../styles/animations';
-import theme from '../../../styles/theme';
 import PrevButton from '../../PrevButton';
 import SearchButtonInput from '../../common/input/SearchButtonInput';
 import HeaderLayout from '../../layouts/HeaderLayout';
@@ -294,7 +293,6 @@ const SearchHeaderBeta: React.FC<SearchHeaderProps> = ({
               <PrevButtonWrap>
                 <PrevButton
                   style={PrevStyle}
-                  strokeColor={theme.mainColor.Black}
                   to={backToUrl}
                   type={navigateType}
                 />

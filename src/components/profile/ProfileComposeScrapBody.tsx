@@ -122,7 +122,7 @@ const ProfileComposeScrapBody: React.FC<ProfileComposeScrapBodyProps> = ({
 };
 
 const ProfileMakeScrapBodyContainer = styled.div`
-  height: calc(100vh - ${({ theme }) => theme.systemSize.header.height});
+  height: calc(100dvh - ${({ theme }) => theme.systemSize.header.height});
   position: relative;
 `;
 

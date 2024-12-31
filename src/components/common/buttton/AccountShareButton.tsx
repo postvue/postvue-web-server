@@ -25,6 +25,7 @@ const AccountShareButton: React.FC<AccountShareButtonProps> = ({
           isActive: true,
           shareLink: url,
           mainImageUrl: mainImageUrl,
+          isFixed: true,
         });
       }}
     >

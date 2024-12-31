@@ -150,10 +150,8 @@ optAuthApi.interceptors.response.use(
 
 // 에러시, 싪행하는 코드: 400번, 500번
 async function interceptorErrorFunc(error: any) {
-  const {
-    config,
-    response: { status },
-  } = error;
+  const { config } = error;
+  const status = error.response?.status; // 안전한 구조 분해 할당
 
   //토큰이 만료되을 때, 인증 오류, 401번 에러
   if (status === STATUS_UNAUTHORIZED_CODE) {

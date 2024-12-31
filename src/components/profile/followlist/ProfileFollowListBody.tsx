@@ -14,20 +14,23 @@ import { QueryStateProfileFollowingListInfinite } from 'hook/queryhook/QueryStat
 import { QueryStateProfileInfo } from 'hook/queryhook/QueryStateProfileInfo';
 
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
 import ProfileFollowComponent from './ProfileFollowComponent';
 
-const ProfileFollowListBody: React.FC = () => {
+interface ProfileFollowListBodyProps {
+  username: string;
+}
+
+const ProfileFollowListBody: React.FC<ProfileFollowListBodyProps> = ({
+  username,
+}) => {
   const navigate = useNavigate();
   const [searchParam] = useSearchParams();
   const [myProfileFollowTab, setMyProfileFollowTab] = useState<string>(
     searchParam.get(TAB_QUERY_PARAM) || PROFILE_FOLLOWING_TAB_PARAM,
   );
   const tabParam = searchParam.get(TAB_QUERY_PARAM);
-
-  const params = useParams();
-  const username = params.username || '';
 
   const myProfileFollowTabList = [
     {
@@ -50,10 +53,10 @@ const ProfileFollowListBody: React.FC = () => {
 
   const { data } = QueryStateProfileInfo(username);
 
-  const { data: profileFollowerList } =
+  const { data: profileFollowerList, isFetched: isFetchedByProfileFollower } =
     QueryStateProfileFollowerListInfinite(username);
 
-  const { data: profileFollowingList } =
+  const { data: profileFollowingList, isFetched: isFetchedByProfileFollowing } =
     QueryStateProfileFollowingListInfinite(username);
 
   return (
@@ -84,7 +87,8 @@ const ProfileFollowListBody: React.FC = () => {
         <>
           {username && (
             <>
-              {profileFollowingList &&
+              {isFetchedByProfileFollowing &&
+                profileFollowingList &&
                 profileFollowingList.pages.flatMap((page) =>
                   page
                     .filter((value) => !value.isBlocked)
@@ -110,7 +114,8 @@ const ProfileFollowListBody: React.FC = () => {
         <>
           {username && (
             <>
-              {profileFollowerList &&
+              {isFetchedByProfileFollower &&
+                profileFollowerList &&
                 profileFollowerList.pages.flatMap((page) =>
                   page
                     .filter((value) => !value.isBlocked)

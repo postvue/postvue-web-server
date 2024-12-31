@@ -25,9 +25,11 @@ const ProfileScrapHeader: React.FC = () => {
           text={profileScrapInfo.scrapName}
           mainImageUrl={getRandomImage(
             profileScrap?.pages
-              .flatMap((value) => value.scrapPostList)
-              .filter((v) => v.postThumbnailContentType === POST_IMAGE_TYPE)
-              .map((v) => v.postThumbnailContent) || [],
+              .flatMap((value) => value.snsPostRspList)
+              .map((v) => v.postContents)
+              .flatMap((v) => v)
+              .filter((v) => v.postContentType === POST_IMAGE_TYPE)
+              .map((v) => v.content) || [],
             profileScrapInfo.profilePath,
           )}
         />

@@ -7,6 +7,11 @@ export interface SignupInfo {
   termOfService: termOfServiceInterface;
 }
 
+export interface SignupEmailInfo {
+  email: string;
+  password: string;
+}
+
 export interface termOfServiceInterface {
   agreeToAgeTerm: boolean;
   agreeToServieTerm: boolean;

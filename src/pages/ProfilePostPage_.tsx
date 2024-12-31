@@ -71,6 +71,7 @@ const ProfilePostPage_: React.FC = () => {
   }, [profilePost]);
 
   useEffect(() => {
+    console.log('재 실행되나?');
     if (isErrorByProfilePost) {
       navigate(`${PROFILE_LIST_PATH}/${user_id}`, { replace: true });
     }

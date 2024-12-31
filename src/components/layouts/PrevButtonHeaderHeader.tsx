@@ -1,6 +1,5 @@
 import React, { ReactNode } from 'react';
 import styled from 'styled-components';
-import theme from '../../styles/theme';
 import PrevButton from '../PrevButton';
 import HeaderLayout from './HeaderLayout';
 
@@ -35,7 +34,7 @@ const PrevButtonHeaderHeader: React.FC<PrevButtonHeaderProps> = ({
                 <div onClick={actionFunc}>{preNodeByState}</div>
               </>
             ) : (
-              <PrevButton strokeColor={theme.mainColor.Black} />
+              <PrevButton />
             )}
           </PrevButtonWrap>
           {titleName && <TitleName>{titleName}</TitleName>}

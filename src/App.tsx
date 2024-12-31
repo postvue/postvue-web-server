@@ -12,7 +12,7 @@ import AppRouter from './AppRouter';
 import AppConfig from './config/AppConfig';
 import theme from './styles/theme';
 
-export const queryClient = new QueryClient({
+const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: QUERY_STALE_TIME,
@@ -22,21 +22,6 @@ export const queryClient = new QueryClient({
 });
 
 const App: React.FC = () => {
-  // const handleResize = () => {
-  //   const root = document.getElementById('root');
-  //   if (root) {
-  //     root.style.height = `${window.innerHeight}px`;
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   handleResize();
-  //   window.addEventListener('resize', handleResize);
-  //   return () => {
-  //     window.removeEventListener('resize', handleResize);
-  //   };
-  // }, []);
-
   const banner = `
   ______           _
   |  ___|         | |
@@ -48,7 +33,7 @@ const App: React.FC = () => {
                              |___/
       `;
 
-  console.log(`${banner}\n안녕하세요, 개발자 여러분! ${APP_SERVICE_NAME}에 오신 걸 환영해요! 🦄 \n저희 팀과 함께할 개발자를 찾고 있어요. 관심 있으시면 언제든지 연락주세요! \nhttps://www.feelog.com
+  console.info(`${banner}\n안녕하세요, 개발자 여러분! ${APP_SERVICE_NAME}에 오신 걸 환영해요! 🦄 \n저희 팀과 함께할 개발자를 찾고 있어요. 관심 있으시면 언제든지 연락주세요! \nhttps://www.feelog.com
         `);
 
   return (
@@ -69,3 +54,4 @@ const App: React.FC = () => {
 };
 
 export default App;
+export { queryClient };

@@ -2,11 +2,8 @@ import { atom } from 'recoil';
 import { GetProfileScrapInfoRsp } from 'services/profile/getProfileScrapInfo';
 import { INIT_CURSOR_ID } from '../const/PageConfigConst';
 import { TargetAudienceCategory } from '../const/ScrapConst';
-import { PostProfileInfoRsp } from '../global/interface/post';
-import {
-  ProfileScrap,
-  TargetAudienceInterface,
-} from '../global/interface/profile';
+import { PostProfileInfoRsp, PostRsp } from '../global/interface/post';
+import { TargetAudienceInterface } from '../global/interface/profile';
 
 export const cursorIdByScrapListAtom = atom<string>({
   key: 'cursorIdByScrapList',
@@ -23,7 +20,7 @@ export const cursorIdByClipListAtom = atom<string>({
   default: INIT_CURSOR_ID,
 });
 
-export const myProfileScrapAtom = atom<ProfileScrap[]>({
+export const myProfileScrapAtom = atom<PostRsp[]>({
   key: 'myProfileScrap',
   default: [],
 });

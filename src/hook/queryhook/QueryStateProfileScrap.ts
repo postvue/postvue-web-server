@@ -33,7 +33,7 @@ export const QueryStateProfileScrap = (
 
       if (typeof pageParam !== 'string') {
         // pageParam이 유효하지 않은 경우 빈 결과를 반환하거나 에러를 던집니다.
-        return { cursorId: ZERO_CURSOR_ID, scrapPostList: [] };
+        return { cursorId: ZERO_CURSOR_ID, snsPostRspList: [] };
       }
 
       return getProfileScrap(pageParam, scrapId);

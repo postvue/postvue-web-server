@@ -73,6 +73,7 @@ import PostReactionPopupBody from 'components/popups/postreactionpopup/body/Post
 import PostComplaintCompletePopup from 'components/popups/profilepost/PostComplaintCompletePopup';
 import PostComplaintPopup from 'components/popups/profilepost/PostComplaintPopup';
 
+import { queryClient } from 'App';
 import PageHelmentInfoElement from 'components/PageHelmetInfoElement';
 import ConfirmPopup from 'components/popups/ConfirmPopup';
 import PostReactionCommentSendElement from 'components/popups/postreactionpopup/body/PostReactionCommentSendElement';
@@ -80,6 +81,7 @@ import PostReactionPopupHeader from 'components/popups/postreactionpopup/body/Po
 import PostCommentComplaintPopup from 'components/popups/profilepost/PostCommentComplaintPopup';
 import ProfilePostSettingBody from 'components/post/ProfilePostSettingBody';
 import { APP_SERVICE_NAME } from 'const/AppInfoConst';
+import { QUERY_STATE_PROFILE_POST } from 'const/QueryClientConst';
 import { POST_REACTION_COMMENT_ID } from 'const/TabConfigConst';
 import { PostCommentReplyMsgInfo } from 'global/interface/post';
 import { isUserLoggedIn } from 'global/util/AuthUtil';
@@ -504,6 +506,7 @@ const ProfilePostPage: React.FC = () => {
                         .map((v) => v.content),
                       snsPost.profilePath,
                     )}
+                    isFixed={true}
                   />
                 )}
 
@@ -651,6 +654,9 @@ const ProfilePostPage: React.FC = () => {
                 deletePost(postId)
                   .then(() => {
                     setIsActivePostDeletePopup(false);
+                    queryClient.invalidateQueries({
+                      queryKey: [QUERY_STATE_PROFILE_POST, postId],
+                    });
                   })
                   .catch(() => {
                     setIsActivePostDeletePopup(false);

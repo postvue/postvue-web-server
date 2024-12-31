@@ -1,9 +1,10 @@
 import { ReactComponent as SearchWordDeleteButtonIcon } from 'assets/images/icon/svg/SearchWordDeleteButtonIcon.svg';
 import { RECENTLY_SEARCH_WORD_LIST_LOCAL_STORAGE } from 'const/LocalStorageConst';
 import { MEDIA_MOBILE_MAX_WIDTH } from 'const/SystemAttrConst';
+import { stackRouterPush } from 'global/util/reactnative/StackRouter';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useRecoilState, useRecoilValue } from 'recoil';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 import { SEARCH_POST_PATH } from '../../../const/PathConst';
 import { SearchRecentKeywordInterface } from '../../../global/interface/localstorage/SearchInterface';
@@ -14,8 +15,10 @@ import {
 import { isValidString } from '../../../global/util/ValidUtil';
 import { getSearchQuery } from '../../../services/search/getSearchQuery';
 import {
+  isSearchInputActiveAtom,
   searchQueryRelationHashMapAtom,
   searchTempWordAtom,
+  searchWordAtom,
 } from '../../../states/SearchPostAtom';
 import theme from '../../../styles/theme';
 import SearchQueryElement from './SearchQueryElement';
@@ -42,6 +45,9 @@ const SearchSuggestBody: React.FC<SearchSuggestBodyProps> = ({
   const [searchQueryRelationHashMap, setSearchQueryRelationHashMap] =
     useRecoilState(searchQueryRelationHashMapAtom);
 
+  const setIsSearchInputActive = useSetRecoilState(isSearchInputActiveAtom);
+
+  const searchWord = useRecoilValue(searchWordAtom);
   const searchTempWord = useRecoilValue(searchTempWordAtom);
 
   const onClickDeleteSearchWord = (searchWord: string) => {
@@ -77,6 +83,12 @@ const SearchSuggestBody: React.FC<SearchSuggestBodyProps> = ({
     };
   }, []);
 
+  const onNavigate = (word: string) => {
+    setIsSearchInputActive(false);
+    if (searchWord === word) return;
+    stackRouterPush(navigate, `${SEARCH_POST_PATH}/${word}`);
+  };
+
   return (
     <SearchSuggestBodyContainer
       style={SearchSuggestBodyContiainerStyle}
@@ -100,7 +112,7 @@ const SearchSuggestBody: React.FC<SearchSuggestBodyProps> = ({
                           key={i}
                           searchQueryWord={v.name}
                           onClickSearchQueryItem={() => {
-                            navigate(`${SEARCH_POST_PATH}/${v.name}`);
+                            onNavigate(v.name);
                           }}
                         >
                           <RecentDeleteButtonWrap
@@ -128,7 +140,7 @@ const SearchSuggestBody: React.FC<SearchSuggestBodyProps> = ({
                   <SearchQueryElement
                     searchQueryWord={value}
                     onClickSearchQueryItem={() => {
-                      navigate(`${SEARCH_POST_PATH}/${value}`);
+                      onNavigate(value);
                     }}
                   />
                 </React.Fragment>
@@ -138,7 +150,7 @@ const SearchSuggestBody: React.FC<SearchSuggestBodyProps> = ({
                 <SearchQueryElement
                   searchQueryWord={`"${searchTempWord}" 검색`}
                   onClickSearchQueryItem={() => {
-                    navigate(`${SEARCH_POST_PATH}/${searchTempWord}`);
+                    onNavigate(searchTempWord);
                   }}
                 />
               )}
@@ -150,7 +162,7 @@ const SearchSuggestBody: React.FC<SearchSuggestBodyProps> = ({
 };
 
 const SearchSuggestBodyContainer = styled.div`
-  position: absolute;
+  position: fixed;
   height: calc(100% - ${theme.systemSize.header.height});
   top: ${theme.systemSize.header.height};
   width: 100%;
@@ -159,6 +171,7 @@ const SearchSuggestBodyContainer = styled.div`
   z-index: 20;
   overscroll-behavior: contain;
   overflow-y: auto;
+  max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
 
   @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
     border-radius: 20px;
@@ -166,7 +179,7 @@ const SearchSuggestBodyContainer = styled.div`
     height: 500px;
     overflow: auto;
     padding-bottom: 20px;
-    position: fixed;
+
     max-width: ${({ theme }) => theme.systemSize.appDisplaySize.widthByPc};
     z-index: 1000;
     width: 100%;

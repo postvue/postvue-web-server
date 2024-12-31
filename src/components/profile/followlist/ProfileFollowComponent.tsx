@@ -1,5 +1,6 @@
 import FollowButton from 'components/common/buttton/FollowButton';
 import { PROFILE_LIST_PATH } from 'const/PathConst';
+import { stackRouterPush } from 'global/util/reactnative/StackRouter';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -25,7 +26,9 @@ const ProfileFollowComponent: React.FC<ProfileFollowComponentProps> = ({
   const navigate = useNavigate();
   return (
     <PostProfileFollowContainer
-      onClick={() => navigate(`${PROFILE_LIST_PATH}/${username}`)}
+      onClick={() =>
+        stackRouterPush(navigate, `${PROFILE_LIST_PATH}/${username}`)
+      }
     >
       <PostProfileFollowWrap>
         <ProfileImgUsernameWrap>

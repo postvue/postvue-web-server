@@ -1,5 +1,6 @@
 import AccountOtherSettingButton from 'components/common/buttton/AccountOtherSettingButton';
 import AccountSettingButton from 'components/common/buttton/AccountSettingButton';
+import SearchTabComponent from 'components/home/header/SearchTabComponent';
 import { QueryStateProfileInfo } from 'hook/queryhook/QueryStateProfileInfo';
 import React from 'react';
 import { useParams } from 'react-router-dom';
@@ -18,6 +19,7 @@ const ProfileAccountHeader: React.FC = () => {
           titleName={data.username}
           RightButtonNode={
             <ProfileSettingWrap>
+              <SearchTabComponent />
               {data.isMe ? (
                 <AccountSettingButton />
               ) : (
@@ -34,6 +36,8 @@ const ProfileAccountHeader: React.FC = () => {
 const ProfileSettingWrap = styled.div`
   display: flex;
   cursor: pointer;
+  position: relative;
+  gap: 15px;
 `;
 
 export default ProfileAccountHeader;

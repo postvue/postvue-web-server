@@ -41,7 +41,7 @@ const HeartButtonSingleFactory: React.FC<HeartButtonSingleFactoryProps> = ({
         postId={postId}
         setHeartStete={setHeartSingleButtonState}
         isLiked={snsPost?.isLiked || false}
-      ></HeartButton>
+      />
     </>
   );
 };

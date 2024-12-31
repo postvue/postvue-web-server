@@ -1,8 +1,8 @@
-import SnsAnotherSharePoupElement from 'components/popups/snsshare/SnsAnotherSharePoupElement';
+import { stackRouterPush } from 'global/util/reactnative/StackRouter';
 import MsgInboxListInfiniteScroll from 'hook/MsgInboxListInfiniteScroll';
 import { QueryStateMsgInboxListInfinite } from 'hook/queryhook/QueryStateMsgInboxListInfinite';
-import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 import { MSG_CONTENT_TEXT_TYPE } from '../../../const/MsgContentTypeConst';
@@ -17,11 +17,9 @@ const MessageInboxBody: React.FC = () => {
     sessionActiveUserInfoHashMapAtom,
   );
 
-  const { data: msgInboxMessageList } = QueryStateMsgInboxListInfinite();
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    console.log(msgInboxMessageList);
-  }, [msgInboxMessageList]);
+  const { data: msgInboxMessageList } = QueryStateMsgInboxListInfinite();
 
   return (
     <MessageInboxBodyContainer>
@@ -66,8 +64,13 @@ const MessageInboxBody: React.FC = () => {
                       />
                     </FollowProfileActiveWrap>
                     <FollowNameMsgWrap>
-                      <Link
-                        to={`${MESSAGE_PATH}/${value.username}${CONVERSTAION_PATH}`}
+                      <div
+                        onClick={() =>
+                          stackRouterPush(
+                            navigate,
+                            `${MESSAGE_PATH}/${value.username}${CONVERSTAION_PATH}`,
+                          )
+                        }
                       >
                         <FollowUsername>{value.username}</FollowUsername>
                         <FollowRecentWrap>
@@ -79,7 +82,7 @@ const MessageInboxBody: React.FC = () => {
                             <FollowRecentMsg>텍스트 아님</FollowRecentMsg>
                           )}
                         </FollowRecentWrap>
-                      </Link>
+                      </div>
                     </FollowNameMsgWrap>
                   </FollowProfileImgNameWrapWrap>
                   <MsgSubWrap>
@@ -104,7 +107,7 @@ const MessageInboxBody: React.FC = () => {
               <NotMsgTargetTitle>
                 친구들을 팔로우해 대화 해 보세요.
               </NotMsgTargetTitle>
-              <SnsAnotherSharePoupElement />
+              {/* <SnsAnotherSharePoupElement /> */}
             </NotMsgTargetWrap>
           </>
         )}
@@ -260,6 +263,7 @@ const NotMsgTargetTitle = styled.div`
   font: ${({ theme }) => theme.fontSizes.Body5};
   text-align: center;
   padding-bottom: 15px;
+  white-space: nowrap;
 `;
 
 export default MessageInboxBody;

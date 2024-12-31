@@ -107,6 +107,7 @@ const NotPostComment = styled.div`
   left: 50%;
   transform: translate(-50%, 50%);
   font: ${({ theme }) => theme.fontSizes.Body3};
+  white-space: nowrap;
 `;
 
 export default PostReactionCommentBody;

@@ -1,7 +1,8 @@
-import { HOME_PATH, PROFILE_EDIT_SCRAP_PATH } from 'const/PathConst';
+import SnsPostMasonryLayout_ from 'components/layouts/SnsPostMasonryLayout_';
+import { PROFILE_EDIT_SCRAP_PATH } from 'const/PathConst';
 import { TargetAudienceCategory } from 'const/ScrapConst';
 import { convertDiffrenceDateTime } from 'global/util/DateTimeUtil';
-import { useGoBackOrNavigate } from 'global/util/historyStateUtil';
+import { stackRouterPush } from 'global/util/reactnative/StackRouter';
 import ProfileScrapInfiniteScroll from 'hook/ProfileScrapInfiniteScroll';
 import { QueryStateProfileScrap } from 'hook/queryhook/QueryStateProfileScrap';
 import { QueryStateProfileScrapInfo } from 'hook/queryhook/QueryStateProfileScrapInfo';
@@ -10,13 +11,11 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import { profileScrapInfoAtom } from 'states/ProfileAtom';
 import styled from 'styled-components';
-import MasonryLayout from '../layouts/MasonryLayout';
 const ProfileScrapBody: React.FC = () => {
   const param = useParams();
   const scrapId = param.scrap_id;
   const navigate = useNavigate();
 
-  const goBackOrNavigate = useGoBackOrNavigate(HOME_PATH);
   const { data: scrapInfo, isFetched: isFetchedByScrapInfo } =
     QueryStateProfileScrapInfo(scrapId || '');
 
@@ -43,79 +42,80 @@ const ProfileScrapBody: React.FC = () => {
     }
   }, [isFetchedByScrapInfo]);
 
-  useEffect(() => {
-    if (!isFetchedByProfileScrap) return;
-  }, [isFetchedByProfileScrap]);
+  // useEffect(() => {
+  //   if (
+  //     profileScrap &&
+  //     profileScrap?.pages.flatMap((v) => v.scrapPostList).length > 0
+  //   )
+  //     return;
+
+  //   goBackOrNavigate();
+  // }, [profileScrap]);
 
   return (
     <>
-      <ProfileScrapBodyContainer>
-        <ProfileScrapBodyWrap>
-          <ProfileScrapTitleEditWrap>
-            <ProfileScrapTitleWrap>
-              <ProfileScrapTitle>
-                {profileScrapInfo.scrapName}
-              </ProfileScrapTitle>
-              <ProfileScrapNumDateWrap>
-                <ProfileScrapNum>
-                  {profileScrapInfo.scrapNum.toLocaleString()}개
-                </ProfileScrapNum>
-                <ProfileScrapDate>
-                  {convertDiffrenceDateTime(profileScrapInfo.lastPostedAt)}
-                </ProfileScrapDate>
-              </ProfileScrapNumDateWrap>
-            </ProfileScrapTitleWrap>
-            {profileScrapInfo.isMe && (
-              <ProfileScrapEditButtonWrap
-                onClick={() => {
-                  navigate(`${PROFILE_EDIT_SCRAP_PATH}/${scrapId}`);
-                }}
-              >
-                <ProfileScrapEditButton>편집하기</ProfileScrapEditButton>
-              </ProfileScrapEditButtonWrap>
-            )}
-          </ProfileScrapTitleEditWrap>
-
-          {profileScrap?.pages && (
-            <MasonryLayout
-              snsPostUrlList={profileScrap.pages
-                .flatMap((value) => value.scrapPostList)
-                .map((v) => {
-                  return {
-                    postId: v.postId,
-                    userId: v.userId,
-                    postContent: v.postThumbnailContent,
-                    postContentType: v.postThumbnailContentType,
-                    username: v.username,
-                    location: v.location,
-                    previewImg: v.postThumbnailPreviewImg,
-                  };
-                })}
-            />
-          )}
-          {profileScrap && profileScrapInfo && (
-            <>
-              {((profileScrapInfo.targetAudience ===
-                TargetAudienceCategory.PROTECTED_TARGET_AUDIENCE
-                  .targetAudienceValue &&
-                profileScrap.pages.flatMap((v) => v.scrapPostList).length <=
-                  0) ||
-                (!profileScrapInfo.isMe &&
-                  profileScrapInfo.targetAudience ===
-                    TargetAudienceCategory.PRIVATE_TARGET_AUDIENCE
-                      .targetAudienceValue)) && <div>비공개</div>}
-            </>
-          )}
-
-          {scrapId && (
-            <>
-              {profileScrapInfo.scrapName !== '' && (
-                <ProfileScrapInfiniteScroll scrapId={scrapId} />
+      {isFetchedByScrapInfo && isFetchedByProfileScrap && (
+        <ProfileScrapBodyContainer>
+          <ProfileScrapBodyWrap>
+            <ProfileScrapTitleEditWrap>
+              <ProfileScrapTitleWrap>
+                <ProfileScrapTitle>
+                  {profileScrapInfo.scrapName}
+                </ProfileScrapTitle>
+                <ProfileScrapNumDateWrap>
+                  <ProfileScrapNum>
+                    {profileScrapInfo.scrapNum.toLocaleString()}개
+                  </ProfileScrapNum>
+                  <ProfileScrapDate>
+                    {convertDiffrenceDateTime(profileScrapInfo.lastPostedAt)}
+                  </ProfileScrapDate>
+                </ProfileScrapNumDateWrap>
+              </ProfileScrapTitleWrap>
+              {profileScrapInfo.isMe && (
+                <ProfileScrapEditButtonWrap
+                  onClick={() => {
+                    stackRouterPush(
+                      navigate,
+                      `${PROFILE_EDIT_SCRAP_PATH}/${scrapId}`,
+                    );
+                  }}
+                >
+                  <ProfileScrapEditButton>편집하기</ProfileScrapEditButton>
+                </ProfileScrapEditButtonWrap>
               )}
-            </>
-          )}
-        </ProfileScrapBodyWrap>
-      </ProfileScrapBodyContainer>
+            </ProfileScrapTitleEditWrap>
+
+            {profileScrap?.pages && (
+              <SnsPostMasonryLayout_
+                snsPostList={profileScrap.pages.flatMap(
+                  (value) => value.snsPostRspList,
+                )}
+              />
+            )}
+            {profileScrap && profileScrapInfo && (
+              <>
+                {((profileScrapInfo.targetAudience ===
+                  TargetAudienceCategory.PROTECTED_TARGET_AUDIENCE
+                    .targetAudienceValue &&
+                  profileScrap.pages.flatMap((v) => v.snsPostRspList).length <=
+                    0) ||
+                  (!profileScrapInfo.isMe &&
+                    profileScrapInfo.targetAudience ===
+                      TargetAudienceCategory.PRIVATE_TARGET_AUDIENCE
+                        .targetAudienceValue)) && <div>비공개</div>}
+              </>
+            )}
+
+            {scrapId && (
+              <>
+                {profileScrapInfo.scrapName !== '' && (
+                  <ProfileScrapInfiniteScroll scrapId={scrapId} />
+                )}
+              </>
+            )}
+          </ProfileScrapBodyWrap>
+        </ProfileScrapBodyContainer>
+      )}
     </>
   );
 };

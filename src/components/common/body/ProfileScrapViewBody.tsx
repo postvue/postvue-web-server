@@ -63,6 +63,7 @@ const NotScrapTitle = styled.div`
   left: 50%;
   transform: translate(-50%, -50%);
   font: ${({ theme }) => theme.fontSizes.Body5};
+  white-space: nowrap;
 `;
 
 export default ProfileScrapViewBody;

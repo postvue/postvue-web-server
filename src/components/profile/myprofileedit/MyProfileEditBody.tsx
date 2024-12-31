@@ -136,6 +136,7 @@ const MyProfileEditBody: React.FC = () => {
             <ProfileNicknameContent
               value={userLink}
               onChange={(e) => setUserLink(e.target.value)}
+              placeholder=""
             />
           </ProfileAccountSettingElementWrap>
           <BoundaryStickBar />

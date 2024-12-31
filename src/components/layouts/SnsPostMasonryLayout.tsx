@@ -148,6 +148,8 @@ const SnsPostMasonryLayout: React.FC<SnsPostMasonryLayoutProps> = ({
             username: v.username,
             location: v.location,
             previewImg: postContent.previewImg,
+            isUploaded: postContent.isUploaded,
+            videoDuration: postContent.videoDuration,
           };
 
           if (errorPostIds.has(v.postId)) return null;
@@ -229,6 +231,7 @@ const SnsPostMasonryLayout: React.FC<SnsPostMasonryLayoutProps> = ({
                           }
                           autoPlayMode={isAutoPlay}
                           videoSrc={masonryPostRsp.postContent}
+                          videoDuration={masonryPostRsp.videoDuration}
                           posterImg={masonryPostRsp.previewImg}
                           onLoadedData={masonryLayout}
                           actionFuncByRef={actionFuncByRef}

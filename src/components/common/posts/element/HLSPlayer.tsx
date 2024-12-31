@@ -1,4 +1,3 @@
-import { SERVER_PATH } from 'const/SystemAttrConst';
 import Hls from 'hls.js';
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
@@ -31,8 +30,7 @@ const HlsPlayer: React.FC<HlsPlayerProps> = ({
 
     try {
       const urlObj = new URL(src); // 유효한 URL인지 확인
-      isHls =
-        urlObj.pathname.endsWith('.m3u8') && urlObj.origin === SERVER_PATH;
+      isHls = urlObj.pathname.endsWith('.m3u8');
     } catch (e) {
       return;
     }
@@ -75,6 +73,7 @@ const VideoElement = styled.video`
   height: auto;
   vertical-align: bottom;
   border-radius: 20px;
+  pointer-events: none;
 `;
 
 export default HlsPlayer;

@@ -1,4 +1,5 @@
 import { MEDIA_MOBILE_MAX_WIDTH } from 'const/SystemAttrConst';
+import { stackRouterPush } from 'global/util/reactnative/StackRouter';
 import { QueryStateSearchFavoriteTermList } from 'hook/queryhook/QueryStateSearchFavoriteTermList';
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -58,7 +59,9 @@ const SearchBody: React.FC<SearchBodyProps> = ({
             <FavoriteTermListWrap>
               <FavoriteTermListTitle>즐겨찾는 검색어</FavoriteTermListTitle>
               <FavoriteTermListEdit
-                onClick={() => naviate(SEARCH_FAVORITE_LIST_PATH)}
+                onClick={() =>
+                  stackRouterPush(naviate, SEARCH_FAVORITE_LIST_PATH)
+                }
               >
                 목록편집
               </FavoriteTermListEdit>
@@ -98,12 +101,19 @@ const SearchBody: React.FC<SearchBodyProps> = ({
               {recommTagList &&
                 recommTagList.map((v, i) => (
                   <TagElementContainer key={i} ref={i === 0 ? handleRef : null}>
-                    <Link to={`${SEARCH_POST_PATH}/${v.tagName}`}>
+                    <div
+                      onClick={() =>
+                        stackRouterPush(
+                          naviate,
+                          `${SEARCH_POST_PATH}/${v.tagName}`,
+                        )
+                      }
+                    >
                       {/* @REFER: 콘텐츠 타입에 따라 다르게 보이도록 */}
                       <TagElementWrap $tagBkgdPath={v.tagBkgdContent}>
                         <TagNameDiv>#{v.tagName}</TagNameDiv>
                       </TagElementWrap>
-                    </Link>
+                    </div>
                   </TagElementContainer>
                 ))}
             </SearchSuggestItemListWrap>
@@ -180,13 +190,14 @@ const FavoriteTermListTitle = styled(SearchRelatedTitle)`
 `;
 
 const FavoriteTermListEdit = styled.div`
-  font: ${({ theme }) => theme.fontSizes.Subhead2};
+  font: ${({ theme }) => theme.fontSizes.Body4};
   font-size: 15px;
   margin: auto 0;
   text-decoration-line: underline;
   letter-spacing: -0.3px;
   text-underline-offset: 2px;
   cursor: pointer;
+  color: ${({ theme }) => theme.grey.Grey9};
 `;
 
 const SearchFavoriteItemListWrap = styled.div`

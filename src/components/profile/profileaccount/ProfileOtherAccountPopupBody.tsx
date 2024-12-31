@@ -35,6 +35,7 @@ const ProfileOtherAccountPopupBody: React.FC = () => {
             isActive: true,
             shareLink: window.location.href,
             mainImageUrl: shareSharePopupInfo.mainImageUrl,
+            isFixed: false,
           });
         }}
       >

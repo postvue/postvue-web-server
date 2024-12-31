@@ -10,8 +10,9 @@ import { ReactComponent as NotificationNotActiveIcon } from 'assets/images/icon/
 import HeaderLayout from 'components/layouts/HeaderLayout';
 import ContextMenuPopup from 'components/popups/ContextMenuPopup';
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
-import { getMyAccountSettingInfo } from 'global/util/MyAccountSettingUtil';
+import { stackRouterPush } from 'global/util/reactnative/StackRouter';
 import useWindowSize from 'hook/customhook/useWindowSize';
+import { QueryStateMyProfileInfo } from 'hook/queryhook/QueryStateMyProfileInfo';
 import { isActiveMsgBlockHiddenManagePopupAtom } from 'states/MsgInboxAtom';
 import { notificationMsgHashMapAtom } from 'states/NotificationAtom';
 import MsgBlockHiddenManagePopupBody from '../popup/MsgBlockHiddenManagePopupBody';
@@ -23,7 +24,7 @@ const MessageInboxHeader: React.FC = () => {
     isActiveMsgBlockHiddenManagePopup,
     setIsActiveMsgBlockHiddenManagePopup,
   ] = useRecoilState(isActiveMsgBlockHiddenManagePopupAtom);
-  const myAccountSettingInfo = getMyAccountSettingInfo();
+  const { data: myAccountSettingInfo } = QueryStateMyProfileInfo();
 
   const onClickPopup = () => {
     setIsActiveMsgBlockHiddenManagePopup(true);
@@ -44,10 +45,12 @@ const MessageInboxHeader: React.FC = () => {
       <HeaderLayout>
         <MessageInboxHeaderWrap>
           <ProfileNameWrap>
-            <ProfileNameDiv>{myAccountSettingInfo.username}</ProfileNameDiv>
+            <ProfileNameDiv>{myAccountSettingInfo?.username}</ProfileNameDiv>
           </ProfileNameWrap>
           <MessageSettingWrap>
-            <NotificationTab onClick={() => navigate(NOTIFICATION_LIST_PATH)}>
+            <NotificationTab
+              onClick={() => stackRouterPush(navigate, NOTIFICATION_LIST_PATH)}
+            >
               {Array.from(notificationMsgHashMap.entries()).some(
                 (value) => value[1].isRead === false,
               ) ? (

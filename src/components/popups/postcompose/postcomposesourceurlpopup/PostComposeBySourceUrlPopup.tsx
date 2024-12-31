@@ -39,7 +39,7 @@ const PostComposeBySourceUrlPopup: React.FC = () => {
       ) : (
         <RoundSquareCenterPopupLayout
           popupWrapStyle={{
-            height: 'calc(100vh - 50px)',
+            height: 'calc(100dvh - 50px)',
             borderRadius: '20px',
           }}
           onClose={() => setIsActivePostComposeBySourceUrlPopup(false)}

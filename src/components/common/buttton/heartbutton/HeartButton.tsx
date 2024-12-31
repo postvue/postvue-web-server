@@ -7,6 +7,8 @@ import LongPressToResizeButton from '../LongPressToResizeButton';
 
 import { ReactComponent as PostReactionHeartButtonIcon } from 'assets/images/icon/svg/post/PostReactionHeartButtonIcon.svg';
 import { ReactComponent as PostReactionHeartNotActiveButtonIcon } from 'assets/images/icon/svg/post/PostReactionHeartNotActiveButtonIcon.svg';
+import { refetchProfilePost } from 'global/util/channel/static/refetchProfilePost';
+import { sendVibrationHeavyEvent } from 'global/util/reactnative/StackRouter';
 interface HeartButtonProps {
   setHeartStete: (postLikeGrp: PostLikeRsp) => void;
   postId: string;
@@ -26,7 +28,7 @@ const HeartButton: React.FC<HeartButtonProps> = ({
     e.stopPropagation();
     if (postId) {
       putPostLike(postId)
-        .then((value) => {
+        .then(async (value) => {
           setHeartStete(value);
 
           if (value.isLike) {
@@ -37,8 +39,12 @@ const HeartButton: React.FC<HeartButtonProps> = ({
               easing: 'easeInOutQuad',
               direction: 'alternate',
             });
+            sendVibrationHeavyEvent();
           }
+
+          refetchProfilePost(postId);
         })
+
         .catch((err) => {
           throw err;
         });
