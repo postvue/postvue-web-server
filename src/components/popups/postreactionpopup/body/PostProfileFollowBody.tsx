@@ -1,4 +1,5 @@
 import { PROFILE_LIST_PATH } from 'const/PathConst';
+import { isApp, stackRouterPush } from 'global/util/reactnative/StackRouter';
 import React, { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSetRecoilState } from 'recoil';
@@ -28,9 +29,14 @@ const PostProfileFollowBody: React.FC<PostProfileFollowBodyProps> = ({
               <PostProfileFollowWrap>
                 <PostProfileFollowSubWrap
                   onClick={() => {
-                    setIsPopupActive(false);
-                    navigate(`${PROFILE_LIST_PATH}/${v.username}`);
-                    window.scrollTo(0, 0);
+                    stackRouterPush(
+                      navigate,
+                      `${PROFILE_LIST_PATH}/${v.username}`,
+                    );
+                    if (!isApp()) {
+                      setIsPopupActive(false);
+                      window.scrollTo(0, 0);
+                    }
                   }}
                 >
                   <ProfileImgUsernameWrap>

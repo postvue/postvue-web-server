@@ -3,10 +3,9 @@ import { ACCESS_TOKEN } from 'const/LocalStorageConst';
 import { api } from 'services';
 import { KAKAO_LOGIN_API_PATH } from 'services/appApiPath';
 
-interface postKakaoLoginRes {
-  data: string;
-  statusCode: string;
-  message: string;
+interface AuthTokenRes {
+  accessToken: string;
+  refreshToken: string;
 }
 
 interface postKakaoLoginReq {
@@ -16,7 +15,7 @@ interface postKakaoLoginReq {
 // Point 가져오기
 export const postKakaoLogin = (
   kakaoAccessToken: string,
-): Promise<postKakaoLoginRes> => {
+): Promise<AuthTokenRes> => {
   const data: postKakaoLoginReq = {
     kakaoAccessToken: kakaoAccessToken,
   };
@@ -24,11 +23,11 @@ export const postKakaoLogin = (
   return api
     .post(KAKAO_LOGIN_API_PATH, data)
     .then((res) => {
-      const accessToken = res.data.data;
+      const authToken: AuthTokenRes = res.data.data;
 
-      localStorage.setItem(ACCESS_TOKEN, accessToken);
+      localStorage.setItem(ACCESS_TOKEN, authToken.accessToken);
 
-      return res.data;
+      return authToken;
     })
     .catch((err: AxiosError) => {
       throw err;

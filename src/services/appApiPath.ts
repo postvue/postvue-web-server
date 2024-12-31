@@ -45,12 +45,17 @@ export const AUTH_APTH = '/auth';
 export const AUTH_RENEWAL_TOKEN_API_PATH = `${AUTH_APTH}/renewal/tokens`;
 export const KAKAO_LOGIN_API_PATH = `${AUTH_APTH}/login/kakao`;
 export const NAVER_LOGIN_API_PATH = `${AUTH_APTH}/login/naver`;
+export const EMAIL_LOGIN_API_PATH = `${AUTH_APTH}/login/email`;
 export const AUTH_MEMBER_WITHDRAWAL_API_PATH = `${AUTH_APTH}/member-withdrawal`;
+export const AUTH_CHECK_SIGNUP_QUAL_API_PATH = `${AUTH_APTH}/check/signup/qual`;
 
 // 회원 가입
 export const PROFILE_EXISTENCE_PATH = `${PROFILE_LIST_PATH}/existence`;
+export const PROFILE_EXISTENCE_EMAIL_API_PATH = `${PROFILE_LIST_PATH}/existence/emails`;
 export const SIGNUP_API_PATH = `${AUTH_APTH}/signup`;
 export const LOGOUT_API_PATH = `${AUTH_APTH}/logout`;
+export const SIGNUP_EMAIL_API_PATH = `${AUTH_APTH}/signup/email`;
+export const SIGNUP_VERIFY_EMAIL_API_PATH = `${AUTH_APTH}/verify/signup/email`;
 
 //설정
 export const PROFILE_EMAIL_EDIT_API_PATH = `${PROFILE_LIST_PATH}${MY_PATH}${INFO_PATH}/email`;

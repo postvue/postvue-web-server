@@ -10,12 +10,14 @@ export const sharePopupInfoAtom = atom<{
   isActive: boolean;
   shareLink: string;
   mainImageUrl: string;
+  isFixed: boolean;
 }>({
   key: 'isSharePopup',
   default: {
     isActive: false,
     shareLink: '',
     mainImageUrl: '',
+    isFixed: false,
   },
 });
 

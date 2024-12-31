@@ -8,6 +8,7 @@ const AppConfig: React.FC = () => {
     <>
       <WebSocketInitConfig />
       <KakaoInitConfig />
+
       <DynamicStyleConfig />
     </>
   );

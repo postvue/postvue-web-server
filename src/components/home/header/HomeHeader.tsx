@@ -1,14 +1,15 @@
+import { queryClient } from 'App';
 import { ReactComponent as FeelogLogo } from 'assets/images/icon/svg/logo/FeelogLogo62x30.svg';
-import { ReactComponent as SearchButtonIcon } from 'assets/images/icon/svg/SearchButtonIcon.svg';
 import TabStickBar from 'components/common/container/TabStickBar';
 import HeaderLayout from 'components/layouts/HeaderLayout';
+import { QUERY_STATE_MY_PROFILE_INFO } from 'const/QueryClientConst';
 import { MEDIA_MOBILE_MAX_WIDTH } from 'const/SystemAttrConst';
+import { PostRsp } from 'global/interface/post';
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
 import { ACTIVE_CLASS_NAME } from '../../../const/ClassNameConst';
-import { SEARCH_PATH } from '../../../const/PathConst';
 import {
   FOLLOW_FOR_ME_TAB_ID,
   FOLLOW_FOR_ME_TAB_NAME,
@@ -21,6 +22,7 @@ import {
   saveMainTabIdByHomeHistory,
 } from '../../../global/util/HomeUtil';
 import { homeTabIdAtom } from '../../../states/HomePageAtom';
+import SearchTabComponent from './SearchTabComponent';
 
 const HomeHeader: React.FC = () => {
   const navigate = useNavigate();
@@ -40,6 +42,13 @@ const HomeHeader: React.FC = () => {
   useEffect(() => {
     const homeHistory: HomeHistoryInterface = getHomeHistory();
     setMainTabId(homeHistory.mainTabId);
+
+    setTimeout(() => {
+      const queryData: PostRsp | undefined = queryClient.getQueryData([
+        QUERY_STATE_MY_PROFILE_INFO,
+      ]);
+      console.log(queryData);
+    }, 2000);
   }, []);
 
   return (
@@ -55,6 +64,7 @@ const HomeHeader: React.FC = () => {
           <AppLogoWrap>
             <FeelogLogo />
           </AppLogoWrap>
+
           <HomeTabContainer>
             {mainTabList.map((v, i) => (
               <TabItem
@@ -70,9 +80,7 @@ const HomeHeader: React.FC = () => {
               </TabItem>
             ))}
           </HomeTabContainer>
-          <SubTabContainer onClick={() => navigate(SEARCH_PATH)}>
-            <SearchButtonIcon />
-          </SubTabContainer>
+          <SearchTabComponent />
         </HomeHeaderContainer>
       </HeaderLayout>
     </>
@@ -93,7 +101,8 @@ const HomeTabContainer = styled.div`
   position: fixed;
   z-index: 1;
   left: 50%;
-  transform: translate(-50%, 50%);
+  top: 50%;
+  transform: translate(-50%, -50%);
 `;
 
 const TabItem = styled.div`
@@ -111,17 +120,6 @@ const TabItem = styled.div`
   &.active {
     color: black;
   }
-`;
-const SubTabContainer = styled.div`
-  cursor: pointer;
-  @media (max-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
-    display: flex;
-  }
-
-  @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
-    display: none;
-  }
-  margin: auto 0px;
 `;
 
 const AppLogoWrap = styled.div`

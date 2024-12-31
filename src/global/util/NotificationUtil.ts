@@ -11,9 +11,9 @@ export const getNotificationMsgHashMapByLocalStorage = (): Map<
   return new Map(notificationMsgHashMap);
 };
 
-// export const resetNotificationMsgListByLocalStorage = (): void => {
-//   localStorage.removeItem(NOTIFICATION_MSG_LIST);
-// };
+export const resetNotificationMsgListByLocalStorage = (): void => {
+  localStorage.removeItem(NOTIFICATION_MSG_LIST);
+};
 
 export const saveNotificationMsgHashMapByLocalStorage = (
   newNotificationMsgList: NotificationMsgWsSub[],

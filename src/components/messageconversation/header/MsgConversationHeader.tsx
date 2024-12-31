@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 import { PROFILE_LIST_PATH } from '../../../const/PathConst';
@@ -15,6 +15,7 @@ import { ReactComponent as SettingVerticalDotIcon } from 'assets/images/icon/svg
 import HeaderLayout from 'components/layouts/HeaderLayout';
 import ContextMenuPopup from 'components/popups/ContextMenuPopup';
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
+import { stackRouterPush } from 'global/util/reactnative/StackRouter';
 import useWindowSize from 'hook/customhook/useWindowSize';
 import MsgConversationSettingPopupBody from '../popup/MsgConversationSettingPopupBody';
 
@@ -25,6 +26,7 @@ const MsgConversationHeader: React.FC = () => {
   const sessionActiveUserInfoHashMap = useRecoilValue(
     sessionActiveUserInfoHashMapAtom,
   );
+  const navigate = useNavigate();
   const [isSettingByMsgConversation, setIsSettingByMsgConversation] =
     useRecoilState(isSettingByMsgConversationAtom);
 
@@ -45,14 +47,16 @@ const MsgConversationHeader: React.FC = () => {
         <MsgProfileHeaderContainer>
           <MsgProfileHeaderWrap>
             <PrevButtonWrap>
-              <PrevButton
-                style={PrevStyle}
-                strokeColor={theme.mainColor.Black}
-              />
+              <PrevButton style={PrevStyle} />
             </PrevButtonWrap>
             <FollowProfileInfoWrap>
-              <Link
-                to={`${PROFILE_LIST_PATH}/${profileInfoByDirectMsg.username}`}
+              <div
+                onClick={() =>
+                  stackRouterPush(
+                    navigate,
+                    `${PROFILE_LIST_PATH}/${profileInfoByDirectMsg.username}`,
+                  )
+                }
               >
                 <FollowProfileInfoLinkWrap>
                   <FolowProfileActiveWrap>
@@ -73,7 +77,7 @@ const MsgConversationHeader: React.FC = () => {
                     </FollowProfileName>
                   </FollowProfileNameWrap>
                 </FollowProfileInfoLinkWrap>
-              </Link>
+              </div>
             </FollowProfileInfoWrap>
             <SettingButtonWrap>
               <SettingButton

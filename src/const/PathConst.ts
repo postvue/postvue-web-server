@@ -71,3 +71,4 @@ export const LOGIN_PATH = `/login`;
 
 //회원가입
 export const SIGNUP_PATH = '/signup';
+export const VERIFY_EMAIL_PATH = '/verify/email';

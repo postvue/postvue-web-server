@@ -1,13 +1,12 @@
 import { queryClient } from 'App';
-import {
-  QUERY_STATE_POST_SCRAP_PREVIEW_LIST,
-  QUERY_STATE_PROFILE_ACCOUNT_POST_LIST,
-  QUERY_STATE_PROFILE_CLIP_LIST,
-  QUERY_STATE_PROFILE_SCRAP_LIST,
-} from 'const/QueryClientConst';
+import { QUERY_STATE_PROFILE_ACCOUNT_POST_LIST } from 'const/QueryClientConst';
 import { PostRsp } from 'global/interface/post';
+import { refetchProfileScrapList } from 'global/util/channel/static/refetchProfileScrapList';
+import {
+  setQueryProfileClipList,
+  setQueryRemoveProfileClipList,
+} from 'global/util/channel/static/setQueryProfileClipList';
 import { ProfilePostListQueryInterface } from 'hook/queryhook/QueryStateProfileAccountPostList';
-import { ProfileClipListQueryInterface } from 'hook/queryhook/QueryStateProfileClipListInfinite';
 import 'swiper/css';
 
 export const onClickClipGlobalState = (
@@ -47,56 +46,58 @@ export const onClickClipGlobalState = (
   );
 
   if (isClipped) {
-    queryClient.setQueryData(
-      [QUERY_STATE_PROFILE_CLIP_LIST],
-      (oldData: ProfileClipListQueryInterface) => {
-        if (!oldData) {
-          return oldData;
-        }
-        return {
-          ...oldData,
-          pages: oldData.pages.map((page) => {
-            // 삭제할 댓글을 제외한 새로운 리스트를 반환
-            const updatedProfileClipList = { ...page.snsPostRspList };
-            updatedProfileClipList.push(snsPost);
+    // queryClient.setQueryData(
+    //   [QUERY_STATE_PROFILE_CLIP_LIST],
+    //   (oldData: ProfileClipListQueryInterface) => {
+    //     if (!oldData) {
+    //       return oldData;
+    //     }
+    //     return {
+    //       ...oldData,
+    //       pages: oldData.pages.map((page, index) => {
+    //         // 삭제할 댓글을 제외한 새로운 리스트를 반환
+    //         if (index !== 0) return page;
+    //         const updatedProfileClipList = [...page.snsPostRspList];
+    //         updatedProfileClipList.unshift(snsPost);
 
-            return {
-              ...page,
-              myClipRspList: updatedProfileClipList,
-            };
-          }),
-        };
-      },
-    );
+    //         const date: GetMyProfileClipListRsp = {
+    //           ...page,
+    //           snsPostRspList: updatedProfileClipList,
+    //         };
+
+    //         return date;
+    //       }),
+    //     };
+    //   },
+    // );
+    setQueryProfileClipList(snsPost);
   } else {
-    queryClient.setQueryData(
-      [QUERY_STATE_PROFILE_CLIP_LIST],
-      (oldData: ProfileClipListQueryInterface) => {
-        if (!oldData) {
-          return oldData;
-        }
-        return {
-          ...oldData,
-          pages: oldData.pages.map((page) => {
-            // 삭제할 댓글을 제외한 새로운 리스트를 반환
-            const updatedProfileClipList = page.snsPostRspList.filter(
-              (value) => value.postId !== postId,
-            );
+    // queryClient.setQueryData(
+    //   [QUERY_STATE_PROFILE_CLIP_LIST],
+    //   (oldData: ProfileClipListQueryInterface) => {
+    //     if (!oldData) {
+    //       return oldData;
+    //     }
+    //     return {
+    //       ...oldData,
+    //       pages: oldData.pages.map((page) => {
+    //         // 삭제할 댓글을 제외한 새로운 리스트를 반환
+    //         const updatedProfileClipList = page.snsPostRspList.filter(
+    //           (value) => value.postId !== postId,
+    //         );
 
-            return {
-              ...page,
-              myClipRspList: updatedProfileClipList,
-            };
-          }),
-        };
-      },
-    );
+    //         const date: GetMyProfileClipListRsp = {
+    //           ...page,
+    //           snsPostRspList: updatedProfileClipList,
+    //         };
+
+    //         return date;
+    //       }),
+    //     };
+    //   },
+    // );
+    setQueryRemoveProfileClipList(postId);
   }
 
-  queryClient.invalidateQueries({
-    queryKey: [QUERY_STATE_POST_SCRAP_PREVIEW_LIST, postId],
-  });
-  queryClient.invalidateQueries({
-    queryKey: [QUERY_STATE_PROFILE_SCRAP_LIST],
-  });
+  refetchProfileScrapList();
 };

@@ -10,12 +10,14 @@ interface PostReactionListElementProps {
   username: string;
   postId: string;
   mainImageUrl: string;
+  isFixed: boolean;
 }
 
 const PostReactionListElement: React.FC<PostReactionListElementProps> = ({
   username,
   postId,
   mainImageUrl,
+  isFixed,
 }) => {
   return (
     <ReactionContainer
@@ -36,6 +38,7 @@ const PostReactionListElement: React.FC<PostReactionListElementProps> = ({
         <ShareButton
           shareLink={`/${username}/${postId}`}
           mainImageUrl={mainImageUrl}
+          isFixed={isFixed}
         />
       </HrtMsgShrReactionContainer>
 

@@ -140,3 +140,18 @@ export const getDateFormatToServerDateTimeString = (date: Date): string => {
   const isoString = date.toISOString(); // 2024-10-05T22:55:42.026Z 형태
   return isoString.split('.')[0];
 };
+
+export const formatDate = (inputDate: string): string => {
+  const date = new Date(inputDate); // '2024-12-18'와 같은 형식
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1; // 월은 0부터 시작하므로 +1
+  const day = date.getDate();
+
+  return `${year}년 ${month}월 ${day}일`; // 원하는 형식으로 반환
+};
+
+export function formatToMinutesAndSeconds(seconds: number): string {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+}

@@ -246,6 +246,8 @@ const PostComposeBySourceUrlPopupBody: React.FC<
                       username: '',
                       location: { latitude: 0, longitude: 0, address: '' },
                       previewImg: '',
+                      isUploaded: false,
+                      videoDuration: 0,
                     };
 
                     return homePostRsp;

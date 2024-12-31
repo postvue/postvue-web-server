@@ -1,6 +1,7 @@
 import { animated, config, useSpring } from '@react-spring/web';
 import { useDrag } from '@use-gesture/react';
 import { OVERFLOW_HIDDEN } from 'const/AttributeConst';
+import { sendPopupEvent } from 'global/util/reactnative/StackRouter';
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
@@ -14,6 +15,7 @@ interface BottomSheetLayoutProps {
   setIsExternalCloseFunc?: React.Dispatch<React.SetStateAction<boolean>>;
   isFixed?: boolean;
   isAvaliScroll?: boolean;
+  BottomSheetContainerStyle?: React.CSSProperties;
 }
 
 const BottomSheetLayout: React.FC<BottomSheetLayoutProps> = ({
@@ -26,6 +28,7 @@ const BottomSheetLayout: React.FC<BottomSheetLayoutProps> = ({
   setIsExternalCloseFunc,
   isFixed = true,
   isAvaliScroll = true,
+  BottomSheetContainerStyle,
 }) => {
   const BottomSheetContainerRef = useRef<HTMLDivElement>(null);
   const [height, setHeight] = useState<number>(heightNum || 0);
@@ -92,10 +95,13 @@ const BottomSheetLayout: React.FC<BottomSheetLayoutProps> = ({
 
   useEffect(() => {
     if (isOpen) {
+      // react native로 popup 고정 전달
+
       const y = window.scrollY;
       open({ canceled: false });
 
       if (!isFixed) return;
+      sendPopupEvent(true);
       document.documentElement.style.overflow = OVERFLOW_HIDDEN;
       document.documentElement.style.touchAction = 'none';
       document.body.style.overflow = OVERFLOW_HIDDEN;
@@ -106,18 +112,22 @@ const BottomSheetLayout: React.FC<BottomSheetLayoutProps> = ({
 
       //   root.style.display = 'flow-root';
     } else {
+      // react native로 popup 고정 제거 전달
+
       //   document.documentElement.style.overflow = 'auto';
       //   document.body.style.overflow = '';
       //   root.style.overflow = '';
       //   root.style.display = '';
 
       if (!isFixed) return;
+      sendPopupEvent(false);
       document.documentElement.style.overflow = '';
       document.documentElement.style.touchAction = '';
       document.body.style.overflow = '';
       document.body.style.touchAction = '';
       document.documentElement.style.overscrollBehavior = '';
       document.body.style.overscrollBehavior = '';
+      close();
     }
   }, [isOpen]);
 
@@ -157,7 +167,10 @@ const BottomSheetLayout: React.FC<BottomSheetLayoutProps> = ({
         ref={BottomSheetContainerRef}
         as={animated.div}
         {...bind()}
-        style={{ bottom: `calc(-100dvh + ${height - 100}px)`, y }}
+        style={{
+          ...{ bottom: `calc(-100dvh + ${height - 100}px)`, y },
+          ...BottomSheetContainerStyle,
+        }}
       >
         <PopupScrollBar />
         <BottomSheetWrap $heightNum={height}>{children}</BottomSheetWrap>

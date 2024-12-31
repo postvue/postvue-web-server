@@ -18,6 +18,7 @@ interface PostVideoContentELementProps {
   isUploaded: boolean;
   PostVideoContentELementStyle?: React.CSSProperties;
   PostVideoStyle?: React.CSSProperties;
+  PostVideoPosterImgStyle?: React.CSSProperties;
   stateValue?: string;
   isVisibilityDetection?: boolean;
   visibilityThreshold?: number;
@@ -30,6 +31,7 @@ const PostVideoContentELement: React.FC<PostVideoContentELementProps> = ({
   isUploaded,
   PostVideoContentELementStyle,
   PostVideoStyle,
+  PostVideoPosterImgStyle,
   stateValue,
   isVisibilityDetection = false,
   visibilityThreshold = 0.7,
@@ -246,7 +248,12 @@ const PostVideoContentELement: React.FC<PostVideoContentELementProps> = ({
     >
       {isUploaded ? (
         <>
-          <PostVideoPreviewImg ref={posterRef} src={posterImg} alt="poster" />
+          <PostVideoPreviewImg
+            ref={posterRef}
+            src={posterImg}
+            alt="poster"
+            style={PostVideoPosterImgStyle}
+          />
           <PostVideoContentElement
             style={PostVideoContentELementStyle}
             onClick={() => {
@@ -255,7 +262,7 @@ const PostVideoContentELement: React.FC<PostVideoContentELementProps> = ({
               setShowIcon(true);
 
               // 일정 시간 후 아이콘 숨김
-              setTimeout(() => setShowIcon(false), 700); // 500ms 후 사라짐
+              setTimeout(() => setShowIcon(false), 500); // 500ms 후 사라짐
             }}
           >
             <HlsPlayer
@@ -466,8 +473,8 @@ const PostVideoPreviewImg = styled.img`
   bottom: 0;
   left: 0;
   right: 0;
-  width: 100;
-  borderradius: 20px;
+  width: 100%;
+  border-radius: 20px;
 `;
 
 const NotUploadedVideoTemplate = styled.div`

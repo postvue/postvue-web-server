@@ -4,10 +4,9 @@ import { ACCESS_TOKEN } from 'const/LocalStorageConst';
 import { api } from 'services';
 import { NAVER_LOGIN_API_PATH } from 'services/appApiPath';
 
-interface postNaverLoginRes {
-  data: string;
-  statusCode: string;
-  message: string;
+interface AuthTokenRes {
+  accessToken: string;
+  refreshToken: string;
 }
 
 interface postNaverLoginReq {
@@ -17,7 +16,7 @@ interface postNaverLoginReq {
 // Point 가져오기
 export const postNaverLogin = (
   naverAccessToken: string,
-): Promise<postNaverLoginRes> => {
+): Promise<AuthTokenRes> => {
   const data: postNaverLoginReq = {
     naverAccessToken: naverAccessToken,
   };
@@ -25,11 +24,11 @@ export const postNaverLogin = (
   return api
     .post(NAVER_LOGIN_API_PATH, data)
     .then((res) => {
-      const accessToken = res.data.data;
+      const authToken: AuthTokenRes = res.data.data;
 
-      localStorage.setItem(ACCESS_TOKEN, accessToken);
+      localStorage.setItem(ACCESS_TOKEN, authToken.accessToken);
 
-      return res.data;
+      return authToken;
     })
     .catch((err) => {
       throw err;

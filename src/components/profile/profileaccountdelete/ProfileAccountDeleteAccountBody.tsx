@@ -1,9 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
+import { queryClient } from 'App';
 import BottomNextButton from 'components/common/buttton/BottomNextButton';
 import { APP_SERVICE_NAME } from 'const/AppInfoConst';
 import { HOME_PATH } from 'const/PathConst';
+import { QUERY_STATE_MY_PROFILE_INFO } from 'const/QueryClientConst';
+import { MAX_DELETED_USER_RETENTION_DAY } from 'const/SignupConst';
 import {
   SETTING_AFTER_DELETE_ACCOUNT_MAIN_MOVE_PHASE_TEXT,
   SETTING_DELETE_ACCOUNT_PHASE_TEXT,
@@ -11,6 +14,7 @@ import {
 import { resetAccessTokenToLocalStorage } from 'global/util/CookieUtil';
 import { useNavigate } from 'react-router-dom';
 import { deleteAuthDeleteAccount } from 'services/auth/deleteAuthDeleteAccount';
+import theme from 'styles/theme';
 
 const ProfileAccountDeleteAccountBody: React.FC = () => {
   const navigate = useNavigate();
@@ -29,6 +33,14 @@ const ProfileAccountDeleteAccountBody: React.FC = () => {
   useEffect(() => {
     setBottomHeight(bottomNextButtonRef.current?.offsetHeight || 0);
   }, [bottomNextButtonRef.current]);
+
+  useEffect(() => {
+    return () => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_STATE_MY_PROFILE_INFO],
+      });
+    };
+  }, []);
   return (
     <ProfileAccountDeleteContainer>
       {isDeleteAccount ? (
@@ -38,9 +50,11 @@ const ProfileAccountDeleteAccountBody: React.FC = () => {
               ㅠㅠ 너무 아쉬워요..
             </AccountDeleteCheckTitle>
             <AccountDeleteCheckSubTitle>
-              회원님의 계정은 7일 후에 삭제되며 삭제 시 회원님의 $
-              {APP_SERVICE_NAME} 계정 데이터가 삭제됩니다. 7일 이전에 삭제를
-              취소하려면 회원의 계정으로 다시 로그인해주세요.
+              회원님의 계정은 {MAX_DELETED_USER_RETENTION_DAY}일 후에 삭제되며
+              삭제 시 회원님의 {APP_SERVICE_NAME} 계정 데이터가 삭제됩니다.{' '}
+              {MAX_DELETED_USER_RETENTION_DAY}일이 지나면 해당 계정으로는 다시
+              가입할 수 없습니다. 삭제를 원하시면 회원 계정으로 다시
+              로그인해주세요.
             </AccountDeleteCheckSubTitle>
           </AccountDeleteCheckTitleWrap>
 
@@ -94,6 +108,7 @@ const AccountDeleteCheckTitle = styled.div`
 const AccountDeleteCheckSubTitle = styled.div`
   font: ${({ theme }) => theme.fontSizes.Body2};
   text-align: center;
+  padding: 0 ${theme.systemSize.appDisplaySize.bothSidePadding};
 `;
 
 const AccountDeleteCheckFocusWrap = styled.div<{ $bottom: number }>`

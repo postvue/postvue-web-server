@@ -236,7 +236,6 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
               <PrevButtonWrap>
                 <PrevButton
                   style={PrevStyle}
-                  strokeColor={theme.mainColor.Black}
                   to={backToUrl}
                   type={navigateType}
                 />

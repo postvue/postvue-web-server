@@ -5,6 +5,7 @@ import {
   MEDIA_MOBILE_MAX_WIDTH,
   MEDIA_MOBILE_MAX_WIDTH_NUM,
 } from 'const/SystemAttrConst';
+import { stackRouterPush } from 'global/util/reactnative/StackRouter';
 import useWindowSize from 'hook/customhook/useWindowSize';
 import { QueryStateSearchScrapListInfinite } from 'hook/queryhook/QueryStateSearchScrapListInfinite';
 import SearchScrapListInfiniteScroll from 'hook/SearchScrapListInfiniteScroll';
@@ -37,7 +38,7 @@ const SearchScrapBody: React.FC = () => {
           profileThumbnailScrapList={data?.pages.flatMap((value) => value)}
           isAddMove={false}
           onButtonEvent={(scrapId: string) => {
-            navigate(`${PROFILE_SCRAP_LIST_PATH}/${scrapId}`);
+            stackRouterPush(navigate, `${PROFILE_SCRAP_LIST_PATH}/${scrapId}`);
           }}
         />
       )}

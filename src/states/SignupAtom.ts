@@ -6,6 +6,17 @@ export const signupStepNumAtom = atom<number>({
   default: 1,
 });
 
+export const signStepTransitionInfoAtom = atom<{
+  inTransition: boolean;
+  direction: string;
+}>({
+  key: 'signStepTransitionInfo',
+  default: {
+    inTransition: false,
+    direction: 'left',
+  },
+});
+
 export const signupInfoAtom = atom<SignupInfo>({
   key: 'signupInfo',
   default: {
@@ -27,4 +38,9 @@ export const signupInfoAtom = atom<SignupInfo>({
 export const signupUsernameExistenceHashMapAtom = atom<Map<string, boolean>>({
   key: 'signupUsernameExistenceHashMap',
   default: new Map(),
+});
+
+export const SignupEmailPopupAtom = atom<boolean>({
+  key: 'signupEmailPopupInfo',
+  default: false,
 });

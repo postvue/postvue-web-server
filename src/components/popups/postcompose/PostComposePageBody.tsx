@@ -1,9 +1,11 @@
+import { queryClient } from 'App';
 import PoseComposeBody from 'components/posecompose/PoseComposeBody';
 import PoseComposeHeader from 'components/posecompose/PoseComposeHeader';
 import {
   POST_COMPOSE_BUTTON_PHRASE,
   POST_COMPOSE_HEADER_TITLE_PHRASE,
 } from 'const/PostComposeConst';
+import { QUERY_STATE_PROFILE_ACCOUNT_POST_LIST } from 'const/QueryClientConst';
 import {
   UPLOAD_IMG_MAX_HEIGHT,
   UPLOAD_IMG_MAX_WIDTH,
@@ -14,6 +16,7 @@ import {
   SnsPostComposeCreateReqInterface,
 } from 'global/interface/post';
 import { resizeImage } from 'global/util/ImageInputUtil';
+import { QueryStateMyProfileInfo } from 'hook/queryhook/QueryStateMyProfileInfo';
 import React, { useState } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { createPostCompose } from 'services/post/createPostCompose';
@@ -37,6 +40,7 @@ const PostComposePageBody: React.FC<PostComposePageBodyProps> = ({
     ('');
   },
 }) => {
+  const { data: myProfileInfo } = QueryStateMyProfileInfo(); // 내 정보 가져오기
   const [uploadResourceList, setUploadResourceList] = useRecoilState(
     uploadResourceListAtom,
   );
@@ -87,7 +91,6 @@ const PostComposePageBody: React.FC<PostComposePageBodyProps> = ({
       if (!uploadFile.fileBlob || !uploadFile.filename) return;
 
       // 이미지 인 경우
-
       if (uploadFile.fileBlob.type.startsWith('image/')) {
         const resizeFile = new File(
           [uploadFile.fileBlob],
@@ -113,6 +116,12 @@ const PostComposePageBody: React.FC<PostComposePageBodyProps> = ({
 
     createPostCompose(formData)
       .then(() => {
+        queryClient.invalidateQueries({
+          queryKey: [
+            QUERY_STATE_PROFILE_ACCOUNT_POST_LIST,
+            myProfileInfo?.username,
+          ],
+        });
         setIsLoadingPopup(false);
         actionFuncByCompose();
       })

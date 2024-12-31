@@ -1,6 +1,11 @@
 import { queryClient } from 'App';
 import { notify } from 'components/popups/ToastMsgPopup';
-import { QUERY_STATE_PROFILE_ACCOUNT_POST_LIST } from 'const/QueryClientConst';
+import {
+  QUERY_STATE_POST_SCRAP_PREVIEW_LIST,
+  QUERY_STATE_PROFILE_ACCOUNT_POST_LIST,
+  QUERY_STATE_PROFILE_SCRAP_INFO,
+  QUERY_STATE_PROFILE_SCRAP_LIST,
+} from 'const/QueryClientConst';
 import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useRecoilValue } from 'recoil';
@@ -40,6 +45,15 @@ const ProfileMakeScrapBody: React.FC = () => {
       ).then(() => {
         queryClient.invalidateQueries({
           queryKey: [QUERY_STATE_PROFILE_ACCOUNT_POST_LIST],
+        });
+        queryClient.invalidateQueries({
+          queryKey: [QUERY_STATE_PROFILE_SCRAP_LIST],
+        });
+        queryClient.invalidateQueries({
+          queryKey: [QUERY_STATE_PROFILE_SCRAP_INFO],
+        });
+        queryClient.invalidateQueries({
+          queryKey: [QUERY_STATE_POST_SCRAP_PREVIEW_LIST],
         });
 
         navigate(PROFILE_SCRAP_LIST_PATH);

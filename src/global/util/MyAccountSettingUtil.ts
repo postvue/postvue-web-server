@@ -17,6 +17,7 @@ const initMyAccount: ProfileMyInfo = {
   isPrivateProfile: false,
 };
 
+// @REFER: QueryStateMyProfileInfo로 변경
 export const getMyAccountSettingInfo = (): ProfileMyInfo => {
   const myAccountSettingInfo: ProfileMyInfo = JSON.parse(
     localStorage.getItem(MY_ACCOUNT_SETTING_INFO) ||

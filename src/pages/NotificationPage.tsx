@@ -9,12 +9,19 @@ import {
   USER_FOLLOWER_NOTIFICATION_TYPE,
 } from 'const/NotificationConst';
 import { PROFILE_LIST_PATH } from 'const/PathConst';
+import {
+  POST_DETAIL_POPUP_PARAM,
+  POST_DETAIL_POST_ID_PARAM,
+  POST_DETAIL_PROFILE_PARAM,
+  TRUE_PARAM,
+} from 'const/QueryParamConst';
 import { NotificationMsgWsSub } from 'global/interface/notification';
 import { convertDiffrenceDateTime } from 'global/util/DateTimeUtil';
 import {
   getNotificationMsgHashMapByLocalStorage,
   readNotificationMsgByLocalStorage,
 } from 'global/util/NotificationUtil';
+import { stackRouterPush } from 'global/util/reactnative/StackRouter';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSetRecoilState } from 'recoil';
@@ -60,16 +67,47 @@ const NotificationPage: React.FC = () => {
   const onClickNotificationMsg = (notificationMsg: NotificationMsgWsSub) => {
     switch (notificationMsg.notificationType) {
       case POST_LIKE_NOTIFICATION_TYPE:
-        navigate(`/${notificationMsg.userId}/${notificationMsg.postId}`);
+        navigate(
+          location.pathname +
+            `?${POST_DETAIL_POPUP_PARAM}=${TRUE_PARAM}` +
+            `&${POST_DETAIL_POST_ID_PARAM}=` +
+            notificationMsg.postId +
+            `&${POST_DETAIL_PROFILE_PARAM}=` +
+            notificationMsg.userId,
+          {
+            state: { isDetailPopup: true },
+          },
+        );
         break;
       case POST_CLIP_NOTIFICATION_TYPE:
-        navigate(`/${notificationMsg.userId}/${notificationMsg.postId}`);
+        navigate(
+          location.pathname +
+            `?${POST_DETAIL_POPUP_PARAM}=${TRUE_PARAM}` +
+            `&${POST_DETAIL_POST_ID_PARAM}=` +
+            notificationMsg.postId +
+            `&${POST_DETAIL_PROFILE_PARAM}=` +
+            notificationMsg.userId,
+          {
+            state: { isDetailPopup: true },
+          },
+        );
         break;
       case POST_COMMENT_NOTIFICATION_TYPE:
-        navigate(`/${notificationMsg.userId}/${notificationMsg.postId}`);
+        navigate(
+          location.pathname +
+            `?${POST_DETAIL_POPUP_PARAM}=${TRUE_PARAM}` +
+            `&${POST_DETAIL_POST_ID_PARAM}=` +
+            notificationMsg.postId +
+            `&${POST_DETAIL_PROFILE_PARAM}=` +
+            notificationMsg.userId,
+          {
+            state: { isDetailPopup: true },
+          },
+        );
         break;
       case USER_FOLLOWER_NOTIFICATION_TYPE:
-        navigate(
+        stackRouterPush(
+          navigate,
           `${PROFILE_LIST_PATH}/${notificationMsg.notificationUsername}`,
         );
         break;

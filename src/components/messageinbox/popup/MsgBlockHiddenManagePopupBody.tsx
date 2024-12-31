@@ -6,8 +6,11 @@ import {
   MSG_BLOCK_LIST_TAB_NAME,
   MSG_HIDDEN_LIST_TAB_NAME,
 } from 'const/TabConfigConst';
+import { stackRouterPush } from 'global/util/reactnative/StackRouter';
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { useSetRecoilState } from 'recoil';
+import { isActiveMsgBlockHiddenManagePopupAtom } from 'states/MsgInboxAtom';
 import styled from 'styled-components';
 
 interface MsgBlockHiddenManagePopupBodyProps {
@@ -17,17 +20,32 @@ interface MsgBlockHiddenManagePopupBodyProps {
 const MsgBlockHiddenManagePopupBody: React.FC<
   MsgBlockHiddenManagePopupBodyProps
 > = ({ BlockedHiddenManageContainerStyle }) => {
+  const setIsActiveMsgBlockHiddenManagePopup = useSetRecoilState(
+    isActiveMsgBlockHiddenManagePopupAtom,
+  );
+
+  const navigate = useNavigate();
   return (
     <BlockedHiddenManageContainer style={BlockedHiddenManageContainerStyle}>
       <BlockedHiddenManageWrap>
-        <Link to={MSG_HIDDEN_LIST_MANAGE_PATH}>
+        <div
+          onClick={() => {
+            stackRouterPush(navigate, MSG_HIDDEN_LIST_MANAGE_PATH);
+            setIsActiveMsgBlockHiddenManagePopup(false);
+          }}
+        >
           <BlockedHiddenManage>{MSG_HIDDEN_LIST_TAB_NAME}</BlockedHiddenManage>
-        </Link>
+        </div>
       </BlockedHiddenManageWrap>
       <MsgBlockListManageWrap>
-        <Link to={MSG_BLOCK_LIST_MANAGE_PATH}>
+        <div
+          onClick={() => {
+            stackRouterPush(navigate, MSG_BLOCK_LIST_MANAGE_PATH);
+            setIsActiveMsgBlockHiddenManagePopup(false);
+          }}
+        >
           <MsgBlockListManage>{MSG_BLOCK_LIST_TAB_NAME}</MsgBlockListManage>
-        </Link>
+        </div>
       </MsgBlockListManageWrap>
     </BlockedHiddenManageContainer>
   );

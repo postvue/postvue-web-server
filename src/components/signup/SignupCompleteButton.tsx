@@ -1,5 +1,6 @@
 import BottomNextButton from 'components/common/buttton/BottomNextButton';
 import React from 'react';
+import theme from 'styles/theme';
 
 interface SignupCompleteButtonProps {
   isActive: boolean;
@@ -18,6 +19,10 @@ const SignupCompleteButton: React.FC<SignupCompleteButtonProps> = ({
       hasNotActiveElement={true}
       isTransparent={true}
       actionFunc={actionFunc}
+      BottomNextButtonWrapContainerStyle={{
+        position: 'fixed',
+        maxWidth: theme.systemSize.appDisplaySize.maxWidth,
+      }}
     />
   );
 };

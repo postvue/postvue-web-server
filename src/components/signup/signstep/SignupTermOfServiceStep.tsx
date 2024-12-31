@@ -54,15 +54,15 @@ const SignupTermOfServiceStep: React.FC = () => {
       <SignupHeader />
       <SignupStepTitleWrap>
         <SignupStepTitle>
-          시각하기 전에,
+          시작하기 전에,
           <br />
           서비스 이용 약관을 확인해주세요.
         </SignupStepTitle>
       </SignupStepTitleWrap>
 
       <SingupTermOsServiceContainer>
-        <SingupTermOsServiceCheckWrap>
-          <SingupTermOsServiceCheckIconWrap onClick={onClickFullAgreement}>
+        <SingupTermOsServiceCheckWrap onClick={onClickFullAgreement}>
+          <SingupTermOsServiceCheckIconWrap>
             {isFullAgreement ? (
               <SignupTermOfServiceCheckIcon />
             ) : (
@@ -71,18 +71,18 @@ const SignupTermOfServiceStep: React.FC = () => {
           </SingupTermOsServiceCheckIconWrap>
           <SingupTermOsServiceChecTiele>전체 동의</SingupTermOsServiceChecTiele>
         </SingupTermOsServiceCheckWrap>
-        <SingupTermOsServiceCheckWrap>
-          <SingupTermOsServiceCheckIconWrap
-            onClick={() => {
-              setSignupInfo((prev) => ({
-                ...prev,
-                termOfService: {
-                  ...signupInfo.termOfService,
-                  agreeToAgeTerm: !signupInfo.termOfService.agreeToAgeTerm,
-                },
-              }));
-            }}
-          >
+        <SingupTermOsServiceCheckWrap
+          onClick={() => {
+            setSignupInfo((prev) => ({
+              ...prev,
+              termOfService: {
+                ...signupInfo.termOfService,
+                agreeToAgeTerm: !signupInfo.termOfService.agreeToAgeTerm,
+              },
+            }));
+          }}
+        >
+          <SingupTermOsServiceCheckIconWrap>
             {signupInfo.termOfService.agreeToAgeTerm ? (
               <SignupTermOfServiceCheckIcon />
             ) : (
@@ -93,19 +93,18 @@ const SignupTermOfServiceStep: React.FC = () => {
             (필수) 만 14세 이상입니다.*
           </SingupTermOsServiceChecTiele>
         </SingupTermOsServiceCheckWrap>
-        <SingupTermOsServiceCheckWrap>
-          <SingupTermOsServiceCheckIconWrap
-            onClick={() => {
-              setSignupInfo((prev) => ({
-                ...prev,
-                termOfService: {
-                  ...signupInfo.termOfService,
-                  agreeToServieTerm:
-                    !signupInfo.termOfService.agreeToServieTerm,
-                },
-              }));
-            }}
-          >
+        <SingupTermOsServiceCheckWrap
+          onClick={() => {
+            setSignupInfo((prev) => ({
+              ...prev,
+              termOfService: {
+                ...signupInfo.termOfService,
+                agreeToServieTerm: !signupInfo.termOfService.agreeToServieTerm,
+              },
+            }));
+          }}
+        >
+          <SingupTermOsServiceCheckIconWrap>
             {signupInfo.termOfService.agreeToServieTerm ? (
               <SignupTermOfServiceCheckIcon />
             ) : (
@@ -116,19 +115,19 @@ const SignupTermOfServiceStep: React.FC = () => {
             (필수) 이용 약관에 동의합니다.*
           </SingupTermOsServiceChecTiele>
         </SingupTermOsServiceCheckWrap>
-        <SingupTermOsServiceCheckWrap>
-          <SingupTermOsServiceCheckIconWrap
-            onClick={() => {
-              setSignupInfo((prev) => ({
-                ...prev,
-                termOfService: {
-                  ...signupInfo.termOfService,
-                  agreeToPrivacyPolicy:
-                    !signupInfo.termOfService.agreeToPrivacyPolicy,
-                },
-              }));
-            }}
-          >
+        <SingupTermOsServiceCheckWrap
+          onClick={() => {
+            setSignupInfo((prev) => ({
+              ...prev,
+              termOfService: {
+                ...signupInfo.termOfService,
+                agreeToPrivacyPolicy:
+                  !signupInfo.termOfService.agreeToPrivacyPolicy,
+              },
+            }));
+          }}
+        >
+          <SingupTermOsServiceCheckIconWrap>
             {signupInfo.termOfService.agreeToPrivacyPolicy ? (
               <SignupTermOfServiceCheckIcon />
             ) : (
@@ -139,19 +138,19 @@ const SignupTermOfServiceStep: React.FC = () => {
             (필수) 개인정보 수집 및 이용에 동의합니다.
           </SingupTermOsServiceChecTiele>
         </SingupTermOsServiceCheckWrap>
-        <SingupTermOsServiceCheckWrap>
-          <SingupTermOsServiceCheckIconWrap
-            onClick={() => {
-              setSignupInfo((prev) => ({
-                ...prev,
-                termOfService: {
-                  ...signupInfo.termOfService,
-                  agreeToPrivacyPolicyToThirdPaties:
-                    !signupInfo.termOfService.agreeToPrivacyPolicyToThirdPaties,
-                },
-              }));
-            }}
-          >
+        <SingupTermOsServiceCheckWrap
+          onClick={() => {
+            setSignupInfo((prev) => ({
+              ...prev,
+              termOfService: {
+                ...signupInfo.termOfService,
+                agreeToPrivacyPolicyToThirdPaties:
+                  !signupInfo.termOfService.agreeToPrivacyPolicyToThirdPaties,
+              },
+            }));
+          }}
+        >
+          <SingupTermOsServiceCheckIconWrap>
             {signupInfo.termOfService.agreeToPrivacyPolicyToThirdPaties ? (
               <SignupTermOfServiceCheckIcon />
             ) : (
@@ -162,19 +161,19 @@ const SignupTermOfServiceStep: React.FC = () => {
             (필수) 개인정보의 제 3자 제공에 동의합니다.
           </SingupTermOsServiceChecTiele>
         </SingupTermOsServiceCheckWrap>
-        <SingupTermOsServiceCheckWrap>
-          <SingupTermOsServiceCheckIconWrap
-            onClick={() => {
-              setSignupInfo((prev) => ({
-                ...prev,
-                termOfService: {
-                  ...signupInfo.termOfService,
-                  agreeToMarketingCommunications:
-                    !signupInfo.termOfService.agreeToMarketingCommunications,
-                },
-              }));
-            }}
-          >
+        <SingupTermOsServiceCheckWrap
+          onClick={() => {
+            setSignupInfo((prev) => ({
+              ...prev,
+              termOfService: {
+                ...signupInfo.termOfService,
+                agreeToMarketingCommunications:
+                  !signupInfo.termOfService.agreeToMarketingCommunications,
+              },
+            }));
+          }}
+        >
+          <SingupTermOsServiceCheckIconWrap>
             {signupInfo.termOfService.agreeToMarketingCommunications ? (
               <SignupTermOfServiceCheckIcon />
             ) : (

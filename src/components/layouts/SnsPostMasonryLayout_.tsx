@@ -6,17 +6,25 @@ import PostVideoPreviewElement from 'components/common/posts/element/PostVideoPr
 import SystemSnsPostState from 'components/common/state/SystemSnsPostState';
 import ScrapViewPopup from 'components/popups/profilescrap/ScrapViewPopup';
 import { POST_IMAGE_TYPE, POST_VIDEO_TYPE } from 'const/PostContentTypeConst';
+
+import {
+  POST_DETAIL_POPUP_PARAM,
+  POST_DETAIL_POST_ID_PARAM,
+  POST_DETAIL_PROFILE_PARAM,
+  TRUE_PARAM,
+} from 'const/QueryParamConst';
 import {
   MEDIA_MOBILE_MAX_WIDTH,
   MEDIA_MOBILE_MAX_WIDTH_NUM,
 } from 'const/SystemAttrConst';
 import { isValidString } from 'global/util/ValidUtil';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 import {
   isPostDetailInfoPopupAtom,
   postDetailInfoPopupAtom,
+  postRspAtom,
   PostRspDefaultValue,
 } from 'states/PostAtom';
 import { isActiveScrapViewPopupByMasonryAtom } from 'states/ProfileAtom';
@@ -51,6 +59,8 @@ const SnsPostMasonryLayout_: React.FC<SnsPostMasonryLayoutProps> = ({
   const [systemPostHashMap, setSystemPostHashMap] = useRecoilState(
     systemPostRspHashMapAtom,
   );
+
+  const setSnsPost = useSetRecoilState(postRspAtom);
 
   const [postDetailInfo, setPostDetailInfo] = useRecoilState(
     postDetailInfoPopupAtom,
@@ -91,16 +101,22 @@ const SnsPostMasonryLayout_: React.FC<SnsPostMasonryLayoutProps> = ({
   };
 
   // @REFER: 현재 필요한 기능 인지 더 파악하고 필요하지 않으면 삭제
-  // useEffect(() => {
-  //   const tempSystemPostHashMap = new Map(systemPostHashMap);
-  //   snsPostList.forEach((post) => {
-  //     const postRsp = tempSystemPostHashMap.get(post.postId);
-  //     if (!postRsp) {
-  //       tempSystemPostHashMap.set(post.postId, post);
-  //     }
-  //   });
-  //   setSystemPostHashMap(tempSystemPostHashMap);
-  // }, [snsPostList]);
+  useEffect(() => {
+    const tempSystemPostHashMap = new Map(systemPostHashMap);
+    let isUpdated = false;
+
+    snsPostList.forEach((post) => {
+      const postRsp = tempSystemPostHashMap.get(post.postId);
+      if (!postRsp) {
+        tempSystemPostHashMap.set(post.postId, post);
+        isUpdated = true;
+      }
+    });
+    if (isUpdated) {
+      console.log('바뀜');
+      setSystemPostHashMap(tempSystemPostHashMap);
+    }
+  }, [snsPostList]);
 
   return (
     <>
@@ -125,6 +141,8 @@ const SnsPostMasonryLayout_: React.FC<SnsPostMasonryLayoutProps> = ({
             username: v.username,
             location: v.location,
             previewImg: postContent.previewImg,
+            videoDuration: postContent.videoDuration,
+            isUploaded: postContent.isUploaded,
           };
 
           return (
@@ -141,6 +159,8 @@ const SnsPostMasonryLayout_: React.FC<SnsPostMasonryLayoutProps> = ({
 
                         // navigate(`/${v.username}/${v.postId}`);
                         //@REFER: 일단 url로 이동하는 걸로
+
+                        setSnsPost(v);
                         if (window.innerWidth > MEDIA_MOBILE_MAX_WIDTH_NUM) {
                           // 데스크탑 크기
                           // url로 이동
@@ -150,16 +170,23 @@ const SnsPostMasonryLayout_: React.FC<SnsPostMasonryLayoutProps> = ({
                         } else {
                           // 모바일 크기
                           // url만 바뀌도록 변경
-                          // window.history.pushState(
-                          //   null,
-                          //   '',
-                          //   `/${v.username}/${v.postId}`,
-                          // );
-                          setIsPostDetailInfoPopup(true);
-                          setPostDetailInfo({
-                            postId: v.postId,
-                            userId: v.username,
-                          });
+
+                          navigate(
+                            location.pathname +
+                              `?${POST_DETAIL_POPUP_PARAM}=${TRUE_PARAM}` +
+                              `&${POST_DETAIL_POST_ID_PARAM}=` +
+                              v.postId +
+                              `&${POST_DETAIL_PROFILE_PARAM}=` +
+                              v.username,
+                            {
+                              state: { isDetailPopup: true },
+                            },
+                          );
+                          // setIsPostDetailInfoPopup(true);
+                          // setPostDetailInfo({
+                          //   postId: v.postId,
+                          //   userId: v.username,
+                          // });
                         }
                       }}
                     >
@@ -183,6 +210,7 @@ const SnsPostMasonryLayout_: React.FC<SnsPostMasonryLayoutProps> = ({
                           }
                           autoPlayMode={isAutoPlay}
                           videoSrc={masonryPostRsp.postContent}
+                          videoDuration={masonryPostRsp.videoDuration}
                           posterImg={masonryPostRsp.previewImg}
                           actionFuncByRef={actionFuncByRef}
                           PostVideoStyle={{
@@ -291,7 +319,7 @@ const PostAddressSubWrap = styled.div`
 `;
 
 const PostAddress = styled.div`
-  font: ${({ theme }) => theme.fontSizes.BoxText};
+  font: ${({ theme }) => theme.fontSizes.Body3};
 
   @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
     font: ${({ theme }) => theme.fontSizes.Body3};

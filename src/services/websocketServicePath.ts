@@ -2,7 +2,9 @@ export const WEBSOCKET_APPLICATION_PATH = '/ws';
 export const BROKER_PATH = '/topic';
 export const APPLICATION_PATH = '/app';
 
-export const WEBSOCKET_ENDPOINT_URL = `ws://localhost:8080${WEBSOCKET_APPLICATION_PATH}`;
+// 나중에 wss로 변경 필요
+export const WEBSOCKET_ENDPOINT_URL = `ws://172.20.10.5:8080${WEBSOCKET_APPLICATION_PATH}`;
+// `ws://localhost:8080${WEBSOCKET_APPLICATION_PATH}`;
 
 export const APP_MESSAGE_CONVERSATIONS_PATH = '/conversations';
 export const APP_NOTIFICATIONS_PATH = '/notifications';

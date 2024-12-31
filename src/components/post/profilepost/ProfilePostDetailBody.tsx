@@ -53,7 +53,6 @@ import {
   MEDIA_MOBILE_MAX_WIDTH,
   MEDIA_MOBILE_MAX_WIDTH_NUM,
 } from 'const/SystemAttrConst';
-import { getMyAccountSettingInfo } from 'global/util/MyAccountSettingUtil';
 import PostRelationListInfiniteScroll from 'hook/PostRelationInfiniteScroll';
 import { postPostInterested } from 'services/post/postPostInterested';
 import 'swiper/css/pagination';
@@ -66,15 +65,25 @@ import PostCommentThreadPopup from 'components/popups/postcommentthreadpopup/Pos
 import PostComplaintCompletePopup from 'components/popups/profilepost/PostComplaintCompletePopup';
 import PostComplaintPopup from 'components/popups/profilepost/PostComplaintPopup';
 
+import { queryClient } from 'App';
 import LoadingComponent from 'components/common/container/LoadingComponent';
 import PostVideoContentELement from 'components/common/posts/element/PostVideoContentElement';
 import SnsPostMasonryLayout_ from 'components/layouts/SnsPostMasonryLayout_';
 import ConfirmPopup from 'components/popups/ConfirmPopup';
 import PostCommentComplaintPopup from 'components/popups/profilepost/PostCommentComplaintPopup';
 import ProfilePostSettingBody from 'components/post/ProfilePostSettingBody';
+import {
+  QUERY_STATE_POST_SCRAP_PREVIEW_LIST,
+  QUERY_STATE_PROFILE_ACCOUNT_POST_LIST,
+  QUERY_STATE_PROFILE_POST,
+  QUERY_STATE_PROFILE_SCRAP_INFO,
+  QUERY_STATE_PROFILE_SCRAP_LIST,
+} from 'const/QueryClientConst';
 import { PostCommentReplyMsgInfo, PostRsp } from 'global/interface/post';
+import { stackRouterPush } from 'global/util/reactnative/StackRouter';
 import { getRandomImage } from 'global/util/shareUtil';
 import ProfileAccountPostListInfiniteScroll from 'hook/ProfileAccountPostListInfiniteScroll';
+import { QueryStateMyProfileInfo } from 'hook/queryhook/QueryStateMyProfileInfo';
 import { QueryStatePostRelationListInfinite } from 'hook/queryhook/QueryStatePostRelationListInfinite';
 import { QueryStateProfileAccountPostList } from 'hook/queryhook/QueryStateProfileAccountPostList';
 import { deletePost } from 'services/post/deletePost';
@@ -105,7 +114,7 @@ interface ProfilePostDetailBodyProps {
   postCommentTextareaRef: React.MutableRefObject<HTMLTextAreaElement | null>;
   isFixedPopup: boolean;
   isClosed?: boolean;
-  setIsExternalCloseFunc?: React.Dispatch<React.SetStateAction<boolean>>;
+  prevCloseButtonByMobile?: () => void;
 }
 
 const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
@@ -123,7 +132,7 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
   postCommentTextareaRef,
   isFixedPopup,
   isClosed,
-  setIsExternalCloseFunc,
+  prevCloseButtonByMobile,
 }) => {
   const postSettingButtonRef = useRef<HTMLDivElement>(null);
 
@@ -156,14 +165,16 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
 
   const [isActiveRelation, setIsActiveRelation] = useState<boolean>(false);
 
-  const { data: profilePostList, isFetched: isFetchEedProfilePost } =
-    QueryStateProfileAccountPostList(snsPost.username, isActiveRelation);
+  const { data: profilePostList } = QueryStateProfileAccountPostList(
+    snsPost.username,
+    isActiveRelation,
+  );
 
   const [isActivePostDeletePopup, setIsActivePostDeletePopup] = useRecoilState(
     isActivePostDeletePopupAtom,
   );
 
-  const myAccountSettingInfo = getMyAccountSettingInfo();
+  const { data: myAccountSettingInfo } = QueryStateMyProfileInfo();
 
   const resetSnsPost = useResetRecoilState(postRspAtom);
 
@@ -185,7 +196,6 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
   }, []);
 
   const onClickSettingButton = () => {
-    console.log('ㅋㅋㅋㅋ');
     setIsSettingActive(true);
   };
 
@@ -288,8 +298,8 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
               <PostPreButtonWrap>
                 <PostPreButton
                   onClick={() => {
-                    if (setIsExternalCloseFunc) {
-                      setIsExternalCloseFunc(true);
+                    if (prevCloseButtonByMobile) {
+                      prevCloseButtonByMobile();
                     } else {
                       navigate(-1);
                     }
@@ -307,7 +317,8 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
                   {windowWidthSize > MEDIA_MOBILE_MAX_WIDTH_NUM &&
                     postId &&
                     postSettingButtonRef.current &&
-                    isSettingActive && (
+                    isSettingActive &&
+                    myAccountSettingInfo && (
                       <ContextMenuPopup
                         setIsActive={setIsSettingActive}
                         contextMenuRef={postSettingButtonRef.current}
@@ -405,19 +416,19 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
                           stateValue={postId}
                           isVisibilityDetection={true}
                           visibilityThreshold={0.5}
-                          PostVideoContentELementStyle={
-                            windowWidthSize < MEDIA_MOBILE_MAX_WIDTH_NUM
-                              ? {
-                                  borderRadius: `${PostContentRadis} ${PostContentRadis} 0 0`,
-                                }
-                              : {}
-                          }
                           PostVideoStyle={
                             windowWidthSize < MEDIA_MOBILE_MAX_WIDTH_NUM
                               ? {
                                   borderRadius: `${PostContentRadis} ${PostContentRadis} 0 0`,
                                 }
                               : {}
+                          }
+                          PostVideoPosterImgStyle={
+                            windowWidthSize < MEDIA_MOBILE_MAX_WIDTH_NUM
+                              ? {
+                                  borderRadius: `${PostContentRadis} ${PostContentRadis} 0 0`,
+                                }
+                              : { borderRadius: '50px' }
                           }
                           onVideoError={() => {
                             alert(
@@ -435,7 +446,10 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
                   <ProfileWrap>
                     <ProfileLinkDiv
                       onClick={() => {
-                        navigate(`${PROFILE_LIST_PATH}/${snsPost?.username}`);
+                        stackRouterPush(
+                          navigate,
+                          `${PROFILE_LIST_PATH}/${snsPost?.username}`,
+                        );
                       }}
                     >
                       <ProfileImg src={snsPost?.profilePath} />
@@ -471,6 +485,7 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
                           .map((v) => v.content),
                         snsPost.profilePath,
                       )}
+                      isFixed={isFixedPopup}
                     />
                   )}
 
@@ -618,6 +633,25 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
               deletePost(postId)
                 .then(() => {
                   setIsActivePostDeletePopup(false);
+                  queryClient.invalidateQueries({
+                    queryKey: [QUERY_STATE_PROFILE_POST, postId],
+                  });
+                  queryClient.invalidateQueries({
+                    queryKey: [QUERY_STATE_PROFILE_ACCOUNT_POST_LIST],
+                  });
+                  queryClient.invalidateQueries({
+                    queryKey: [QUERY_STATE_PROFILE_SCRAP_LIST],
+                  });
+                  queryClient.invalidateQueries({
+                    queryKey: [QUERY_STATE_PROFILE_SCRAP_INFO],
+                  });
+                  queryClient.invalidateQueries({
+                    queryKey: [QUERY_STATE_POST_SCRAP_PREVIEW_LIST],
+                  });
+                  navigate(
+                    PROFILE_LIST_PATH + '/' + myAccountSettingInfo?.username,
+                    { replace: true },
+                  );
                 })
                 .catch(() => {
                   setIsActivePostDeletePopup(false);
@@ -633,7 +667,8 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
       {/* 포스터 설정 팝업 */}
       {windowWidthSize <= MEDIA_MOBILE_MAX_WIDTH_NUM &&
         postId &&
-        isSettingActive && (
+        isSettingActive &&
+        myAccountSettingInfo && (
           <ProfilePostSettingPopup
             postId={postId}
             myAccountSettingInfo={myAccountSettingInfo}
@@ -864,7 +899,7 @@ const StyledSwiper = styled(Swiper)`
 `;
 
 const PostPreButtonWrap = styled.div`
-  position: absolute;
+  position: fixed;
   z-index: 1010;
 `;
 

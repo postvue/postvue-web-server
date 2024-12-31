@@ -12,6 +12,7 @@ import MyAccountSettingInfoState from '../common/state/MyAccountSettingInfoState
 
 import AccountSettingButton from 'components/common/buttton/AccountSettingButton';
 import TabStickBar from 'components/common/container/TabStickBar';
+import { stackRouterPush } from 'global/util/reactnative/StackRouter';
 import { QueryStateMyProfileInfo } from 'hook/queryhook/QueryStateMyProfileInfo';
 
 const ProfileClipScrapHeader: React.FC = () => {
@@ -39,7 +40,8 @@ const ProfileClipScrapHeader: React.FC = () => {
               src={myAccountSettingInfo?.profilePath}
               alt={myAccountSettingInfo?.username}
               onClick={() =>
-                navigate(
+                stackRouterPush(
+                  navigate,
                   `${PROFILE_LIST_PATH}/${myAccountSettingInfo?.username}`,
                 )
               }
@@ -112,6 +114,8 @@ const ProfileSettingButton = styled.div`
   display: flex;
   cursor: pointer;
   margin: auto 0;
+  position: relative;
+  z-index: 1000;
 `;
 
 const ProfileCategoryContainer = styled.div`

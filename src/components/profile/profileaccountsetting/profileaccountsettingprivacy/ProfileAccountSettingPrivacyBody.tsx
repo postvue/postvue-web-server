@@ -10,6 +10,7 @@ import {
   ACCOUNT_SETTING_PRIVATE_PROFILE_TAB_NAME,
   ACCOUNT_SETTING_PROFILE_BLOCK_LIST_TAB_NAME,
 } from 'const/TabConfigConst';
+import { stackRouterPush } from 'global/util/reactnative/StackRouter';
 import { useNavigate } from 'react-router-dom';
 
 const ProfileAccountSettingPrivacyBody: React.FC = () => {
@@ -32,7 +33,7 @@ const ProfileAccountSettingPrivacyBody: React.FC = () => {
           <ProfileAccountSettingElementWrap
             key={key}
             onClick={() => {
-              navigate(value.url);
+              stackRouterPush(navigate, value.url);
             }}
           >
             <ProfileAccountSettingElementTitle>

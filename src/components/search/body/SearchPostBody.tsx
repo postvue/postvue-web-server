@@ -28,6 +28,7 @@ import {
 import theme from '../../../styles/theme';
 
 import NoResultComponent from 'components/common/container/NoResultComponent';
+import SnsPostMasonryLayout_ from 'components/layouts/SnsPostMasonryLayout_';
 import {
   MEDIA_MOBILE_MAX_WIDTH,
   MEDIA_MOBILE_MAX_WIDTH_NUM,
@@ -166,7 +167,7 @@ const SearchPostBody: React.FC = () => {
                   searchPostPopularList.pages.flatMap(
                     (value) => value.snsPostRspList,
                   ).length > 0 ? (
-                    <SnsPostMasonryLayout
+                    <SnsPostMasonryLayout_
                       snsPostList={searchPostPopularList.pages.flatMap((page) =>
                         page.snsPostRspList.map((v) => v),
                       )}
@@ -237,9 +238,7 @@ const SearchPostBody: React.FC = () => {
   );
 };
 
-const SearchPostBodyContinaer = styled.div`
-  height: 100%;
-`;
+const SearchPostBodyContinaer = styled.div``;
 
 const SearchFilterWrap = styled.div`
   padding: 6px;

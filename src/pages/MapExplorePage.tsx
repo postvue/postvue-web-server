@@ -420,7 +420,9 @@ const MapExploreSuggestBodyWrap = styled.div<{ $windowWidthSize: number }>`
   background-color: white;
   z-index: 160;
   height: calc(100dvh - ${theme.systemSize.header.heightNumber}px);
-  position: relative;
+
+  position: fixed;
+  max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
   top: ${theme.systemSize.header.heightNumber}px;
   width: 100%;
 
@@ -428,9 +430,11 @@ const MapExploreSuggestBodyWrap = styled.div<{ $windowWidthSize: number }>`
     props.$windowWidthSize > MEDIA_MOBILE_MAX_WIDTH_NUM ? MapFullMargin : 0}px;
 
   @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
+    position: relative;
     z-index: 1000;
     top: 70px;
     height: 500px;
+    max-width: none;
     background-color: white;
     border-radius: 20px;
     border: 1px solid #cfcfcf;

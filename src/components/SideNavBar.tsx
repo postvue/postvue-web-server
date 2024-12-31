@@ -22,7 +22,7 @@ import {
   PROFILE_SETTING_PATH,
 } from '../const/PathConst';
 
-import { ReactComponent as FeelogLogo } from 'assets/images/icon/svg/pc/FeelogLogo.svg';
+import { ReactComponent as FeelogTest } from 'assets/images/icon/svg/logo/FeelogTest.svg';
 import { ReactComponent as FeelogSmallLogo } from 'assets/images/icon/svg/pc/FeelogSmallLogo.svg';
 import { ReactComponent as AccountSettingActiveIcon } from 'assets/images/icon/svg/pc/navbar/AccountSettingActiveIcon.svg';
 import { ReactComponent as AccountSettingNotActiveIcon } from 'assets/images/icon/svg/pc/navbar/AccountSettingNotActiveIcon.svg';
@@ -87,7 +87,8 @@ const SideNavBar: React.FC = () => {
         <HeaderSidebarLogoWrap onClick={() => navigate(HOME_PATH)}>
           <LongPressToResizeButton resize={0.85} resizeSpeedRate={0.3}>
             {windowWidth >= MEDIA_MIDDLE_1300_WIDTH_NUM ? (
-              <FeelogLogo />
+              // <FeelogLogo />
+              <FeelogTest />
             ) : (
               <FeelogSmallLogo />
             )}

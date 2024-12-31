@@ -9,6 +9,7 @@ import {
 } from 'const/PathConst';
 import { TAB_QUERY_PARAM } from 'const/QueryParamConst';
 import { PROFILE_FOLLOWER_TAB_PARAM } from 'const/TabConfigConst';
+import { stackRouterPush } from 'global/util/reactnative/StackRouter';
 import { QueryStateProfileInfo } from 'hook/queryhook/QueryStateProfileInfo';
 import React, { useRef } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -22,7 +23,7 @@ const ProfileAccountInfo: React.FC = () => {
 
   const param = useParams();
   const username = param.username || '';
-  const { data, isLoading } = QueryStateProfileInfo(username);
+  const { data, isFetched } = QueryStateProfileInfo(username);
 
   const ProfileAccountInfoRef = useRef<HTMLDivElement>(null);
 
@@ -38,7 +39,7 @@ const ProfileAccountInfo: React.FC = () => {
 
   return (
     <>
-      {data && !isLoading && username !== '' && (
+      {data && isFetched && username !== '' && (
         <ProfileAccountInfoContainer ref={ProfileAccountInfoRef}>
           <ProfileLayout1Wrap>
             <ProfileImg src={data.profilePath} />
@@ -46,16 +47,27 @@ const ProfileAccountInfo: React.FC = () => {
               <ProfileUserNicknameWrap>{data.nickname}</ProfileUserNicknameWrap>
               <ProfileUserIdWrap>@{data.username}</ProfileUserIdWrap>
               <ProfileFollowWrap>
-                <Link
-                  to={`${PROFILE_LIST_PATH}/${username}${FOLLOW_LIST_PATH}?${TAB_QUERY_PARAM}=${PROFILE_FOLLOWER_TAB_PARAM}`}
+                <div
+                  onClick={() =>
+                    stackRouterPush(
+                      navigate,
+                      `${PROFILE_LIST_PATH}/${username}${FOLLOW_LIST_PATH}?${TAB_QUERY_PARAM}=${PROFILE_FOLLOWER_TAB_PARAM}`,
+                    )
+                  }
                 >
                   <ProfileFollowerWrap>
                     <ProfileFollowerTitle>팔로워</ProfileFollowerTitle>
                     <ProfileFollowerNum>{data.followerNum}</ProfileFollowerNum>
                   </ProfileFollowerWrap>
-                </Link>
-                <Link
-                  to={`${PROFILE_LIST_PATH}/${username}${FOLLOW_LIST_PATH}`}
+                </div>
+
+                <div
+                  onClick={() =>
+                    stackRouterPush(
+                      navigate,
+                      `${PROFILE_LIST_PATH}/${username}${FOLLOW_LIST_PATH}`,
+                    )
+                  }
                 >
                   <ProfileFollowingWrap>
                     <ProfileFollowingTitle>팔로잉</ProfileFollowingTitle>
@@ -63,7 +75,7 @@ const ProfileAccountInfo: React.FC = () => {
                       {data.followingNum}
                     </ProfileFollowingNum>
                   </ProfileFollowingWrap>
-                </Link>
+                </div>
               </ProfileFollowWrap>
             </ProfileLayout1SubWrap>
           </ProfileLayout1Wrap>
@@ -84,7 +96,7 @@ const ProfileAccountInfo: React.FC = () => {
             <ProfileLayout2Wrap>
               <ProfileEditButton
                 onClick={() => {
-                  navigate(PROFILE_EDIT_PATH);
+                  stackRouterPush(navigate, PROFILE_EDIT_PATH);
                 }}
               >
                 프로필 수정
@@ -96,6 +108,7 @@ const ProfileAccountInfo: React.FC = () => {
                     isActive: true,
                     shareLink: window.location.href,
                     mainImageUrl: data.profilePath,
+                    isFixed: true,
                   })
                 }
               >
@@ -130,7 +143,8 @@ const ProfileAccountInfo: React.FC = () => {
 
               <ProfileMsgSendButton
                 onClick={() => {
-                  navigate(
+                  stackRouterPush(
+                    navigate,
                     `${MESSAGE_PATH}/${data.username}${CONVERSTAION_PATH}`,
                   );
                 }}

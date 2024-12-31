@@ -5,7 +5,6 @@ import { useSetRecoilState } from 'recoil';
 import { reactionPostIdAtom } from 'states/PostReactionAtom';
 import styled from 'styled-components';
 import { PostClipRsp } from '../../../../global/interface/post';
-import { GetMyProfileScrapPreviewsRsp } from '../../../../global/interface/profile';
 import { createPostToScrap } from '../../../../services/profile/createPostToScrap';
 import { deletePostToScrap } from '../../../../services/profile/deletePostToScrap';
 import { isActiveScrapViewPopupAtom } from '../../../../states/ProfileAtom';
@@ -16,6 +15,11 @@ import { ReactComponent as PostClipButtonIcon } from 'assets/images/icon/svg/pos
 import { ReactComponent as PostClipedButtonIcon } from 'assets/images/icon/svg/post/PostClipedButtonIcon.svg';
 import { notify } from 'components/popups/ToastMsgPopup';
 import { SAVE_POST_TO_SCRAP } from 'const/SystemPhraseConst';
+import { refetchProfilePost } from 'global/util/channel/static/refetchProfilePost';
+import { refetchScrapPreviewList } from 'global/util/channel/static/refetchScrapPreviewList';
+import { sendVibrationHeavyEvent } from 'global/util/reactnative/StackRouter';
+import { QueryStateProfileClipListInfinite } from 'hook/queryhook/QueryStateProfileClipListInfinite';
+import { QueryStateProfileScrapList } from 'hook/queryhook/QueryStateProfileScrapList';
 
 interface ClipButtonProps {
   setClipStete: (postClipRsp: PostClipRsp) => void;
@@ -29,19 +33,19 @@ const ClipButton: React.FC<ClipButtonProps> = ({
   isClipped,
 }) => {
   const clipRef = useRef<HTMLDivElement>(null);
-  const [scrapBoardPreviewList, setScrapBoardPreviewList] = useState<
-    GetMyProfileScrapPreviewsRsp[]
-  >([]);
   const setSsActiveScrapViewPopup = useSetRecoilState(
     isActiveScrapViewPopupAtom,
   );
 
   const [isScrapBoardActive, setIsScrapBoardActive] = useState<boolean>(false);
 
-  const { data, isLoading, isFetched } = QueryStatePostScrapPreviewList(
-    postId,
-    isScrapBoardActive,
-  );
+  const {
+    data: scrapBoardPreviewList,
+    isLoading,
+    isFetched,
+  } = QueryStatePostScrapPreviewList(postId, isScrapBoardActive);
+  const { data: clipList } = QueryStateProfileClipListInfinite();
+  const { data: scrapList } = QueryStateProfileScrapList();
 
   const setReactionPostId = useSetRecoilState(reactionPostIdAtom);
 
@@ -54,21 +58,16 @@ const ClipButton: React.FC<ClipButtonProps> = ({
     setIsScrapBoardActive(true);
   };
 
-  useEffect(() => {
-    if (!data) return;
-    setScrapBoardPreviewList(data);
-  }, [data]);
-
   const onAddScrap = (scrapId: string) => {
     if (!postId) return;
     createPostToScrap(scrapId, postId)
-      .then((value) => {
+      .then(async (value) => {
         const postClipRsp: PostClipRsp = {
           isClipped: value.isClipped,
         };
-        if (!isClipped) {
-          setClipStete(postClipRsp);
-        }
+
+        setClipStete(postClipRsp);
+
         if (value.isClipped) {
           anime({
             targets: clipRef.current,
@@ -77,18 +76,12 @@ const ClipButton: React.FC<ClipButtonProps> = ({
             easing: 'easeInOutQuad',
             direction: 'alternate',
           });
+          sendVibrationHeavyEvent();
         }
 
-        setScrapBoardPreviewList((prev) => {
-          const prevCopy = [...prev];
+        refetchScrapPreviewList(postId);
 
-          prev.forEach((prevValue, index) => {
-            if (prevValue.scrapBoardId === scrapId) {
-              prevCopy[index].isScraped = value.isScraped;
-            }
-          });
-          return prevCopy;
-        });
+        refetchProfilePost(postId);
 
         setIsScrapBoardActive(false);
 
@@ -102,24 +95,15 @@ const ClipButton: React.FC<ClipButtonProps> = ({
   const onDeleteScrap = (scrapId: string) => {
     if (postId) {
       deletePostToScrap(scrapId, postId)
-        .then((value) => {
-          if (!value.isClipped) {
-            const postClipRsp: PostClipRsp = {
-              isClipped: value.isClipped,
-            };
-            setClipStete(postClipRsp);
-          }
+        .then(async (value) => {
+          const postClipRsp: PostClipRsp = {
+            isClipped: value.isClipped,
+          };
+          setClipStete(postClipRsp);
 
-          setScrapBoardPreviewList((prev) => {
-            const prevCopy = [...prev];
+          refetchScrapPreviewList(postId);
 
-            prev.forEach((prevValue, index) => {
-              if (prevValue.scrapBoardId === scrapId) {
-                prevCopy[index].isScraped = value.isScraped;
-              }
-            });
-            return prevCopy;
-          });
+          refetchProfilePost(postId);
 
           setIsScrapBoardActive(false);
         })
@@ -136,7 +120,10 @@ const ClipButton: React.FC<ClipButtonProps> = ({
 
   useEffect(() => {
     if (!isFetched) return;
-    if (data === undefined || (data && data.length <= 0)) {
+    if (
+      scrapBoardPreviewList === undefined ||
+      (scrapBoardPreviewList && scrapBoardPreviewList.length <= 0)
+    ) {
       onClickMoveScrapView();
     }
   }, [isFetched]);
@@ -153,35 +140,36 @@ const ClipButton: React.FC<ClipButtonProps> = ({
           contextMenuRef={clipRef.current}
           setIsActive={setIsScrapBoardActive}
         >
-          {scrapBoardPreviewList.map((value, index) => {
-            return (
-              <React.Fragment key={value.scrapBoardId}>
-                {value.isScraped ? (
-                  <ScrapBoardItem
-                    key={index}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDeleteScrap(value.scrapBoardId);
-                    }}
-                  >
-                    <div>{value.scrapBoardName}</div>
-                    <ScrapBoardRemoveButton>제거</ScrapBoardRemoveButton>
-                  </ScrapBoardItem>
-                ) : (
-                  <ScrapBoardItem
-                    key={index}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onAddScrap(value.scrapBoardId);
-                    }}
-                  >
-                    <div>{value.scrapBoardName}</div>
-                    <ScrapBoardAddButton>추가</ScrapBoardAddButton>
-                  </ScrapBoardItem>
-                )}
-              </React.Fragment>
-            );
-          })}
+          {scrapBoardPreviewList &&
+            scrapBoardPreviewList.map((value, index) => {
+              return (
+                <React.Fragment key={value.scrapBoardId}>
+                  {value.isScraped ? (
+                    <ScrapBoardItem
+                      key={index}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDeleteScrap(value.scrapBoardId);
+                      }}
+                    >
+                      <div>{value.scrapBoardName}</div>
+                      <ScrapBoardRemoveButton>제거</ScrapBoardRemoveButton>
+                    </ScrapBoardItem>
+                  ) : (
+                    <ScrapBoardItem
+                      key={index}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onAddScrap(value.scrapBoardId);
+                      }}
+                    >
+                      <div>{value.scrapBoardName}</div>
+                      <ScrapBoardAddButton>추가</ScrapBoardAddButton>
+                    </ScrapBoardItem>
+                  )}
+                </React.Fragment>
+              );
+            })}
           <ScrapBoardMoveItem
             onClick={(e) => {
               e.stopPropagation();

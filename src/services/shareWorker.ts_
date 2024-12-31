@@ -1,0 +1,52 @@
+// // import webSocketService from './WebSocketService';
+
+// // // WorkerMessage 인터페이스 정의
+// // interface WorkerMessage {
+// //   type: string;
+// //   destination?: string;
+// //   message?: string;
+// //   externalParam?: any;
+// // }
+
+// // const connectedPorts: MessagePort[] = [];
+
+// // // self를 SharedWorkerGlobalScope로 타입 지정
+// // const worker = self as SharedWorkerGlobalScope;
+
+// // worker.onconnect = (event: MessageEvent) => {
+// //   const port = event.ports[0]; // 연결된 포트를 가져옵니다.
+// //   connectedPorts.push(port);
+
+// //   port.start(); // 포트를 시작합니다.
+
+// //   port.onmessage = (event: MessageEvent) => {
+// //     const {
+// //       type,
+// //       sessionActiveUserInfoHashMap,
+// //       setSessionActiveUserInfoHashMap,
+// //       notificationMsgHashMap,
+// //       setNotificationMsgHashMap,
+// //     } = event.data;
+
+// //     if (type === 'connect') {
+// //       webSocketService.initStateManage(
+// //         sessionActiveUserInfoHashMap,
+// //         setSessionActiveUserInfoHashMap,
+// //         notificationMsgHashMap,
+// //         setNotificationMsgHashMap,
+// //       );
+// //       webSocketService.activateConnect();
+// //     } else if (type === 'send') {
+// //       websocketService.sendMessage(destination!, message!);
+// //     } else if (type === 'subscribe') {
+// //       websocketService.subscribe(destination!, (msg) => {
+// //         broadcastMessage({ type: 'message', data: msg.body });
+// //       });
+// //     }
+// //   };
+
+// //   function broadcastMessage(message: any) {
+// //     connectedPorts.forEach((p) => p.postMessage(message));
+// //   }
+// // };
+// export const a = 0;

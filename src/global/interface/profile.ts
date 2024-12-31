@@ -57,16 +57,16 @@ export interface MyProfileClip {
   postedAt: string;
 }
 
-export interface ProfileScrap {
-  postId: string;
-  location: Location;
-  postThumbnailContent: string;
-  postThumbnailContentType: string;
-  postThumbnailPreviewImg: string;
-  userId: string;
-  username: string;
-  postedAt: string;
-}
+// export interface ProfileScrap {
+//   postId: string;
+//   location: Location;
+//   postThumbnailContent: string;
+//   postThumbnailContentType: string;
+//   postThumbnailPreviewImg: string;
+//   userId: string;
+//   username: string;
+//   postedAt: string;
+// }
 
 export interface TargetAudienceInterface {
   displayPhrase: string;

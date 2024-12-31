@@ -4,7 +4,6 @@ import { useRecoilState, useResetRecoilState } from 'recoil';
 import BottomSnapSheetLayout from 'components/layouts/BottomSnapSheetLayout';
 import RoundSquareCenterPopupLayout from 'components/layouts/RoundSquareCenterPopupLayout';
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
-import { isUserLoggedIn } from 'global/util/AuthUtil';
 import useWindowSize from 'hook/customhook/useWindowSize';
 import { sharePopupInfoAtom } from 'states/ShareAtom';
 import SnsAnotherSharePoupElement from './snsshare/SnsAnotherSharePoupElement';
@@ -41,7 +40,7 @@ const SnsSharePopup: React.FC = () => {
         //   <Sheet.Backdrop />
         // </Sheet>
         <>
-          {(isUserLoggedIn() || sharePopupInfo.isActive) && (
+          {sharePopupInfo.isActive && (
             <BottomSnapSheetLayout
               isOpen={sharePopupInfo.isActive}
               onClose={() =>
@@ -49,8 +48,10 @@ const SnsSharePopup: React.FC = () => {
                   isActive: false,
                   shareLink: '',
                   mainImageUrl: '',
+                  isFixed: false,
                 })
               }
+              isFixed={sharePopupInfo.isFixed}
               heightNum={700}
               bottomSheetHeader={<SnsSharePopupHeader />}
               BottomSheetBottom={<SnsAnotherSharePoupElement />}

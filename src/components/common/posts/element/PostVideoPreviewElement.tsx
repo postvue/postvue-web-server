@@ -1,3 +1,4 @@
+import { formatToMinutesAndSeconds } from 'global/util/DateTimeUtil';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
@@ -9,6 +10,7 @@ interface PostVideoPreviewELementProps {
   onPause: () => void;
   onLoadedData?: React.ReactEventHandler<HTMLVideoElement>;
   videoSrc: string;
+  videoDuration: number;
   posterImg: string;
   PostVideoStyle?: React.CSSProperties;
   isVisibilityDetection?: boolean;
@@ -27,6 +29,7 @@ const PostVideoPreviewElement: React.FC<PostVideoPreviewELementProps> = ({
   onPause,
   onLoadedData,
   videoSrc,
+  videoDuration,
   posterImg,
   PostVideoStyle,
   isVisibilityDetection = false,
@@ -61,14 +64,12 @@ const PostVideoPreviewElement: React.FC<PostVideoPreviewELementProps> = ({
           // });
 
           if (video.paused) {
-            console.log('이것 보랄?');
             video.play().catch(() => {
               ('');
             });
           }
         } else {
           if (video.paused) return;
-          console.log('멈춰');
           video.pause();
         }
       },
@@ -99,6 +100,11 @@ const PostVideoPreviewElement: React.FC<PostVideoPreviewELementProps> = ({
         },
       }}
     >
+      <VideoDurationWrap>
+        <VideoDurationElement>
+          {formatToMinutesAndSeconds(videoDuration)}
+        </VideoDurationElement>
+      </VideoDurationWrap>
       {!isError && (
         <PostVideoPreviewImg
           src={posterImg}
@@ -158,8 +164,25 @@ const PostVideoPreviewImg = styled.img`
   left: 0;
   right: 0;
   width: 100%;
-  // border-radius: 20px;
+  border-radius: 20px;
   opacity: 0.5;
+`;
+
+const VideoDurationWrap = styled.div`
+  position: absolute;
+  top: 0px;
+  padding: 3px 9px;
+  margin: 8px 0px 0px 8px;
+  border-radius: 20px;
+
+  background-color: rgb(247 247 247 / 50%);
+  z-index: 10;
+`;
+
+const VideoDurationElement = styled.div`
+  font: ${({ theme }) => theme.fontSizes.Body3};
+  font-size: 13px;
+  color: ${({ theme }) => theme.grey.Grey9};
 `;
 
 export default PostVideoPreviewElement;

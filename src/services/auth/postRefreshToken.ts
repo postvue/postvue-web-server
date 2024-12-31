@@ -1,16 +1,19 @@
 import { refreshApi } from 'services';
 import { AUTH_RENEWAL_TOKEN_API_PATH } from 'services/appApiPath';
 
-interface PostRefreshRes {
+interface AuthTokenRes {
   accessToken: string;
-  status: number;
+  refreshToken: string;
 }
 
-export async function postRefreshToken(): Promise<PostRefreshRes> {
-  const response = await refreshApi.post(AUTH_RENEWAL_TOKEN_API_PATH);
-
-  return {
-    accessToken: response.data.data,
-    status: response.status,
-  };
-}
+export const postRefreshToken = (): Promise<AuthTokenRes> => {
+  return refreshApi
+    .post(AUTH_RENEWAL_TOKEN_API_PATH)
+    .then((res) => {
+      console.log(res.data);
+      return res.data.data;
+    })
+    .catch((error) => {
+      throw error;
+    });
+};

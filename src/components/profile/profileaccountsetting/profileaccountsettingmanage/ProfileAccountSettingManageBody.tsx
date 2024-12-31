@@ -18,6 +18,12 @@ import {
   ACCOUNT_SETTING_PASSWORD_EDIT_TAB_NAME,
 } from 'const/TabConfigConst';
 import { resetAccountInfoByLogout } from 'global/util/AuthUtil';
+import { resetNotificationMsgListByLocalStorage } from 'global/util/NotificationUtil';
+import {
+  isApp,
+  stackRouterLogout,
+  stackRouterPush,
+} from 'global/util/reactnative/StackRouter';
 import { useNavigate } from 'react-router-dom';
 import { postAuthLogout } from 'services/auth/postAuthLogout';
 
@@ -50,7 +56,12 @@ const ProfileAccountSettingManageBody: React.FC = () => {
     postAuthLogout()
       .then(() => {
         resetAccountInfoByLogout();
-        location.href = HOME_PATH;
+        resetNotificationMsgListByLocalStorage();
+        if (isApp()) {
+          stackRouterLogout();
+        } else {
+          location.href = HOME_PATH;
+        }
       })
       .catch(() => {
         alert('오류로 인해 로그아웃에 실패했습니다. 다시 시도해주세요.');
@@ -63,7 +74,7 @@ const ProfileAccountSettingManageBody: React.FC = () => {
           <ProfileAccountSettingElementWrap
             key={key}
             onClick={() => {
-              navigate(value.url);
+              stackRouterPush(navigate, value.url);
             }}
           >
             <ProfileAccountSettingElementTitle>

@@ -17,6 +17,7 @@ import {
   ACCOUNT_SETTING_PROFILE_NOTIFICATIONS_TAB_NAME,
   ACCOUNT_SETTING_TERMS_OF_SERVICE_TAB_NAME,
 } from 'const/TabConfigConst';
+import { stackRouterPush } from 'global/util/reactnative/StackRouter';
 import { useNavigate } from 'react-router-dom';
 
 const ProfileAccountSettingBody: React.FC = () => {
@@ -45,7 +46,7 @@ const ProfileAccountSettingBody: React.FC = () => {
           <ProfileAccountSettingElementWrap
             key={key}
             onClick={() => {
-              navigate(value.url);
+              stackRouterPush(navigate, value.url);
             }}
           >
             <ProfileAccountSettingElementTitle>

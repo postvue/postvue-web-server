@@ -4,6 +4,7 @@ import {
   POST_CONTENT_URL,
   POST_ID,
 } from 'const/QueryParamConst';
+import { stackRouterPush } from 'global/util/reactnative/StackRouter';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -23,13 +24,14 @@ const ScrapViewHeader: React.FC<ScrapViewHeaderProps> = ({
 }) => {
   const navigate = useNavigate();
   const onClickCreateScrapWithPost = () => {
-    navigate(
+    stackRouterPush(
+      navigate,
       `${PROFILE_NEW_SCRAP_PATH}?${POST_ID}=${postId}&${POST_CONTENT_URL}=${postContentUrl}&${POST_CONTENT_TYPE}=${postContentType}`,
     );
   };
   return (
     <ScrapViewPopupTitleWrap style={ScrapViewHeaderContainerStyle}>
-      <ScrapViewPopupTitle>전체 스크랩 보기</ScrapViewPopupTitle>
+      <ScrapViewPopupTitle>스크랩</ScrapViewPopupTitle>
       {postId && postContentUrl && postContentType && (
         <ScrapViewCreateButton
           onClick={() => {

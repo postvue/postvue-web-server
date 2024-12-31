@@ -10,6 +10,7 @@ export interface PostContentInterface {
   ascSortNum: number;
   previewImg: string;
   isUploaded: boolean;
+  videoDuration: number;
 }
 
 export interface PostRsp {
@@ -26,7 +27,6 @@ export interface PostRsp {
   isReposted: boolean;
   isBookmarked: boolean;
   postContents: PostContentInterface[];
-  postCategory: string;
   postBodyText: string;
   postTitle: string;
   postedAt: string;
@@ -53,6 +53,8 @@ export interface MasonryPostRsp {
   username: string;
   location: Location;
   previewImg: string;
+  videoDuration: number;
+  isUploaded: boolean;
 }
 
 export interface DeleteCommentRsp {

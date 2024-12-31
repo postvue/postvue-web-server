@@ -60,6 +60,7 @@ interface AppBaseTemplate {
   isTransparentSearchButton?: boolean;
   isDisplayFavoriteTerm?: boolean;
   isAppContainerTopMargin?: boolean;
+  appRef?: React.RefObject<HTMLDivElement>;
 }
 
 const AppBaseTemplate: React.FC<AppBaseTemplate> = ({
@@ -76,6 +77,7 @@ const AppBaseTemplate: React.FC<AppBaseTemplate> = ({
   isTransparentSearchButton = false,
   isDisplayFavoriteTerm = true,
   isAppContainerTopMargin = true,
+  appRef,
 }) => {
   const [isSearchInputActive, setIsSearchInputActive] = useRecoilState(
     isSearchInputActiveAtom,
@@ -117,7 +119,7 @@ const AppBaseTemplate: React.FC<AppBaseTemplate> = ({
   useOutsideClick([suggestBodyRef], () => setIsSearchInputActive(false));
   return (
     <>
-      <Container id="app">
+      <Container id="app" ref={appRef}>
         {/* refer: 수정 */}
         {windowWidth > MEDIA_MOBILE_MAX_WIDTH_NUM && (
           <Header>

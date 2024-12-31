@@ -205,20 +205,24 @@ const ProfilePostDetailPopupLayout: React.FC<ProfilePostDetailPopupProps> = ({
     number | null
   >(null);
 
-  const bgStyle = {
-    opacity: y.to(
-      [0, height],
-      [
-        1,
-        opacityForPreventFlicker == null
-          ? opacityForPreventFlickerThreshold
-          : opacityForPreventFlicker,
-      ],
-      'clamp',
-    ),
-  };
+  // const bgStyle = {
+  //   opacity: y.to(
+  //     [0, height],
+  //     [
+  //       1,
+  //       opacityForPreventFlicker == null
+  //         ? opacityForPreventFlickerThreshold
+  //         : opacityForPreventFlicker,
+  //     ],
+  //     'clamp',
+  //   ),
+  // };
 
+  const bgStyle = {
+    opacity: y.to([0, height], [1, 0], 'clamp'),
+  };
   useEffect(() => {
+    console.log('열림: ' + isOpen);
     if (isOpen) {
       open({ canceled: false });
       // document.documentElement.style.overflow = OVERFLOW_HIDDEN;
@@ -248,13 +252,32 @@ const ProfilePostDetailPopupLayout: React.FC<ProfilePostDetailPopupProps> = ({
     }
   }, [isExternalCloseFunc]);
 
+  useEffect(() => {
+    return () => {
+      console.log('킹킹킹');
+      // document.documentElement.style.overflow = '';
+      document.documentElement.style.touchAction = '';
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+      document.documentElement.style.overscrollBehavior = '';
+      // @REFER 문제 되면 주석 풀기
+      // document.body.style.overscrollBehavior = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.style.position = '';
+
+      console.log('킹킹킹스');
+    };
+  }, []);
+
   return (
     <BottomSheetLayoutConatiner as={animated.div} style={{ display: display }}>
       <OverlayBackground
         as={animated.div}
         onClick={() => close()}
         // @REFER: 주석 처리함 잠깐 -> 테스트 목적
-        // style={bgStyle}
+        style={bgStyle}
       />
       <BottomSheetContainer
         ref={BottomSheetContainerRef}
@@ -404,7 +427,7 @@ const OverlayBackground = styled.div`
   left: 0;
   width: 100%;
   // height: 100%;
-  // background-color: white;
+  background-color: white;
 `;
 
 const BottomSheetContainer = styled.div`
@@ -437,7 +460,9 @@ const PopupScrollContainer = styled.div<{ $bottomSheetHeightNum: number }>`
   position: absolute;
 
   height: ${(props) => props.$bottomSheetHeightNum}px;
-  width: 100%;
+  width: calc(100% - 100px);
+  left: 50%;
+  transform: translate(-50%, 0);
   z-index: 1000;
   display: flex;
 `;

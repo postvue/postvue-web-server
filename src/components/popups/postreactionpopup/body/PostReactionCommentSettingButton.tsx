@@ -1,5 +1,5 @@
-import { ProfileMyInfo } from 'global/interface/profile';
 import { QueryMutationDeletePostComment } from 'hook/queryhook/QueryMutationDeletePostComment';
+import { QueryStateMyProfileInfo } from 'hook/queryhook/QueryStateMyProfileInfo';
 import React, { useRef, useState } from 'react';
 import { useSetRecoilState } from 'recoil';
 import {
@@ -9,7 +9,6 @@ import {
 import { isActiveProfileBlockPopupAtom } from 'states/ProfileAtom';
 import { isLoadingPopupAtom } from 'states/SystemConfigAtom';
 import styled from 'styled-components';
-import { getMyAccountSettingInfo } from '../../../../global/util/MyAccountSettingUtil';
 import ContextMenuPopup from '../../ContextMenuPopup';
 
 interface PostReactionCommentSettingButtonProps {
@@ -24,7 +23,7 @@ const PostReactionCommentSettingButton: React.FC<
 > = ({ postId, userId, commentId, username }) => {
   const postCommentSettingRef = useRef<HTMLDivElement>(null);
 
-  const myAccountSettingInfo: ProfileMyInfo = getMyAccountSettingInfo();
+  const { data: myAccountSettingInfo } = QueryStateMyProfileInfo();
 
   const [isCommentSettingContextMenu, setIsCommentSettingContextMenu] =
     useState<boolean | string>(false);
@@ -110,7 +109,7 @@ const PostReactionCommentSettingButton: React.FC<
             hasFixedActive={false}
           >
             <PostCommentSettingItemWrap>
-              {myAccountSettingInfo.userId === userId ? (
+              {myAccountSettingInfo?.userId === userId ? (
                 <>
                   <PostCommentSettingItem
                     onClick={() => onClickDeletePostComment(commentId)}
