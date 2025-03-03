@@ -4,17 +4,17 @@ import {
   POST_DETAIL_PROFILE_PARAM,
   TRUE_PARAM,
 } from 'const/QueryParamConst';
+import { RoutePushEventDateInterface } from 'const/ReactNativeConst';
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
-import { stackRouterPush } from 'global/util/reactnative/StackRouter';
+import { stackRouterPush } from 'global/util/reactnative/nativeRouter';
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useSetRecoilState } from 'recoil';
-import {
-  isPostDetailInfoPopupAtom,
-  postDetailInfoPopupAtom,
-} from 'states/PostAtom';
+import { generatePath, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { PROFILE_LIST_PATH } from '../../../const/PathConst';
+import { filterBrigntnessStyle } from 'styles/commonStyles';
+import {
+  PROFILE_ACCOUNT_ROUTE_PATH,
+  PROFILE_POST_LIST_PATH,
+} from '../../../const/PathConst';
 import { RecommFollowInfo } from '../../../global/interface/recomm';
 import { getRecommFollowList } from '../../../services/recomm/getRecommFollowList';
 import theme from '../../../styles/theme';
@@ -24,8 +24,7 @@ const HomeFollowSubBody: React.FC = () => {
   const [recommFollowList, setRecommFollowList] = useState<RecommFollowInfo[]>(
     [],
   );
-  const setPostDetailInfo = useSetRecoilState(postDetailInfoPopupAtom);
-  const setIsPostDetailInfoPopup = useSetRecoilState(isPostDetailInfoPopupAtom);
+
   useEffect(() => {
     getRecommFollowList().then((value) => setRecommFollowList(value));
   }, []);
@@ -48,12 +47,16 @@ const HomeFollowSubBody: React.FC = () => {
               <RecommFollowProfileInfoWrap>
                 <RecommFollowProfileImg src={value.profilePath} />
                 <div
-                  onClick={() =>
-                    stackRouterPush(
-                      navigate,
-                      `${PROFILE_LIST_PATH}/${value.username}`,
-                    )
-                  }
+                  onClick={() => {
+                    const path = generatePath(PROFILE_ACCOUNT_ROUTE_PATH, {
+                      username: value.username,
+                    });
+                    const data: RoutePushEventDateInterface = {
+                      isShowInitBottomNavBar: true,
+                    };
+
+                    stackRouterPush(navigate, path, data);
+                  }}
                 >
                   <FollowUsernameNumberWrap>
                     <RecommFollowUsername>
@@ -79,6 +82,7 @@ const HomeFollowSubBody: React.FC = () => {
               <FollowButton
                 fontSize={theme.fontSizes.Subhead3}
                 userId={value.followId}
+                username={value.username}
                 isFollow={false}
               />
             </RecommFollowProfileInfo>
@@ -90,29 +94,36 @@ const HomeFollowSubBody: React.FC = () => {
                     if (window.innerWidth > MEDIA_MOBILE_MAX_WIDTH_NUM) {
                       // 데스크탑 크기
                       // url로 이동
-                      navigate(`/${value.username}/${image.postId}`, {
-                        state: { isDetailPopup: true },
-                      });
-                    } else {
-                      // 모바일 크기
-                      // url만 바뀌도록 변경
-                      // window.history.pushState(
-                      //   null,
-                      //   '',
-                      //   `/${v.username}/${v.postId}`,
-                      // );
 
                       navigate(
-                        location.pathname +
-                          `?${POST_DETAIL_POPUP_PARAM}=${TRUE_PARAM}` +
-                          `&${POST_DETAIL_POST_ID_PARAM}=` +
-                          image.postId +
-                          `&${POST_DETAIL_PROFILE_PARAM}=` +
-                          value.username,
+                        generatePath(PROFILE_POST_LIST_PATH, {
+                          user_id: value.username,
+                          post_id: image.postId,
+                        }),
                         {
                           state: { isDetailPopup: true },
                         },
                       );
+                    } else {
+                      // 모바일 크기
+                      // url만 바뀌도록 변경
+                      // 새로운 쿼리 파라미터 추가 또는 기존 파라미터 값 수정
+                      const searchParams = new URLSearchParams(location.search);
+
+                      searchParams.set(POST_DETAIL_POPUP_PARAM, TRUE_PARAM);
+                      searchParams.set(POST_DETAIL_POST_ID_PARAM, image.postId);
+                      searchParams.set(
+                        POST_DETAIL_PROFILE_PARAM,
+                        value.username,
+                      );
+
+                      // 새로운 쿼리 파라미터가 포함된 URL 생성
+                      const newSearch = searchParams.toString();
+                      const newPath = `${location.pathname}?${newSearch}`;
+
+                      navigate(newPath, {
+                        state: { isDetailPopup: true },
+                      });
                     }
                   }}
                 >
@@ -129,7 +140,8 @@ const HomeFollowSubBody: React.FC = () => {
 
 const HomeFollowSubBodyContainer = styled.div`
   padding: 0 21px;
-  padding-bottom: ${({ theme }) => theme.systemSize.bottomNavBar.heightNum}px;
+  padding-bottom: ${({ theme }) =>
+    theme.systemSize.bottomNavBar.heightNum * 2}px;
 `;
 
 const HomeFollowSubTitleWrap = styled.div`
@@ -212,13 +224,9 @@ const MyProfileScrapImgListWrap = styled.div`
 `;
 
 const MyProfileScrapImgWrap = styled.div`
-  width: 30%;
+  width: 40%;
   flex: 0 0 auto;
-  @media (hover: hover) and (pointer: fine) {
-    &:hover {
-      filter: brightness(0.7);
-    }
-  }
+  ${filterBrigntnessStyle}
   cursor: pointer;
 `;
 
@@ -227,7 +235,7 @@ const MyProfileScrapImg = styled.div<{ src: string }>`
   vertical-align: bottom;
   aspect-ratio: 3/4;
   background: url(${(props) => props.src}) center center / cover;
-  border-radius: 8px;
+  border-radius: 15px;
 `;
 
 export default HomeFollowSubBody;

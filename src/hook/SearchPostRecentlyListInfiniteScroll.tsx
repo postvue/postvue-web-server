@@ -1,26 +1,20 @@
 import InViewComponent from 'components/common/container/InViewComponent';
-import { GetSearchPostsRsp } from 'global/interface/search';
 import { isValidSearchWordAndFilterKey } from 'global/util/SearchPostUtil';
 import React, { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 import styled from 'styled-components';
 import { QueryStateSearchPostRecentlyListInfinite } from './queryhook/QueryStateSearchPostRecentlyListInfinite';
 
-interface RepostInfiniteScrollProps {
+interface SearchPostRecentlyListInfiniteScrollProps {
   searchQueryAndFilterKey: string;
 }
 
-export interface SearchPostQueryInterface {
-  pages: GetSearchPostsRsp[];
-  pageParams: unknown[];
-}
-
 const SearchPostRecentlyListInfiniteScroll: React.FC<
-  RepostInfiniteScrollProps
+  SearchPostRecentlyListInfiniteScrollProps
 > = ({ searchQueryAndFilterKey }) => {
   const { ref, inView } = useInView();
 
-  const { fetchNextPage, hasNextPage, isFetchingNextPage } =
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     QueryStateSearchPostRecentlyListInfinite(searchQueryAndFilterKey, true);
 
   useEffect(() => {
@@ -34,9 +28,20 @@ const SearchPostRecentlyListInfiniteScroll: React.FC<
     }
   }, [inView]);
 
+  useEffect(() => {
+    if (
+      hasNextPage &&
+      !isFetchingNextPage &&
+      data &&
+      data.pages[0].snsPostRspList.length < 10
+    ) {
+      fetchNextPage();
+    }
+  }, [data, hasNextPage]);
+
   return (
     <ScrollBottomContainer ref={ref}>
-      <InViewComponent />
+      <InViewComponent hasLoadingIcon={hasNextPage} />
     </ScrollBottomContainer>
   );
 };

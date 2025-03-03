@@ -1,12 +1,11 @@
 import { atom } from 'recoil';
-import { PostRsp } from '../global/interface/post';
-
-export const systemPostRspHashMapAtom = atom<Map<string, PostRsp>>({
-  key: 'systemPostRspHashMap',
-  default: new Map(),
-});
 
 export const isLoadingPopupAtom = atom<boolean>({
   key: 'isLoadingPopup',
   default: false,
+});
+
+export const serviceUsageTimerStateAtom = atom<boolean>({
+  key: 'serviceUsageTimerState', // 전역 상태의 고유한 key
+  default: false, // 기본값은 0입니다.
 });

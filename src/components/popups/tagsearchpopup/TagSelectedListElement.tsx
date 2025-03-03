@@ -28,7 +28,13 @@ const TagSelectedListElement: React.FC<TagSelectedListElementProps> = ({
       HorizontalGrabScrollContainerStyle={{
         ...{
           gap: '10px',
-          padding: `0 ${theme.systemSize.appDisplaySize.bothSidePadding} 0 ${theme.systemSize.appDisplaySize.bothSidePadding}`,
+          padding: `0 ${theme.systemSize.appDisplaySize.bothSidePadding} ${
+            (parseFloat(
+              getComputedStyle(document.documentElement).getPropertyValue(
+                '--safe-area-inset-top',
+              ),
+            ) || 0) + 10
+          }px ${theme.systemSize.appDisplaySize.bothSidePadding}`,
           height: '50px',
         },
         ...TagSelectedContainerStyle,

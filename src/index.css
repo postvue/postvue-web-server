@@ -15,25 +15,36 @@ code {
 
 @font-face {
   font-family: 'Pretendard-Bold';
-  src: url('/public/assets/fonts/pretendard/Pretendard-Bold.otf');
+  src: url('/public/assets/fonts/pretendard/Pretendard-Bold.woff2') format('woff2'),
+       url('/public/assets/fonts/pretendard/Pretendard-Bold.woff') format('woff');
+  font-display: block;
 }
 
 @font-face {
   font-family: 'Pretendard-Medium';
-  src: url('/public/assets/fonts/pretendard/Pretendard-Medium.otf');
+  src: url('/public/assets/fonts/pretendard/Pretendard-Medium.woff2') format('woff2'),
+       url('/public/assets/fonts/pretendard/Pretendard-Medium.woff') format('woff');
+  font-display: block;
 }
 
 @font-face {
   font-family: 'Pretendard-SemiBold';
-  src: url('/public/assets/fonts/pretendard/Pretendard-SemiBold.otf');
+  src: url('/public/assets/fonts/pretendard/Pretendard-SemiBold.woff2') format('woff2'),
+       url('/public/assets/fonts/pretendard/Pretendard-SemiBold.woff') format('woff');
+  font-display: block;
 }
 
 @font-face {
   font-family: 'Pretendard-Light';
-  src: url('/public/assets/fonts/pretendard/Pretendard-Light.otf');
+  src: url('/public/assets/fonts/pretendard/Pretendard-Light.woff2') format('woff2'),
+       url('/public/assets/fonts/pretendard/Pretendard-Light.woff') format('woff');
+  font-display: block;
 }
 
 @font-face {
   font-family: 'Pretendard-Regular';
-  src: url('/public/assets/fonts/pretendard/Pretendard-Regular.otf');
+  src: url('/public/assets/fonts/pretendard/Pretendard-Regular.woff2') format('woff2'),
+       url('/public/assets/fonts/pretendard/Pretendard-Regular.woff') format('woff');
+  font-display: block;
 }
+

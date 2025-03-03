@@ -3,8 +3,7 @@ import styled from 'styled-components';
 
 import { ReactComponent as PostComposeTargetAudTabIcon } from 'assets/images/icon/svg/CategoryCheckIcon.svg';
 import { ReactComponent as PostComposeTargetAudNotActiveTabIcon } from 'assets/images/icon/svg/CategoryNotCheckIcon.svg';
-import { useSetRecoilState } from 'recoil';
-import { isActivPostComposeTargetAudiencePopupAtom } from 'states/PostComposeAtom';
+import { POST_COMPOSE__TARGET_AUDIENCE_TAB_NAME } from 'const/TabConfigConst';
 
 interface PostComposeTargetAudiencePopupBodyProps {
   targetAudTabList: {
@@ -13,32 +12,21 @@ interface PostComposeTargetAudiencePopupBodyProps {
   }[];
   targetAudTabId: number;
   setTargetAudTabId: React.Dispatch<React.SetStateAction<number>>;
-  setIsExternalCloseFunc?: React.Dispatch<React.SetStateAction<boolean>>;
+  onClose: () => void;
 }
 
 const PostComposeTargetAudiencePopupBody: React.FC<
   PostComposeTargetAudiencePopupBodyProps
-> = ({
-  targetAudTabList,
-  targetAudTabId,
-  setTargetAudTabId,
-  setIsExternalCloseFunc,
-}) => {
-  const setIsActivPostComposeTargetAudiencePopup = useSetRecoilState(
-    isActivPostComposeTargetAudiencePopupAtom,
-  );
-
+> = ({ targetAudTabList, targetAudTabId, setTargetAudTabId, onClose }) => {
   return (
     <PostComposeTargetHeaderContainer>
       <PostComposeTarAudTitle>
-        <PostComposeTargetHeaderTitle>공개 대상</PostComposeTargetHeaderTitle>
+        <PostComposeTargetHeaderTitle>
+          {POST_COMPOSE__TARGET_AUDIENCE_TAB_NAME}
+        </PostComposeTargetHeaderTitle>
         <TagPopupCloseButton
           onClick={() => {
-            if (setIsExternalCloseFunc) {
-              setIsExternalCloseFunc(true);
-            }
-
-            setIsActivPostComposeTargetAudiencePopup(false);
+            onClose();
           }}
         >
           닫기

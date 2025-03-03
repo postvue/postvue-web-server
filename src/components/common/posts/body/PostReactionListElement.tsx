@@ -1,7 +1,11 @@
 import ClipButtonListFactory from 'components/common/buttton/clipbutton/CliipButtonListFactory';
 import HeartButtonListFactory from 'components/common/buttton/heartbutton/HeartButtonListFactory';
+import PostMapExploreButton from 'components/common/buttton/PostMapExploreButton';
+import { PROFILE_POST_LIST_PATH } from 'const/PathConst';
+import { PostRsp } from 'global/interface/post';
+import { isEmptyObject } from 'global/util/ObjectUtil';
 import React from 'react';
-import { systemPostRspHashMapAtom } from 'states/SystemConfigAtom';
+import { generatePath } from 'react-router-dom';
 import styled from 'styled-components';
 import MsgButton from '../../buttton/MsgButton';
 import ShareButton from '../../buttton/ShareButton';
@@ -9,15 +13,15 @@ import ShareButton from '../../buttton/ShareButton';
 interface PostReactionListElementProps {
   username: string;
   postId: string;
+  snsPost: PostRsp;
   mainImageUrl: string;
-  isFixed: boolean;
 }
 
 const PostReactionListElement: React.FC<PostReactionListElementProps> = ({
   username,
   postId,
+  snsPost,
   mainImageUrl,
-  isFixed,
 }) => {
   return (
     <ReactionContainer
@@ -26,23 +30,34 @@ const PostReactionListElement: React.FC<PostReactionListElementProps> = ({
       }}
     >
       <HrtMsgShrReactionContainer>
-        <>
-          <HeartButtonListFactory
-            username={username}
-            postId={postId}
-            systemPostRspHashMapAtom={systemPostRspHashMapAtom}
-          />
-          <MsgButton postId={postId} />
-        </>
+        <HeartButtonListFactory
+          username={username}
+          postId={postId}
+          isLiked={snsPost.isLiked}
+        />
+        <MsgButton postId={postId} />
 
         <ShareButton
-          shareLink={`/${username}/${postId}`}
+          shareLink={
+            location.origin +
+            generatePath(PROFILE_POST_LIST_PATH, {
+              user_id: username,
+              post_id: postId,
+            })
+          }
           mainImageUrl={mainImageUrl}
-          isFixed={isFixed}
+          title={snsPost.postTitle}
+          description={snsPost.postBodyText}
+          address={snsPost.location.address}
         />
+        {!isEmptyObject(snsPost.location) && <PostMapExploreButton />}
       </HrtMsgShrReactionContainer>
 
-      <ClipButtonListFactory username={username} postId={postId} />
+      <ClipButtonListFactory
+        username={username}
+        postId={postId}
+        isClipped={snsPost.isClipped}
+      />
     </ReactionContainer>
   );
 };

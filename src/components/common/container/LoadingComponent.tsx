@@ -23,7 +23,7 @@ export default LoadingComponent;
 const LoadingBarSize = '50px';
 const SearchLoadingWrap = styled.div`
   position: absolute;
-  top: calc(50%);
+  top: calc(50% - ${LoadingBarSize});
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 1000;

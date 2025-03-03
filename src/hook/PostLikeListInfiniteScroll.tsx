@@ -1,59 +1,46 @@
+import InViewComponent from 'components/common/container/InViewComponent';
 import React, { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 import styled from 'styled-components';
+import { QueryStatePostLikeListInfinite } from './queryhook/QueryStatePostLikeListInfinite';
 
-import InViewComponent from 'components/common/container/InViewComponent';
-import { useRecoilState } from 'recoil';
-import { getPostLikeList } from '../services/post/getPostLiketList';
-import {
-  cursorIdAtomByPostReactionLike,
-  postReactionLikeHashMapAtom,
-} from '../states/PostReactionAtom';
-
-interface RepostInfiniteScrollProps {
+interface PostLikeListInfiniteScrollProps {
   postId: string;
 }
 
-const PostLikeListInfiniteScroll: React.FC<RepostInfiniteScrollProps> = ({
+const PostLikeListInfiniteScroll: React.FC<PostLikeListInfiniteScrollProps> = ({
   postId,
 }) => {
-  const [cursorNum, setCursorNum] = useRecoilState(
-    cursorIdAtomByPostReactionLike,
-  );
+  const { ref, inView } = useInView();
 
-  const [ref, inView] = useInView();
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    QueryStatePostLikeListInfinite(postId);
 
-  const [snsPostLikeHashMap, setPostLikeHashMap] = useRecoilState(
-    postReactionLikeHashMapAtom,
-  );
-
-  const callback = () => {
-    getPostLikeList(postId, cursorNum)
-      .then((res) => {
-        if (res.snsPostLikeGetRspList.length > 0) {
-          const newRepostHashMap = new Map(snsPostLikeHashMap);
-
-          res.snsPostLikeGetRspList.forEach((postLike) => {
-            newRepostHashMap.set(postLike.userId, postLike);
-          });
-
-          setPostLikeHashMap(newRepostHashMap);
-        }
-      })
-      .catch((err) => {
-        throw err;
-      });
-  };
   useEffect(() => {
-    // categoryId가 변경되고 이전 categoryId와 다를 때에만 실행
-    if (inView) {
-      callback();
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
     }
   }, [inView]);
 
+  useEffect(() => {
+    if (
+      hasNextPage &&
+      !isFetchingNextPage &&
+      data &&
+      data.pages[0].snsPostLikeGetRspList.length < 10
+    ) {
+      fetchNextPage();
+    }
+  }, [data, hasNextPage]);
+
   return (
     <ScrollBottomContainer ref={ref}>
-      <InViewComponent />
+      <InViewComponent
+        hasLoadingIcon={
+          (data ? data?.pages[0].snsPostLikeGetRspList.length > 5 : false) &&
+          hasNextPage
+        }
+      />
     </ScrollBottomContainer>
   );
 };

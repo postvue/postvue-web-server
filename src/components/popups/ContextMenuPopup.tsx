@@ -1,6 +1,6 @@
-import BodyHiddenScrollElement from 'components/BodyHiddenScrollElement';
-import React, { useEffect, useState } from 'react';
-import { SetterOrUpdater } from 'recoil';
+import useBodyAdaptProps from 'hook/customhook/useBodyAdaptProps';
+import useOutsideClick from 'hook/customhook/useOutsideClick';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { BOTTOM_ATTRIBUTE, TOP_ATTRIBUTE } from '../../const/AttributeConst';
 import { ContextMenuLayoutInfoInterface } from '../../global/interface/contextmenu/contextmenulayout';
@@ -8,27 +8,22 @@ import { animationStyle } from '../../styles/animations';
 
 interface ContextMenuPopupProps {
   children: React.ReactNode;
-  setIsActive:
-    | SetterOrUpdater<boolean>
-    | React.Dispatch<React.SetStateAction<boolean>>
-    | SetterOrUpdater<boolean | number>
-    | React.Dispatch<React.SetStateAction<boolean | number>>
-    | SetterOrUpdater<boolean | string>
-    | React.Dispatch<React.SetStateAction<boolean | string>>
-    | SetterOrUpdater<boolean | number | string>
-    | React.Dispatch<React.SetStateAction<boolean | number | string>>;
+  onClose: () => void;
   contextMenuRef: HTMLDivElement;
   hasFixedActive?: boolean;
   ContextMenuPopupContainerStyle?: React.CSSProperties;
+  contextWidthSize?: number;
 }
 
 const ContextMenuPopup: React.FC<ContextMenuPopupProps> = ({
   children,
   contextMenuRef,
-  setIsActive,
+  onClose,
   hasFixedActive = true,
   ContextMenuPopupContainerStyle,
+  contextWidthSize = 200,
 }) => {
+  const contextMenuContainerRef = useRef<HTMLDivElement>(null);
   const [contextMenuLayoutInfo, setContextMenuLayoutInfo] =
     useState<ContextMenuLayoutInfoInterface>({
       positionType: TOP_ATTRIBUTE,
@@ -43,9 +38,6 @@ const ContextMenuPopup: React.FC<ContextMenuPopupProps> = ({
       const clipHeight = dom.height;
       const windowHeight = window.innerHeight;
 
-      console.log(clipY, clipHeight, windowHeight);
-      console.log(dom);
-
       if (clipY + clipHeight / 2 > windowHeight / 2) {
         setContextMenuLayoutInfo((prev) => ({
           ...prev,
@@ -59,13 +51,31 @@ const ContextMenuPopup: React.FC<ContextMenuPopupProps> = ({
           positionValue: clipHeight + POSTION_MARGIN_GAP,
         }));
       }
+
+      setTimeout(() => {
+        if (!contextMenuContainerRef.current) return;
+        contextMenuContainerRef.current.style.display = 'block';
+      }, 50);
     }
   }, []);
 
+  if (hasFixedActive) {
+    useBodyAdaptProps([
+      { key: 'overflow', value: 'hidden' },
+      { key: 'touch-action', value: 'none' },
+      { key: 'overscroll-behavior', value: 'none' },
+    ]);
+  }
+
+  useOutsideClick([contextMenuContainerRef], () => {
+    onClose();
+  });
+
   return (
     <>
-      {hasFixedActive && <BodyHiddenScrollElement />}
       <ContextMenuContainer
+        ref={contextMenuContainerRef}
+        $contextWidthSize={contextWidthSize}
         $positionType={contextMenuLayoutInfo.positionType}
         $positionValue={contextMenuLayoutInfo.positionValue}
         style={ContextMenuPopupContainerStyle}
@@ -75,7 +85,7 @@ const ContextMenuPopup: React.FC<ContextMenuPopupProps> = ({
       <ScrapBoardNotClickContainer
         onClick={(e) => {
           e.stopPropagation();
-          setIsActive(false);
+          onClose();
         }}
       />
     </>
@@ -87,9 +97,11 @@ const POSTION_MARGIN_GAP = 10;
 const ContextMenuContainer = styled.div<{
   $positionType: string;
   $positionValue: number;
+  $contextWidthSize: number;
 }>`
+  display: none;
   position: absolute;
-  width: 198px;
+  width: ${(props) => props.$contextWidthSize}px;
   right: 0px;
   z-index: 1000;
   background-color: white;

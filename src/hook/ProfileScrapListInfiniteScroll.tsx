@@ -6,7 +6,7 @@ import { QueryStateProfileScrapList } from './queryhook/QueryStateProfileScrapLi
 
 const ProfileScrapListInfiniteScroll: React.FC = () => {
   const { ref, inView } = useInView();
-  const { fetchNextPage, hasNextPage, isFetchingNextPage } =
+  const { fetchNextPage, hasNextPage, isFetchingNextPage, data } =
     QueryStateProfileScrapList();
 
   useEffect(() => {
@@ -17,7 +17,11 @@ const ProfileScrapListInfiniteScroll: React.FC = () => {
 
   return (
     <ScrollBottomContainer ref={ref}>
-      <InViewComponent />
+      <InViewComponent
+        hasLoadingIcon={
+          (data ? data?.pages[0].length > 5 : false) && hasNextPage
+        }
+      />
     </ScrollBottomContainer>
   );
 };

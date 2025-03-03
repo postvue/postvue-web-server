@@ -43,7 +43,14 @@ const ProfileScrapTargetAudiencePopup: React.FC<
         <BottomSheetLayout
           isOpen={isActiveProfileScarpTargetAudPopup}
           onClose={() => setIsActiveProfileScarpTargetAudPopup(false)}
-          heightNum={250}
+          heightNum={
+            220 +
+              parseFloat(
+                getComputedStyle(document.documentElement).getPropertyValue(
+                  '--safe-area-inset-bottom',
+                ),
+              ) || 0
+          }
         >
           <ProfileScrapTargetAudiencePopupBody
             targetAudValue={targetAudValue}

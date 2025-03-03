@@ -1,17 +1,11 @@
 import InViewComponent from 'components/common/container/InViewComponent';
 import React, { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
-import { GetProfilePostListRsp } from 'services/profile/getProfilePostList';
 import styled from 'styled-components';
 import { QueryStateProfileAccountPostList } from './queryhook/QueryStateProfileAccountPostList';
 
 interface ProfileAccountPostListInfiniteScrollProps {
   username: string;
-}
-
-export interface SearchPostQueryInterface {
-  pages: GetProfilePostListRsp[];
-  pageParams: unknown[];
 }
 
 const ProfileAccountPostListInfiniteScroll: React.FC<

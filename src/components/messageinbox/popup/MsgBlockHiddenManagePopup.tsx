@@ -20,7 +20,14 @@ const MsgBlockHiddenManagePopup: React.FC = () => {
     <BottomSheetLayout
       isOpen={isActiveMsgBlockHiddenManagePopup}
       onClose={() => setIsActiveMsgBlockHiddenManagePopup(false)}
-      heightNum={150}
+      heightNum={
+        120 +
+          parseFloat(
+            getComputedStyle(document.documentElement).getPropertyValue(
+              '--safe-area-inset-bottom',
+            ),
+          ) || 0
+      }
     >
       <MsgBlockHiddenManagePopupBody />
     </BottomSheetLayout>

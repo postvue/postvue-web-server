@@ -71,12 +71,6 @@ export const QueryStateSearchPostListInfinite = (
       if (filterQueryPram === SEARCH_POST_LASTEST_QUERY_PARAM) {
         return getPostSearchLive(searchWord, pageParam);
       } else if (filterQueryPram === SEARCH_POST_MY_NEAR_QUERY_PARAM) {
-        console.log(
-          '양호',
-          latitude,
-          longitude,
-          !!searchQueryAndFilterKey && isActive,
-        );
         if (!latitude || !longitude) throw new Error();
         return getPostSearchNear(searchWord, latitude, longitude, pageParam);
       } else {

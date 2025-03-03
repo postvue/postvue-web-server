@@ -9,3 +9,14 @@ export const locationSearchWordAtom = atom<string>({
   key: 'locationSearchTempWord',
   default: '',
 });
+
+export const currentGisInfoAtom = atom<{
+  latitude?: number;
+  longitude?: number;
+}>({
+  key: 'currentGisInfo',
+  default: {
+    latitude: undefined,
+    longitude: undefined,
+  },
+});

@@ -1,5 +1,5 @@
-import { OVERFLOW_DEFAULT, OVERFLOW_HIDDEN } from 'const/AttributeConst';
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
+import { sendPopupEvent } from 'global/util/reactnative/nativeRouter';
 import React, {
   ReactNode,
   useCallback,
@@ -19,7 +19,6 @@ interface PopupLayoutProps {
   onClose: () => void;
   isTouchScrollBar?: boolean;
   hasTransparentOverLay?: boolean;
-  hasFixedActive?: boolean;
   headerBorderRadiusNum?: number;
 }
 
@@ -32,7 +31,6 @@ const PopupLayout: React.FC<PopupLayoutProps> = ({
   onClose,
   isTouchScrollBar = true,
   hasTransparentOverLay = false,
-  hasFixedActive = true,
   headerBorderRadiusNum = 15,
 }) => {
   const [startY, setStartY] = useState(0);
@@ -101,29 +99,21 @@ const PopupLayout: React.FC<PopupLayoutProps> = ({
     };
   }, []);
 
+  const isFixBody = () => {
+    sendPopupEvent(true);
+  };
+
+  const removeFixBody = () => {
+    sendPopupEvent(false);
+  };
+
   useEffect(() => {
-    if (!hasFixedActive) return;
-
-    const scrollY = window.scrollY;
-    document.body.style.position = 'fixed';
-    document.body.style.top = `-${scrollY}px`;
-    // document.body.style.top = `0px`;
-    document.body.style.left = '0';
-    document.body.style.right = '0';
-
-    document.body.style.overflow = OVERFLOW_HIDDEN;
-    document.body.style.width = '100%';
+    isFixBody();
 
     return () => {
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.left = '';
-      document.body.style.right = '';
-      document.body.style.overflow = OVERFLOW_DEFAULT;
-      document.body.style.width = '';
-      window.scrollTo(0, scrollY);
+      removeFixBody();
     };
-  }, [hasFixedActive]);
+  }, []);
 
   useEffect(() => {
     const element = touchRef.current;

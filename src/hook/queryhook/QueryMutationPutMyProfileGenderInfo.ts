@@ -29,7 +29,7 @@ export const QueryMutationPutMyProfileGenderInfo = (): UseMutationResult<
       });
 
       initMyAccountSettingInfo(data);
-      notify(SETTING_EDIT_COMPLETE_PHASE_TEXT);
+      notify({ msgTitle: SETTING_EDIT_COMPLETE_PHASE_TEXT });
     },
   });
 };

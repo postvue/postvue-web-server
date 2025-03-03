@@ -1,29 +1,25 @@
 import BottomSheetLayout from 'components/layouts/BottomSheetLayout';
 import ProfilePostSettingBody from 'components/post/ProfilePostSettingBody';
-import { ProfileMyInfo } from 'global/interface/profile';
 import React, { useState } from 'react';
 import { useRecoilState } from 'recoil';
 import { isSettingPopupAtom } from 'states/PostAtom';
+import { PostEditType } from 'states/PostComposeAtom';
 import theme from 'styles/theme';
 
 interface ProfilePostSettingPopupProps {
-  myAccountSettingInfo: ProfileMyInfo;
   setIsInterest: React.Dispatch<React.SetStateAction<boolean>>;
   postId: string;
-  isBlocked: boolean;
+  type: PostEditType;
   userId: string;
   username: string;
-  isFixed?: boolean;
 }
 
 const ProfilePostSettingPopup: React.FC<ProfilePostSettingPopupProps> = ({
-  myAccountSettingInfo,
   setIsInterest,
   postId,
-  isBlocked,
+  type,
   userId,
   username,
-  isFixed,
 }) => {
   const [isSettingActive, setIsSettingActive] =
     useRecoilState(isSettingPopupAtom);
@@ -33,25 +29,28 @@ const ProfilePostSettingPopup: React.FC<ProfilePostSettingPopupProps> = ({
 
   return (
     <BottomSheetLayout
-      isFixed={isFixed}
       isOpen={isSettingActive}
       onClose={() => {
         setIsSettingActive(false);
       }}
-      heightNum={300}
+      heightNum={
+        250 +
+          parseFloat(
+            getComputedStyle(document.documentElement).getPropertyValue(
+              '--safe-area-inset-bottom',
+            ),
+          ) || 0
+      }
       isExternalCloseFunc={isExternalCloseFunc}
-      setIsExternalCloseFunc={setIsExternalCloseFunc}
     >
       <ProfilePostSettingBody
-        setIsSettingActive={setIsSettingActive}
-        myAccountSettingInfo={myAccountSettingInfo}
         setIsInterest={setIsInterest}
         postId={postId}
-        isBlocked={isBlocked}
+        type={type}
         userId={userId}
         username={username}
         ProfilePostSettingBodyStyle={ProfilePostSettingBodyStyle}
-        setIsExternalCloseFunc={setIsExternalCloseFunc}
+        onClose={() => setIsExternalCloseFunc(true)}
       />
     </BottomSheetLayout>
   );

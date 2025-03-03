@@ -1,311 +1,399 @@
 import BottomNavBar from 'components/BottomNavBar';
 import AppBaseTemplate from 'components/layouts/AppBaseTemplate';
-import { NAVER_MAP_MODULE_ID } from 'const/NaverConst';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
-import BorderCircleButton from 'components/common/buttton/BorderCircleButton';
-import MapExploreSearchSuggestBody from 'components/mapexplore/body/MapExploreSearchSuggestBody';
+import AppleMapElement from 'components/mapexplore/body/AppleMapElement';
+import { MoveLocationType } from 'components/mapexplore/body/MapkitClient';
 import GeoCurrentPositionButton from 'components/mapexplore/GeoCurrentPositionButton';
 import GeoPositionRefreshButton from 'components/mapexplore/GeoPositionRefreshButton';
+import MapDateRangePickerPopup from 'components/mapexplore/MapDateRangePickerPopup';
 import MapExploreBody from 'components/mapexplore/MapExploreBody';
 import MapExploreHeader from 'components/mapexplore/MapExploreHeader';
+import PageHelmentInfoElement from 'components/PageHelmetInfoElement';
 import LoadingPopup from 'components/popups/LoadingPopup';
-import MapExplorePopup_ from 'components/popups/MapExplorePopup_';
-import { OVERFLOW_SCROLL } from 'const/AttributeConst';
-import { ACTIVE_CLASS_NAME } from 'const/ClassNameConst';
+import MapDatePickerPopup from 'components/popups/mapexplore/MapDatePickerPopup';
+import MapExplorePostPopup from 'components/popups/mapexplore/MapExplorePostPopup';
+import { APP_SERVICE_NAME } from 'const/AppInfoConst';
+import {
+  OVERFLOW_HIDDEN,
+  OVERFLOW_SCROLL,
+  POSITION_FIXED,
+} from 'const/AttributeConst';
+import {
+  MAP_CONTENT_LOCATION_TYPE,
+  MAP_CONTENT_POST_TYPE,
+} from 'const/MapExploreConst';
+import {
+  BRIDGE_CALENDAR_EVENT_TYPE,
+  BridgeMsgInterface,
+  CalendarInfo,
+  EventDateInterface,
+} from 'const/ReactNativeConst';
 import {
   MEDIA_MOBILE_MAX_WIDTH,
   MEDIA_MOBILE_MAX_WIDTH_NUM,
 } from 'const/SystemAttrConst';
 import { MAP_EXPLORE_SELECT_LOCATION_PHARSE_TEXT } from 'const/SystemPhraseConst';
+import { EXPLORE_TAB_NAME } from 'const/TabConst';
 import {
-  MAP_EXPLORE_ALL_TAB_ID,
-  MAP_EXPLORE_ALL_TAB_NAME,
-  MAP_EXPLORE_ALL_TAB_PARAM,
-  MAP_EXPLORE_ATTRACTION_TAB_ID,
-  MAP_EXPLORE_ATTRACTION_TAB_NAME,
-  MAP_EXPLORE_ATTRACTION_TAB_PARAM,
-  MAP_EXPLORE_CAFE_TAB_ID,
-  MAP_EXPLORE_CAFE_TAB_NAME,
-  MAP_EXPLORE_CAFE_TAB_PARAM,
-  MAP_EXPLORE_DAILY_TAB_ID,
-  MAP_EXPLORE_DAILY_TAB_NAME,
-  MAP_EXPLORE_DAILY_TAB_PARAM,
-  MAP_EXPLORE_GOOD_FOOE_PLACE_TAB_ID,
-  MAP_EXPLORE_GOOD_FOOE_PLACE_TAB_NAME,
-  MAP_EXPLORE_GOOD_FOOE_PLACE_TAB_PARAM,
-  MAP_EXPLORE_PARK_TAB_ID,
-  MAP_EXPLORE_PARK_TAB_NAME,
-  MAP_EXPLORE_PARK_TAB_PARAM,
-} from 'const/TabConfigConst';
-import {
-  GeoPositionInterface,
-  getGeoPosition,
-  saveInitGeoPosition,
-} from 'global/util/MapExploreUtil';
-import useOutsideClick from 'hook/customhook/useOutsideClick';
+  convertDate,
+  convertDateToCurrentCountryISO,
+} from 'global/util/DateTimeUtil';
+import { getRoundedNumber } from 'global/util/MathUtil';
+import { getCurrentPosition, getPosInfoByGis } from 'global/util/PositionUtil';
+import { getSearchQueryByDebounce } from 'global/util/SearchUtil';
+import { useMessageListener } from 'hook/customhook/useMessageListener';
 import useWindowSize from 'hook/customhook/useWindowSize';
-import { QueryStateMapAddressByGeo } from 'hook/queryhook/QueryStateMapAddressByGeo';
-import { useRecoilState, useRecoilValue } from 'recoil';
+import { QueryStateMapExploreList } from 'hook/queryhook/QueryStateMapExploreList';
+import { QueryStateMapMyPostList } from 'hook/queryhook/QueryStateMapMyPostList';
+import { QueryStatePostMapPostInfinite } from 'hook/queryhook/QueryStatePostMapPostInfinite';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import {
-  isMapSearchInputActiveAtom,
+  currentSearchQueryAtom,
+  isActiveMyMapAtom,
+  isMapDatePickerPopupAtom,
+  isMapDateRangePickerPopupAtom,
+  mapContentTypeAtom,
+  mapDatePickerPopupInfoAtom,
   mapExploreFilterTabAtom,
   mapLoactionAtom,
-  mapMoveLoactionAtom,
+  mapMoveLocationAtom,
+  mapSearchPostWordAtom,
 } from 'states/MapExploreAtom';
-import { isPostDetailInfoPopupAtom } from 'states/PostAtom';
 import { isLoadingPopupAtom } from 'states/SystemConfigAtom';
 import theme from 'styles/theme';
+
 const MapExplorePage: React.FC = () => {
-  const MapExplorePopupRef = useRef<HTMLDivElement>(null);
-  const MyCurrentGeoButtonRef = useRef<HTMLDivElement>(null);
-
-  const mapExploreTabList = [
-    {
-      tabId: MAP_EXPLORE_ALL_TAB_ID,
-      tabName: MAP_EXPLORE_ALL_TAB_NAME,
-      queryParam: MAP_EXPLORE_ALL_TAB_PARAM,
-    },
-    {
-      tabId: MAP_EXPLORE_GOOD_FOOE_PLACE_TAB_ID,
-      tabName: MAP_EXPLORE_GOOD_FOOE_PLACE_TAB_NAME,
-      queryParam: MAP_EXPLORE_GOOD_FOOE_PLACE_TAB_PARAM,
-    },
-    {
-      tabId: MAP_EXPLORE_CAFE_TAB_ID,
-      tabName: MAP_EXPLORE_CAFE_TAB_NAME,
-      queryParam: MAP_EXPLORE_CAFE_TAB_PARAM,
-    },
-    {
-      tabId: MAP_EXPLORE_ATTRACTION_TAB_ID,
-      tabName: MAP_EXPLORE_ATTRACTION_TAB_NAME,
-      queryParam: MAP_EXPLORE_ATTRACTION_TAB_PARAM,
-    },
-    {
-      tabId: MAP_EXPLORE_PARK_TAB_ID,
-      tabName: MAP_EXPLORE_PARK_TAB_NAME,
-      queryParam: MAP_EXPLORE_PARK_TAB_PARAM,
-    },
-    {
-      tabId: MAP_EXPLORE_DAILY_TAB_ID,
-      tabName: MAP_EXPLORE_DAILY_TAB_NAME,
-      queryParam: MAP_EXPLORE_DAILY_TAB_PARAM,
-    },
-  ];
-
-  const [mapExploreFilterTab, setmapExploreFilterTab] = useRecoilState(
-    mapExploreFilterTabAtom,
-  );
-  let map: naver.maps.Map;
-  const naverMapExplorerRef = useRef<HTMLDivElement | null>(null);
-
-  const [newMap, setNewMap] = useState<naver.maps.Map | null>(null);
-  const [currentMarker, setCurrentMarker] = useState<naver.maps.Marker | null>(
-    null,
-  ); // 마커 상태 관리
-
   const [mapLocation, setMapLocation] = useRecoilState(mapLoactionAtom);
 
-  const [isPostDetailInfoPopup, setIsPostDetailInfoPopup] = useRecoilState(
-    isPostDetailInfoPopupAtom,
-  );
-
   const [mapMoveLocation, setMapMoveLoation] =
-    useRecoilState(mapMoveLoactionAtom);
+    useRecoilState(mapMoveLocationAtom);
 
-  const [isMapSearchInputActive, setIsMapSearchInputActive] = useRecoilState(
-    isMapSearchInputActiveAtom,
-  );
   const isLoadingPopup = useRecoilValue(isLoadingPopupAtom);
 
-  const onChangeNaverMap = (mapLocation: GeoPositionInterface) => {
-    if (!naverMapExplorerRef.current || !naver) return;
+  const debouncedGetSearchQuery = getSearchQueryByDebounce(
+    (word: string) => {
+      const { latitude, longitude } = JSON.parse(word);
 
-    const center = new naver.maps.LatLng(
-      mapLocation.latitude,
-      mapLocation.longitude,
-    );
+      getPosInfoByGis(latitude, longitude).then((v) => {
+        setMapMoveLoation((prev) => ({
+          ...prev,
+          regionInfo: {
+            city: v.city,
+            continent: v.continent,
+            continentCode: v.continentCode,
+            countryCode: v.countryCode,
+            countryName: v.countryName,
+            locality: v.locality,
+          },
+        }));
+      });
+    },
+    [],
+    1000,
+  );
 
-    const mapOptions: naver.maps.MapOptions = {
-      center: center,
-      // zoom: 17,
-      minZoom: 11,
-      maxZoom: 19,
-      zoomControl: false,
-      zoomControlOptions: {
-        style: naver.maps.ZoomControlStyle.SMALL,
-        position: naver.maps.Position.TOP_RIGHT,
-      },
-      mapDataControl: false,
-      scaleControl: false,
+  interface RoundedPosNumberType {
+    latitude: number;
+    longitude: number;
+  }
+  const getRoundedNumberFunc = (
+    pos: RoundedPosNumberType,
+  ): RoundedPosNumberType => {
+    const roundedLatitude = getRoundedNumber(pos.latitude, 1e7);
+    const roundedLongitude = getRoundedNumber(pos.longitude, 1e7);
+
+    const roundedData = {
+      latitude: roundedLatitude,
+      longitude: roundedLongitude,
     };
 
-    map = new naver.maps.Map(naverMapExplorerRef.current, mapOptions);
+    return roundedData;
+  };
 
-    // 마커 생성
-    updateCurrentMarker(mapLocation);
+  const scrollEndEventFunc = (e: mapkit.EventBase<mapkit.Map>) => {
+    const { latitude, longitude } = e.target.center;
 
-    setNewMap(map);
-    saveInitGeoPosition(mapLocation);
-
-    naver.maps.Event.addListener(map, 'center_changed', () => {
-      const newCenter = map.getCenter(); // 변경된 지도 중심 좌표
-      setMapMoveLoation({
-        latitude: newCenter.y,
-        longitude: newCenter.x,
-        isMoved: true,
-      });
-      saveInitGeoPosition({
-        latitude: newCenter.y,
-        longitude: newCenter.x,
-      });
+    const roundedData = getRoundedNumberFunc({
+      latitude: latitude,
+      longitude: longitude,
     });
+
+    setMapMoveLoation((prev) => ({
+      ...prev,
+      latitude: roundedData.latitude,
+      longitude: roundedData.longitude,
+      isMoved: true,
+    }));
+
+    // saveInitGeoPosition({
+    //   latitude: roundedLatitude,
+    //   longitude: roundedLongitude,
+    //   isMoveCenter: false,
+    // });
+    debouncedGetSearchQuery(JSON.stringify(roundedData));
+  };
+
+  const onSetMapMoveLocation = (moveLocation: MoveLocationType) => {
+    const roundedData = getRoundedNumberFunc({
+      latitude: moveLocation.latitude,
+      longitude: moveLocation.longitude,
+    });
+
+    setMapMoveLoation((prev) => ({
+      ...prev,
+      isMoved: moveLocation.isMoved,
+      latitude: roundedData.latitude,
+      longitude: roundedData.longitude,
+    }));
+
+    debouncedGetSearchQuery(JSON.stringify(roundedData));
   };
 
   const { windowWidth } = useWindowSize();
 
   useEffect(() => {
-    const initGeoPosition = getGeoPosition();
-    setMapLocation({
-      latitude: initGeoPosition.latitude,
-      longitude: initGeoPosition.longitude,
+    if (windowWidth < MEDIA_MOBILE_MAX_WIDTH_NUM) {
+      document.body.style.position = POSITION_FIXED;
+      document.body.style.overflow = OVERFLOW_HIDDEN;
+      document.body.style.width = '100%';
+    }
+
+    getCurrentPosition({
+      actionFunc: (position) => {
+        setMapLocation({
+          latitude: position.latitude,
+          longitude: position.longitude,
+          isMoveCenter: true,
+        });
+        getPosInfoByGis(position.latitude, position.longitude).then((v) => {
+          setMapMoveLoation((prev) => ({
+            ...prev,
+            regionInfo: {
+              city: v.city,
+              continent: v.continent,
+              continentCode: v.continentCode,
+              countryCode: v.countryCode,
+              countryName: v.countryName,
+              locality: v.locality,
+            },
+          }));
+
+          setMapLocation((prev) => ({
+            ...prev,
+            regionInfo: {
+              city: v.city,
+              continent: v.continent,
+              continentCode: v.continentCode,
+              countryCode: v.countryCode,
+              countryName: v.countryName,
+              locality: v.locality,
+            },
+          }));
+        });
+      },
+      isAlertError: false,
     });
 
-    onChangeNaverMap(initGeoPosition);
+    return () => {
+      if (windowWidth < MEDIA_MOBILE_MAX_WIDTH_NUM) {
+        document.body.style.position = '';
+        document.body.style.overflow = '';
+        document.body.style.width = '';
+      }
+    };
   }, []);
 
-  const createCurrentMarker = (mapLocation: GeoPositionInterface) => {
-    // 마커 생성
-    const marker = new naver.maps.Marker({
-      position: new naver.maps.LatLng(
-        mapLocation.latitude,
-        mapLocation.longitude,
-      ),
-      map,
-      icon: {
-        url: 'assets/images/icon/svg/MapPostionIcon.svg', // 아이콘 URL
-        size: new naver.maps.Size(50, 50), // 아이콘 크기
-        anchor: new naver.maps.Point(25, 50), // 아이콘 기준점 (하단 중앙)
-      },
-    });
-    setCurrentMarker(marker);
-  };
+  const [isMapDatePickerPopup, setIsMapDatePickerPopup] = useRecoilState(
+    isMapDatePickerPopupAtom,
+  );
 
-  const updateCurrentMarker = (mapLocation: GeoPositionInterface) => {
-    if (currentMarker) {
-      currentMarker.setMap(null); // 마커를 지도에서 제거
-    }
-    createCurrentMarker(mapLocation);
-  };
+  // const { data: mapAddressByGeo } = QueryStateMapAddressByGeo(
+  //   mapLocation.latitude,
+  //   mapLocation.longitude,
+  // );
 
-  const { data } = QueryStateMapAddressByGeo(
+  // const searchInputHeaderRef = useRef<HTMLDivElement>(null);
+
+  const mapExploreFilterTab = useRecoilValue(mapExploreFilterTabAtom);
+  const mapContentType = useRecoilValue(mapContentTypeAtom);
+
+  const mapDatePickerPopupInfo = useRecoilValue(mapDatePickerPopupInfoAtom);
+
+  const { data: postMapLocation } = QueryStateMapExploreList(
     mapLocation.latitude,
     mapLocation.longitude,
+    mapExploreFilterTab,
+    mapDatePickerPopupInfo.dateInfo.startDate
+      ? convertDateToCurrentCountryISO(
+          mapDatePickerPopupInfo.dateInfo.startDate,
+        )
+      : null,
+    mapDatePickerPopupInfo.dateInfo.endDate
+      ? convertDateToCurrentCountryISO(mapDatePickerPopupInfo.dateInfo.endDate)
+      : null,
   );
 
-  const searchInputHeaderRef = useRef<HTMLDivElement>(null);
-  const suggestBodyRef = useRef<HTMLDivElement>(null);
-  useOutsideClick([searchInputHeaderRef, suggestBodyRef], () =>
-    setIsMapSearchInputActive(false),
+  const mapSearchPostWord = useRecoilValue(mapSearchPostWordAtom);
+
+  const { data: postMapPost } = QueryStatePostMapPostInfinite(
+    mapSearchPostWord,
+    mapLocation.latitude,
+    mapLocation.longitude,
+    mapContentType === MAP_CONTENT_POST_TYPE,
+    mapDatePickerPopupInfo.dateInfo.startDate
+      ? convertDateToCurrentCountryISO(
+          mapDatePickerPopupInfo.dateInfo.startDate,
+        )
+      : null,
+    mapDatePickerPopupInfo.dateInfo.endDate
+      ? convertDateToCurrentCountryISO(mapDatePickerPopupInfo.dateInfo.endDate)
+      : null,
   );
+
+  const [isActiveMyMap, setIsActiveMyMap] = useRecoilState(isActiveMyMapAtom);
+
+  const { data: mapMyPostList } = QueryStateMapMyPostList(isActiveMyMap);
+
+  const [isMapDateRangePickerPopup, setIsMapDateRangePickerPopup] =
+    useRecoilState(isMapDateRangePickerPopupAtom);
+
+  const [currentSearchQuery, setCurrentSearchQuery] = useRecoilState(
+    currentSearchQueryAtom,
+  );
+
+  // useEffect(() => {
+  //   if (!mapAddressByGeo) return;
+
+  //   setCurrentSearchQuery(mapAddressByGeo.address);
+  // }, [mapAddressByGeo]);
+
+  const setMapDatePickerPopupInfo = useSetRecoilState(
+    mapDatePickerPopupInfoAtom,
+  );
+
+  const handleCalendarMessage = (event: MessageEvent) => {
+    try {
+      const nativeEvent: BridgeMsgInterface = JSON.parse(event.data);
+
+      if (nativeEvent.type === BRIDGE_CALENDAR_EVENT_TYPE) {
+        const eventData: EventDateInterface = nativeEvent.data;
+
+        const data: CalendarInfo = JSON.parse(eventData.data);
+
+        setMapDatePickerPopupInfo({
+          isActive: true,
+          dateInfo: {
+            startDate: convertDate(data.startDate),
+            endDate: convertDate(data.endDate),
+          },
+        });
+      }
+    } catch (error) {
+      console.error('Failed to parse message:', event.data);
+    }
+  };
+
+  useMessageListener(handleCalendarMessage);
 
   return (
-    <AppBaseTemplate
-      hasSearchBodyModule={false}
-      hasSearchInputModule={false}
-      isAppContainerTopMargin={false}
-      SideContainerStyle={{
-        zIndex: 1000,
-      }}
-      slideBarNode={
-        <>
-          <MapExploreBody
-            MapSnsPostLayoutStyle={{ paddingTop: '15px' }}
-            latitude={mapLocation.latitude}
-            longitude={mapLocation.longitude}
-            mapExploreBodyStyle={{
-              overflow: OVERFLOW_SCROLL,
-              height: `100%`,
-              borderRadius: '20px',
-            }}
-          />
-        </>
-      }
-    >
-      <MapExplorePageContainer>
-        <MapExploreHeaderWrap ref={searchInputHeaderRef}>
+    <>
+      <PageHelmentInfoElement
+        title={EXPLORE_TAB_NAME}
+        ogTitle={EXPLORE_TAB_NAME}
+        ogUrl={window.location.href}
+        ogDescription={`${APP_SERVICE_NAME} 서비스: ${EXPLORE_TAB_NAME}`}
+      />
+      <AppBaseTemplate
+        hasSearchBodyModule={false}
+        hasSearchInputModule={false}
+        isAppContainerTopMargin={false}
+        isAppInsetTopMargin={false}
+        isScrollByAppContainer={false}
+        SideContainerStyle={{
+          zIndex: 1000,
+        }}
+        slideBarNode={
+          <>
+            <MapExploreBody
+              MapSnsPostLayoutStyle={{ paddingTop: '15px' }}
+              latitude={mapLocation.latitude}
+              longitude={mapLocation.longitude}
+              mapExploreBodyStyle={{
+                overflow: OVERFLOW_SCROLL,
+                height: `100%`,
+                borderRadius: '20px',
+              }}
+              masonryLayoutNum={2}
+              linkPopupInfo={{
+                isLinkPopup: true,
+                isReplaced: false,
+              }}
+            />
+          </>
+        }
+      >
+        <MapExplorePageContainer>
           <MapExploreHeader
-            address={data?.address || MAP_EXPLORE_SELECT_LOCATION_PHARSE_TEXT}
-            MapExploreActiveHeaderStyle={
-              windowWidth > MEDIA_MOBILE_MAX_WIDTH_NUM
-                ? { paddingTop: '6px', backgroundColor: 'transparent' }
-                : { paddingTop: '6px' }
+            MapFullMargin={MapFullMargin}
+            address={
+              currentSearchQuery || MAP_EXPLORE_SELECT_LOCATION_PHARSE_TEXT
             }
-            MapExploreNotActiveHeaderStyle={{
-              backgroundColor: 'transparent',
-              position: 'static',
-              paddingTop: '6px',
-            }}
             SearchButtonInputLayoutActiveStyle={
               windowWidth <= MEDIA_MOBILE_MAX_WIDTH_NUM
                 ? {
                     backgroundColor: theme.grey.Grey2,
                   }
-                : { backgroundColor: theme.mainColor.White }
-            }
-            SearchButtonInputLayoutNotActiveStyle={
-              windowWidth <= MEDIA_MOBILE_MAX_WIDTH_NUM
-                ? {
-                    backgroundColor: theme.mainColor.White,
+                : {
+                    backgroundColor: 'white',
+                    boxShadow: '0px 2px 4px 0px rgba(0, 0, 0, 0.25)',
                   }
-                : { backgroundColor: theme.mainColor.White }
             }
+            SearchButtonInputLayoutNotActiveStyle={{
+              backgroundColor: theme.mainColor.White,
+              boxShadow: '0px 2px 4px 0px rgba(0, 0, 0, 0.25)',
+            }}
           />
-        </MapExploreHeaderWrap>
-        <MapExploreFilterWrap>
-          <MapExploreFilterSubWrap>
-            {mapExploreTabList.map((v) => (
-              <BorderCircleButton
-                key={v.tabId}
-                contentText={v.tabName}
-                fontSize={
-                  windowWidth > MEDIA_MOBILE_MAX_WIDTH_NUM
-                    ? theme.fontSizes.Body3
-                    : theme.fontSizes.Body2
-                }
-                className={
-                  mapExploreFilterTab === v.queryParam ? ACTIVE_CLASS_NAME : ''
-                }
-                onClickFunc={() => {
-                  setmapExploreFilterTab(v.queryParam);
-                }}
-                deactiveBorderColor={theme.grey.Grey2}
-                activeFontColor={theme.mainColor.Blue}
-                activeBorderColor={theme.mainColor.Blue}
-              />
-            ))}
-          </MapExploreFilterSubWrap>
-        </MapExploreFilterWrap>
 
-        <NaverExploreMapWrap>
-          <NaverExploreMap id={NAVER_MAP_MODULE_ID} ref={naverMapExplorerRef} />
-
-          {windowWidth > MEDIA_MOBILE_MAX_WIDTH_NUM && (
-            <GeoCurrentPositionButton
-              GeoCurrentPositionButtonRef={MyCurrentGeoButtonRef}
-              onChangeNaverMap={onChangeNaverMap}
-              buttonSize={GeoCurrentButtonSize}
-              GeoCurrentButtonStyle={{
-                position: 'absolute',
-                bottom: `${GetCurrentButtonMargin}px`,
-                right: `${GetCurrentButtonMargin}px`,
-              }}
+          <MapExploreWrap>
+            <AppleMapElement
+              mapPost={
+                isActiveMyMap
+                  ? mapMyPostList
+                  : mapContentType === MAP_CONTENT_LOCATION_TYPE
+                    ? postMapLocation
+                    : postMapPost
+              }
+              // isRefresh={
+              //   isActiveMyMap
+              //     ? mapMyPostList
+              //       ? mapMyPostList.pages.length <= 1
+              //       : false
+              //     : mapContentType === MAP_CONTENT_LOCATION_TYPE
+              //       ? postMapLocation
+              //         ? postMapLocation.pages.length <= 1
+              //         : false
+              //       : postMapPost
+              //         ? postMapPost.pages.length <= 1
+              //         : false
+              // }
+              // onSetMapMoveLocation={onSetMapMoveLocation}
+              // scrollEndEventFunc={scrollEndEventFunc}
             />
-          )}
-          {windowWidth > MEDIA_MOBILE_MAX_WIDTH_NUM &&
-            mapMoveLocation.isMoved && (
+            {windowWidth > MEDIA_MOBILE_MAX_WIDTH_NUM && (
+              <GeoCurrentPositionButtonWrap>
+                <GeoCurrentPositionButton
+                  buttonSize={GeoCurrentButtonSize}
+                  GeoCurrentButtonStyle={{ position: 'static' }}
+                />
+              </GeoCurrentPositionButtonWrap>
+            )}
+            {windowWidth > MEDIA_MOBILE_MAX_WIDTH_NUM && (
               <GeoPositionRefreshButton
+                actionFuncToRefresh={() => {
+                  setCurrentSearchQuery('');
+                }}
                 GeoPositionRefreshButtonStyle={{
                   position: 'absolute',
                   left: '50%',
@@ -314,62 +402,41 @@ const MapExplorePage: React.FC = () => {
                 }}
               />
             )}
-        </NaverExploreMapWrap>
-        {windowWidth <= MEDIA_MOBILE_MAX_WIDTH_NUM && (
-          // <MapExplorePopup
-          //   MapExplorePopupRef={MapExplorePopupRef}
-          //   onChangeNaverMap={onChangeNaverMap}
-          // />
-          <MapExplorePopup_ onChangeNaverMap={onChangeNaverMap} />
-        )}
-      </MapExplorePageContainer>
-      <BottomNavBar />
-      {/* {isPostDetailInfoPopup && <ProfilePostDetailPopup />} */}
-      {isMapSearchInputActive && (
-        <MapExploreSuggestBodyWrap
-          $windowWidthSize={windowWidth}
-          ref={suggestBodyRef}
-        >
-          <MapExploreSearchSuggestBody
-            onChangeNaverMap={onChangeNaverMap}
-            SearchSuggestBodyContiainerStyle={{
-              backgroundColor: 'transparent',
+          </MapExploreWrap>
+          {windowWidth <= MEDIA_MOBILE_MAX_WIDTH_NUM && <MapExplorePostPopup />}
+        </MapExplorePageContainer>
+
+        <BottomNavBar />
+
+        {isMapDatePickerPopup && <MapDatePickerPopup />}
+        {isMapDateRangePickerPopup && (
+          <MapDateRangePickerPopup
+            onClose={() => {
+              setIsMapDateRangePickerPopup(false);
+            }}
+            DateRangePickerContainerStyle={{
+              marginTop: `${theme.systemSize.header.heightNumber + 10}px`,
             }}
           />
-        </MapExploreSuggestBodyWrap>
-      )}
-      {isLoadingPopup && <LoadingPopup />}
-    </AppBaseTemplate>
+        )}
+
+        {isLoadingPopup && (
+          <LoadingPopup LoadingPopupStyle={{ background: 'transparent' }} />
+        )}
+      </AppBaseTemplate>
+    </>
   );
 };
-
 const MapFullMargin = 10;
 const GeoCurrentButtonSize = 50;
-const GetCurrentButtonMargin = 20;
+const GetCurrentButtonMargin = 25;
 
 const MapExplorePageContainer = styled.div`
   position: relative;
   z-index: 100;
 `;
 
-const MapExploreHeaderWrap = styled.div`
-  z-index: 200;
-  width: 100%;
-  position: absolute;
-
-  @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
-    margin-top: ${MapFullMargin}px;
-    // position: absolute; //@REFER: 왜 이렇게 한 거지?
-  }
-
-  @media (max-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
-    position: fixed;
-    max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
-    z-index: 1000;
-  }
-`;
-
-const NaverExploreMapWrap = styled.div`
+const MapExploreWrap = styled.div`
   position: fixed;
   max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
   width: 100%;
@@ -380,66 +447,15 @@ const NaverExploreMapWrap = styled.div`
     margin: ${MapFullMargin}px 0;
     height: calc(100vh - ${MapFullMargin * 2}px);
     max-width: ${({ theme }) => theme.systemSize.appDisplaySize.widthByPc};
+    overflow: hidden;
   }
 `;
 
-const NaverExploreMap = styled.div`
-  width: 100%;
-  height: 100%;
-
-  @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
-    border-radius: 35px;
-  }
-`;
-
-const MapExploreFilterWrap = styled.div`
-  width: 100%;
-  display: flex;
-  overflow-x: auto;
-  white-space: nowrap;
-  position: fixed;
-  max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
-
-  margin-top: ${({ theme }) => theme.systemSize.header.height};
-  z-index: 100;
-
-  @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
-    position: absolute;
-    max-width: ${({ theme }) => theme.systemSize.appDisplaySize.widthByPc};
-    margin-top: ${({ theme }) => theme.systemSize.header.heightNumber + 10}px;
-  }
-`;
-
-const MapExploreFilterSubWrap = styled.div`
-  padding: 12px 6px 6px 6px;
-  display: flex;
-  gap: 6px;
-`;
-
-const MapExploreSuggestBodyWrap = styled.div<{ $windowWidthSize: number }>`
-  background-color: white;
-  z-index: 160;
-  height: calc(100dvh - ${theme.systemSize.header.heightNumber}px);
-
-  position: fixed;
-  max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
-  top: ${theme.systemSize.header.heightNumber}px;
-  width: 100%;
-
-  padding-top: ${(props) =>
-    props.$windowWidthSize > MEDIA_MOBILE_MAX_WIDTH_NUM ? MapFullMargin : 0}px;
-
-  @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
-    position: relative;
-    z-index: 1000;
-    top: 70px;
-    height: 500px;
-    max-width: none;
-    background-color: white;
-    border-radius: 20px;
-    border: 1px solid #cfcfcf;
-    padding-bottom: 10px;
-  }
+const GeoCurrentPositionButtonWrap = styled.div`
+  position: absolute;
+  padding: ${GetCurrentButtonMargin}px;
+  left: 0px;
+  bottom: 0px;
 `;
 
 export default MapExplorePage;

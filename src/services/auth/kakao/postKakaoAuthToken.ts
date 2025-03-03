@@ -2,13 +2,14 @@
 import { KAKAO_CLIDENT_ID, KAKAO_REDIRECT_URI } from 'const/login/KakaoConst';
 import { kauthApi } from 'services';
 
-interface postKauthTokenRes {
+export interface PostKauthTokenRes {
   scope: string;
   access_token: string;
   token_type: string;
   refresh_token: string;
   expires_in: number;
   refresh_token_expires_in: number;
+  stateToken: string;
 }
 
 interface postKauthTokenReq {
@@ -21,13 +22,15 @@ interface postKauthTokenReq {
 // Point 가져오기
 export const postKakaoAuthToken = (
   code: string,
-): Promise<postKauthTokenRes> => {
+): Promise<PostKauthTokenRes> => {
   const data: postKauthTokenReq = {
     grant_type: 'authorization_code',
     client_id: KAKAO_CLIDENT_ID,
     redirect_uri: KAKAO_REDIRECT_URI,
     code: code,
   };
+
+  console.log(data);
 
   return kauthApi
     .post(`/oauth/token`, data)

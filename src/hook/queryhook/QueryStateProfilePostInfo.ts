@@ -16,6 +16,7 @@ export const QueryStatePostInfo = (
     queryFn: () => getPostInfo(postId),
     staleTime: STALE_30_MINUTES_TIME,
     enabled: isValidString(postId),
+    refetchOnMount: 'always',
     retry: false,
   });
 };

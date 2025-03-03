@@ -1,6 +1,12 @@
+import LongPressToResizeButton from 'components/common/buttton/LongPressToResizeButton';
+import PostSettingDotButton from 'components/common/buttton/PostSettingDotButton';
+import { Location, PostRsp } from 'global/interface/post';
 import { formatToMinutesAndSeconds } from 'global/util/DateTimeUtil';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { filterBrigntnessStyle } from 'styles/commonStyles';
+import theme from 'styles/theme';
+import PostElementLocation from './PostElementLocation';
 
 interface PostVideoPreviewELementProps {
   postId: string;
@@ -12,6 +18,11 @@ interface PostVideoPreviewELementProps {
   videoSrc: string;
   videoDuration: number;
   posterImg: string;
+  selectPostRsp: PostRsp;
+  scrapId: string | undefined;
+  location: Location;
+  ContentBorderRadius: number;
+  longPressToResizeNum: number | undefined;
   PostVideoStyle?: React.CSSProperties;
   isVisibilityDetection?: boolean;
   visibilityThreshold?: number;
@@ -29,6 +40,11 @@ const PostVideoPreviewElement: React.FC<PostVideoPreviewELementProps> = ({
   onPause,
   onLoadedData,
   videoSrc,
+  selectPostRsp,
+  scrapId,
+  location,
+  ContentBorderRadius,
+  longPressToResizeNum,
   videoDuration,
   posterImg,
   PostVideoStyle,
@@ -37,12 +53,12 @@ const PostVideoPreviewElement: React.FC<PostVideoPreviewELementProps> = ({
   actionFuncByRef,
   onError,
 }) => {
+  const [onload, setOnload] = useState<boolean>(false);
   const previewVideoRef = useRef<HTMLVideoElement>(null);
   const autoPlayRef = useRef<boolean>(false);
 
   useEffect(() => {
     autoPlayRef.current = autoPlayMode;
-    console.log(autoPlayRef.current);
   }, [autoPlayMode]);
 
   const handleVisibility = useCallback(() => {
@@ -58,7 +74,7 @@ const PostVideoPreviewElement: React.FC<PostVideoPreviewELementProps> = ({
         ) {
           // await new Promise<void>((resolve) => {
           //   video.addEventListener('loadeddata', () => {
-          //     console.log('피피피');
+
           //     resolve();
           //   });
           // });
@@ -91,56 +107,93 @@ const PostVideoPreviewElement: React.FC<PostVideoPreviewELementProps> = ({
   const [isError, setIsError] = useState(false);
 
   return (
-    <div
-      style={{
-        ...{
-          display: 'block',
-          position: 'relative',
-          overflow: 'hidden',
-        },
-      }}
-    >
-      <VideoDurationWrap>
-        <VideoDurationElement>
-          {formatToMinutesAndSeconds(videoDuration)}
-        </VideoDurationElement>
-      </VideoDurationWrap>
-      {!isError && (
-        <PostVideoPreviewImg
-          src={posterImg}
-          onError={() => {
-            setIsError(true);
-          }}
-        />
-      )}
-      <PostContentVideoWrap style={PostVideoStyle}>
-        <PostContentVideo
-          width={'100%'}
-          height={'100%'}
-          autoPlay={false}
-          muted
-          preload="none"
-          playsInline
-          onLoadedData={onLoadedData}
-          ref={previewVideoRef}
-          poster={posterImg}
-          onPlay={onPlay}
-          onPause={onPause}
-          onClick={() => {
-            if (!actionFuncByRef || !previewVideoRef.current) return;
-            actionFuncByRef(previewVideoRef.current);
-          }}
-          onError={() => {
-            onError();
-          }}
-          style={PostVideoStyle}
-        >
-          <source src={videoSrc} />
-        </PostContentVideo>
-      </PostContentVideoWrap>
-    </div>
+    <>
+      <PostVideoAddressWrap>
+        <LongPressToResizeButton resize={longPressToResizeNum || 0.98}>
+          <div
+            style={{
+              ...{
+                display: 'block',
+                position: 'relative',
+                overflow: 'hidden',
+              },
+            }}
+          >
+            <VideoDurationWrap>
+              <VideoDurationElement>
+                {formatToMinutesAndSeconds(videoDuration)}
+              </VideoDurationElement>
+            </VideoDurationWrap>
+            {!isError && (
+              <>
+                <PostVideoPreviewMockImg
+                  style={{
+                    opacity: onload ? 0 : 1,
+                    transition: 'opacity 0.3s ease-in-out',
+                    height: ((Math.random() + 1) / 2) * 100 + 30, // 랜덤 높이 유지
+                  }}
+                />
+                <PostVideoPreviewImg
+                  src={posterImg}
+                  style={{
+                    opacity: onload ? 1 : 0,
+                    transition: 'opacity 0.3s ease-in-out',
+                  }}
+                  onError={() => {
+                    setIsError(true);
+                  }}
+                  onLoad={() => setOnload(true)}
+                />
+              </>
+            )}
+            <PostContentVideoWrap style={PostVideoStyle}>
+              <PostContentVideo
+                width={'100%'}
+                height={'100%'}
+                autoPlay={false}
+                muted
+                preload="none"
+                playsInline
+                onLoadedData={onLoadedData}
+                ref={previewVideoRef}
+                poster={posterImg}
+                onPlay={onPlay}
+                onPause={onPause}
+                onClick={() => {
+                  if (!actionFuncByRef || !previewVideoRef.current) return;
+                  actionFuncByRef(previewVideoRef.current);
+                }}
+                onError={() => {
+                  onError();
+                }}
+                style={PostVideoStyle}
+              >
+                <source src={videoSrc} />
+              </PostContentVideo>
+            </PostContentVideoWrap>
+          </div>
+
+          {onload && location.address && (
+            <PostElementLocation
+              location={location}
+              ContentBorderRadius={ContentBorderRadius}
+            />
+          )}
+        </LongPressToResizeButton>
+      </PostVideoAddressWrap>
+
+      <PostSettingDotButton selectPostRsp={selectPostRsp} scrapId={scrapId} />
+    </>
   );
 };
+
+const PostVideoAddressWrap = styled.div`
+  position: relative;
+  cursor: pointer;
+  height: 100%;
+
+  ${filterBrigntnessStyle}
+`;
 
 const PostContentVideoWrap = styled.div`
   width: 100%;
@@ -158,6 +211,22 @@ const PostContentVideo = styled.video`
 
 const PostVideoPreviewImg = styled.img`
   z-index: 0;
+  z-index: 1; /* 스켈레톤보다 위에 위치 */
+  transition: opacity 0.3s ease-in-out;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  border-radius: 20px;
+  opacity: 0.5;
+`;
+
+const PostVideoPreviewMockImg = styled.div`
+  z-index: 0;
+  transition: opacity 0.3s ease-in-out;
+  background-color: ${theme.grey.Grey1};
   position: absolute;
   top: 0;
   bottom: 0;

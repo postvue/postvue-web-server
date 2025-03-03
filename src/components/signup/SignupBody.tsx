@@ -6,15 +6,20 @@ import {
   SIGNUP_NICKNAME_INPUT_STEP_VALUE,
   SIGNUP_TERM_OF_SERVICE_STEP_VALUE,
   SIGNUP_USERNAME_INPUT_STEP_VALUE,
+  SINGUP_APPLE_LOGIN_JOIN_TYPE,
   SINGUP_GOOGLE_LOGIN_JOIN_TYPE,
   SINGUP_KAKAO_LOGIN_JOIN_TYPE,
   SINGUP_NAVER_LOGIN_JOIN_TYPE,
 } from 'const/SignupConst';
-import { useGoBackOrNavigate } from 'global/util/historyStateUtil';
+import { MEDIA_MIDDLE_WIDTH_NUM } from 'const/SystemAttrConst';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useGoBackOrNavigate } from 'global/util/HistoryStateUtil';
+import useWindowSize from 'hook/customhook/useWindowSize';
 import Cookies from 'js-cookie';
 import React, { useEffect } from 'react';
 import { useRecoilValue } from 'recoil';
 import { signupStepNumAtom } from 'states/SignupAtom';
+import styled from 'styled-components';
 import SignupBirthdateGenderStep from './signstep/SignupBirthdateGenderStep';
 import SignupFavoriteTagStep from './signstep/SignupFavoriteTagStep';
 import SignupNicknameStep from './signstep/SignupNicknameStep';
@@ -31,6 +36,7 @@ const SignupBody: React.FC = () => {
     SINGUP_KAKAO_LOGIN_JOIN_TYPE,
     SINGUP_NAVER_LOGIN_JOIN_TYPE,
     SINGUP_GOOGLE_LOGIN_JOIN_TYPE,
+    SINGUP_APPLE_LOGIN_JOIN_TYPE,
   ];
 
   useEffect(() => {
@@ -39,25 +45,67 @@ const SignupBody: React.FC = () => {
       goBackOrNavigate();
     }
   }, []);
+
+  // 애니메이션 설정
+  const stepVariants = {
+    initial: { opacity: 0, x: 50 }, // 새로운 스텝이 오른쪽에서 들어옴
+    animate: { opacity: 1, x: 0, transition: { duration: 0.3 } }, // 자연스럽게 나타남
+    exit: { opacity: 0, x: -50, transition: { duration: 0.2 } }, // 기존 스텝이 왼쪽으로 사라짐
+  };
+
+  const { windowWidth } = useWindowSize();
+  // 현재 스텝 반환 함수
+  const getCurrentStepComponent = () => {
+    switch (signupStepNum) {
+      case SIGNUP_NICKNAME_INPUT_STEP_VALUE:
+        return <SignupNicknameStep />;
+      case SIGNUP_BIRTHDATE_GENDER_INPUT_STEP_VALUE:
+        return <SignupBirthdateGenderStep />;
+      case SIGNUP_USERNAME_INPUT_STEP_VALUE:
+        return <SignupUsernameStep />;
+      case SIGNUP_FAVORITE_TAG_INPUT_STEP_VALUE:
+        return <SignupFavoriteTagStep />;
+      case SIGNUP_TERM_OF_SERVICE_STEP_VALUE:
+        return <SignupTermOfServiceStep />;
+      default:
+        return null;
+    }
+  };
+
   return (
-    <>
-      {signupStepNum === SIGNUP_NICKNAME_INPUT_STEP_VALUE && (
-        <SignupNicknameStep />
+    <SignupBodyWrapper>
+      {windowWidth <= MEDIA_MIDDLE_WIDTH_NUM ? (
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={signupStepNum} // 스텝 변경 시 새로운 요소로 인식
+            variants={stepVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              height: '100dvh',
+            }}
+          >
+            {getCurrentStepComponent()}
+          </motion.div>
+        </AnimatePresence>
+      ) : (
+        <>{getCurrentStepComponent()}</>
       )}
-      {signupStepNum === SIGNUP_BIRTHDATE_GENDER_INPUT_STEP_VALUE && (
-        <SignupBirthdateGenderStep />
-      )}
-      {signupStepNum === SIGNUP_USERNAME_INPUT_STEP_VALUE && (
-        <SignupUsernameStep />
-      )}
-      {signupStepNum === SIGNUP_FAVORITE_TAG_INPUT_STEP_VALUE && (
-        <SignupFavoriteTagStep />
-      )}
-      {signupStepNum === SIGNUP_TERM_OF_SERVICE_STEP_VALUE && (
-        <SignupTermOfServiceStep />
-      )}
-    </>
+    </SignupBodyWrapper>
   );
 };
+
+// 스타일 설정
+const SignupBodyWrapper = styled.div`
+  width: 100%;
+  height: 100%;
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+`;
 
 export default SignupBody;

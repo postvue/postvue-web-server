@@ -8,12 +8,14 @@ interface HeaderLayoutProps {
   children: ReactNode;
   HeaderLayoutStyle?: React.CSSProperties;
   HeaderLayoutRef?: React.RefObject<HTMLDivElement>;
+  isInsetTopMatin?: boolean;
 }
 
 const HeaderLayout: React.FC<HeaderLayoutProps> = ({
   children,
   HeaderLayoutRef,
   HeaderLayoutStyle,
+  isInsetTopMatin = true,
 }) => {
   const { windowWidth } = useWindowSize();
   return (
@@ -22,6 +24,7 @@ const HeaderLayout: React.FC<HeaderLayoutProps> = ({
         style={HeaderLayoutStyle}
         ref={HeaderLayoutRef}
         $windowWidth={windowWidth}
+        $isInsetTopMatin={isInsetTopMatin}
       >
         {children}
       </HeaderLayoutContainer>
@@ -29,7 +32,12 @@ const HeaderLayout: React.FC<HeaderLayoutProps> = ({
   );
 };
 
-const HeaderLayoutContainer = styled.div<{ $windowWidth: number }>`
+const HeaderLayoutContainer = styled.div<{
+  $windowWidth: number;
+  $isInsetTopMatin: boolean;
+}>`
+  padding-top: ${(props) =>
+    props.$isInsetTopMatin ? `env(safe-area-inset-top)` : '0px'};
   height: ${theme.systemSize.header.height};
   display: flex;
   width: 100%;

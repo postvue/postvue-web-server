@@ -13,6 +13,7 @@ import { QueryStateProfileFollowerListInfinite } from 'hook/queryhook/QueryState
 import { QueryStateProfileFollowingListInfinite } from 'hook/queryhook/QueryStateProfileFollowingListInfinite';
 import { QueryStateProfileInfo } from 'hook/queryhook/QueryStateProfileInfo';
 
+import NoResultComponent from 'components/common/container/NoResultComponent';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
@@ -87,25 +88,32 @@ const ProfileFollowListBody: React.FC<ProfileFollowListBodyProps> = ({
         <>
           {username && (
             <>
-              {isFetchedByProfileFollowing &&
-                profileFollowingList &&
-                profileFollowingList.pages.flatMap((page) =>
-                  page
-                    .filter((value) => !value.isBlocked)
-                    .map((v, i) => (
-                      <React.Fragment key={i}>
-                        <ProfileFollowComponent
-                          isMe={v.isMe}
-                          profilePath={v.profilePath}
-                          nickname={v.nickname}
-                          username={v.username}
-                          userId={v.userId}
-                          isFollowed={v.isFollowed}
-                        />
-                        <RepostBorderStickBar />
-                      </React.Fragment>
-                    )),
-                )}
+              {isFetchedByProfileFollowing && profileFollowingList && (
+                <>
+                  {profileFollowingList.pages.flatMap((v) => v).length > 0 ? (
+                    <>
+                      {profileFollowingList.pages.flatMap((page) =>
+                        page.map((v, i) => (
+                          <React.Fragment key={i}>
+                            <ProfileFollowComponent
+                              isMe={v.isMe}
+                              profilePath={v.profilePath}
+                              nickname={v.nickname}
+                              username={v.username}
+                              userId={v.userId}
+                              isFollowed={v.isFollowed}
+                            />
+                            <RepostBorderStickBar />
+                          </React.Fragment>
+                        )),
+                      )}
+                    </>
+                  ) : (
+                    <NoResultComponent title={'팔로잉한 유저가 없습니다.'} />
+                  )}
+                </>
+              )}
+
               <ProfileFollowingListInfiniteScroll username={username} />
             </>
           )}
@@ -114,25 +122,32 @@ const ProfileFollowListBody: React.FC<ProfileFollowListBodyProps> = ({
         <>
           {username && (
             <>
-              {isFetchedByProfileFollower &&
-                profileFollowerList &&
-                profileFollowerList.pages.flatMap((page) =>
-                  page
-                    .filter((value) => !value.isBlocked)
-                    .map((v, i) => (
-                      <React.Fragment key={i}>
-                        <ProfileFollowComponent
-                          isMe={v.isMe}
-                          profilePath={v.profilePath}
-                          nickname={v.nickname}
-                          username={v.username}
-                          userId={v.userId}
-                          isFollowed={v.isFollowed}
-                        />
-                        <RepostBorderStickBar />
-                      </React.Fragment>
-                    )),
-                )}
+              {isFetchedByProfileFollower && profileFollowerList && (
+                <>
+                  {profileFollowerList.pages.flatMap((v) => v).length > 0 ? (
+                    <>
+                      {profileFollowerList.pages.flatMap((page) =>
+                        page.map((v, i) => (
+                          <React.Fragment key={i}>
+                            <ProfileFollowComponent
+                              isMe={v.isMe}
+                              profilePath={v.profilePath}
+                              nickname={v.nickname}
+                              username={v.username}
+                              userId={v.userId}
+                              isFollowed={v.isFollowed}
+                            />
+                            <RepostBorderStickBar />
+                          </React.Fragment>
+                        )),
+                      )}
+                    </>
+                  ) : (
+                    <NoResultComponent title={'팔로우한 유저가 없습니다.'} />
+                  )}
+                </>
+              )}
+
               <ProfileFollowerListInfiniteScroll username={username} />
             </>
           )}

@@ -1,3 +1,22 @@
-# https://www.robotstxt.org/robotstxt.html
+# robots.txt
+
+# Allow all user-agents to crawl the site
 User-agent: *
-Disallow:
+
+# Allow all important pages
+Allow: /
+
+# Block crawling of specific files and directories
+Disallow: /static/
+Disallow: /node_modules/
+Disallow: /config/
+Disallow: /scripts/
+Disallow: /api/
+Disallow: /login/
+Disallow: /register/
+
+# Block crawling of query parameters (e.g., unnecessary tracking parameters)
+Disallow: /*?*
+
+# Sitemap location (update with your actual URL)
+Sitemap: https://feelog.net/sitemap.xml

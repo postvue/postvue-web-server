@@ -9,6 +9,7 @@ import { QUERY_STATE_PROFILE_SCRAP_LIST } from 'const/QueryClientConst';
 export async function refetchProfileScrapList(): Promise<void> {
   await queryClient.refetchQueries({
     queryKey: [QUERY_STATE_PROFILE_SCRAP_LIST],
+    exact: true,
   });
 
   const updatedData = queryClient.getQueryData([

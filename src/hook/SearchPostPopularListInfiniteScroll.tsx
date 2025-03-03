@@ -1,27 +1,33 @@
 import InViewComponent from 'components/common/container/InViewComponent';
-import { GetSearchPostsRsp } from 'global/interface/search';
 import { isValidSearchWordAndFilterKey } from 'global/util/SearchPostUtil';
 import React, { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 import styled from 'styled-components';
 import { QueryStateSearchPostPopularListInfinite } from './queryhook/QueryStateSearchPostPopularListInfinite';
 
-interface RepostInfiniteScrollProps {
+interface SearchPostPopularListInfiniteScrollProps {
   searchQueryAndFilterKey: string;
 }
 
-export interface SearchPostQueryInterface {
-  pages: GetSearchPostsRsp[];
-  pageParams: unknown[];
-}
-
 const SearchPostPopularListInfiniteScroll: React.FC<
-  RepostInfiniteScrollProps
+  SearchPostPopularListInfiniteScrollProps
 > = ({ searchQueryAndFilterKey }) => {
   const { ref, inView } = useInView();
 
-  const { fetchNextPage, hasNextPage, isFetchingNextPage } =
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     QueryStateSearchPostPopularListInfinite(searchQueryAndFilterKey, true);
+
+  // 초기 개수가 적을 시, 이후 요청 하는 로직
+  useEffect(() => {
+    if (
+      hasNextPage &&
+      !isFetchingNextPage &&
+      data &&
+      data.pages[0].snsPostRspList.length < 5
+    ) {
+      fetchNextPage();
+    }
+  }, [data, hasNextPage]);
 
   useEffect(() => {
     if (
@@ -36,7 +42,9 @@ const SearchPostPopularListInfiniteScroll: React.FC<
 
   return (
     <ScrollBottomContainer ref={ref}>
-      <InViewComponent />
+      <InViewComponent
+        hasLoadingIcon={hasNextPage && !inView && !isFetchingNextPage}
+      />
     </ScrollBottomContainer>
   );
 };

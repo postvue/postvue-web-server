@@ -12,7 +12,7 @@ import {
 
 export interface FollowForMeListQueryInterface {
   pages: GetTasteForMeListRsp[];
-  pageParams: unknown[];
+  pageParams: string[];
 }
 
 export const QueryStateFollowForMeListInfinite = (): UseInfiniteQueryResult<
@@ -44,6 +44,7 @@ export const QueryStateFollowForMeListInfinite = (): UseInfiniteQueryResult<
         : undefined;
     },
 
+    // refetchOnMount: 'always',
     initialPageParam: INIT_CURSOR_ID,
   });
 };

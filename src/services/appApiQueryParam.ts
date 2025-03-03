@@ -10,4 +10,7 @@ export const LATITUDE_PARAM = 'latitude';
 export const LONGITUDE_PARAM = 'longitude';
 export const ADDRESS_PARAM = 'address';
 export const FILTER_PARAM = 'filter';
+export const SEARCH_TYPE_PARAM = 'searchType';
 export const HAS_FOLLOW_INFO_PARAM = 'hasFollowInfo';
+export const START_DATE_PARAM = 'startDate';
+export const END_DATE_PARAM = 'endDate';

@@ -10,8 +10,9 @@ import {
   ACCOUNT_SETTING_PRIVATE_PROFILE_TAB_NAME,
   ACCOUNT_SETTING_PROFILE_BLOCK_LIST_TAB_NAME,
 } from 'const/TabConfigConst';
-import { stackRouterPush } from 'global/util/reactnative/StackRouter';
+import { stackRouterPush } from 'global/util/reactnative/nativeRouter';
 import { useNavigate } from 'react-router-dom';
+import { hoverComponentNotRoundStyle } from 'styles/commonStyles';
 
 const ProfileAccountSettingPrivacyBody: React.FC = () => {
   const navigate = useNavigate();
@@ -49,21 +50,23 @@ const ProfileAccountSettingPrivacyBody: React.FC = () => {
   );
 };
 
-const ProfileAccountSettingPrivacyBodyContainer = styled.div`
-  padding: 0 ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding};
-`;
+const ProfileAccountSettingPrivacyBodyContainer = styled.div``;
 
 const ProfileAccountSettingPrivacyBodyWrap = styled.div`
     display: flex;
     flex-flow: column;
-    gap: ${({ theme }) => theme.systemSize.settingGap};
-    padding-top: 35px;
+    padding-top: 20px;
+
+    
 }`;
 
 const ProfileAccountSettingElementWrap = styled.div`
   display: flex;
   justify-content: space-between;
   cursor: pointer;
+  padding: 15px
+    ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding};
+  ${hoverComponentNotRoundStyle}
 `;
 
 const ProfileAccountSettingElementTitle = styled.div`

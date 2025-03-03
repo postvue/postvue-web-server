@@ -58,7 +58,6 @@ const TestLayout: React.FC = () => {
       //       }
       //     }
       //   } else if (down) {
-      //     console.log('흠', y);
       //     if (Math.abs(y) > THRESHOLD) {
       //       set({ y });
       //     }

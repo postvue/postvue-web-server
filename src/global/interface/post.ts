@@ -2,6 +2,7 @@ export interface Location {
   latitude: number;
   longitude: number;
   address: string;
+  buildName: string;
 }
 
 export interface PostContentInterface {
@@ -32,9 +33,15 @@ export interface PostRsp {
   postedAt: string;
 }
 
+export interface LinkPopupInfoType {
+  isLinkPopup: boolean;
+  isReplaced: boolean;
+}
+
 export interface PostInfoRsp {
   postId: string;
   userId: string;
+  username: string;
   location: Location;
   tags: string[];
   postContents: PostContentInterface[];
@@ -43,6 +50,7 @@ export interface PostInfoRsp {
   postTitle: string;
   postedAt: string;
   targetAudTypeId: number;
+  scrapBoardIdList: { scrapId: string; scrapName: string }[];
 }
 
 export interface MasonryPostRsp {
@@ -94,7 +102,6 @@ export interface PostProfileInfoRsp {
   profilePath: string;
   isFollowed: boolean;
   isMe: boolean;
-  isBlocked: boolean;
 }
 
 export interface PostCommentReq {
@@ -150,6 +157,7 @@ export interface PostUploadContent {
   filename: string;
   isUploadedLink: boolean;
   sort: number;
+  isExist: boolean;
 }
 
 export interface PostComposeUploadByResourceLinkReq {
@@ -164,11 +172,20 @@ export interface PostComposeUploadByResourceLinkReq {
 
 export interface SnsPostComposeCreateReqInterface {
   address: string;
+  buildName: string;
+  latitude: number;
+  longitude: number;
   tagList: string[];
+  scrapIdList: string[];
   title: string;
   bodyText: string;
-  postContentLinkList: PostContentInterface[];
+  externalImgLinkList: string[];
   targetAudienceValue: number;
+}
+
+export interface SnsPostComposeUpdateReqInterface
+  extends SnsPostComposeCreateReqInterface {
+  existPostContentList: string[];
 }
 
 export interface PostUploadContentSort {

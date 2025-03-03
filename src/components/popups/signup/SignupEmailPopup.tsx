@@ -1,4 +1,4 @@
-import BottomSheetLayout from 'components/layouts/BottomSheetLayout';
+import BottomSheetNotScrollLayout from 'components/layouts/BottomSheetNotScrollLayout';
 import RoundSquareCenterPopupLayout from 'components/layouts/RoundSquareCenterPopupLayout';
 import useWindowSize from 'hook/customhook/useWindowSize';
 import React from 'react';
@@ -27,9 +27,20 @@ const SignupEmailPopup: React.FC<SignupEmailPopupProps> = ({
           <SignupEmailPopupBody onOpen={onOpen} />
         </RoundSquareCenterPopupLayout>
       ) : (
-        <BottomSheetLayout onClose={onClose} isOpen={isOpen} heightNum={630}>
+        <BottomSheetNotScrollLayout
+          onClose={onClose}
+          isOpen={isOpen}
+          heightNum={
+            660 +
+              parseFloat(
+                getComputedStyle(document.documentElement).getPropertyValue(
+                  '--safe-area-inset-bottom',
+                ),
+              ) || 0
+          }
+        >
           <SignupEmailPopupBody onOpen={onOpen} />
-        </BottomSheetLayout>
+        </BottomSheetNotScrollLayout>
       )}
     </>
   );

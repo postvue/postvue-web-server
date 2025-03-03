@@ -13,7 +13,7 @@ import { getMsgInboxMessages } from 'services/message/getMsgInboxMessages';
 
 export interface MsgInboxListInterface {
   pages: MsgInboxMessage[][];
-  pageParams: unknown[];
+  pageParams: number[];
 }
 
 export const QueryStateMsgInboxListInfinite = (

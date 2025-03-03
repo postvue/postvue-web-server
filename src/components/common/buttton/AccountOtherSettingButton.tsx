@@ -5,12 +5,20 @@ import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
 import useWindowSize from 'hook/customhook/useWindowSize';
 import React, { useRef } from 'react';
 import { useRecoilState } from 'recoil';
-import { isActiveProfileAccountPopupAtom } from 'states/ProfileAtom';
+import { activeProfileAccountPopupInfoAtom } from 'states/ProfileAtom';
 import styled from 'styled-components';
 
-const AccountOtherSettingButton: React.FC = () => {
-  const [isActiveProfileAccountPopup, setIsActiveProfileAccountPopup] =
-    useRecoilState(isActiveProfileAccountPopupAtom);
+interface AccountOtherSettingButtonProps {
+  userId: string;
+  username: string;
+}
+
+const AccountOtherSettingButton: React.FC<AccountOtherSettingButtonProps> = ({
+  userId,
+  username,
+}) => {
+  const [activeProfileAccountPopupInfo, setActiveProfileAccountPopupInfo] =
+    useRecoilState(activeProfileAccountPopupInfoAtom);
 
   const AccountSettingButtonRef = useRef<HTMLDivElement>(null);
 
@@ -19,20 +27,42 @@ const AccountOtherSettingButton: React.FC = () => {
     <>
       <AccountSettingButtonWrap
         ref={AccountSettingButtonRef}
-        onClick={() => setIsActiveProfileAccountPopup(true)}
+        onClick={() =>
+          setActiveProfileAccountPopupInfo({
+            isActive: true,
+            userId: userId,
+            username: username,
+          })
+        }
       >
         <SettingVerticalDotIcon />
       </AccountSettingButtonWrap>
-      {isActiveProfileAccountPopup &&
+      {activeProfileAccountPopupInfo.isActive &&
         windowWidth > MEDIA_MOBILE_MAX_WIDTH_NUM &&
         AccountSettingButtonRef.current && (
           <>
             <ContextMenuPopup
               contextMenuRef={AccountSettingButtonRef.current}
-              setIsActive={setIsActiveProfileAccountPopup}
+              onClose={() =>
+                setActiveProfileAccountPopupInfo({
+                  userId: '',
+                  username: '',
+                  isActive: false,
+                })
+              }
             >
               <ProfileOtherAccountPopupBodyWrap>
-                <ProfileOtherAccountPopupBody />
+                <ProfileOtherAccountPopupBody
+                  userId={userId}
+                  username={username}
+                  onClose={() =>
+                    setActiveProfileAccountPopupInfo({
+                      isActive: false,
+                      username: '',
+                      userId: '',
+                    })
+                  }
+                />
               </ProfileOtherAccountPopupBodyWrap>
             </ContextMenuPopup>
           </>

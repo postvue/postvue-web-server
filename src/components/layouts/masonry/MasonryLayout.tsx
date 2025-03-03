@@ -15,9 +15,10 @@ type MasonryLayoutProps = {
   breakPointOption?: breakPointColumns;
   fetchMoreOption: FetchMoreOption;
   MasonryLayoutStyle?: React.CSSProperties;
+  fixNum?: number;
 };
 
-const MasonryLayout_: React.FC<MasonryLayoutProps> = ({
+const MasonryLayout: React.FC<MasonryLayoutProps> = ({
   children,
   columnGap = 10,
   rowGap = 5,
@@ -29,6 +30,7 @@ const MasonryLayout_: React.FC<MasonryLayoutProps> = ({
   },
   fetchMoreOption,
   MasonryLayoutStyle,
+  fixNum,
 }) => {
   const [loading, setLoading] = useState(false);
 
@@ -44,6 +46,7 @@ const MasonryLayout_: React.FC<MasonryLayoutProps> = ({
 
   // infinity scrolling
   useEffect(() => {
+    console.log('쿵');
     if (!fetchMoreOption) return;
 
     const scrollHandler = () => {
@@ -85,6 +88,7 @@ const MasonryLayout_: React.FC<MasonryLayoutProps> = ({
         rowGap={rowGap}
         breakPointOption={breakPointOption}
         loadMoreRef={loadMoreRef}
+        fixNum={fixNum}
       >
         {children}
       </Masonry>
@@ -96,4 +100,4 @@ const MasonryLayout_: React.FC<MasonryLayoutProps> = ({
   );
 };
 
-export default MasonryLayout_;
+export default MasonryLayout;

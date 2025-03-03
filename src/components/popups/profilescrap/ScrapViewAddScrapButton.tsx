@@ -1,52 +1,92 @@
 import React, { useEffect } from 'react';
 import { createPostToScrapList } from 'services/profile/createPostToScrapList';
 
+import { ReactComponent as PostScrapButtonWhiteIcon } from 'assets/images/icon/svg/post/PostClipButton20x20WhiteIcon.svg';
+import { ScrapThumnailInfo } from 'components/common/body/ProfileScrapThumbnailListView';
+import { PROFILE_SCRAP_LIST_PATH } from 'const/PathConst';
+import { isMainTab, SCRAP_PAGE_NAME } from 'const/ReactNativeConst';
 import { SAVE_POST_TO_SCRAP } from 'const/SystemPhraseConst';
 import { onClickClipGlobalState } from 'global/globalstateaction/onClickClipGlobalState';
 import { PostRsp } from 'global/interface/post';
 import { PostToScrapListReq } from 'global/interface/profile';
-import { SetterOrUpdater } from 'recoil';
+import { fetchProfilePost } from 'global/util/channel/static/fetchProfilePost';
+import {
+  isApp,
+  navigateToMainTab,
+  navigateToTabWithUrl,
+} from 'global/util/reactnative/nativeRouter';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { notify } from '../ToastMsgPopup';
 
 interface ScrapViewAddScrapButtonProps {
   snsPost: PostRsp;
-  setSnsPost: SetterOrUpdater<PostRsp>;
   postId: string;
-  selectedScrapList: string[];
-  setSelectedScrapList: React.Dispatch<React.SetStateAction<string[]>>;
-  setIsActiveScrapViewPopup: SetterOrUpdater<boolean>;
+  selectedScrapList: ScrapThumnailInfo[];
+  onClose: () => void;
   ScrapViewAddScrapButtonStyle?: React.CSSProperties;
 }
 
 const ScrapViewAddScrapButton: React.FC<ScrapViewAddScrapButtonProps> = ({
   selectedScrapList,
   snsPost,
-  setSnsPost,
   postId,
-  setIsActiveScrapViewPopup,
+  onClose,
   ScrapViewAddScrapButtonStyle,
 }) => {
+  const navigate = useNavigate();
   const onClickPostToScrapList = () => {
     const postToScrapListReq: PostToScrapListReq = {
-      scrapIdList: selectedScrapList,
+      scrapIdList: selectedScrapList.map((v) => v.scrapId),
     };
     createPostToScrapList(postToScrapListReq, postId).then((value) => {
-      setIsActiveScrapViewPopup(false);
+      onClose();
       onClickClipGlobalState(
         snsPost.username,
         postId,
         !snsPost.isClipped,
         snsPost,
       );
-      setSnsPost((prev) => ({ ...prev, isClipped: value.isClipped }));
-      notify(SAVE_POST_TO_SCRAP);
+
+      fetchProfilePost(postId);
+      notify({
+        msgIcon: <PostScrapButtonWhiteIcon />,
+        msgTitle: SAVE_POST_TO_SCRAP,
+        rightNode: (
+          <PostScrapNotificationGoButton
+            onClick={() => {
+              if (isApp()) {
+                if (isMainTab()) {
+                  if (location.pathname !== PROFILE_SCRAP_LIST_PATH) {
+                    navigateToTabWithUrl(
+                      navigate,
+                      SCRAP_PAGE_NAME,
+                      PROFILE_SCRAP_LIST_PATH,
+                    );
+                  } else {
+                    navigateToMainTab(
+                      navigate,
+                      SCRAP_PAGE_NAME,
+                      PROFILE_SCRAP_LIST_PATH,
+                    );
+                  }
+                }
+              } else {
+                navigate(PROFILE_SCRAP_LIST_PATH);
+              }
+            }}
+          >
+            보기
+          </PostScrapNotificationGoButton>
+        ),
+        autoClose: 3500,
+      });
     });
   };
 
   useEffect(() => {
     return () => {
-      setIsActiveScrapViewPopup(false);
+      onClose();
     };
   }, []);
 
@@ -54,7 +94,7 @@ const ScrapViewAddScrapButton: React.FC<ScrapViewAddScrapButtonProps> = ({
     <AddPostToScrapButtonWrap style={ScrapViewAddScrapButtonStyle}>
       {selectedScrapList.length > 0 ? (
         <AddPostToScrapButton onClick={onClickPostToScrapList}>
-          {selectedScrapList.length}개 스크랩 선택 완료
+          {selectedScrapList.length}개 스크랩 선택
         </AddPostToScrapButton>
       ) : (
         <AddPostToScrapNotActiveButton>
@@ -92,6 +132,12 @@ const AddPostToScrapNotActiveButton = styled(AddPostToScrapButton)`
   opacity: 0.4;
   color: ${({ theme }) => theme.mainColor.Black};
   cursor: auto;
+`;
+
+const PostScrapNotificationGoButton = styled.div`
+  font: ${({ theme }) => theme.fontSizes.Body3};
+  padding: 0 10px;
+  cursor: pointer;
 `;
 
 export default ScrapViewAddScrapButton;

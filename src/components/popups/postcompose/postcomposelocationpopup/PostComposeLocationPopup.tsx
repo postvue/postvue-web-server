@@ -64,21 +64,21 @@ const PostComposeLocationPopup: React.FC<PostComposeLocationPopupProps> = ({
           onClose={() => {
             setIsActivPostComposeLocationPopup(false);
           }}
+          initDuration={0}
           heightNum={window.innerHeight * (5 / 6)}
           isExternalCloseFunc={isExternalCloseFunc}
-          setIsExternalCloseFunc={setIsExternalCloseFunc}
           bottomSheetHeader={
             <PostComposeLocationPopupHeader
               setCurPositionInfo={setCurPositionInfo}
               setLoadingByAddressGeo={setLoadingByAddressGeo}
-              setIsExternalCloseFunc={setIsExternalCloseFunc}
+              onClose={() => setIsExternalCloseFunc(true)}
             />
           }
         >
           <PostComposeLocationPopupBody
             setAddress={setAddress}
             curPositionInfo={curPositionInfo}
-            setIsExternalCloseFunc={setIsExternalCloseFunc}
+            onClose={() => setIsExternalCloseFunc(true)}
           />
         </BottomSnapSheetLayout>
       ) : (
@@ -95,6 +95,7 @@ const PostComposeLocationPopup: React.FC<PostComposeLocationPopupProps> = ({
                 setLoadingByAddressGeo={setLoadingByAddressGeo}
                 PostComposeLocationTitleStyle={{ flexShrink: '0' }}
                 LocatoinSearchInputContainerStyle={{ flexShrink: '0' }}
+                onClose={() => setIsActivPostComposeLocationPopup(false)}
               />
               <PostComposeLocationPopupBody
                 setAddress={setAddress}
@@ -103,6 +104,7 @@ const PostComposeLocationPopup: React.FC<PostComposeLocationPopupProps> = ({
                   flexGrow: '1',
                   overflow: 'auto',
                 }}
+                onClose={() => setIsActivPostComposeLocationPopup(false)}
               />
             </RoundSquareCenterPopupLayout>
           )}

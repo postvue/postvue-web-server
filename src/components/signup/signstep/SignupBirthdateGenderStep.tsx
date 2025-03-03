@@ -13,10 +13,10 @@ import { useRecoilState } from 'recoil';
 import { signupInfoAtom } from 'states/SignupAtom';
 import styled from 'styled-components';
 import SignupHeader from '../SignupHeader';
-import SignupNextButton from '../SignupNextButton';
 
 import { ReactComponent as GenderCategoryCheckIcon } from 'assets/images/icon/svg/CategoryCheckIcon.svg';
 import { ReactComponent as GenderCategoryNotCheckIcon } from 'assets/images/icon/svg/CategoryNotCheckIcon.svg';
+import SignupNextButton from '../SignupNextButton';
 
 const SignupBirthdateGenderStep: React.FC = () => {
   const [signupInfo, setSignupInfo] = useRecoilState(signupInfoAtom);
@@ -210,6 +210,7 @@ const SignupGenderContainer = styled.div`
   display: flex;
   flex-flow: column;
   gap: 20px;
+  flex: 1;
 `;
 
 const SignupGenderItemWrap = styled.div`

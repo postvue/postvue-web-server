@@ -40,7 +40,14 @@ const PostSearchFilterPopup: React.FC<PostSearchFilterPopupProps> = ({
     <BottomSheetLayout
       isOpen={isActiveSearchPostFilterPopup}
       onClose={() => setIsActiveSearchPostFilterPopup(false)}
-      heightNum={300}
+      heightNum={
+        250 +
+          parseFloat(
+            getComputedStyle(document.documentElement).getPropertyValue(
+              '--safe-area-inset-bottom',
+            ),
+          ) || 0
+      }
     >
       <PostSearchFilterPopupBody searchWord={searchWord} />
     </BottomSheetLayout>

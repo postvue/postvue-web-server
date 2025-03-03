@@ -5,8 +5,10 @@ import BottomNextButton from 'components/common/buttton/BottomNextButton';
 import { APP_SERVICE_NAME } from 'const/AppInfoConst';
 import { INIT_EMPTY_STRING_VALUE } from 'const/AttributeConst';
 import { SIGNUP_MIN_AGE } from 'const/SignupConst';
+import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
 import { SETTING_EDIT_BUTTON_PHASE_TEXT } from 'const/SystemPhraseConst';
 import { checkAgeDate, formatDate } from 'global/util/DateTimeUtil';
+import useWindowSize from 'hook/customhook/useWindowSize';
 import { QueryMutationPutMyProfileBirthdateInfo } from 'hook/queryhook/QueryMutationPutMyProfileBirthdateInfo';
 import { QueryStateMyProfileInfo } from 'hook/queryhook/QueryStateMyProfileInfo';
 
@@ -33,28 +35,20 @@ const ProfileAccountBirthdateEditBody: React.FC = () => {
     setBitrhDate(data?.birthdate || INIT_EMPTY_STRING_VALUE);
   }, [data]);
 
-  const [isMobile, setIsMobile] = useState<boolean>(false);
-
-  useEffect(() => {
-    const userAgent = navigator.userAgent.toLowerCase();
-
-    const mobileDevices =
-      /(iphone|ipod|ipad|android|blackberry|windows phone|opera mini|iemobile|mobile)/i;
-    setIsMobile(mobileDevices.test(userAgent)); // 모바일 여부 설정
-  }, []);
-
   const dateInputRef = useRef<HTMLInputElement>(null);
   const handleLabelClick = () => {
     dateInputRef.current?.focus();
     dateInputRef.current?.click();
   };
 
+  const { windowWidth } = useWindowSize();
+
   return (
     <>
       {isFetched && (
         <ProfileEditEmailContainer>
           <ProfileEditEmailInputWrap>
-            {isMobile ? (
+            {windowWidth <= MEDIA_MOBILE_MAX_WIDTH_NUM ? (
               <>
                 <SignupDateInputByMobile
                   type={'date'}
@@ -103,7 +97,7 @@ const ProfileAccountBirthdateEditBody: React.FC = () => {
 };
 
 const ProfileEditEmailContainer = styled.div`
-  padding-top: 30px;
+  padding-top: calc(30px + env(safe-area-inset-top));
 `;
 
 const ProfileEditEmailInputWrap = styled.div`
@@ -156,7 +150,7 @@ const SignupDateInputMobileLabel = styled.label`
   display: block;
   box-sizing: border-box;
   outline: none;
-  border-radius: 20px;
+  border-radius: 30px;
   color: ${({ theme }) => theme.grey.Grey7};
   font: ${({ theme }) => theme.fontSizes.Body3};
 

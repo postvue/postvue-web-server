@@ -1,20 +1,18 @@
-import { queryClient } from 'App';
-import PoseComposeBody from 'components/posecompose/PoseComposeBody';
-import PoseComposeHeader from 'components/posecompose/PoseComposeHeader';
+import PoseComposeBody from 'components/posecompose/PostComposeBody';
+import PostComposeHeader from 'components/posecompose/PostComposeHeader';
 import {
   POST_COMPOSE_BUTTON_PHRASE,
   POST_COMPOSE_HEADER_TITLE_PHRASE,
 } from 'const/PostComposeConst';
-import { QUERY_STATE_PROFILE_ACCOUNT_POST_LIST } from 'const/QueryClientConst';
 import {
   UPLOAD_IMG_MAX_HEIGHT,
   UPLOAD_IMG_MAX_WIDTH,
 } from 'const/SystemAttrConst';
 import { POST_COMPOSE_TARGET_AUD_PUBLIC_TAB_ID } from 'const/TabConfigConst';
-import {
-  PostContentInterface,
-  SnsPostComposeCreateReqInterface,
-} from 'global/interface/post';
+import { SnsPostComposeCreateReqInterface } from 'global/interface/post';
+import { fetchProfileAccountListInfinite } from 'global/util/channel/static/fetchProfileAccountListInfinite';
+import { fetchProfileScrapListInfinite } from 'global/util/channel/static/fetchProfileScrapListInfinite';
+import { refetchProfileScrapInfo } from 'global/util/channel/static/refetchProfileScrapListInfo';
 import { resizeImage } from 'global/util/ImageInputUtil';
 import { QueryStateMyProfileInfo } from 'hook/queryhook/QueryStateMyProfileInfo';
 import React, { useState } from 'react';
@@ -24,6 +22,8 @@ import {
   postComposeAddressRelationAtom,
   uploadResourceListAtom,
 } from 'states/PostComposeAtom';
+import { selectScrapByComposePopupInfoAtom } from 'states/ProfileAtom';
+import styled from 'styled-components';
 
 interface PostComposePageBodyProps {
   hasTransparentOverLay?: boolean;
@@ -45,6 +45,10 @@ const PostComposePageBody: React.FC<PostComposePageBodyProps> = ({
     uploadResourceListAtom,
   );
 
+  const selectScrapByComposePopupInfo = useRecoilValue(
+    selectScrapByComposePopupInfoAtom,
+  );
+
   const [postTitle, setPostTitle] = useState<string>('');
   const [postBodyText, setPostBodyText] = useState<string>('');
   const [postTagList, setPostTagList] = useState<string[]>([]);
@@ -63,18 +67,20 @@ const PostComposePageBody: React.FC<PostComposePageBodyProps> = ({
     const formData = new FormData();
     const snsPostComposeCreateReq: SnsPostComposeCreateReqInterface = {
       address: postComposeAddressRelation.roadAddr,
+      buildName: postComposeAddressRelation.buildName,
+      latitude: postComposeAddressRelation.latitude,
+      longitude: postComposeAddressRelation.longitude,
       tagList: postTagList,
       title: postTitle,
       bodyText: postBodyText,
-      postContentLinkList: uploadResourceList
+      externalImgLinkList: uploadResourceList
         .filter((value) => value.isLink === true)
-        .map((v, key) => {
-          return {
-            postContentType: v.contentType,
-            content: v.contentUrl,
-            ascSortNum: key,
-          } as PostContentInterface;
+        .map((v) => {
+          return v.contentUrl;
         }),
+      scrapIdList: selectScrapByComposePopupInfo.scrapInfoList.map(
+        (v) => v.scrapId,
+      ),
       targetAudienceValue: targetAudienceId,
     };
     const snsPostComposeCreateBlob = new Blob(
@@ -102,7 +108,6 @@ const PostComposePageBody: React.FC<PostComposePageBodyProps> = ({
           UPLOAD_IMG_MAX_WIDTH,
           UPLOAD_IMG_MAX_HEIGHT,
         ).then((value) => {
-          console.log(value);
           formData.append('files', value);
         });
       }
@@ -116,26 +121,25 @@ const PostComposePageBody: React.FC<PostComposePageBodyProps> = ({
 
     createPostCompose(formData)
       .then(() => {
-        queryClient.invalidateQueries({
-          queryKey: [
-            QUERY_STATE_PROFILE_ACCOUNT_POST_LIST,
-            myProfileInfo?.username,
-          ],
-        });
-        setIsLoadingPopup(false);
+        fetchProfileScrapListInfinite();
+        if (myProfileInfo) {
+          fetchProfileAccountListInfinite(myProfileInfo.username);
+        }
+        refetchProfileScrapInfo();
+
         actionFuncByCompose();
       })
       .catch((error: any) => {
-        console.log(error.response?.status);
-        console.log(error.response?.data);
         alert(error.response?.data?.message);
+      })
+      .finally(() => {
         setIsLoadingPopup(false);
       });
   };
 
   return (
-    <>
-      <PoseComposeHeader
+    <PostComposePageBodyContainer>
+      <PostComposeHeader
         titleName={POST_COMPOSE_HEADER_TITLE_PHRASE}
         hasPrevButton={hasPrevButton}
         actionFunc={onClose}
@@ -157,8 +161,14 @@ const PostComposePageBody: React.FC<PostComposePageBodyProps> = ({
         composeButtonTitle={POST_COMPOSE_BUTTON_PHRASE}
         hasTransparentOverLay={hasTransparentOverLay}
       />
-    </>
+    </PostComposePageBodyContainer>
   );
 };
+
+const PostComposePageBodyContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+`;
 
 export default PostComposePageBody;

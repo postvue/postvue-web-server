@@ -89,7 +89,7 @@ const ProfileAccountGenderEditBody: React.FC = () => {
 };
 
 const ProfileEditEmailContainer = styled.div`
-  padding-top: 30px;
+  padding-top: calc(30px + env(safe-area-inset-top));
 `;
 
 const ProfileGenderEditContainer = styled.div`

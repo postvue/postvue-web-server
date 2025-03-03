@@ -14,7 +14,7 @@ import { convertQueryTemplate } from 'global/util/TemplateUtil';
 import { isValidString } from 'global/util/ValidUtil';
 import { getPostSearchNear } from 'services/post/getPostSearchNear';
 
-export interface SearchPostQueryInterface {
+export interface SearchPostNearQueryInterface {
   pages: GetSearchPostsRsp[];
   pageParams: unknown[];
 }
@@ -25,13 +25,13 @@ export const QueryStateSearchPostNearListInfinite = (
   latitude?: number,
   longitude?: number,
 ): UseInfiniteQueryResult<
-  SearchPostQueryInterface,
+  SearchPostNearQueryInterface,
   AxiosError<unknown, any>
 > => {
   return useInfiniteQuery<
     GetSearchPostsRsp,
     AxiosError,
-    SearchPostQueryInterface,
+    SearchPostNearQueryInterface,
     [string]
   >({
     queryKey: [
@@ -79,8 +79,8 @@ export const QueryStateSearchPostNearListInfinite = (
 
     select: (data) => {
       return {
-        pages: [...data.pages].reverse(),
-        pageParams: [...data.pageParams].reverse(),
+        pages: [...data.pages],
+        pageParams: [...data.pageParams],
       };
     },
   });

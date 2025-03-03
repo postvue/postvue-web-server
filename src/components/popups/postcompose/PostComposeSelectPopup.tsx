@@ -5,7 +5,7 @@ import useWindowSize from 'hook/customhook/useWindowSize';
 import React, { useState } from 'react';
 import { useRecoilState } from 'recoil';
 import { isActivPostComposeSelectPopupAtom } from 'states/PostComposeAtom';
-import PostComposePopupBody from './PostComposePopupBody';
+import PostComposePopupBody from './PostComposeSelectPopupBody';
 
 const PostComposeSelectPopup: React.FC = () => {
   const [isActivePostComposeSelectPopup, setIsActivePostComposeSelectPopup] =
@@ -24,22 +24,28 @@ const PostComposeSelectPopup: React.FC = () => {
           onClose={() => {
             setIsActivePostComposeSelectPopup(false);
           }}
-          heightNum={250}
+          heightNum={
+            270 +
+              parseFloat(
+                getComputedStyle(document.documentElement).getPropertyValue(
+                  '--safe-area-inset-bottom',
+                ),
+              ) || 0
+          }
           isExternalCloseFunc={isExternalCloseFunc}
-          setIsExternalCloseFunc={setIsExternalCloseFunc}
         >
-          <PostComposePopupBody
-            setIsExternalCloseFunc={setIsExternalCloseFunc}
-          />
+          <PostComposePopupBody onClose={() => setIsExternalCloseFunc(true)} />
         </BottomSheetLayout>
       ) : (
         <>
           {isActivePostComposeSelectPopup && (
             <RoundSquareCenterPopupLayout
               onClose={() => setIsActivePostComposeSelectPopup(false)}
-              popupWrapStyle={{ height: '230px', width: '400px' }}
+              popupWrapStyle={{ height: '300px', width: '400px' }}
             >
-              <PostComposePopupBody />
+              <PostComposePopupBody
+                onClose={() => setIsActivePostComposeSelectPopup(false)}
+              />
             </RoundSquareCenterPopupLayout>
           )}
         </>

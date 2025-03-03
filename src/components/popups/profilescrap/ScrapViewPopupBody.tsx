@@ -1,9 +1,12 @@
+import { ScrapThumnailInfo } from 'components/common/body/ProfileScrapThumbnailListView';
 import React from 'react';
 import ProfileScrapViewBody from '../../common/body/ProfileScrapViewBody';
 
 interface ScrapViewPopupBodyProps {
-  selectedScrapList: string[];
-  setSelectedScrapList: React.Dispatch<React.SetStateAction<string[]>>;
+  selectedScrapList: ScrapThumnailInfo[];
+  setSelectedScrapList: React.Dispatch<
+    React.SetStateAction<ScrapThumnailInfo[]>
+  >;
   ScrapViewPopupBodyStyle?: React.CSSProperties;
 }
 
@@ -12,11 +15,17 @@ const ScrapViewPopupBody: React.FC<ScrapViewPopupBodyProps> = ({
   setSelectedScrapList,
   ScrapViewPopupBodyStyle,
 }) => {
-  const onSelectScraps = (scrapId: string) => {
-    if (selectedScrapList.includes(scrapId)) {
-      setSelectedScrapList((prev) => prev.filter((value) => value !== scrapId));
+  const onSelectScraps = (scrapThumnailInfo: ScrapThumnailInfo) => {
+    if (
+      selectedScrapList
+        .map((v) => v.scrapId)
+        .includes(scrapThumnailInfo.scrapId)
+    ) {
+      setSelectedScrapList((prev) =>
+        prev.filter((value) => value.scrapId !== scrapThumnailInfo.scrapId),
+      );
     } else {
-      setSelectedScrapList((prev) => [...prev, scrapId]);
+      setSelectedScrapList((prev) => [...prev, scrapThumnailInfo]);
     }
   };
 
@@ -24,8 +33,9 @@ const ScrapViewPopupBody: React.FC<ScrapViewPopupBodyProps> = ({
     <ProfileScrapViewBody
       isAddMove={true}
       onButtonEvent={onSelectScraps}
-      scrapIdList={selectedScrapList}
+      scrapIdList={selectedScrapList.map((v) => v.scrapId)}
       mainContainerStyle={ScrapViewPopupBodyStyle}
+      isInitTimout={true}
     />
   );
 };

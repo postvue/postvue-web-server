@@ -116,7 +116,6 @@ const PostVideoContentELementTest: React.FC<PostVideoContentELementProps> = ({
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          console.log('호잇');
           setIsPlaying(true);
           const a = player.getInternalPlayer();
           a;
@@ -182,7 +181,9 @@ const PostVideoContentELementTest: React.FC<PostVideoContentELementProps> = ({
       <VideoWrapper ref={videoWrapperRef} style={PostVideoStyle}>
         <ReactPlayer
           ref={playerRef}
-          url={'https://example.com/test.m3u8'}
+          url={
+            'https://media.feelog.net/videos/hls/5feed669-fc17-4af6-b71f-008897b1a5d6/output.m3u8'
+          }
           width={'100%'}
           height={'100%'}
           style={{ verticalAlign: 'bottom' }}
@@ -192,6 +193,7 @@ const PostVideoContentELementTest: React.FC<PostVideoContentELementProps> = ({
           onDuration={(duration) => setDuration(duration)}
           onPlay={() => setIsMuted(false)}
           onEnded={handleProcessEnd}
+          playsinline
         />
       </VideoWrapper>
       <ControlsWrapper onClick={(e) => e.stopPropagation()}>

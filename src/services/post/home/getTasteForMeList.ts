@@ -1,8 +1,7 @@
 import { CURSOR_PARAM } from 'services/appApiQueryParam';
-import { api, optAuthApi } from '../..';
-import { TASTE_FOR_ME_PATH } from '../../../const/PathConst';
+import { optAuthApi } from '../..';
 import { PostRsp } from '../../../global/interface/post';
-import { POST_LIST_PATH } from '../../appApiPath';
+import { POST_LIST_PATH, TASTE_FOR_ME_PATH } from '../../appApiPath';
 
 interface GetTasteForMeListRsp {
   cursorId: string;
@@ -27,7 +26,7 @@ export const getTasteForMeListByParam = (
 };
 
 export const getTasteForMeList = (): Promise<PostRsp[]> => {
-  return api
+  return optAuthApi
     .get(`${POST_LIST_PATH}${TASTE_FOR_ME_PATH}`)
     .then((res) => {
       console.log(res.data);

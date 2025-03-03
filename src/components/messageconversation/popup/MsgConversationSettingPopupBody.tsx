@@ -6,7 +6,6 @@ import {
 } from 'const/PathConst';
 import { QUERY_STATE_MSG_INBOX_LIST } from 'const/QueryClientConst';
 import { ProfileInfoByDirectMsg } from 'global/interface/profile';
-import { stackRouterPush } from 'global/util/reactnative/StackRouter';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSetRecoilState } from 'recoil';
@@ -54,10 +53,8 @@ const MsgConversationSettingPopupBody: React.FC<
         <div
           onClick={() => {
             setIsSettingByMsgConversation(false);
-            stackRouterPush(
-              navigate,
-              `${PROFILE_LIST_PATH}/${targetProfileInfo.username}`,
-            );
+
+            navigate(`${PROFILE_LIST_PATH}/${targetProfileInfo.username}`);
           }}
         >
           <ProfileShow>프로필 보기</ProfileShow>

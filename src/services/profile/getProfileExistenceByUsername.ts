@@ -1,5 +1,5 @@
 import { api } from '..';
-import { PROFILE_EXISTENCE_PATH } from '../appApiPath';
+import { PROFILE_EXISTENCE_API_PATH } from '../appApiPath';
 
 export interface ProfileExistenceByUsernameRsp {
   useranme: string;
@@ -10,7 +10,7 @@ export const getProfileExistenceByUsername = (
   username: string,
 ): Promise<ProfileExistenceByUsernameRsp> => {
   return api
-    .get(`${PROFILE_EXISTENCE_PATH}/${username}`)
+    .get(`${PROFILE_EXISTENCE_API_PATH}/${username}`)
     .then((res) => {
       console.log(res.data);
       return res.data.data;

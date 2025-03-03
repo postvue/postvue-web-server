@@ -1,143 +1,64 @@
-import React from 'react';
-import { useRecoilState, useRecoilValue } from 'recoil';
-import { MasonryPostRsp } from '../../global/interface/post';
-import TasteForMeInfiniteScroll from '../../hook/TasteForMeInfiniteScroll';
+import React, { useEffect } from 'react';
+import { useRecoilState } from 'recoil';
 
+import { homeTabInfoAtom } from '../../states/HomePageAtom';
+
+import ViewPagerLayout from 'components/layouts/ViewPagerLayout';
 import {
-  homeScrollPositionInfoAtom,
-  homeTabIdAtom,
-} from '../../states/HomePageAtom';
-
-import SnsPostMasonryLayout_ from 'components/layouts/SnsPostMasonryLayout_';
-import { TASTE_FOR_ME_TAB_ID } from 'const/TabConfigConst';
-import FollowForMeListInfiniteScroll from 'hook/FollowForMeListInfiniteScroll';
-import { QueryStateFollowForMeListInfinite } from 'hook/queryhook/QueryStateFollowForMeListInfinite';
-import styled from 'styled-components';
-import { tasteForMeHashMapAtom } from '../../states/TasteForMeAtom';
-import HomeFollowSubBody from './body/HomeFollowSubBody';
+  FOLLOW_FOR_ME_TAB_ID,
+  TASTE_FOR_ME_TAB_ID,
+} from 'const/TabConfigConst';
+import { isApp } from 'global/util/reactnative/nativeRouter';
+import 'swiper/css';
+import HomeFolowBody from './HomeFollowBody';
+import HomeTasteBody from './HomeTasteBody';
 
 const HomeBody: React.FC = () => {
-  const [mainTabId, setMainTabId] = useRecoilState(homeTabIdAtom);
+  const [mainTabInfo, setMainTabInfo] = useRecoilState(homeTabInfoAtom);
 
-  const snsPostRspHashMapByTaste = useRecoilValue(tasteForMeHashMapAtom);
-
-  const [homeScrollPositionInfo, setHomeScrollPositionInfo] = useRecoilState(
-    homeScrollPositionInfoAtom,
-  );
-  const { data: followForMeList, isFetched: isFetchedByFollowForMe } =
-    QueryStateFollowForMeListInfinite();
-
-  followForMeList?.pages.flatMap((v) =>
-    v.snsPostRspList.map((value) => {
-      const postContent = value.postContents[0];
-
-      const homePostRsp: MasonryPostRsp = {
-        postId: value.postId,
-        userId: value.userId,
-        postContent: postContent.content,
-        postContentType: postContent.postContentType,
-        username: value.username,
-        location: value.location,
-        previewImg: postContent.previewImg,
-        videoDuration: postContent.videoDuration,
-        isUploaded: postContent.isUploaded,
-      };
-
-      return homePostRsp;
-    }),
-  );
+  useEffect(() => {
+    if (!mainTabInfo.scrollInfo.isActive) return;
+    setMainTabInfo((prev) => ({
+      ...prev,
+      scrollInfo: { isActive: false, scroll: 0 },
+    }));
+  }, [mainTabInfo.scrollInfo.isActive]);
 
   return (
-    <HomeBodyContainer>
-      {/* <ViewPagerLayout
-        tabId={mainTabId}
-        setTabId={setMainTabId}
-        tabScrollInfoList={homeScrollPositionInfo}
-        setTabScrollInfoList={setHomeScrollPositionInfo}
-      >
-        <div>
-          <SnsPostMasonryLayout_
-            snsPostList={Array.from(snsPostRspHashMapByTaste.entries()).map(
-              ([, v]) => v,
-            )}
-          />
-          <TasteForMeInfiniteScroll />
-        </div>
-        <div>
-          {isFetchedByFollowForMe && (
-            <>
-              {followForMeList &&
-              followForMeList.pages.flatMap((value) => value.snsPostRspList)
-                .length > 0 ? (
-                <>
-                  <SnsPostMasonryLayout_
-                    snsPostList={followForMeList?.pages.flatMap((v) =>
-                      v.snsPostRspList.map((value) => value),
-                    )}
-                  />
-                  <FollowForMeListInfiniteScroll />
-                </>
-              ) : (
-                <HomeFollowSubBody />
-              )}
-            </>
+    <>
+      {isApp() ? (
+        <ViewPagerLayout
+          index={mainTabInfo.activeTabId}
+          actionSilde={(index) => {
+            setMainTabInfo((prev) => ({
+              ...prev,
+              activeTabId: index,
+            }));
+          }}
+          scrollToInfo={
+            mainTabInfo.scrollInfo.isActive
+              ? {
+                  tabId: mainTabInfo.activeTabId,
+                  scrollTo: mainTabInfo.scrollInfo.scroll,
+                }
+              : undefined
+          }
+          childrenList={[
+            <HomeTasteBody key={TASTE_FOR_ME_TAB_ID} />,
+            <HomeFolowBody key={FOLLOW_FOR_ME_TAB_ID} />,
+          ]}
+        />
+      ) : (
+        <>
+          {mainTabInfo.activeTabId === TASTE_FOR_ME_TAB_ID ? (
+            <HomeTasteBody />
+          ) : (
+            <HomeFolowBody />
           )}
-        </div>
-      </ViewPagerLayout> */}
-      <>
-        {/* {mainTabId === TASTE_FOR_ME_TAB_ID ? (
-          <TasteForMeInfiniteScroll />
-        ) : (
-          <>
-            {isFetchedByFollowForMe && (
-              <>
-                {followForMeList &&
-                  followForMeList.pages.flatMap((value) => value.snsPostRspList)
-                    .length > 0 && <FollowForMeListInfiniteScroll />}
-              </>
-            )}
-          </>
-        )} */}
-      </>
-      <>
-        {mainTabId === TASTE_FOR_ME_TAB_ID ? (
-          <div>
-            <SnsPostMasonryLayout_
-              snsPostList={Array.from(snsPostRspHashMapByTaste.entries()).map(
-                ([, v]) => v,
-              )}
-            />
-            <TasteForMeInfiniteScroll />
-          </div>
-        ) : (
-          <div>
-            {isFetchedByFollowForMe && (
-              <>
-                {followForMeList &&
-                followForMeList.pages.flatMap((value) => value.snsPostRspList)
-                  .length > 0 ? (
-                  <>
-                    <SnsPostMasonryLayout_
-                      snsPostList={followForMeList?.pages.flatMap((v) =>
-                        v.snsPostRspList.map((value) => value),
-                      )}
-                    />
-                    <FollowForMeListInfiniteScroll />
-                  </>
-                ) : (
-                  <HomeFollowSubBody />
-                )}
-              </>
-            )}
-          </div>
-        )}
-      </>
-    </HomeBodyContainer>
+        </>
+      )}
+    </>
   );
 };
-
-const HomeBodyContainer = styled.div`
-  padding-top: 10px;
-`;
 
 export default HomeBody;

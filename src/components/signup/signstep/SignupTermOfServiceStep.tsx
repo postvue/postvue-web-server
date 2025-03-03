@@ -2,6 +2,12 @@ import { ReactComponent as SignupTermOfServiceCheckIcon } from 'assets/images/ic
 import { ReactComponent as SignupTermOfServiceNotCheckIcon } from 'assets/images/icon/svg/signup/SignupNotCheckIcon.svg';
 import { ACCESS_TOKEN } from 'const/LocalStorageConst';
 import { HOME_PATH } from 'const/PathConst';
+import { SIGNUP_MIN_AGE } from 'const/SignupConst';
+import {
+  ACCOUNT_SETTING_PRIVACY_POLICY_URL,
+  ACCOUNT_SETTING_TERMS_OF_SERVICE_URL,
+  ACCOUNT_SETTING_TERMS_OF_USER_GEOLOATION_URL,
+} from 'const/TabConfigConst';
 import React, { useState } from 'react';
 import { useRecoilState } from 'recoil';
 import { postAuthSignup } from 'services/auth/postAuthSignup';
@@ -32,6 +38,7 @@ const SignupTermOfServiceStep: React.FC = () => {
           agreeToPrivacyPolicy: false,
           agreeToPrivacyPolicyToThirdPaties: false,
           agreeToMarketingCommunications: false,
+          agreeToTermsOfUserGeoLocation: false,
         },
       }));
     } else {
@@ -43,6 +50,7 @@ const SignupTermOfServiceStep: React.FC = () => {
           agreeToPrivacyPolicy: true,
           agreeToPrivacyPolicyToThirdPaties: true,
           agreeToMarketingCommunications: true,
+          agreeToTermsOfUserGeoLocation: true,
         },
       }));
     }
@@ -90,31 +98,10 @@ const SignupTermOfServiceStep: React.FC = () => {
             )}
           </SingupTermOsServiceCheckIconWrap>
           <SingupTermOsServiceChecTiele>
-            (필수) 만 14세 이상입니다.*
+            (필수) 만 {SIGNUP_MIN_AGE}세 이상입니다.*
           </SingupTermOsServiceChecTiele>
         </SingupTermOsServiceCheckWrap>
-        <SingupTermOsServiceCheckWrap
-          onClick={() => {
-            setSignupInfo((prev) => ({
-              ...prev,
-              termOfService: {
-                ...signupInfo.termOfService,
-                agreeToServieTerm: !signupInfo.termOfService.agreeToServieTerm,
-              },
-            }));
-          }}
-        >
-          <SingupTermOsServiceCheckIconWrap>
-            {signupInfo.termOfService.agreeToServieTerm ? (
-              <SignupTermOfServiceCheckIcon />
-            ) : (
-              <SignupTermOfServiceNotCheckIcon />
-            )}
-          </SingupTermOsServiceCheckIconWrap>
-          <SingupTermOsServiceChecTiele>
-            (필수) 이용 약관에 동의합니다.*
-          </SingupTermOsServiceChecTiele>
-        </SingupTermOsServiceCheckWrap>
+
         <SingupTermOsServiceCheckWrap
           onClick={() => {
             setSignupInfo((prev) => ({
@@ -144,6 +131,37 @@ const SignupTermOfServiceStep: React.FC = () => {
               ...prev,
               termOfService: {
                 ...signupInfo.termOfService,
+                agreeToServieTerm: !signupInfo.termOfService.agreeToServieTerm,
+              },
+            }));
+          }}
+        >
+          <SingupTermOsServiceCheckIconWrap>
+            {signupInfo.termOfService.agreeToServieTerm ? (
+              <SignupTermOfServiceCheckIcon />
+            ) : (
+              <SignupTermOfServiceNotCheckIcon />
+            )}
+          </SingupTermOsServiceCheckIconWrap>
+          <SingupTermOsServiceChecTiele
+            style={{ textDecoration: 'underline' }}
+            onClick={() => {
+              window.open(
+                ACCOUNT_SETTING_TERMS_OF_SERVICE_URL,
+                '_blank',
+                'noopener,noreferrer',
+              );
+            }}
+          >
+            (필수) 이용 약관에 동의합니다.*
+          </SingupTermOsServiceChecTiele>
+        </SingupTermOsServiceCheckWrap>
+        <SingupTermOsServiceCheckWrap
+          onClick={() => {
+            setSignupInfo((prev) => ({
+              ...prev,
+              termOfService: {
+                ...signupInfo.termOfService,
                 agreeToPrivacyPolicyToThirdPaties:
                   !signupInfo.termOfService.agreeToPrivacyPolicyToThirdPaties,
               },
@@ -157,8 +175,49 @@ const SignupTermOfServiceStep: React.FC = () => {
               <SignupTermOfServiceNotCheckIcon />
             )}
           </SingupTermOsServiceCheckIconWrap>
-          <SingupTermOsServiceChecTiele>
+          <SingupTermOsServiceChecTiele
+            style={{ textDecoration: 'underline' }}
+            onClick={() => {
+              window.open(
+                ACCOUNT_SETTING_PRIVACY_POLICY_URL,
+                '_blank',
+                'noopener,noreferrer',
+              );
+            }}
+          >
             (필수) 개인정보의 제 3자 제공에 동의합니다.
+          </SingupTermOsServiceChecTiele>
+        </SingupTermOsServiceCheckWrap>
+        <SingupTermOsServiceCheckWrap
+          onClick={() => {
+            setSignupInfo((prev) => ({
+              ...prev,
+              termOfService: {
+                ...signupInfo.termOfService,
+                agreeToTermsOfUserGeoLocation:
+                  !signupInfo.termOfService.agreeToTermsOfUserGeoLocation,
+              },
+            }));
+          }}
+        >
+          <SingupTermOsServiceCheckIconWrap>
+            {signupInfo.termOfService.agreeToTermsOfUserGeoLocation ? (
+              <SignupTermOfServiceCheckIcon />
+            ) : (
+              <SignupTermOfServiceNotCheckIcon />
+            )}
+          </SingupTermOsServiceCheckIconWrap>
+          <SingupTermOsServiceChecTiele
+            style={{ textDecoration: 'underline' }}
+            onClick={() => {
+              window.open(
+                ACCOUNT_SETTING_TERMS_OF_USER_GEOLOATION_URL,
+                '_blank',
+                'noopener,noreferrer',
+              );
+            }}
+          >
+            (필수) 위치정보 이용약관에 동의합니다.
           </SingupTermOsServiceChecTiele>
         </SingupTermOsServiceCheckWrap>
         <SingupTermOsServiceCheckWrap
@@ -191,7 +250,8 @@ const SignupTermOfServiceStep: React.FC = () => {
           signupInfo.termOfService.agreeToAgeTerm &&
           signupInfo.termOfService.agreeToServieTerm &&
           signupInfo.termOfService.agreeToPrivacyPolicy &&
-          signupInfo.termOfService.agreeToPrivacyPolicyToThirdPaties
+          signupInfo.termOfService.agreeToPrivacyPolicyToThirdPaties &&
+          signupInfo.termOfService.agreeToTermsOfUserGeoLocation
         }
         actionFunc={() => {
           onClickSignup();
@@ -216,6 +276,7 @@ const SingupTermOsServiceContainer = styled.div`
   display: flex;
   flex-flow: column;
   gap: 16px;
+  flex: 1;
 `;
 
 const SingupTermOsServiceCheckWrap = styled.div`

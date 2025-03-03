@@ -8,15 +8,30 @@ interface MapExploreListInfiniteScrollProps {
   latitude: number;
   longitude: number;
   nearFilter: string;
+  startDate: string | null;
+  endDate: string | null;
   MapExploreInfiniteScrollStyle?: React.CSSProperties;
 }
 
 const MapExploreListInfiniteScroll: React.FC<
   MapExploreListInfiniteScrollProps
-> = ({ latitude, longitude, nearFilter, MapExploreInfiniteScrollStyle }) => {
+> = ({
+  latitude,
+  longitude,
+  nearFilter,
+  startDate,
+  endDate,
+  MapExploreInfiniteScrollStyle,
+}) => {
   const { ref, inView } = useInView();
-  const { fetchNextPage, hasNextPage, isFetchingNextPage } =
-    QueryStateMapExploreList(latitude, longitude, nearFilter);
+  const { fetchNextPage, hasNextPage, isFetchingNextPage, data } =
+    QueryStateMapExploreList(
+      latitude,
+      longitude,
+      nearFilter,
+      startDate,
+      endDate,
+    );
 
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
@@ -26,7 +41,11 @@ const MapExploreListInfiniteScroll: React.FC<
 
   return (
     <ScrollBottomContainer style={MapExploreInfiniteScrollStyle} ref={ref}>
-      <InViewComponent />
+      <InViewComponent
+        hasLoadingIcon={
+          (data ? data?.pages[0].length > 5 : false) && hasNextPage
+        }
+      />
     </ScrollBottomContainer>
   );
 };

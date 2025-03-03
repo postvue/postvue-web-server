@@ -1,48 +1,137 @@
-export interface AuthTokenRes {
+import {
+  EXPLORE_PATH,
+  HOME_PATH,
+  MESSAGE_INBOX_PATH,
+  PROFILE_CLIP_LIST_PATH,
+  PROFILE_MY_ACCOUNT_ROUTE_PATH,
+  PROFILE_SCRAP_LIST_PATH,
+  SEARCH_PATH,
+} from './PathConst';
+
+export interface AuthTokenRsp {
   accessToken: string;
   refreshToken: string;
+  userId: string;
 }
 
 export interface EventDateInterface {
-  routeType: string;
+  eventType: string;
   path: string;
-  reactionType: string;
-  reactionData: string;
-  authToken: AuthTokenRes;
+  data: string;
+  authToken: AuthTokenRsp;
 }
 
 export interface BridgeMsgInterface {
   type: string;
   data: EventDateInterface;
 }
+
+export interface RoutePushEventDateInterface {
+  isShowInitBottomNavBar: boolean;
+}
+
+export interface BridgeEventImageNativeUploadInfoInterface {
+  mimeType: string;
+  duration?: number;
+}
+
 export const BRIDGE_EVENT_POPUP_TYPE = 'POPUP_EVENT';
 
 export const EVENT_DATA_REACTION_ACTIVE_POPUP_TYPE = 'ACTIVE_POPUP';
 export const EVENT_DATA_REACTION_DEACTIVE_POPUP_TYPE = 'DEACTIVE_POPUP';
 
 export const BRIDGE_EVENT_ROUTE_TYPE = 'ROUTER_EVENT';
-
 export const EVENT_DATA_ROUTE_BACK_TYPE = 'BACK';
 export const EVENT_DATA_ROUTE_PUSH_TYPE = 'PUSH';
 export const EVENT_DATA_ROUTE_NAVIGATE_TYPE = 'NAVIGATE';
 export const EVENT_DATA_ROUTE_REPLACE_TYPE = 'REPLACE';
 export const EVENT_DATA_ROUTE_RESET_TYPE = 'RESET';
+export const EVENT_DATA_ROUTE_LOGIN_TYPE = 'LOGIN';
 export const EVENT_DATA_ROUTE_LOGOUT_TYPE = 'LOGOUT';
+export const EVENT_DATA_ROUTE_WITHDRAW_TYPE = 'WITHDRAW';
 export const EVENT_DATA_ROUTE_LOGIN_SUCCESS_TYPE = 'LOGIN_SUCCESS';
 export const EVENT_DATA_ROUTE_POP_TO_TOP_TYPE = 'POP_TO_TOP';
-export const EVENT_DATA_ROUTE_POP_TO_TOP_TO_PATH_TYPE = 'POP_TO_TOP_TO_PATH';
+export const EVENT_DATA_ROUTE_PREVIOUS_TAB_TYPE = 'PREVIOUS_TAB_TYPE';
 
 export const BRIDGE_EVENT_REACTION_TYPE = 'REACTION_EVENT';
-
 export const EVENT_REACTION_VIBRATION_TYPE = 'REACTION_VIBRATION';
 export const EVENT_DATA_REACTION_VIBRATION_LIGHT_TYPE = 'LIGHT';
 export const EVENT_DATA_REACTION_VIBRATION_HEAVY_TYPE = 'HEAVY';
+
+export const BRIDGE_EVENT_IMAGE_NATIVE_UPLOAD_TYPE =
+  'IMAGE_NATIVE_UPLOAD_EVENT';
+
+export const BRIDGE_EVENT_VIDEO_SHOOT_NATIVE_UPLOAD_TYPE =
+  'VIDEO_NATIVE_SHOOT_UPLOAD_EVENT';
+
+export const BRIDGE_EVENT_VIDEO_GALLERY_NATIVE_UPLOAD_TYPE =
+  'VIDEO_NATIVE_GALLERY_UPLOAD_EVENT';
+
+export const BRIDGE_EVENT_UPLOAD_VIDEO_TO_SERVER_TYPE =
+  'UPLOAD_VIDEO_TO_SERVER_EVENT';
+
+export const EVENT_DATA_UPLOAD_VIDEO_TO_SERVER_CREATE_TYPE =
+  'CREATE_VIDEO_TO_SERVER_EVENT';
+
+export const EVENT_DATA_UPLOAD_VIDEO_TO_SERVER_UPDATE_TYPE =
+  'UPDATE_VIDEO_TO_SERVER_EVENT';
+
+export const BRIDGE_EVENT_WEBSOCKET_CHANNEL_TYPE = 'WEBSOCKET_CHANNEL_EVENT';
+export const EVENT_WEBSOCKET_CHANNEL_SESSION_TYPE = 'WEBSOCKET_CHANNEL_SESSION';
+export const EVENT_WEBSOCKET_CHANNEL_NOTIFICATION_TYPE =
+  'WEBSOCKET_CHANNEL_NOTIFICATION';
+export const EVENT_WEBSOCKET_CHANNEL_MSG_CONVERSATION_TYPE =
+  'WEBSOCKET_CHANNEL_MSG_CONVERSATION';
+
+export const BRIDGE_INIT_SETTING_EVENT_TYPE = 'INIT_EVENT';
+
+export const BRIDGE_EVENT_SHARE_TYPE = 'SHARE_EVENT';
+export const EVENT_DATA_SHARE_BASIC_TYPE = 'BASIC_SHARE';
+export const EVENT_DATA_SHARE_DEEP_LINKING_TYPE = 'DEEPLINKING_SHARE';
+export const EVENT_DATA_SHARE_SMS_TYPE = 'SMS_SHARE';
+export const EVENT_DATA_SHARE_SNS_TYPE = 'SNS_SHARE';
+export const EVENT_SHARE_TWITTER_SNS_TYPE = 'TWITTER_SHARE';
+export const EVENT_SHARE_FACEBOOK_SNS_TYPE = 'FACEBOOK_SHARE';
+
+export const BRIDGE_EVENT_LOGIN_ROUTE_TYPE = 'LOGIN_EVENT';
+export const EVENT_DATA_NAVER_LOGIN_TYPE = 'NAVER_LOGIN';
+
+export const BRIDGE_CALENDAR_EVENT_TYPE = 'CALENDAR_EVENT';
+
+export const BRIDGE_EXPLORE_MAP_POPUP_EVENT_TYPE = 'EXPLORE_MAP_POPUP_EVENT';
+
+export interface CalendarInfo {
+  startDate: string;
+  endDate: string;
+}
 
 // screen
 export const MAIN_SCREEN = 'MAIN_SCREEN';
 
 export const HOME_PAGE_NAME = 'HOME_PAGE_SCREEN';
+export const HOME_PAGE_STACK_NAME = 'HOME_PAGE_STACK';
 export const MAP_PAGE_NAME = 'MAP_PAGE_SCREEN';
+export const MAP_PAGE_STACK_NAME = 'MAP_PAGE_STACK';
 export const MESSAGE_PAGE_NAME = 'MESSAGE_PAGE_SCREEN';
+export const MESSAGE_PAGE_STACK_NAME = 'MESSAGE_PAGE_STACK';
 export const SCRAP_PAGE_NAME = 'SCRAP_PAGE_SCREEN';
+export const SCRAP_PAGE_STACK_NAME = 'SCRAP_PAGE_STACK';
+export const PROFILE_PAGE_NAME = 'PROFILE_PAGE_SCREEN';
+export const PROFILE_PAGE_STACK_NAME = 'PROFILE_PAGE_STACK';
+export const SEARCH_PAGE_NAME = 'SEARCH_PAGE_SCREEN';
+export const SEARCH_PAGE_STACK_NAME = 'SEARCH_PAGE_STACK';
 export const ROUTE_WEBVIEW_PAGE_NAME = 'ROUTE_WEBVIEW_PAGE_SCREEN';
+export const EXTERNAL_LINK_PAGE_NAME = 'EXTERNAL_LINK_PAGE_SCREEN';
+
+export const isMainTab = (): boolean => {
+  const path = location.pathname;
+  return [
+    HOME_PATH,
+    EXPLORE_PATH,
+    MESSAGE_INBOX_PATH,
+    PROFILE_CLIP_LIST_PATH,
+    PROFILE_SCRAP_LIST_PATH,
+    SEARCH_PATH,
+    PROFILE_MY_ACCOUNT_ROUTE_PATH,
+  ].includes(path);
+};

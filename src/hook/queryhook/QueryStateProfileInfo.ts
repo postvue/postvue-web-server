@@ -10,11 +10,13 @@ import { getProfileInfo } from 'services/profile/getProfileInfo';
 
 export const QueryStateProfileInfo = (
   username: string,
+  isActive = true,
 ): UseQueryResult<ProfileInfo, AxiosError<unknown, any>> => {
   return useQuery<ProfileInfo, AxiosError>({
     queryKey: [QUERY_STATE_PROFILE_ACCOUNT_INFO, username],
     queryFn: () => getProfileInfo(username),
     staleTime: STALE_30_MINUTES_TIME,
-    enabled: isValidString(username),
+    enabled: isValidString(username) && isActive,
+    retry: false,
   });
 };

@@ -1,53 +1,50 @@
 import { ReactComponent as MyCurrentGeoIcon } from 'assets/images/icon/svg/explore/MyCurrentGeoIcon.svg';
-import { GeoPositionInterface } from 'global/util/MapExploreUtil';
+import { MAP_CONTENT_LOCATION_TYPE } from 'const/MapExploreConst';
 import { getCurrentPosition } from 'global/util/PositionUtil';
-import { QueryStateMapAddressByGeo } from 'hook/queryhook/QueryStateMapAddressByGeo';
 import React from 'react';
 import { useRecoilState, useSetRecoilState } from 'recoil';
-import { mapLoactionAtom } from 'states/MapExploreAtom';
+import { mapContentTypeAtom, mapLoactionAtom } from 'states/MapExploreAtom';
 import { isLoadingPopupAtom } from 'states/SystemConfigAtom';
 import styled from 'styled-components';
 
 interface GeoCurrentPositionButtonProps {
-  GeoCurrentPositionButtonRef: React.RefObject<HTMLDivElement>;
-  onChangeNaverMap?: (mapLocation: GeoPositionInterface) => void;
   GeoCurrentButtonStyle?: React.CSSProperties;
   buttonSize?: number;
 }
 
 const GeoCurrentPositionButton: React.FC<GeoCurrentPositionButtonProps> = ({
-  GeoCurrentPositionButtonRef,
-  onChangeNaverMap,
   GeoCurrentButtonStyle,
   buttonSize = 39,
 }) => {
   const [mapLoaction, setMapLoaction] = useRecoilState(mapLoactionAtom);
 
-  QueryStateMapAddressByGeo(mapLoaction.latitude, mapLoaction.longitude);
+  const setMapContentType = useSetRecoilState(mapContentTypeAtom);
+
+  // QueryStateMapAddressByGeo(mapLoaction.latitude, mapLoaction.longitude);
   const setIsLoadingPopup = useSetRecoilState(isLoadingPopupAtom);
 
   const onClickGeoCurrentButton = async () => {
+    setMapContentType(MAP_CONTENT_LOCATION_TYPE);
     setIsLoadingPopup(true);
 
-    getCurrentPosition(
-      (position) => {
+    // 위치 가져와서, 갱신.
+    getCurrentPosition({
+      actionFunc: (position) => {
         setMapLoaction({
           latitude: position.latitude,
           longitude: position.longitude,
+          isMoveCenter: true,
         });
-        if (onChangeNaverMap) {
-          onChangeNaverMap(position);
-        }
+
         setIsLoadingPopup(false);
       },
-      () => {
+      onClose: () => {
         setIsLoadingPopup(false);
       },
-    );
+    });
   };
   return (
     <GeoCurrentButtonWrap
-      ref={GeoCurrentPositionButtonRef}
       $buttonSize={buttonSize}
       onClick={onClickGeoCurrentButton}
       style={GeoCurrentButtonStyle}
@@ -67,7 +64,18 @@ const GeoCurrentButtonWrap = styled.div<{ $buttonSize: number }>`
   height: ${(props) => props.$buttonSize}px;
   background-color: ${({ theme }) => theme.mainColor.White};
   border-radius: 30px;
-  border: 1px solid ${({ theme }) => theme.grey.Grey2};
+  box-shadow: 0px 1px 4px 0px rgba(0, 0, 0, 0.25);
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -15px;
+    bottom: -15px;
+    left: -15px;
+    right: -15px;
+    z-index: -1; /* 가상 요소를 버튼 뒤로 배치 */
+    background: transparent; /* 투명 */
+  }
 `;
 
 const GeoCurrentButton = styled.div`

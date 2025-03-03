@@ -109,3 +109,15 @@ export const getSearchQueryByDebounce = (
     deps,
   );
 };
+
+export function startsWithHashTag(searchWord: string): boolean {
+  return searchWord.startsWith('#');
+}
+
+export function addHashTag(searchWord: string): string {
+  return searchWord.startsWith('#') ? searchWord : `#${searchWord}`;
+}
+
+export function removeHashTag(searchWord: string): string {
+  return searchWord.startsWith('#') ? searchWord.substring(1) : searchWord;
+}

@@ -2,30 +2,33 @@ import MyAccountSettingInfoState from 'components/common/state/MyAccountSettingI
 import { PostReportType } from 'const/PostReportConst';
 import { isValidString } from 'global/util/ValidUtil';
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { useRecoilState, useSetRecoilState } from 'recoil';
+import { useRecoilState, useResetRecoilState, useSetRecoilState } from 'recoil';
 import { createPostReport } from 'services/post/createPostReport';
 import {
-  isActivePostComplaintCompletePopupAtom,
-  isActivePostComplaintPopupAtom,
+  activePostComplaintCompletePopupAtom,
+  activePostComplaintPopupAtom,
 } from 'states/PostAtom';
 import styled from 'styled-components';
 import theme from 'styles/theme';
 
 interface PostComplainPopup {
+  postId: string;
   setIsExternalCloseFunc?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const PostComplaintPopupBody: React.FC<PostComplainPopup> = ({
+  postId,
   setIsExternalCloseFunc,
 }) => {
-  const param = useParams();
+  const [activePostComplaintPopup, setActivePostComplaintPopup] =
+    useRecoilState(activePostComplaintPopupAtom);
 
-  const [isActivePostComplaintPopup, setIsActivePostComplaintPopup] =
-    useRecoilState(isActivePostComplaintPopupAtom);
+  const resetActivePostComplaintPopup = useResetRecoilState(
+    activePostComplaintPopupAtom,
+  );
 
-  const setIsActivePostComplaintCompletePopup = useSetRecoilState(
-    isActivePostComplaintCompletePopupAtom,
+  const setActivePostComplaintCompletePopup = useSetRecoilState(
+    activePostComplaintCompletePopupAtom,
   );
 
   const [otherReportContent, setOtherReportConet] = useState<string>('');
@@ -34,8 +37,6 @@ const PostComplaintPopupBody: React.FC<PostComplainPopup> = ({
     errorMsg: string;
   }>({ isError: false, errorMsg: '' });
 
-  const postId = param.post_id;
-
   const onClickSendComplaint = (
     postReportReason: string | null,
     postReportReasonType: string,
@@ -43,11 +44,15 @@ const PostComplaintPopupBody: React.FC<PostComplainPopup> = ({
     if (!postId) return;
     createPostReport(postId, { postReportReason, postReportReasonType })
       .then(() => {
-        setIsActivePostComplaintPopup(false);
         if (setIsExternalCloseFunc) {
           setIsExternalCloseFunc(true);
         }
-        setIsActivePostComplaintCompletePopup(true);
+        setActivePostComplaintCompletePopup({
+          isActive: true,
+          userId: activePostComplaintPopup.userId,
+          username: activePostComplaintPopup.username,
+        });
+        resetActivePostComplaintPopup();
       })
       .catch((error) => {
         alert(error);
@@ -120,7 +125,7 @@ const PostComplaintPopupBody: React.FC<PostComplainPopup> = ({
           />
         </PostComplaintTypeWrap>
       </PostComplaintPopupWrap>
-      {isActivePostComplaintPopup && <MyAccountSettingInfoState />}
+      {activePostComplaintPopup.isActive && <MyAccountSettingInfoState />}
     </PostComplaintPopupContainer>
   );
 };

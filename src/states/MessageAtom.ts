@@ -8,6 +8,7 @@ export const profileInfoByDirectMsgAtom = atom<ProfileInfoByDirectMsg>({
   key: 'profileInfoByDirectMsg',
   default: {
     targetUserId: '',
+    nickname: '',
     username: '',
     profilePath: '',
   },

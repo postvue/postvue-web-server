@@ -2,8 +2,8 @@ export interface MapAddressByGeoRsp {
   address: string;
   buildName: string;
   zipcode: string;
-  latitude: string;
-  longitude: string;
+  latitude: number;
+  longitude: number;
 }
 
 export interface MapLocationRsp {
@@ -15,6 +15,8 @@ export interface MapLocationRsp {
 export interface MapAddressRelation {
   roadAddr: string;
   buildName: string;
+  latitude: number;
+  longitude: number;
 }
 
 export interface MapLocalSrchRsp {

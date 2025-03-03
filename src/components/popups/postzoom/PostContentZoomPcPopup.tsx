@@ -1,4 +1,6 @@
 import { ReactComponent as PostContentZoomExitButtonIcon } from 'assets/images/icon/svg/PostContentZoomExitButtonIcon.svg';
+import { ReactComponent as LeftScrollXButtonIcon } from 'assets/images/icon/svg/scrollx/LeftScrollXButton35x35Icon.svg';
+import { ReactComponent as RightScrollXButtonIcon } from 'assets/images/icon/svg/scrollx/RightScrollXButton35x35Icon.svg';
 import { OVERFLOW_HIDDEN } from 'const/AttributeConst';
 import React, { useEffect } from 'react';
 import { useResetRecoilState } from 'recoil';
@@ -7,6 +9,7 @@ import styled from 'styled-components';
 
 interface PostContentZoomPcPopupProps {
   currentIndex: number;
+  setCurrentIndex: React.Dispatch<React.SetStateAction<number>>;
   contentLength: number;
   children: React.ReactNode;
   isActive: boolean;
@@ -14,6 +17,7 @@ interface PostContentZoomPcPopupProps {
 
 const PostContentZoomPcPopup: React.FC<PostContentZoomPcPopupProps> = ({
   currentIndex,
+  setCurrentIndex,
   contentLength,
   children,
   isActive,
@@ -21,6 +25,9 @@ const PostContentZoomPcPopup: React.FC<PostContentZoomPcPopupProps> = ({
   const resetPostContentZoomPopupInfo = useResetRecoilState(
     postContentZoomPopupInfoAtom,
   );
+
+  // const [postContentZoomPopupInfo, setPostContentZoomPopupInfo] =
+  //   useRecoilState(postContentZoomPopupInfoAtom);
 
   useEffect(() => {
     if (isActive) {
@@ -32,6 +39,14 @@ const PostContentZoomPcPopup: React.FC<PostContentZoomPcPopupProps> = ({
     };
   }, [isActive]);
 
+  // useEffect(() => {
+  //   alert(currentIndex);
+  //   setPostContentZoomPopupInfo((prev) => ({
+  //     ...prev,
+  //     initIndex: currentIndex,
+  //   }));
+  // }, [currentIndex]);
+
   return (
     <PopupOverLayLayoutContainer
       onClick={() => resetPostContentZoomPopupInfo()}
@@ -39,14 +54,36 @@ const PostContentZoomPcPopup: React.FC<PostContentZoomPcPopupProps> = ({
       {contentLength > 1 && (
         <CurrentSlidePositionWrap>
           <CurrentSlidePosition>
-            {currentIndex}/{contentLength}
+            {currentIndex + 1}/{contentLength}
           </CurrentSlidePosition>
         </CurrentSlidePositionWrap>
       )}
       <PostZoomExitButtonWrap>
         <PostContentZoomExitButtonIcon />
       </PostZoomExitButtonWrap>
+      {currentIndex > 0 && (
+        <LeftSideMoveButton
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setCurrentIndex(currentIndex - 1);
+          }}
+        >
+          <LeftScrollXButtonIcon />
+        </LeftSideMoveButton>
+      )}
       <PostContentWrap>{children}</PostContentWrap>
+      {currentIndex < contentLength - 1 && (
+        <RightSideMoveButton
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setCurrentIndex(currentIndex + 1);
+          }}
+        >
+          <RightScrollXButtonIcon />
+        </RightSideMoveButton>
+      )}
     </PopupOverLayLayoutContainer>
   );
 };
@@ -79,8 +116,8 @@ const PostZoomExitButtonWrap = styled.div`
 
 const PostContentWrap = styled.div`
   height: 100%;
-  overflow-y: scroll;
   transform: none;
+  animation: 0.4s cubic-bezier(0.4, 0, 0, 1.5) 0s 1 normal scale-and-fadein;
 `;
 
 const CurrentSlidePositionWrap = styled.div`
@@ -99,6 +136,23 @@ const CurrentSlidePosition = styled.div`
   padding: 3px 7px;
   border-radius: 15px;
   font: ${({ theme }) => theme.fontSizes.Body1};
+`;
+
+const ImageSideMoveButton = styled.div`
+  position: fixed;
+  top: 50%;
+  transform: translate(0, -50%);
+  padding: 20px;
+  cursor: pointer;
+  z-index: 100;
+`;
+
+const LeftSideMoveButton = styled(ImageSideMoveButton)`
+  left: 0px;
+`;
+
+const RightSideMoveButton = styled(ImageSideMoveButton)`
+  right: 0px;
 `;
 
 export default PostContentZoomPcPopup;

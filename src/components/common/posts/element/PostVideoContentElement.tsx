@@ -6,7 +6,7 @@ import {
   MEDIA_MOBILE_MAX_WIDTH,
   MEDIA_MOBILE_MAX_WIDTH_NUM,
 } from 'const/SystemAttrConst';
-import useWindowSize from 'hook/customhook/useWindowSize';
+import { sendVibrationLightEvent } from 'global/util/reactnative/nativeRouter';
 import React, { useEffect, useRef, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 import theme from 'styles/theme';
@@ -16,19 +16,26 @@ interface PostVideoContentELementProps {
   videoSrc: string;
   posterImg: string;
   isUploaded: boolean;
-  PostVideoContentELementStyle?: React.CSSProperties;
-  PostVideoStyle?: React.CSSProperties;
-  PostVideoPosterImgStyle?: React.CSSProperties;
   stateValue?: string;
   isVisibilityDetection?: boolean;
   visibilityThreshold?: number;
   onVideoError?: () => void;
+  isClickPlayToTab?: boolean;
+  isClickStop?: boolean;
+  onScrollVideoProcessBar?: (isActive: boolean) => void;
+  isClose: boolean;
+  onClose: () => void;
+  PostVideoContentWrapStyle?: React.CSSProperties;
+  PostVideoContentELementStyle?: React.CSSProperties;
+  PostVideoStyle?: React.CSSProperties;
+  PostVideoPosterImgStyle?: React.CSSProperties;
 }
 
 const PostVideoContentELement: React.FC<PostVideoContentELementProps> = ({
   videoSrc,
   posterImg,
   isUploaded,
+  PostVideoContentWrapStyle,
   PostVideoContentELementStyle,
   PostVideoStyle,
   PostVideoPosterImgStyle,
@@ -36,14 +43,17 @@ const PostVideoContentELement: React.FC<PostVideoContentELementProps> = ({
   isVisibilityDetection = false,
   visibilityThreshold = 0.7,
   onVideoError,
+  isClickPlayToTab = true,
+  isClickStop = true,
+  onScrollVideoProcessBar,
+  isClose,
+  onClose,
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const progressBarRef = useRef<HTMLDivElement>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [isMuted, setIsMuted] = useState<boolean>(false);
+  const progressRef = useRef(0);
   const [progress, setProgress] = useState<number>(0);
-  const [circlePosition, setCirclePosition] = useState<number>(0);
-  const [isDragging, setIsDragging] = useState<boolean>(false);
   const [showIcon, setShowIcon] = useState(false); // 아이콘 표시 여부
 
   const onVideoPlay = (video: HTMLVideoElement, isPlay: boolean) => {
@@ -72,155 +82,179 @@ const PostVideoContentELement: React.FC<PostVideoContentELementProps> = ({
     }
   };
 
-  const moveProcessBarByEvent = (
-    event: React.TouchEvent<HTMLDivElement> | React.MouseEvent<HTMLDivElement>,
-  ) => {
-    if (!(progressBarRef.current && videoRef.current)) return;
-    const clientX =
-      'touches' in event
-        ? event.touches[0].clientX // 터치 이벤트
-        : event.clientX; // 마우스 이벤트
-
-    const rect = progressBarRef.current.getBoundingClientRect();
-    const offsetX = Math.min(
-      Math.max(clientX - rect.left, 0), // Ensure within bounds
-      rect.width,
-    );
-    const width = rect.width;
-    const newProgress = (offsetX / width) * 100;
-    const newTime = (offsetX / width) * videoRef.current.duration;
-
+  const handleProgressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newProgress = parseFloat(e.target.value);
     setProgress(newProgress);
-    setCirclePosition(newProgress);
-    videoRef.current.currentTime = newTime;
+
+    // if (videoRef.current) {
+    //   videoRef.current.currentTime =
+    //     (newProgress / 100) * videoRef.current.duration;
+    // }
+    if (!videoRef.current) return;
+    const newTime = (newProgress / 100) * videoRef.current.duration;
+    const currentVideoTime = videoRef.current.currentTime;
+
+    // 새 시간과 기존 시간의 차이가 1초 이상일 때만 업데이트
+    if (Math.abs(newTime - currentVideoTime) >= 1.5) {
+      videoRef.current.currentTime = newTime;
+      // setProgress(newProgress);
+    }
   };
 
   const handleProgressMove = (
-    event: React.TouchEvent<HTMLDivElement> | React.MouseEvent<HTMLDivElement>,
+    event: React.TouchEvent<HTMLDivElement>,
   ): void => {
-    if (!isDragging) return;
+    if (onScrollVideoProcessBar) {
+      onScrollVideoProcessBar(true);
+    }
+
     const video = videoRef.current;
     if (video) {
       video.muted = true;
       onVideoPlay(video, false);
     }
 
-    requestAnimationFrame(() => {
-      moveProcessBarByEvent(event);
-    });
+    moveProcessBarSmoothly(event);
   };
 
-  const handleProgressDown = (
-    event: React.TouchEvent<HTMLDivElement> | React.MouseEvent<HTMLDivElement>,
-  ) => {
-    setIsDragging(true);
+  const moveProcessBarSmoothly = (event: React.TouchEvent<HTMLDivElement>) => {
     moveProcessBarByEvent(event);
   };
 
+  const handleProgressDown = (event: React.TouchEvent<HTMLDivElement>) => {
+    moveProcessBarSmoothly(event);
+  };
+
   const handleProcessEnd = () => {
+    if (onScrollVideoProcessBar) {
+      onScrollVideoProcessBar(false);
+    }
+  };
+
+  // 마우스 이벤트 처리
+
+  // 터치 이벤트 처리
+  const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    sendVibrationLightEvent();
+  };
+
+  const handleTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
+    handleProgressMove(event as unknown as React.TouchEvent<HTMLDivElement>);
+  };
+
+  // const handleTouchMove = (e: React.TouchEvent<HTMLInputElement>) => {
+  //   const touch = e.touches[0];
+  //   const target = e.currentTarget;
+  //   const rect = target.getBoundingClientRect();
+  //   const offsetX = touch.clientX - rect.left;
+  //   const newProgress = (offsetX / rect.width) * 100;
+
+  //   setProgress(Math.min(Math.max(newProgress, 0), 100));
+
+  //   if (videoRef.current) {
+  //     videoRef.current.currentTime =
+  //       (Math.min(Math.max(newProgress, 0), 100) / 100) *
+  //       videoRef.current.duration;
+  //   }
+  // };
+
+  const animationFrameRef = useRef<number | null>(null);
+  const prevProgressRef = useRef<number>(0); // 이전 프로그레스 저장
+  const moveProcessBarByEvent = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (!videoRef.current) return;
+
+    const touch = e.touches[0];
+    const target = e.currentTarget;
+    const rect = target.getBoundingClientRect();
+    const offsetX = touch.clientX - rect.left;
+
+    // 소수점 두 자리까지 반올림하여 작은 변화 무시
+    let newProgress = Math.round((offsetX / rect.width) * 100 * 10) / 10;
+    newProgress = Math.min(Math.max(newProgress, 0), 100);
+
+    // 이전 progress 값과 비교해서 너무 작은 변화면 무시
+    if (Math.abs(newProgress - prevProgressRef.current) < 0.1) return;
+
+    prevProgressRef.current = newProgress; // 이전 progress 저장
+
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+    }
+
+    animationFrameRef.current = requestAnimationFrame(() => {
+      setProgress(newProgress);
+    });
+
+    // 비디오 시간 업데이트 (1.5초 이상 차이날 때만)
+    const newTime = (newProgress / 100) * videoRef.current.duration;
+    const currentVideoTime = videoRef.current.currentTime;
+
+    if (Math.abs(newTime - currentVideoTime) >= 1) {
+      videoRef.current.currentTime = newTime;
+    }
+  };
+
+  const handleTouchEnd = () => {
     const video = videoRef.current;
     if (video) {
       video.muted = isMuted;
       onVideoPlay(video, isPlaying);
     }
-
-    setIsDragging(false);
-  };
-
-  // 마우스 이벤트 처리
-  const handleMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
-    handleProgressDown(event);
-  };
-
-  const handleMouseMove = (event: globalThis.MouseEvent) => {
-    if (isDragging) {
-      handleProgressMove(event as unknown as React.MouseEvent<HTMLDivElement>);
-    }
-  };
-
-  const handleMouseUp = () => {
-    handleProcessEnd();
-  };
-
-  // 터치 이벤트 처리
-  const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
-    handleProgressDown(event);
-  };
-
-  const handleTouchMove = (event: React.TouchEvent<HTMLDivElement>) => {
-    if (isDragging) {
-      handleProgressMove(event as unknown as React.TouchEvent<HTMLDivElement>);
-    }
-  };
-
-  const handleTouchEnd = () => {
     handleProcessEnd();
   };
 
   useEffect(() => {
-    setCirclePosition(0);
     setProgress(0);
     setIsPlaying(false);
   }, [stateValue]);
 
   useEffect(() => {
     const video = videoRef.current;
+    if (!video) return;
 
     const updateProgress = () => {
-      if (video && video.duration) {
+      if (video.duration) {
         const newProgress = (video.currentTime / video.duration) * 100;
-        setProgress(newProgress);
-        setCirclePosition(newProgress);
+        progressRef.current = newProgress;
+
+        requestAnimationFrame(() => {
+          setProgress(progressRef.current);
+        });
       }
     };
 
-    if (video) {
-      video.addEventListener('timeupdate', updateProgress);
-      video.addEventListener('ended', () => handlePlayPause(false));
-
-      return () => {
-        video.removeEventListener('timeupdate', updateProgress);
-        video.removeEventListener('ended', () => handlePlayPause(false));
-      };
-    }
-  }, [progress]);
-
-  useEffect(() => {
-    if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-    } else {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-    }
+    video.addEventListener('timeupdate', updateProgress);
+    video.addEventListener('ended', () => handlePlayPause(false));
 
     return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
+      video.removeEventListener('timeupdate', updateProgress);
+      video.removeEventListener('ended', () => handlePlayPause(false));
     };
-  }, [isDragging]);
+  }, []);
 
   const posterRef = useRef<HTMLImageElement>(null); // 포스터 이미지를 참조
   const [videoStyle, setVideoStyle] = useState({
     height: 'auto',
   });
 
-  const { windowWidth } = useWindowSize();
+  const PostVideoContentWrapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // 포스터 크기 가져오기
     const poster = posterRef.current;
-    if (poster) {
+    const width = PostVideoContentWrapRef.current?.clientWidth;
+    if (poster && width) {
       const updateVideoStyle = () => {
         const height = `${Math.round(
           (poster.height / poster.width) *
-            (windowWidth <= MEDIA_MOBILE_MAX_WIDTH_NUM
-              ? windowWidth < theme.systemSize.appDisplaySize.maxWidthNum
-                ? windowWidth
+            (width <= MEDIA_MOBILE_MAX_WIDTH_NUM
+              ? width < theme.systemSize.appDisplaySize.maxWidthNum
+                ? width
                 : theme.systemSize.appDisplaySize.maxWidthNum
               : theme.systemSize.appDisplaySize.profilePostMaxWidthNum),
         )}px`;
         if (videoStyle.height === height) return;
+
         setVideoStyle({
           height: height,
         });
@@ -233,10 +267,17 @@ const PostVideoContentELement: React.FC<PostVideoContentELementProps> = ({
         poster.onload = updateVideoStyle;
       }
     }
-  }, [windowWidth]);
+  }, [PostVideoContentWrapRef.current?.clientWidth]);
+
+  useEffect(() => {
+    if (!isClose) return;
+    handlePlayPause(false);
+    onClose();
+  }, [isClose]);
 
   return (
-    <div
+    <PostVideoContentWrap
+      ref={PostVideoContentWrapRef}
       style={{
         ...videoStyle,
         ...{
@@ -244,6 +285,7 @@ const PostVideoContentELement: React.FC<PostVideoContentELementProps> = ({
           position: 'relative',
           overflow: 'hidden',
         },
+        ...{ PostVideoContentWrapStyle },
       }}
     >
       {isUploaded ? (
@@ -257,6 +299,7 @@ const PostVideoContentELement: React.FC<PostVideoContentELementProps> = ({
           <PostVideoContentElement
             style={PostVideoContentELementStyle}
             onClick={() => {
+              if (!(isPlaying && isClickStop) && !isClickPlayToTab) return;
               handlePlayPause(!isPlaying);
               // 아이콘 표시
               setShowIcon(true);
@@ -272,8 +315,6 @@ const PostVideoContentELement: React.FC<PostVideoContentELementProps> = ({
               VideoStyle={PostVideoStyle}
               onError={() => {
                 if (!onVideoError) return;
-                alert(videoRef.current?.error?.code);
-                alert(videoRef.current?.error?.message);
                 onVideoError();
               }}
             />
@@ -291,19 +332,21 @@ const PostVideoContentELement: React.FC<PostVideoContentELementProps> = ({
                       <PostVideoPlayActiveButtonIcon />
                     )}
                   </VidePlayButton>
-                  <ProgressBarWrapper
-                    ref={progressBarRef}
-                    onTouchStart={handleTouchStart}
-                    onTouchMove={handleTouchMove}
-                    onTouchEnd={handleTouchEnd}
-                    onMouseDown={handleMouseDown}
-                  >
-                    <ProgressBarOverlay />
-                    <ProgressBar width={progress} />
-                    <ProgressCircleWrap $left={circlePosition}>
-                      <ProgressCircle $isDragging={isDragging} />
-                    </ProgressCircleWrap>
+                  <ProgressBarWrapper>
+                    <ProgressInput
+                      type="range"
+                      min="0"
+                      max="100"
+                      step="0.1"
+                      value={progress}
+                      onTouchStart={handleTouchStart}
+                      // onChange={handleProgressChange}
+                      onTouchMove={handleTouchMove} // ✅ 터치 이동 반영
+                      onTouchEnd={handleTouchEnd}
+                      progress={progress}
+                    />
                   </ProgressBarWrapper>
+
                   <SoundVolumeButton onClick={() => handleMuteUnmute(!isMuted)}>
                     {isMuted ? (
                       <PostVideoNotActiveVolumeIcon />
@@ -328,19 +371,23 @@ const PostVideoContentELement: React.FC<PostVideoContentELementProps> = ({
         </>
       ) : (
         <NotUploadedVideoTemplate>
-          <NotUploadedVideoBackgroundImg src={posterImg} />
+          <NotUploadedVideoBackgroundImg
+            src={posterImg}
+            style={PostVideoPosterImgStyle}
+          />
+          <NotUploadedVideoBackgroundFilter style={PostVideoPosterImgStyle} />
           <NotUploadedVideoTitle>
-            영상은 업로드 되는 데 다소 시간이 걸려요.
+            영상 업로드에 시간이 조금 걸릴 수 있어요.
             <br />
-            업로드 될 동안 다른 게시물을
-            <br />
-            보고 있는 건 어떨까요? ☺️
+            기다리는 동안 다른 게시물을 구경해보세요!
           </NotUploadedVideoTitle>
         </NotUploadedVideoTemplate>
       )}
-    </div>
+    </PostVideoContentWrap>
   );
 };
+
+const PostVideoContentWrap = styled.div``;
 
 const PostVideoContentElement = styled.div`
   position: relative;
@@ -373,51 +420,6 @@ const PlayerSubContainer = styled.div`
   display: flex;
   justify-content: space-between;
   padding: 0 20px;
-`;
-
-const ProgressBarWrapper = styled.div`
-  margin: auto 0;
-  padding: 10px 0;
-  width: calc(100% - 80px);
-  position: relative;
-  cursor: pointer;
-`;
-
-const ProgressBarOverlay = styled.div`
-  margin: auto 0;
-  width: 100%;
-  height: 5px;
-  background-color: rgba(255, 255, 255, 0.4);
-  border-radius: 5px;
-`;
-
-const ProgressBar = styled.div<{ width: number }>`
-  background-color: ${theme.mainColor.White};
-  width: ${(props) => props.width}%;
-  border-radius: 5px;
-  position: absolute;
-  top: 50%;
-  transform: translate(0, -50%);
-  left: 0;
-  height: 5px;
-`;
-
-const ProgressCircleWrap = styled.div<{ $left: number }>`
-  position: absolute;
-  top: 50%;
-  left: ${(props) => props.$left}%;
-  transform: translate(-50%, -50%);
-  padding: 20px;
-  cursor: grab;
-`;
-
-const ProgressCircle = styled.div<{ $isDragging: boolean }>`
-  position: absolute;
-  transform: translate(-50%, -50%);
-  width: ${(props) => (props.$isDragging ? '16px' : '14px')}; /* 크기 변경 */
-  height: ${(props) => (props.$isDragging ? '16px' : '14px')};
-  background-color: ${({ theme }) => theme.mainColor.White};
-  border-radius: 20px;
 `;
 
 const SoundVolumeButton = styled.div`
@@ -474,6 +476,7 @@ const PostVideoPreviewImg = styled.img`
   left: 0;
   right: 0;
   width: 100%;
+  height: 100%;
   border-radius: 20px;
 `;
 
@@ -484,7 +487,17 @@ const NotUploadedVideoTemplate = styled.div`
 const NotUploadedVideoBackgroundImg = styled.img`
   border-radius: 20px;
   width: 100%;
-  filter: brightness(0.8);
+  vertical-align: bottom;
+`;
+
+const NotUploadedVideoBackgroundFilter = styled.div`
+  position: absolute;
+  background-color: ${({ theme }) => theme.grey.Grey9};
+  top: 0;
+  height: 100%;
+  width: 100%;
+  opacity: 0.5;
+  border-radius: 20px;
 `;
 
 const NotUploadedVideoTitle = styled.div`
@@ -498,6 +511,42 @@ const NotUploadedVideoTitle = styled.div`
   transform: translate(-50%, -50%);
   text-align: center;
   white-space: nowrap;
+`;
+
+const ProgressBarWrapper = styled.div`
+  flex: 1;
+  margin: 0 10px;
+  display: flex;
+`;
+
+const ProgressInput = styled.input<{ progress: number }>`
+  margin: auto 0;
+  width: 100%;
+  height: 5px;
+  background: linear-gradient(
+    to right,
+    ${theme.mainColor.White} ${({ progress }) => progress}%,
+    rgba(255, 255, 255, 0.4) ${({ progress }) => progress}%
+  );
+  border-radius: 5px;
+  appearance: none;
+  cursor: pointer;
+  position: relative;
+
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px; /* 기존 크기 */
+    height: 16px; /* 기존 크기 */
+    background: ${theme.mainColor.White};
+    border-radius: 50%;
+    position: relative;
+    z-index: 2;
+  }
+
+  &::-webkit-slider-runnable-track {
+    padding: 10px 0;
+    background-color: transparent;
+  }
 `;
 
 export default PostVideoContentELement;

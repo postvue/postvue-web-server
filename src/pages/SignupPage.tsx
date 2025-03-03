@@ -5,15 +5,16 @@ import { HOME_PATH } from 'const/PathConst';
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
 import useWindowSize from 'hook/customhook/useWindowSize';
 
+import { AnimatePresence, motion } from 'framer-motion';
+import useBodyAdaptProps from 'hook/customhook/useBodyAdaptProps';
 import React, { useEffect } from 'react';
-import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil';
 import { getCheckVerificationCode } from 'services/auth/getCheckVerificationCode';
 import {
   signStepTransitionInfoAtom,
   signupStepNumAtom,
 } from 'states/SignupAtom';
-import { createGlobalStyle } from 'styled-components';
+import styled from 'styled-components';
 
 const SignupPage: React.FC = () => {
   const { windowWidth } = useWindowSize();
@@ -35,9 +36,48 @@ const SignupPage: React.FC = () => {
 
   const signupStepNum = useRecoilValue(signupStepNumAtom);
 
+  // 애니메이션 방향 설정 (자연스럽게 뒤로 가는 효과 반영)
+  // const pageVariants = {
+  //   initial: (direction: 'left' | 'right') => ({
+  //     x: direction === 'left' ? '100%' : '-100%', // 새 화면이 들어오는 방향
+  //     opacity: 0,
+  //   }),
+  //   animate: {
+  //     x: 0,
+  //     opacity: 1,
+  //     transition: { duration: 0.3 },
+  //   },
+  //   exit: (direction: 'left' | 'right') => ({
+  //     x: direction === 'left' ? '-100%' : '100%', // 현재 화면이 사라지는 방향 (반대로 설정)
+  //     opacity: 0,
+  //     transition: { duration: 0.3 },
+  //   }),
+  // };
+
+  const pageVariants = {
+    initial: (direction: 'left' | 'right') => ({
+      x: direction === 'left' ? '100%' : '-100%',
+      opacity: 0,
+    }),
+    animate: { x: 0, opacity: 1, transition: { duration: 0.4 } },
+    exit: (direction: 'left' | 'right') => ({
+      x: direction === 'left' ? '-100%' : '100%',
+      opacity: 0,
+      transition: { duration: 0.4 },
+    }),
+  };
+
+  useBodyAdaptProps([
+    { key: 'position', value: 'fixed' },
+    { key: 'overflow', value: 'hidden' },
+    { key: 'left', value: '0' },
+    { key: 'right', value: '0' },
+    { key: 'top', value: '0' },
+    { key: 'bottom', value: '0' },
+  ]);
+
   return (
     <>
-      <GlobalStyle />
       {windowWidth >= MEDIA_MOBILE_MAX_WIDTH_NUM ? (
         <RoundSquareCenterPopupLayout
           onClose={() => {
@@ -47,83 +87,40 @@ const SignupPage: React.FC = () => {
           <SignupBody />
         </RoundSquareCenterPopupLayout>
       ) : (
-        <TransitionGroup>
-          <CSSTransition
-            in={signStepTransitionInfo.inTransition}
-            key={signupStepNum}
-            timeout={300}
-            classNames={{
-              enter:
-                signStepTransitionInfo.direction === 'left'
-                  ? 'slide-enter-left'
-                  : 'slide-enter-right',
-              enterActive:
-                signStepTransitionInfo.direction === 'left'
-                  ? 'slide-enter-left-active'
-                  : 'slide-enter-right-active',
-              exit:
-                signStepTransitionInfo.direction === 'left'
-                  ? 'slide-exit-left'
-                  : 'slide-exit-right',
-              exitActive:
-                signStepTransitionInfo.direction === 'left'
-                  ? 'slide-exit-left-active'
-                  : 'slide-exit-right-active',
-            }}
-            onExited={() =>
-              setSignStepTransitionInfo((prev) => ({
-                ...prev,
-                inTransition: false,
-                direction: 'left',
-              }))
-            } // 애니메이션 종료 후 상태 초기화
+        <>
+          <AnimatePresence
+            mode="wait"
+            custom={signStepTransitionInfo.direction}
           >
-            <AppBaseTemplate>
-              <SignupBody />
-            </AppBaseTemplate>
-          </CSSTransition>
-        </TransitionGroup>
+            <MotionWrapper
+              key={signupStepNum}
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              custom={signStepTransitionInfo.direction}
+              onAnimationComplete={() =>
+                setSignStepTransitionInfo((prev) => ({
+                  ...prev,
+                  inTransition: false,
+                }))
+              }
+            >
+              <AppBaseTemplate isAppContainerTopMargin={false}>
+                <SignupBody />
+              </AppBaseTemplate>
+            </MotionWrapper>
+          </AnimatePresence>
+        </>
       )}
     </>
   );
 };
 
-const GlobalStyle = createGlobalStyle`
-  .slide-enter-left {
-    transform: translateX(100%); /* 오른쪽에서 왼쪽으로 들어오는 애니메이션 */
-  }
-
-  .slide-enter-left-active {
-    transform: translateX(0);
-    transition: transform 300ms ease-in-out;
-  }
-
-  .slide-enter-right {
-    transform: translateX(-100%); /* 왼쪽에서 오른쪽으로 들어오는 애니메이션 */
-  }
-
-  .slide-enter-right-active {
-    transform: translateX(0);
-    transition: transform 300ms ease-in-out;
-  }
-
-  .slide-exit-left {
-    transform: translateX(0);
-  }
-
-  .slide-exit-left-active {
-    transform: translateX(-100%);
-    transition: transform 300ms ease-in-out;
-  }
-
-  .slide-exit-right {
-    transform: translateX(0);
-  }
-
-  .slide-exit-right-active {
-    transform: translateX(100%);
-    transition: transform 300ms ease-in-out;
-  }
+const MotionWrapper = styled(motion.div)`
+  width: 100%;
+  height: 100%;
+  position: absolute;
 `;
 
 export default SignupPage;

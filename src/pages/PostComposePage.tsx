@@ -3,14 +3,21 @@ import AppBaseTemplate from 'components/layouts/AppBaseTemplate';
 import PostComposePageBody from 'components/popups/postcompose/PostComposePageBody';
 import { HOME_PATH } from 'const/PathConst';
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
-import { useGoBackOrNavigate } from 'global/util/historyStateUtil';
+import { useGoBackOrNavigate } from 'global/util/HistoryStateUtil';
+import { isApp, stackRouterBack } from 'global/util/reactnative/nativeRouter';
+import useBodyAdaptProps from 'hook/customhook/useBodyAdaptProps';
 import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const PostComposePage: React.FC = () => {
+  const navigate = useNavigate();
   const goBackOrNavigate = useGoBackOrNavigate(HOME_PATH);
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth > MEDIA_MOBILE_MAX_WIDTH_NUM) {
+        if (isApp()) {
+          stackRouterBack(navigate);
+        }
         goBackOrNavigate();
       }
     };
@@ -26,10 +33,29 @@ const PostComposePage: React.FC = () => {
       window.removeEventListener('resize', handleResize);
     };
   }, []);
+
+  document.body.style.overscrollBehavior = 'none';
+
+  useBodyAdaptProps([
+    { key: 'overscroll-behavior', value: 'none' },
+    { key: 'overflow', value: 'hidden' },
+  ]);
+
   return (
     <>
-      <AppBaseTemplate>
-        <PostComposePageBody actionFuncByCompose={() => goBackOrNavigate()} />
+      <AppBaseTemplate
+        isAppInsetTopMargin={false}
+        AppContainerStyle={{ display: 'flex', flexDirection: 'column' }}
+      >
+        <PostComposePageBody
+          actionFuncByCompose={() => {
+            if (isApp()) {
+              stackRouterBack(navigate);
+            } else {
+              goBackOrNavigate();
+            }
+          }}
+        />
       </AppBaseTemplate>
       <MyAccountSettingInfoState />
     </>

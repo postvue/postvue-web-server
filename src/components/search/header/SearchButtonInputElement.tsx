@@ -3,13 +3,21 @@ import { SEARCH_INPUT_PHARSE_TEXT } from 'const/SystemPhraseConst';
 import React from 'react';
 
 import { RECENTLY_SEARCH_WORD_LIST_LOCAL_STORAGE } from 'const/LocalStorageConst';
-import { stackRouterPush } from 'global/util/reactnative/StackRouter';
+import {
+  SEARCH_POST_PATH,
+  SEARCH_TAG_POST_PATH,
+  SEARCH_TAG_POST_ROUTE_PATH,
+} from 'const/PathConst';
+import { RoutePushEventDateInterface } from 'const/ReactNativeConst';
+import { stackRouterPush } from 'global/util/reactnative/nativeRouter';
 import { useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { generatePath, useLocation, useNavigate } from 'react-router-dom';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import {
   getSearchQueryByDebounce,
   handleSearch,
+  removeHashTag,
+  startsWithHashTag,
 } from '../../../global/util/SearchUtil';
 import { isValidString } from '../../../global/util/ValidUtil';
 import { getSearchQuery } from '../../../services/search/getSearchQuery';
@@ -27,6 +35,7 @@ interface SearchButtonInputElementProps {
   favoriteTermButton?: React.ReactNode;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   searchUrl: string;
+  SearchButtonInputLayoutStyle?: React.CSSProperties;
 }
 
 const SearchButtonInputElement: React.FC<SearchButtonInputElementProps> = ({
@@ -36,6 +45,7 @@ const SearchButtonInputElement: React.FC<SearchButtonInputElementProps> = ({
   favoriteTermButton,
   setLoading,
   searchUrl,
+  SearchButtonInputLayoutStyle,
 }) => {
   const searchScrollPositionRef = useRef<number>(0);
 
@@ -121,14 +131,39 @@ const SearchButtonInputElement: React.FC<SearchButtonInputElementProps> = ({
   const onClickSearchButton = () => {
     if (searchTempWord !== '' && searchWord !== searchTempWord) {
       handleSearch(RECENTLY_SEARCH_WORD_LIST_LOCAL_STORAGE, searchTempWord);
-      stackRouterPush(navigate, `${searchUrl}/${searchTempWord}`);
+
+      const data: RoutePushEventDateInterface = {
+        isShowInitBottomNavBar: true,
+      };
+
+      if (startsWithHashTag(searchTempWord)) {
+        stackRouterPush(
+          navigate,
+          generatePath(SEARCH_TAG_POST_ROUTE_PATH, {
+            search_word: removeHashTag(searchTempWord),
+          }),
+          data,
+        );
+      } else {
+        if (searchUrl === SEARCH_TAG_POST_PATH) {
+          stackRouterPush(
+            navigate,
+            `${SEARCH_POST_PATH}/${searchTempWord}`,
+            data,
+          );
+        } else {
+          stackRouterPush(navigate, `${searchUrl}/${searchTempWord}`, data);
+        }
+      }
     }
   };
 
   const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter' && event.nativeEvent.isComposing === false) {
       onClickSearchButton();
-      setIsSearchInputActive(false);
+      setTimeout(() => {
+        setIsSearchInputActive(false);
+      }, 300);
     }
   };
 
@@ -145,6 +180,7 @@ const SearchButtonInputElement: React.FC<SearchButtonInputElementProps> = ({
       isActiveDeleteButton={searchTempWord !== '' && isSearchInputActive}
       isShowAddElement={isShowFavoriteTermButton}
       addElement={favoriteTermButton}
+      SearchButtonInputLayoutStyle={SearchButtonInputLayoutStyle}
     />
   );
 };

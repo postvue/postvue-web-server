@@ -13,7 +13,7 @@ import { QueryStateMyProfileInfo } from 'hook/queryhook/QueryStateMyProfileInfo'
 import { PutMyProfileEmailInfoReq } from 'services/profile/putMyProfileEmailInfo';
 
 const ProfileAccountEmailEditBody: React.FC = () => {
-  const { data, isFetched } = QueryStateMyProfileInfo();
+  const { data: myProfileInfo, isFetched } = QueryStateMyProfileInfo();
   const [email, setEmail] = useState<string>(INIT_EMPTY_STRING_VALUE);
 
   const putProfileEmailInfoMutation = QueryMutationPutMyProfileEmailInfo();
@@ -42,8 +42,8 @@ const ProfileAccountEmailEditBody: React.FC = () => {
   };
 
   useEffect(() => {
-    setEmail(data?.email || INIT_EMPTY_STRING_VALUE);
-  }, [data]);
+    setEmail(myProfileInfo?.email || INIT_EMPTY_STRING_VALUE);
+  }, [myProfileInfo]);
 
   return (
     <>
@@ -64,13 +64,17 @@ const ProfileAccountEmailEditBody: React.FC = () => {
             </SignupMinAgeWrap>
           )}
           <ProfileEmailDetailInfo>
-            {`현재 ${data?.nickname}님의 이메일은 ${data?.email ? data.email + '입니다.' : '아직 등록 되지 않았습니다.'} 이메일은 ${APP_SERVICE_NAME}의 내 공개 프로필에 표시되지 않습니다.`}
+            {`현재 ${myProfileInfo?.nickname}님의 이메일은 ${myProfileInfo?.email ? myProfileInfo.email + '입니다.' : '아직 등록 되지 않았습니다.'} 이메일은 ${APP_SERVICE_NAME}의 내 공개 프로필에 표시되지 않습니다.`}
           </ProfileEmailDetailInfo>
 
           <BottomNextButton
             title={SETTING_EDIT_BUTTON_PHASE_TEXT}
             notActiveTitle={SETTING_EDIT_BUTTON_PHASE_TEXT}
-            isActive={email !== '' && isValidEmail(email)}
+            isActive={
+              email !== '' &&
+              isValidEmail(email) &&
+              myProfileInfo?.email != email
+            }
             actionFunc={onClickEditEmail}
           />
         </ProfileEditEmailContainer>
@@ -80,7 +84,7 @@ const ProfileAccountEmailEditBody: React.FC = () => {
 };
 
 const ProfileEditEmailContainer = styled.div`
-  padding-top: 30px;
+  padding-top: calc(30px + env(safe-area-inset-top));
 `;
 
 const ProfileEditEmailInputWrap = styled.div`

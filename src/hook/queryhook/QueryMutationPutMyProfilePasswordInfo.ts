@@ -6,7 +6,7 @@ import { QUERY_STATE_PROFILE_ACCOUNT_EMAIL_INFO } from 'const/QueryClientConst';
 import { SETTING_EDIT_COMPLETE_PHASE_TEXT } from 'const/SystemPhraseConst';
 import { ProfileAccessToken } from 'global/interface/profile';
 import { setAccessTokenToLocalStorage } from 'global/util/CookieUtil';
-import { useGoBackOrNavigate } from 'global/util/historyStateUtil';
+import { useGoBackOrNavigate } from 'global/util/HistoryStateUtil';
 import {
   putMyProfilePasswordInfo,
   PutMyProfilePasswordInfoReq,
@@ -25,7 +25,10 @@ export const QueryMutationPutMyProfilePasswordInfo = (): UseMutationResult<
     onSuccess(data) {
       setAccessTokenToLocalStorage(data.accessToken);
       goBackOrNavigate();
-      notify(SETTING_EDIT_COMPLETE_PHASE_TEXT);
+
+      notify({
+        msgTitle: SETTING_EDIT_COMPLETE_PHASE_TEXT,
+      });
     },
   });
 };

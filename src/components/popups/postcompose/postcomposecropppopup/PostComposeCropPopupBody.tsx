@@ -140,7 +140,7 @@ const PostComposeCropPopupBody: React.FC<PostComposeCropPopupBodyProps> = ({
           image={imageUrl}
           crop={crop}
           zoom={zoom}
-          aspect={3 / 4}
+          aspect={1 / 1}
           onCropChange={setCrop}
           onZoomChange={setZoom}
           onCropComplete={handleCropComplete}
@@ -171,15 +171,18 @@ const CropperContainer = styled.div`
   position: relative;
   width: 95%;
   flex-grow: 1;
-  margin: ${({ theme }) => theme.systemSize.header.heightNumber + 20}px auto 0
-    auto;
+  margin: calc(
+      ${({ theme }) => theme.systemSize.header.heightNumber + 20}px +
+        env(safe-area-inset-top)
+    )
+    auto 0 auto;
   @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
     margin: 20px auto 0 auto;
   }
 
   && > .reactEasyCrop_Container {
     border-radius: 20px;
-    height: 500px;
+    aspect-ratio: 1/1;
   }
 `;
 

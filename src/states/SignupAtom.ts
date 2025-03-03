@@ -29,9 +29,17 @@ export const signupInfoAtom = atom<SignupInfo>({
       agreeToAgeTerm: false,
       agreeToServieTerm: false,
       agreeToPrivacyPolicy: false,
+      agreeToTermsOfUserGeoLocation: false,
       agreeToPrivacyPolicyToThirdPaties: false,
       agreeToMarketingCommunications: false,
     } as termOfServiceInterface,
+  },
+});
+
+export const checkSignStepValueAtom = atom<{ isActive: boolean }>({
+  key: 'checkSignStepValue',
+  default: {
+    isActive: false,
   },
 });
 

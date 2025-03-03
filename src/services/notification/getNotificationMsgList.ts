@@ -9,10 +9,9 @@ export const getNotificationMsgList = (
 ): Promise<NotificationMsgWsSub[]> => {
   return optAuthApi
     .get(
-      `${NOTIFICATION_MSG_LIST_API_PATH}${isValidString(dateString) && `?${NOTIFIED_DATETIME}=${dateString}`}`,
+      `${NOTIFICATION_MSG_LIST_API_PATH}${isValidString(dateString) && `?${NOTIFIED_DATETIME}=${encodeURIComponent(dateString)}`}`,
     )
     .then((res) => {
-      console.log(res.data);
       return res.data.data;
     })
     .catch((error) => {

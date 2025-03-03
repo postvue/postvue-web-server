@@ -1,5 +1,5 @@
 import { CURSOR_PARAM } from 'services/appApiQueryParam';
-import { api, optAuthApi } from '../..';
+import { optAuthApi } from '../..';
 import { FOLLOW_FOR_ME_PATH } from '../../../const/PathConst';
 import { PostRsp } from '../../../global/interface/post';
 import { POST_LIST_PATH } from '../../appApiPath';
@@ -24,7 +24,7 @@ export const getFollowForMeListByParam = (
 };
 
 export const getFollowForMeList = (): Promise<PostRsp[]> => {
-  return api
+  return optAuthApi
     .get(`${POST_LIST_PATH}${FOLLOW_FOR_ME_PATH}`)
     .then((res) => {
       console.log(res.data);

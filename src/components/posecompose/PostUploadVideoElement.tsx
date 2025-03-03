@@ -1,5 +1,6 @@
 import { ReactComponent as PostVideoPauseButtonIcon } from 'assets/images/icon/svg/post/PostVideoPauseButtonIcon.svg';
 import { ReactComponent as PostVideoPlayButtonIcon } from 'assets/images/icon/svg/post/PostVideoPlayButtonIcon.svg';
+import HlsPlayer from 'components/common/posts/element/HLSPlayer';
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
@@ -34,9 +35,15 @@ const PostUploadVideoElement: React.FC<PostUploadVideoElementProps> = ({
 
   return (
     <>
-      <PostUploadVideo ref={videoRef} onEnded={handleVideoEnded}>
-        <source src={videoUrl} type="video/mp4" />
-      </PostUploadVideo>
+      <HlsPlayer
+        src={videoUrl}
+        videoRef={videoRef}
+        onEnded={handleVideoEnded}
+        VideoStyle={{
+          aspectRatio: '3/4',
+          borderRadius: '8px',
+        }}
+      />
       <PostUploadVideoPlayButtonWrap onClick={() => handlePlayPauseVideo()}>
         {playing ? <PostVideoPauseButtonIcon /> : <PostVideoPlayButtonIcon />}
       </PostUploadVideoPlayButtonWrap>
@@ -50,14 +57,6 @@ const PostUploadVideoPlayButtonWrap = styled.div`
   left: 0;
   margin: 0 0 5px 5px;
   cursor: pointer;
-`;
-
-const PostUploadVideo = styled.video`
-  width: 100%;
-  vertical-align: bottom;
-  aspect-ratio: 3 / 4;
-  border-radius: 8px;
-  background-color: #000000;
 `;
 
 export default PostUploadVideoElement;

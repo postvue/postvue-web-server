@@ -1,23 +1,29 @@
 import { animated, config, useSpring } from '@react-spring/web';
 import { useDrag } from '@use-gesture/react';
-import { OVERFLOW_HIDDEN } from 'const/AttributeConst';
+import LoadingComponent from 'components/common/container/LoadingComponent';
 import { MEDIA_MOBILE_MAX_WIDTH } from 'const/SystemAttrConst';
-import { sendPopupEvent } from 'global/util/reactnative/StackRouter';
+import { sendPopupEvent } from 'global/util/reactnative/nativeRouter';
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { lock, unlock } from 'tua-body-scroll-lock';
 
 interface BottomSnapSheetLayoutProps {
   children: React.ReactNode;
   heightNum?: number;
   isOpen: boolean;
-
   onClose: () => void;
+  prevOnClose?: () => void;
   bottomSheetHeader?: React.ReactNode;
   BottomSheetBottom?: React.ReactNode;
   touchHeaderHeightNum?: number;
   isExternalCloseFunc?: boolean;
-  setIsExternalCloseFunc?: React.Dispatch<React.SetStateAction<boolean>>;
-  isFixed?: boolean;
+  hasScrollBar?: boolean;
+  isRoundPopup?: boolean;
+  bottomSheetCloseOffsetThreshold?: number;
+  bottomSheetCloseAccelerThreshold?: number;
+  BottomSheetBottomWrapStyle?: React.CSSProperties;
+  scrollContainerElementId?: string;
+  initDuration?: number;
 }
 
 const BottomSnapSheetLayout: React.FC<BottomSnapSheetLayoutProps> = ({
@@ -25,25 +31,55 @@ const BottomSnapSheetLayout: React.FC<BottomSnapSheetLayoutProps> = ({
   heightNum,
   isOpen,
   onClose,
+  prevOnClose,
   bottomSheetHeader,
   BottomSheetBottom,
   touchHeaderHeightNum = 30,
   isExternalCloseFunc,
-  setIsExternalCloseFunc,
-  isFixed = true,
+  hasScrollBar = true,
+  isRoundPopup = true,
+  bottomSheetCloseOffsetThreshold = 50,
+  bottomSheetCloseAccelerThreshold = 1.2,
+  BottomSheetBottomWrapStyle,
+  scrollContainerElementId,
+  initDuration = 700,
 }) => {
   const BottomSnapSheetLayoutRef = useRef<HTMLDivElement>(null);
   const BottomSheetContainerRef = useRef<HTMLDivElement>(null);
-  const [height, setHeight] = useState<number>(heightNum || 0);
-  const [scrollY, setScrollY] = useState<number>(0);
+  const height = heightNum || 0;
+  const [startY, setStartY] = useState<number>(0);
+  const [move, setMove] = useState<number | null>(null);
+  const [prevY, setPrevY] = useState<number | null>(null); // 이전 위치
+  const [prevTime, setPrevTime] = useState<number | null>(null); // 이전 시간
+  const [prevVelocity, setPrevVelocity] = useState<number | null>(null); // 이전 속도
+  const ACCELERATION_THRESHOLD = 0.5; // 임계값 설정
+  const [accelerationHistory, setAccelerationHistory] = useState<number[]>([]);
   const ScrollRef = useRef<HTMLDivElement>(null);
   const BottomSheetHeaderRef = useRef<HTMLDivElement>(null);
   const BottomSheetBottomRef = useRef<HTMLDivElement>(null);
   const [headerHeight, setHeaderHeight] = useState<number>(0);
   const [bottomHeight, setBottomHeight] = useState<number>(0);
 
+  const [isScrollTop, setIsScrollTop] = useState<boolean>(false);
+
+  const [bindInfo, setBindInfo] = useState<{
+    oy: number;
+    dy: number;
+    vy: number;
+    cancel: () => void;
+    canceled: boolean;
+  }>({
+    oy: 0,
+    dy: 0,
+    vy: 0,
+    cancel: () => {
+      ('');
+    },
+    canceled: false,
+  });
+
   const [{ y }, api] = useSpring(() => ({ y: height }));
-  const [{ sheetY }, sheetApi] = useSpring(() => ({ sheetY: height }));
+  const [{ sheetY }] = useSpring(() => ({ sheetY: height }));
 
   const open = ({ canceled }: { canceled: boolean }) => {
     api.start({
@@ -54,25 +90,22 @@ const BottomSnapSheetLayout: React.FC<BottomSnapSheetLayoutProps> = ({
   };
 
   const close = () => {
-    if (BottomSnapSheetLayoutRef.current) {
-      BottomSnapSheetLayoutRef.current.style.overflow = OVERFLOW_HIDDEN;
-      BottomSnapSheetLayoutRef.current.style.touchAction = 'none';
-      BottomSnapSheetLayoutRef.current.style.overscrollBehavior = 'none';
+    if (prevOnClose) {
+      prevOnClose();
     }
-
     api.start({
       y: height,
       immediate: false,
-      config: config.stiff,
+      config: { tension: 300, friction: 15, mass: 5, clamp: true },
       onRest: () => {
-        console.log('헤헤헤헤');
-        removeFixedByClose();
         onClose(); // 애니메이션이 끝난 후 실행
       },
     });
+    removeFixedByClose();
   };
 
   const binds = (
+    isScrollTop: boolean,
     oy: number,
     dy: number,
     vy: number,
@@ -80,53 +113,40 @@ const BottomSnapSheetLayout: React.FC<BottomSnapSheetLayoutProps> = ({
     cancel: () => void,
     canceled: boolean,
   ) => {
-    if (oy <= 0) cancel();
-    const clampedY = Math.max(0, Math.min(oy, height)); // 위치 클램핑
+    if (oy <= 0 || dy < 0 || !isScrollTop) {
+      if (last) {
+        open({ canceled: canceled });
+      }
+      cancel();
+      return;
+    }
+
     if (last) {
       // 드래그 종료 시 스냅 동작
-      oy > 5 || (vy > 0.25 && dy > 0) ? close() : open({ canceled: canceled });
+      oy > bottomSheetCloseOffsetThreshold ||
+      (vy > bottomSheetCloseAccelerThreshold && dy > 0)
+        ? close()
+        : open({ canceled: canceled });
     } else {
       // 드래그 중 실시간 위치 업데이트
-      api.start({ y: clampedY, immediate: true });
+      api.start({ y: oy, immediate: true });
     }
   };
 
-  // const bind = useDrag(
-  //   ({
-  //     last,
-  //     velocity: [, vy],
-  //     direction: [, dy],
-  //     offset: [, oy],
-  //     cancel,
-  //     canceled,
-  //   }) => {
-  //     const scrollRef = ScrollRef.current;
-
-  //     // 내부 스크롤이 존재하고 스크롤이 가능하다면, Bottom Sheet 드래그 중지
-  //     if (scrollRef && scrollRef.scrollTop > 0) {
-  //       cancel?.();
-  //       return;
-  //     }
-
-  //     console.log('캐스퍼');
-  //     binds(oy, dy, vy, last, !!canceled);
-  //   },
-  //   {
-  //     from: () => [0, y.get()],
-  //     filterTaps: true,
-  //     bounds: { top: 0 },
-  //     rubberband: true,
-  //   },
-  // );
-
-  const [test, setTest] = useState<string>('');
-
   const scrollBarbind = useDrag(
-    ({ last, velocity: [, vy], direction: [, dy], offset: [, oy] }) => {
+    ({
+      last,
+      velocity: [, vy],
+      direction: [, dy],
+      offset: [, oy],
+      canceled,
+    }) => {
       const clampedY = Math.max(0, Math.min(oy, height)); // 위치 클램핑
       if (last) {
         // 드래그 종료 시 스냅 동작
-        oy > height * 0.5 || (vy > 0.5 && dy > 0 && close());
+        oy > height * 0.4 || (vy > 1.2 && dy > 0)
+          ? close()
+          : open({ canceled: !!canceled });
       } else {
         // 드래그 중 실시간 위치 업데이트
         api.start({ y: clampedY, immediate: true });
@@ -156,15 +176,24 @@ const BottomSnapSheetLayout: React.FC<BottomSnapSheetLayoutProps> = ({
       // 내부 스크롤이 최상단인지 확인
       const isAtTop = scrollRef.scrollTop <= 0;
 
-      setTest(
-        `${oy - height},이름은:${scrollRef.scrollTop},${oy},${height}, ${dy}, ${vy}, ${last}, ${!!canceled}, 깨랑 까랑`,
-      );
-      if (isAtTop && !isExternalCloseFunc) {
-        console.log('카라멜');
-        setTest(
-          `${oy - height},${oy},${height},이름은:${scrollRef.scrollTop}, ${dy}, ${vy}, ${last}, ${!!canceled}, 입니다만`,
-        );
-        binds(oy - height, dy, vy, last, cancel, !!canceled);
+      if (last) {
+        setIsScrollTop(false);
+      }
+
+      ScrollRef.current.style.overflow = 'scroll';
+      ScrollRef.current.style.overscrollBehavior = 'contain';
+
+      if (isAtTop && !isExternalCloseFunc && dy > 0) {
+        setIsScrollTop(isAtTop);
+        setBindInfo({
+          oy: oy - height,
+          dy: dy,
+          vy: vy,
+          cancel: cancel,
+          canceled: !!canceled,
+        });
+        ScrollRef.current.style.overflow = 'hidden';
+        ScrollRef.current.style.overscrollBehavior = 'none';
       }
     },
     {
@@ -185,47 +214,46 @@ const BottomSnapSheetLayout: React.FC<BottomSnapSheetLayoutProps> = ({
     // react native로 popup 고정 해제 전달
 
     open({ canceled: false });
-    console.log('열려라?');
-    if (!isFixed) return;
-    console.log('열려라???');
     sendPopupEvent(true);
-    document.documentElement.style.overflow = OVERFLOW_HIDDEN;
-    document.documentElement.style.touchAction = 'none';
-    document.body.style.overflow = OVERFLOW_HIDDEN;
-    document.body.style.touchAction = 'none';
-    document.documentElement.style.overscrollBehavior = 'none';
-    document.body.style.overscrollBehavior = 'none';
-    document.body.style.top = `-${window.scrollY}px`;
-    document.body.style.width = '100%';
-    setScrollY(window.scrollY);
-    document.body.style.position = 'fixed';
+    if (
+      BottomSnapSheetLayoutRef.current &&
+      ScrollRef.current &&
+      BottomSheetBottomRef.current
+    ) {
+      lock([
+        BottomSnapSheetLayoutRef.current,
+        ScrollRef.current,
+        BottomSheetBottomRef.current,
+      ]);
+    }
   };
 
+  const isRemoveFixRef = useRef<boolean>(false);
   const removeFixedByClose = () => {
     // react native로 popup 고정 해제 전달
 
-    console.log('실행?');
-    if (!isFixed) return;
-    console.log('실행???');
     sendPopupEvent(false);
-    document.documentElement.style.overflow = '';
-    document.documentElement.style.touchAction = '';
-    document.body.style.overflow = '';
-    document.body.style.touchAction = '';
-    document.documentElement.style.overscrollBehavior = '';
-    document.body.style.overscrollBehavior = '';
-
-    document.body.style.position = '';
-
-    window.requestAnimationFrame(() => {
-      window.scrollTo({ top: scrollY });
+    if (isRemoveFixRef.current) return;
+    unlock([], {
+      useGlobalLockState: true,
     });
+
+    isRemoveFixRef.current = true;
   };
+
+  const [init, setInit] = useState<boolean>(false);
+  useEffect(() => {
+    setTimeout(() => {
+      setInit(true);
+    }, initDuration);
+    return () => {
+      removeFixedByClose();
+    };
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
       // react native로 popup 고정 전달
-
       fixedByOpen();
     } else {
       // react native로 popup 고정 해제 전달
@@ -262,9 +290,6 @@ const BottomSnapSheetLayout: React.FC<BottomSnapSheetLayoutProps> = ({
   useEffect(() => {
     if (!isExternalCloseFunc) return;
     close();
-    if (setIsExternalCloseFunc) {
-      setIsExternalCloseFunc(false);
-    }
   }, [isExternalCloseFunc]);
 
   return (
@@ -280,31 +305,133 @@ const BottomSnapSheetLayout: React.FC<BottomSnapSheetLayoutProps> = ({
       />
       <BottomSheetContainer
         ref={BottomSheetContainerRef}
+        $isRoundPopup={isRoundPopup}
         as={animated.div}
         style={{ bottom: `calc(-100dvh + ${height - 100}px)`, y: y }}
       >
-        <PopupScrollContainer
-          as={animated.div}
-          $bottomSheetHeightNum={touchHeaderHeightNum}
-          {...scrollBarbind()}
-        >
-          <PopupScrollBar />
-          <div>{test}</div>
-        </PopupScrollContainer>
+        {hasScrollBar && (
+          <PopupScrollContainer
+            as={animated.div}
+            $bottomSheetHeightNum={touchHeaderHeightNum}
+            {...scrollBarbind()}
+          >
+            <PopupScrollBar />
+          </PopupScrollContainer>
+        )}
         <BottomSheetHeader ref={BottomSheetHeaderRef}>
           {bottomSheetHeader}
         </BottomSheetHeader>
         <BottomSheetWrap
           ref={ScrollRef}
+          id={scrollContainerElementId}
           $heightNum={
-            height - touchHeaderHeightNum - headerHeight - bottomHeight
+            height -
+            (hasScrollBar ? touchHeaderHeightNum : 0) -
+            headerHeight -
+            bottomHeight
           }
           as={animated.div}
           {...sheetBind()}
+          onTouchStart={(e) => {
+            setStartY(e.touches[0].clientY);
+          }}
+          onTouchMove={(e) => {
+            const currentY = e.touches[0].clientY; // 현재 위치
+            const currentTime = Date.now();
+
+            if (prevY !== null && prevTime !== null) {
+              const deltaY = currentY - prevY; // 위치 변화량
+              const deltaTime = currentTime - prevTime; // 시간 변화량 (초 단위)
+
+              const velocity = deltaY / deltaTime; // 현재 속도 (m/s)
+
+              if (prevVelocity !== null) {
+                const acceleration = Math.abs(
+                  (velocity - prevVelocity) / deltaTime,
+                ); // 가속도 (m/s²)
+                if (Math.abs(acceleration) > ACCELERATION_THRESHOLD) {
+                  setAccelerationHistory((prev) => {
+                    const updatedHistory = [
+                      ...prev,
+                      Math.abs(acceleration),
+                    ].slice(-5);
+
+                    return updatedHistory;
+                  });
+                }
+              }
+              setPrevVelocity(velocity); // 속도 갱신
+            }
+
+            const scrollMove = currentY - startY;
+
+            binds(
+              isScrollTop,
+              scrollMove,
+              bindInfo.dy,
+              0,
+              false,
+              bindInfo.cancel,
+              bindInfo.canceled,
+            );
+
+            if (scrollMove > 0) {
+              if (isScrollTop) {
+                if (ScrollRef.current) {
+                  ScrollRef.current.style.overflowY = 'hidden';
+                }
+              }
+            } else if (scrollMove < 0) {
+              if (ScrollRef.current) {
+                ScrollRef.current.style.overflowY = 'scroll';
+              }
+            }
+
+            setPrevY(currentY); // 위치 갱신
+            setPrevTime(currentTime); // 시간 갱신
+            setMove(scrollMove);
+          }}
+          onTouchEnd={(e) => {
+            if (
+              ScrollRef.current &&
+              ScrollRef.current.style.overflowY === 'hidden'
+            ) {
+              ScrollRef.current.style.overflowY = 'scroll';
+            }
+
+            if (!move) return;
+
+            binds(
+              isScrollTop,
+              move,
+              bindInfo.dy,
+              Math.max(...accelerationHistory),
+              true,
+              bindInfo.cancel,
+              bindInfo.canceled,
+            );
+
+            setPrevY(null);
+            setPrevTime(null);
+            setPrevVelocity(null);
+            setMove(null);
+            setAccelerationHistory([]);
+          }}
         >
-          {children}
+          <div style={{ display: init ? 'block' : 'none', height: '100%' }}>
+            {children}
+          </div>
+
+          {!init && (
+            <div>
+              <LoadingComponent LoadingComponentStyle={{ top: '30%' }} />
+            </div>
+          )}
         </BottomSheetWrap>
-        <BottomSheetBottomWrap ref={BottomSheetBottomRef}>
+        <BottomSheetBottomWrap
+          ref={BottomSheetBottomRef}
+          style={BottomSheetBottomWrapStyle}
+        >
           {BottomSheetBottom}
         </BottomSheetBottomWrap>
       </BottomSheetContainer>
@@ -330,12 +457,12 @@ const OverlayBackground = styled.div`
   background-color: black;
 `;
 
-const BottomSheetContainer = styled.div`
+const BottomSheetContainer = styled.div<{ $isRoundPopup: boolean }>`
   z-index: 1029;
   position: fixed;
   height: calc(100dvh + 100px);
   width: 100%;
-  border-radius: 20px 20px 0 0;
+  border-radius: ${(props) => (props.$isRoundPopup ? `20px 20px 0 0` : '0')};
   background: #fff;
   will-change: auto;
   user-select: none;
@@ -350,7 +477,6 @@ const BottomSheetWrap = styled.div<{ $heightNum: number }>`
   height: ${(props) => props.$heightNum}px;
   overflow-y: scroll;
 
-  overscroll-behavior: none;
   touch-action: pan-y;
   transform: none;
   user-select: none;

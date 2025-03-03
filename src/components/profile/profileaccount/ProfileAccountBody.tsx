@@ -1,24 +1,14 @@
-import ScrapViewPopup from 'components/popups/profilescrap/ScrapViewPopup';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useRecoilState, useRecoilValue } from 'recoil';
+import { generatePath, useNavigate } from 'react-router-dom';
+import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil';
 import styled from 'styled-components';
 import { Swiper } from 'swiper/react';
+import { POST_IMAGE_TYPE } from '../../../const/PostContentTypeConst';
 import {
-  POST_IMAGE_TYPE,
-  POST_VIDEO_TYPE,
-} from '../../../const/PostContentTypeConst';
-import {
-  isPostReactionAtom,
-  reactionPostIdAtom,
-} from '../../../states/PostReactionAtom';
-import {
+  activeProfileAccountPopupInfoAtom,
+  activeScrapViewPopupInfoAtom,
   isActiveProfileBlockPopupAtom,
-  isActiveScrapViewPopupAtom,
 } from '../../../states/ProfileAtom';
-import PostReactionListElement from '../../common/posts/body/PostReactionListElement';
-import PostTextContent from '../../common/posts/body/PostTextContent';
-import PostReactionPopup from '../../popups/postreactionpopup/PostReactionPopup';
 
 import BlockUserPopup from 'components/popups/BlockUserPopup';
 import PostCommentThreadPopup from 'components/popups/postcommentthreadpopup/PostCommentThreadPopup';
@@ -27,45 +17,67 @@ import {
   MEDIA_MOBILE_MAX_WIDTH,
   MEDIA_MOBILE_MAX_WIDTH_NUM,
 } from 'const/SystemAttrConst';
-import { PostCommentReplyMsgInfo, PostRsp } from 'global/interface/post';
-import { getRandomImage } from 'global/util/shareUtil';
+import { PostCommentReplyMsgInfo } from 'global/interface/post';
 import ProfileAccountPostListInfiniteScroll from 'hook/ProfileAccountPostListInfiniteScroll';
-import { QueryStateProfileAccountPostList } from 'hook/queryhook/QueryStateProfileAccountPostList';
+import {
+  ProfilePostListQueryInterface,
+  QueryStateProfileAccountPostList,
+} from 'hook/queryhook/QueryStateProfileAccountPostList';
 import { QueryStateProfileInfo } from 'hook/queryhook/QueryStateProfileInfo';
-import { PostRspDefaultValue } from 'states/PostAtom';
+import { isPostDetailInfoPopupAtom, postRspAtom } from 'states/PostAtom';
 import { activeCommentByPostCommentThreadAtom } from 'states/PostThreadAtom';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/swiper-bundle.css';
 
-import { ReactComponent as LeftScrollXButtonIcon } from 'assets/images/icon/svg/scrollx/LeftScrollXButton35x35Icon.svg';
-import { ReactComponent as RightScrollXButtonIcon } from 'assets/images/icon/svg/scrollx/RightScrollXButton35x35Icon.svg';
-import ScrollXMoveButtonContainer from 'components/common/buttton/ScrollXMoveButtonContainer';
-import PostVideoContentELement from 'components/common/posts/element/PostVideoContentElement';
+import { queryClient } from 'App';
+import { ReactComponent as EmptyPostIcon } from 'assets/images/icon/svg/empty/EmptyPostIcon.svg';
+import PullToRefreshComponent from 'components/PullToRefreshComponent';
+import { INIT_CURSOR_ID } from 'const/PageConfigConst';
+import { PROFILE_POST_LIST_PATH } from 'const/PathConst';
+import { QUERY_STATE_PROFILE_ACCOUNT_POST_LIST } from 'const/QueryClientConst';
 import {
   POST_DETAIL_POPUP_PARAM,
   POST_DETAIL_POST_ID_PARAM,
   POST_DETAIL_PROFILE_PARAM,
   TRUE_PARAM,
 } from 'const/QueryParamConst';
+import { getProfilePostListByCursor } from 'services/profile/getProfilePostList';
 import ProfileAccountInfo from '../profileaccountbody/ProfileAccountInfo';
-import ProfileAccountContentMemo from './ProfileAccountContentMemo';
 
-const ProfileAccountBody: React.FC = () => {
+interface ProfileAccountBodyProps {
+  username: string;
+}
+
+const ProfileAccountBody: React.FC<ProfileAccountBodyProps> = ({
+  username,
+}) => {
   const navigate = useNavigate();
-  const reactionPostId = useRecoilValue(reactionPostIdAtom);
-  const [isPopupActive, setIsPopupActive] = useRecoilState(isPostReactionAtom);
-
-  const param = useParams();
-  const username = param.username || '';
-
-  const { data: snsProfilePostList } = QueryStateProfileAccountPostList(
-    username || '',
+  // const reactionPostId = useRecoilValue(reactionPostIdAtom);
+  const activeProfileAccountPopupInfo = useRecoilValue(
+    activeProfileAccountPopupInfoAtom,
   );
 
-  const [isActiveScrapViewPopup, setIsActiveScrapViewPopup] = useRecoilState(
-    isActiveScrapViewPopupAtom,
+  const {
+    data: profileInfo,
+    isFetched: isFetchedByProfileInfo,
+    refetch: refetchByProfileInfo,
+  } = QueryStateProfileInfo(username);
+
+  const { data: snsProfilePostList, refetch: referchByProfileAccountPostList } =
+    QueryStateProfileAccountPostList(
+      username || '',
+      !!profileInfo &&
+        profileInfo.isBlocked &&
+        !profileInfo.isPrivate &&
+        !profileInfo.isBlockerUser,
+    );
+
+  const resetActiveScrapViewPopupInfo = useResetRecoilState(
+    activeScrapViewPopupInfoAtom,
   );
+
+  const isPostDetailInfoPopup = useRecoilValue(isPostDetailInfoPopupAtom);
 
   const isActiveProfileBlockPopup = useRecoilValue(
     isActiveProfileBlockPopupAtom,
@@ -87,27 +99,30 @@ const ProfileAccountBody: React.FC = () => {
     activeCommentByPostCommentThreadAtom,
   );
 
-  const { data, isFetched } = QueryStateProfileInfo(username);
+  const resetActiveCommentByPostCommentThread = useResetRecoilState(
+    activeCommentByPostCommentThreadAtom,
+  );
 
   useEffect(() => {
     return () => {
       // resetIsPostReactionPopup();
-      setIsPopupActive(false);
-      setIsActiveScrapViewPopup(false);
+      resetActiveScrapViewPopupInfo();
+      resetActiveCommentByPostCommentThread();
+      setReplyMsg(null);
     };
   }, []);
 
-  const [snsPost, setSnsPost] = useState<PostRsp>(PostRspDefaultValue);
+  const [snsPost, setSnsPost] = useRecoilState(postRspAtom);
 
-  useEffect(() => {
-    snsProfilePostList?.pages
-      .flatMap((value) => value.snsPostRspList)
-      .forEach((snsPostRsp) => {
-        if (snsPostRsp.postId === reactionPostId) {
-          setSnsPost({ ...snsPostRsp });
-        }
-      });
-  }, [reactionPostId]);
+  // useEffect(() => {
+  //   snsProfilePostList?.pages
+  //     .flatMap((value) => value.snsPostRspList)
+  //     .forEach((snsPostRsp) => {
+  //       if (snsPostRsp.postId === reactionPostId) {
+  //         setSnsPost({ ...snsPostRsp });
+  //       }
+  //     });
+  // }, [reactionPostId]);
 
   const profilePostList = useMemo(
     () => snsProfilePostList?.pages.flatMap((value) => value.snsPostRspList),
@@ -118,228 +133,250 @@ const ProfileAccountBody: React.FC = () => {
     () => profilePostList?.map(() => React.createRef<HTMLDivElement>()),
     [profilePostList],
   );
+
   return (
     <>
-      {isFetched && (
+      {isFetchedByProfileInfo && (
         <ProfileAccountBodyContainer>
-          <ProfileAccountInfo />
-          {data && data.isBlocked && (
-            <ProfileBlockMessageTitle>
-              @{data.username} 님이 차단되었습니다.
-            </ProfileBlockMessageTitle>
-          )}
+          <PullToRefreshComponent
+            onRefresh={async () => {
+              refetchByProfileInfo();
+              resetActiveScrapViewPopupInfo();
+              resetActiveCommentByPostCommentThread();
+              setReplyMsg(null);
 
-          {data && !data.isBlocked && (
-            <ProfilePostListContainer>
-              {containerRefs &&
-                profilePostList?.map((v, k) => {
-                  return (
-                    <ProfilePostContent key={k}>
-                      <ProfilePostContainer
-                        onClick={() => {
-                          if (window.innerWidth > MEDIA_MOBILE_MAX_WIDTH_NUM) {
-                            // 데스크탑 크기
-                            // url로 이동
-                            navigate(`/${v.username}/${v.postId}`, {
-                              state: { isDetailPopup: true },
-                            });
-                          } else {
-                            // 모바일 크기
-                            // url만 바뀌도록 변경
+              const fetchData = await getProfilePostListByCursor(
+                username,
+                INIT_CURSOR_ID,
+              );
 
-                            navigate(
-                              location.pathname +
-                                `?${POST_DETAIL_POPUP_PARAM}=${TRUE_PARAM}` +
-                                `&${POST_DETAIL_POST_ID_PARAM}=` +
-                                v.postId +
-                                `&${POST_DETAIL_PROFILE_PARAM}=` +
-                                v.username,
-                              {
-                                state: { isDetailPopup: true },
-                              },
-                            );
-                            // setIsPostDetailInfoPopup(true);
-                            // setPostDetailInfo({
-                            //   postId: v.postId,
-                            //   userId: v.username,
-                            // });
-                          }
-                        }}
-                      >
-                        <>
-                          {v.postContents.length > 1 ? (
-                            <ScrollXMoveButtonContainer
-                              scrollContainerRef={containerRefs[k]}
-                              leftMoveNum={200}
-                              LeftScrollXButtonStyle={{ left: '-20px' }}
-                              RightScrollXButtonStyle={{ right: '-20px' }}
-                              ScrollLeftIcon={<LeftScrollXButtonIcon />}
-                              ScrollRightIcon={<RightScrollXButtonIcon />}
+              const data: ProfilePostListQueryInterface = {
+                pageParams: [INIT_CURSOR_ID],
+                pages: [{ ...fetchData }],
+              };
+
+              queryClient.setQueryData(
+                [QUERY_STATE_PROFILE_ACCOUNT_POST_LIST, username],
+                data,
+              );
+            }}
+          >
+            <ProfileAccountBodyWrap>
+              <ProfileAccountInfo username={username} />
+              {profileInfo && profileInfo.isBlocked ? (
+                <ProfileBlockMessageTitle>
+                  @{profileInfo.username} 님이 차단되었습니다.
+                </ProfileBlockMessageTitle>
+              ) : (
+                profileInfo &&
+                profileInfo.isPrivate && (
+                  <ProfileBlockMessageContainer
+                    $height={window.innerHeight - 300}
+                  >
+                    <ProfileBlockMessageTitle>
+                      비공개 계정입니다.
+                    </ProfileBlockMessageTitle>
+                  </ProfileBlockMessageContainer>
+                )
+              )}
+
+              {profileInfo &&
+                !profileInfo.isBlocked &&
+                !profileInfo.isPrivate &&
+                !profileInfo.isBlockerUser && (
+                  <ProfilePostListContainer>
+                    {containerRefs &&
+                      profilePostList?.map((v, k) => {
+                        return (
+                          <ProfilePostContent key={k}>
+                            <ProfilePostContainer
+                              onClick={() => {
+                                if (
+                                  window.innerWidth > MEDIA_MOBILE_MAX_WIDTH_NUM
+                                ) {
+                                  navigate(
+                                    generatePath(PROFILE_POST_LIST_PATH, {
+                                      user_id: v.username,
+                                      post_id: v.postId,
+                                    }),
+                                    {
+                                      state: { isDetailPopup: true },
+                                    },
+                                  );
+                                } else {
+                                  // 모바일 크기
+                                  // url만 바뀌도록 변경
+
+                                  // 새로운 쿼리 파라미터 추가 또는 기존 파라미터 값 수정
+                                  const searchParams = new URLSearchParams(
+                                    location.search,
+                                  );
+
+                                  searchParams.set(
+                                    POST_DETAIL_POPUP_PARAM,
+                                    TRUE_PARAM,
+                                  );
+                                  searchParams.set(
+                                    POST_DETAIL_POST_ID_PARAM,
+                                    v.postId,
+                                  );
+                                  searchParams.set(
+                                    POST_DETAIL_PROFILE_PARAM,
+                                    v.username,
+                                  );
+
+                                  // 새로운 쿼리 파라미터가 포함된 URL 생성
+                                  const newSearch = searchParams.toString();
+                                  const newPath = `${location.pathname}?${newSearch}`;
+
+                                  navigate(newPath, {
+                                    state: { isDetailPopup: true },
+                                  });
+                                }
+                              }}
                             >
-                              <ProfileScrapImgListWrap ref={containerRefs[k]}>
-                                {v.postContents.map((value, i) => (
-                                  <ProfileAccountContentMemo key={k * 10 + i}>
-                                    {value.postContentType ===
-                                      POST_IMAGE_TYPE && (
-                                      <ProfileScrapImg
-                                        src={value.content}
-                                        style={{ aspectRatio: '3/4' }}
-                                      />
-                                    )}
-                                    {value.postContentType ===
-                                      POST_VIDEO_TYPE && (
-                                      <PostVideoContentELement
-                                        PostVideoStyle={{
-                                          aspectRatio: '3/4',
-                                          objectFit: 'cover',
-                                        }}
-                                        posterImg={value.previewImg}
-                                        videoSrc={value.content}
-                                        isUploaded={value.isUploaded}
-                                        isVisibilityDetection={true}
-                                      />
-                                    )}
-                                  </ProfileAccountContentMemo>
-                                ))}
-                              </ProfileScrapImgListWrap>
-                            </ScrollXMoveButtonContainer>
-                          ) : (
-                            <>
-                              {v.postContents[0].postContentType ===
-                                POST_IMAGE_TYPE && (
-                                <ProfileScrapImg
-                                  src={v.postContents[0].content}
-                                />
-                              )}
-                              {v.postContents[0].postContentType ===
-                                POST_VIDEO_TYPE && (
-                                <PostVideoContentELement
-                                  PostVideoContentELementStyle={{
-                                    width: '100%',
-                                  }}
-                                  PostVideoStyle={{
-                                    objectFit: 'cover',
-                                  }}
-                                  posterImg={v.postContents[0].previewImg}
-                                  videoSrc={v.postContents[0].content}
-                                  isUploaded={v.postContents[0].isUploaded}
-                                  isVisibilityDetection={true}
-                                />
-                              )}
-                            </>
-                          )}
-                        </>
-
-                        {/* <StyledSwiper
-                        spaceBetween={0}
-                        // slidesPerView={1}
-                        pagination={true}
-                        // loop={v.postContents.length > 1}
-                        modules={[
-                          Pagination,
-                          Navigation,
-                          FreeMode,
-                          Navigation,
-                          Thumbs,
-                        ]}
-                      >
-                        {v.postContents.map((value, i) => {
-                          return (
-                            <SwiperSlide key={i}>
-                              <ProfilePostImgWrap>
-                                {value.postContentType === POST_IMAGE_TYPE && (
-                                  <ProfilePostImg src={value.content} />
-                                )}
-                                {value.postContentType === POST_VIDEO_TYPE && (
-                                  <PostVideoContentELement
-                                    PostVideoContentELementStyle={{
-                                      backgroundColor: 'transparent',
-                                    }}
-                                    PostVideoStyle={{
-                                      aspectRatio: '3/4',
-                                      objectFit: 'cover',
-                                    }}
-                                    videoSrc={value.content}
-                                    posterImg={value.previewImg}
-                                    isVisibilityDetection={true}
-                                    onVideoError={() => {
-                                      ('');
-                                    }}
+                              <ImageWrapper>
+                                {v.postContents[0].postContentType ===
+                                POST_IMAGE_TYPE ? (
+                                  <StyledImage
+                                    src={v.postContents[0].content}
+                                  />
+                                ) : (
+                                  <StyledImage
+                                    src={v.postContents[0].previewImg}
                                   />
                                 )}
-                              </ProfilePostImgWrap>
-                            </SwiperSlide>
-                          );
-                        })}
-                      </StyledSwiper> */}
-                        {/* <SliderLayout
-                        listLength={v.postContents.length}
-                        actionFuncByNotScroll={() =>
-                          navigate(`/${v.username}/${v.postId}`)
-                        }
-                      >
-                        {v.postContents.map((value, i) => {
-                          return (
-                            <ProfilePostImgWrap key={`${i}_id`}>
-                              {value.postContentType === POST_IMAGE_TYPE && (
-                                <ProfilePostImg src={value.content} />
-                              )}
-                              {value.postContentType === POST_VIDEO_TYPE && (
-                                <PostVideoContentELement
-                                  PostVideoStyle={{
-                                    aspectRatio: '3/4',
-                                    objectFit: 'cover',
-                                  }}
-                                  videoSrc={value.content}
-                                  isVisibilityDetection={true}
-                                />
-                              )}
-                            </ProfilePostImgWrap>
-                          );
-                        })}
-                      </SliderLayout> */}
+                              </ImageWrapper>
+                              {/* <>
+                                {v.postContents.length > 1 ? (
+                                  <ScrollXMoveButtonContainer
+                                    scrollContainerRef={containerRefs[k]}
+                                    leftMoveNum={200}
+                                    LeftScrollXButtonStyle={{ left: '-20px' }}
+                                    RightScrollXButtonStyle={{ right: '-20px' }}
+                                    ScrollLeftIcon={<LeftScrollXButtonIcon />}
+                                    ScrollRightIcon={<RightScrollXButtonIcon />}
+                                  >
+                                    <ProfileScrapImgListWrap
+                                      ref={containerRefs[k]}
+                                    >
+                                      {v.postContents.map((value, i) => (
+                                        <ProfileAccountContentMemo
+                                          key={k * 10 + i}
+                                        >
+                                          {value.postContentType ===
+                                            POST_IMAGE_TYPE && (
+                                            <ProfileScrapImg
+                                              src={value.content}
+                                              style={{ aspectRatio: '3/4' }}
+                                            />
+                                          )}
+                                          {value.postContentType ===
+                                            POST_VIDEO_TYPE && (
+                                            <PostVideoContentELement
+                                              PostVideoStyle={{
+                                                aspectRatio: '3/4',
+                                                objectFit: 'cover',
+                                              }}
+                                              posterImg={value.previewImg}
+                                              videoSrc={value.content}
+                                              isUploaded={value.isUploaded}
+                                              isVisibilityDetection={true}
+                                              isClickPlayToTab={false}
+                                            />
+                                          )}
+                                        </ProfileAccountContentMemo>
+                                      ))}
+                                    </ProfileScrapImgListWrap>
+                                  </ScrollXMoveButtonContainer>
+                                ) : (
+                                  <>
+                                    {v.postContents[0].postContentType ===
+                                      POST_IMAGE_TYPE && (
+                                      <ProfileScrapImg
+                                        src={v.postContents[0].content}
+                                      />
+                                    )}
+                                    {v.postContents[0].postContentType ===
+                                      POST_VIDEO_TYPE && (
+                                      <PostVideoContentELement
+                                        PostVideoContentELementStyle={{
+                                          width: '100%',
+                                        }}
+                                        PostVideoStyle={{
+                                          objectFit: 'cover',
+                                          aspectRatio: '3 / 4',
+                                        }}
+                                        posterImg={v.postContents[0].previewImg}
+                                        videoSrc={v.postContents[0].content}
+                                        isUploaded={
+                                          v.postContents[0].isUploaded
+                                        }
+                                        isVisibilityDetection={true}
+                                        isClickPlayToTab={false}
+                                      />
+                                    )}
+                                  </>
+                                )}
+                              </> */}
 
-                        <PostReactionListElement
-                          username={v.username}
-                          postId={v.postId}
-                          mainImageUrl={getRandomImage(
-                            v.postContents
-                              .filter(
-                                (v) => v.postContentType === POST_IMAGE_TYPE,
-                              )
-                              .map((v) => v.content),
-                            v.profilePath,
-                          )}
-                          isFixed={true}
-                        />
-                        <PostTextContent
-                          postTitle={v.postTitle}
-                          postBodyText={v.postBodyText}
-                          postedAt={v.postedAt}
-                          tags={v.tags}
-                        />
-                      </ProfilePostContainer>
-                      {/* <BoundaryStickBar /> */}
-                    </ProfilePostContent>
-                  );
-                })}
+                              {/* <PostReactionListElement
+                                username={v.username}
+                                postId={v.postId}
+                                snsPost={v}
+                                mainImageUrl={getRandomImage(
+                                  v.postContents
+                                    .filter(
+                                      (v) =>
+                                        v.postContentType === POST_IMAGE_TYPE,
+                                    )
+                                    .map((v) => v.content),
+                                  v.profilePath,
+                                )}
+                              />
+                              <PostTextContent
+                                postTitle={v.postTitle}
+                                postBodyText={v.postBodyText}
+                                postedAt={v.postedAt}
+                                tags={v.tags}
+                              /> */}
+                            </ProfilePostContainer>
+                            {/* <BoundaryStickBar /> */}
+                          </ProfilePostContent>
+                        );
+                      })}
+
+                    {profilePostList && profilePostList.length <= 0 && (
+                      <ProfileNotPostWrap>
+                        <ProfileNotPostImg>
+                          <EmptyPostIcon />
+                        </ProfileNotPostImg>
+                        <ProfileNotPostTitle>
+                          등록한 게시물 없음
+                        </ProfileNotPostTitle>
+                      </ProfileNotPostWrap>
+                    )}
+                  </ProfilePostListContainer>
+                )}
               {username && (
                 <ProfileAccountPostListInfiniteScroll username={username} />
               )}
-              {profilePostList && profilePostList.length <= 0 && (
-                <ProfileNotPostTitle>
-                  아직 등록한 게시물이 없네요...
-                </ProfileNotPostTitle>
-              )}
-            </ProfilePostListContainer>
-          )}
+            </ProfileAccountBodyWrap>
+          </PullToRefreshComponent>
+        </ProfileAccountBodyContainer>
+      )}
 
-          <PostReactionPopup
-            postId={reactionPostId}
-            username={snsPost.username}
-            replyMsg={replyMsg}
-            setReplyMsg={setReplyMsg}
-          />
+      {/* 팝업  */}
+      {!isPostDetailInfoPopup && (
+        <>
+          {/* {isPopupActive && (
+            <PostReactionPopup
+              postId={reactionPostId}
+              username={snsPost.username}
+              replyMsg={replyMsg}
+              setReplyMsg={setReplyMsg}
+            />
+          )} */}
 
           {activeCommentByPostCommentThread.isActive && (
             <PostCommentThreadPopup
@@ -352,28 +389,19 @@ const ProfileAccountBody: React.FC = () => {
               commentCountByCommentRef={commentReplyCountRef}
             />
           )}
-          {isActiveScrapViewPopup &&
-            reactionPostId &&
-            snsPost?.postContents !== undefined && (
-              <ScrapViewPopup
-                postId={reactionPostId}
-                postContentUrl={snsPost?.postContents[0].content || ''}
-                postContentType={snsPost?.postContents[0].postContentType || ''}
-                snsPost={snsPost}
-                setSnsPost={setSnsPost}
-                isActiveScrapViewPopup={isActiveScrapViewPopup}
-                setIsActiveScrapViewPopup={setIsActiveScrapViewPopup}
-              />
-            )}
-        </ProfileAccountBodyContainer>
-      )}
 
-      <ProfileOtherAccountPopup />
-      {isActiveProfileBlockPopup && data && (
-        <BlockUserPopup
-          isBlocked={data.isBlocked}
-          userInfo={{ username: data.username, userId: data.userId }}
-        />
+          {activeProfileAccountPopupInfo.isActive && (
+            <ProfileOtherAccountPopup />
+          )}
+          {isActiveProfileBlockPopup && profileInfo && (
+            <BlockUserPopup
+              userInfo={{
+                username: profileInfo.username,
+                userId: profileInfo.userId,
+              }}
+            />
+          )}
+        </>
       )}
     </>
   );
@@ -381,12 +409,24 @@ const ProfileAccountBody: React.FC = () => {
 
 const ProfileAccountBodyContainer = styled.div``;
 
+const ProfileAccountBodyWrap = styled.div`
+  min-height: calc(100dvh - env(safe-area-inset-bottom));
+  margin-bottom: env(safe-area-inset-bottom);
+`;
+
+const ProfileBlockMessageContainer = styled.div<{ $height: number }>`
+  height: 100%;
+  min-height: ${(props) => props.$height}px;
+`;
+
 const ProfileBlockMessageTitle = styled.div`
-  font: ${({ theme }) => theme.fontSizes.Subhead3};
-  position: fixed;
-  transform: translate(-50%, 50%);
+  font: ${({ theme }) => theme.fontSizes.Subhead2};
+  position: absolute;
+  transform: translate(-50%, -50%);
   top: 50%;
   left: 50%;
+  white-space: nowrap;
+  color: ${({ theme }) => theme.grey.Grey6};
 `;
 
 const ProfilePostListContainer = styled.div`
@@ -395,19 +435,39 @@ const ProfilePostListContainer = styled.div`
   flex-flow: column;
   gap: 20px;
 
-  @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
-    max-width: ${({ theme }) =>
-      theme.systemSize.appDisplaySize.profilePostMaxWidth};
-    margin: 0 auto;
-  }
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  padding: 0 2px;
 `;
 
 const ProfilePostContent = styled.div``;
 
 const ProfilePostContainer = styled.div`
   cursor: pointer;
-  margin: 0 ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding}
-    0px ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding};
+  // margin: 0 ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding}
+  //   0px ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding};
+`;
+
+const GridContainer = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  padding: 16px;
+`;
+
+const ImageWrapper = styled.div`
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+`;
+
+const StyledImage = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 `;
 
 const ProfilePostImgWrap = styled.div`
@@ -490,11 +550,20 @@ const ProfileScrapImg = styled.img`
   background-color: hsl(0, 0%, 97%);
 `;
 
-const ProfileNotPostTitle = styled.div`
+const ProfileNotPostWrap = styled.div`
   position: absolute;
-  top: 50%;
+  top: calc(50% - 50px);
   left: 50%;
-  transform: translate(-50%, 50%);
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-flow: column;
+`;
+
+const ProfileNotPostImg = styled.div`
+  margin: 0 auto;
+`;
+
+const ProfileNotPostTitle = styled.div`
   font: ${({ theme }) => theme.fontSizes.Body5};
   white-space: nowrap;
 `;

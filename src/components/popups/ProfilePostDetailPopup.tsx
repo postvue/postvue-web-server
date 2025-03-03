@@ -1,16 +1,24 @@
+import RoundSquareCenterPopupLayout from 'components/layouts/RoundSquareCenterPopupLayout';
 import ProfilePostDetailBody from 'components/post/profilepost/ProfilePostDetailBody';
+import ProfilePostDetailPopupManager from 'components/post/profilepost/ProfilePostDetailPopupManager';
+import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
 import { PostCommentReplyMsgInfo } from 'global/interface/post';
 import { getHiddenPostIdList } from 'global/util/HiddenPostIdListUtil';
-import { useGoBackOrNavigate } from 'global/util/historyStateUtil';
+import { useGoBackOrNavigate } from 'global/util/HistoryStateUtil';
 import { isValidString } from 'global/util/ValidUtil';
+import useWindowSize from 'hook/customhook/useWindowSize';
 import { QueryStateProfilePost } from 'hook/queryhook/QueryStateProfilePost';
 import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil';
 import {
+  isExternalClosePostDetailPopupAtom,
+  isFixScrollToPostDetailPopupAtom,
   isPostDetailInfoPopupAtom,
   postContentZoomPopupInfoAtom,
   postDetailInfoPopupAtom,
   postRspAtom,
+  postVideoProcessInfoAtom,
 } from 'states/PostAtom';
 import { isPostReactionAtom } from 'states/PostReactionAtom';
 import theme from 'styles/theme';
@@ -26,16 +34,26 @@ const ProfilePostDetailPopup: React.FC = () => {
     isPostDetailInfoPopupAtom,
   );
 
+  const resetIsFixScrollToPostDetailPopup = useResetRecoilState(
+    isFixScrollToPostDetailPopupAtom,
+  );
+
   const [snsPost, setSnsPost] = useRecoilState(postRspAtom);
+  const [isExternalClosePostDetailPopup, setIsExternalClosePostDetailPopup] =
+    useRecoilState(isExternalClosePostDetailPopupAtom);
+  const resetIsExternalClosePostDetailPopup = useResetRecoilState(
+    isExternalClosePostDetailPopupAtom,
+  );
   const resetSnsPost = useResetRecoilState(postRspAtom);
 
   const hiddenPostIdList = getHiddenPostIdList();
   const [isIntereset, setIsInterest] = useState<boolean>(true);
 
-  const { data: profilePost } = QueryStateProfilePost(
-    postDetailInfoPopup.postId || '',
-    true,
-  );
+  const {
+    data: profilePost,
+    isError: isErrorByProfilePost,
+    error: errorByProfilePost,
+  } = QueryStateProfilePost(postDetailInfoPopup.postId || '', true);
 
   // Ref 관련 변수
   const likeIconRef = useRef<{ [key: string]: SVGSVGElement | null }>({});
@@ -52,10 +70,8 @@ const ProfilePostDetailPopup: React.FC = () => {
   const postContentZoomPopupInfo = useRecoilValue(postContentZoomPopupInfoAtom);
   const isPopupActive = useRecoilValue(isPostReactionAtom);
 
-  const [isExternalCloseFunc, setIsExternalCloseFunc] =
-    useState<boolean>(false);
-
   useEffect(() => {
+    ScrollRef.current?.scrollTo({ top: 0 });
     if (postDetailInfoPopup.postId) {
       if (hiddenPostIdList.includes(postDetailInfoPopup.postId)) {
         setIsInterest(false);
@@ -65,10 +81,8 @@ const ProfilePostDetailPopup: React.FC = () => {
 
   useEffect(() => {
     if (!profilePost) return;
-    console.log(profilePost);
     if (deepEqual(snsPost, profilePost)) return;
 
-    console.log('바뀌는 구나', profilePost?.isLiked);
     setSnsPost(profilePost);
   }, [profilePost]);
 
@@ -80,6 +94,8 @@ const ProfilePostDetailPopup: React.FC = () => {
       });
       setIsPostDetailInfoPopup(false);
       resetSnsPost();
+      resetIsFixScrollToPostDetailPopup();
+      resetIsExternalClosePostDetailPopup();
     };
   }, []);
 
@@ -112,7 +128,31 @@ const ProfilePostDetailPopup: React.FC = () => {
     });
   }
 
+  const { windowWidth } = useWindowSize();
+
+  const navigate = useNavigate();
+
+  const funcPrevCloseButton = () => {
+    if (windowWidth >= MEDIA_MOBILE_MAX_WIDTH_NUM) {
+      navigate(-1);
+    } else {
+      setIsExternalClosePostDetailPopup(true);
+    }
+  };
+
+  const windowWidthSize = theme.systemSize.appDisplaySize.maxWidthNum;
+
+  const [postVideoProcessInfo, setPostVideoProcessInfo] = useRecoilState(
+    postVideoProcessInfoAtom,
+  );
+  const resetPostVideoProcessInfo = useResetRecoilState(
+    postVideoProcessInfoAtom,
+  );
+
+  const ScrollRef = useRef<HTMLDivElement>(null);
+
   return (
+    // 구버전
     // <PopupLayout
     //   setIsPopup={setIsPostDetailInfoPopup}
     //   popupWrapStyle={{ borderRadius: '0px' }}
@@ -134,44 +174,100 @@ const ProfilePostDetailPopup: React.FC = () => {
     //     postCommentTextareaRef={postCommentTextareaRef}
     //   />
     // </PopupLayout>
-    <ProfilePostDetailPopupLayout
-      isOpen={
-        isPostDetailInfoPopup && isValidString(postDetailInfoPopup.postId)
-      }
-      onClose={() => {
-        setPostDetailInfoPopup({
-          postId: '',
-          userId: '',
-        });
-        setIsPostDetailInfoPopup(false);
-        goBackOrNavigate();
-      }}
-      isActiveExternalPopup={postContentZoomPopupInfo.isActive || isPopupActive}
-      isExternalCloseFunc={isExternalCloseFunc}
-      setIsExternalCloseFunc={setIsExternalCloseFunc}
-    >
-      <ProfilePostDetailBody
+
+    <>
+      {windowWidth >= MEDIA_MOBILE_MAX_WIDTH_NUM ? (
+        <RoundSquareCenterPopupLayout
+          onClose={() => {
+            setPostDetailInfoPopup({
+              postId: '',
+              userId: '',
+            });
+            setIsPostDetailInfoPopup(false);
+            goBackOrNavigate();
+          }}
+          popupContentWrapStyle={{
+            overflowY: 'scroll',
+            padding: 0,
+            marginTop: '10px',
+          }}
+        >
+          <ProfilePostDetailBody
+            postId={postDetailInfoPopup.postId}
+            snsPost={snsPost}
+            isIntereset={isIntereset}
+            setIsInterest={setIsInterest}
+            windowWidthSize={windowWidthSize}
+            funcPrevCloseButton={() => {
+              navigate(-1);
+            }}
+            fixNum={2}
+            ProfilePostWrapStyle={{ boxShadow: 'none', margin: 0 }}
+            linkPopupInfo={{
+              isLinkPopup: true,
+              isReplaced: true,
+            }}
+            isErrorProfilePost={isErrorByProfilePost}
+          />
+        </RoundSquareCenterPopupLayout>
+      ) : (
+        <ProfilePostDetailPopupLayout
+          ScrollRef={ScrollRef}
+          isOpen={
+            isPostDetailInfoPopup && isValidString(postDetailInfoPopup.postId)
+          }
+          onClose={() => {
+            setPostDetailInfoPopup({
+              postId: '',
+              userId: '',
+            });
+            navigate(-1);
+            // navigate(location.pathname, { replace: true });
+            setIsPostDetailInfoPopup(false);
+          }}
+          isActiveExternalPopup={
+            postContentZoomPopupInfo.isActive || isPopupActive
+          }
+          isExternalCloseFunc={isExternalClosePostDetailPopup}
+          isScrollVideoProcessBar={
+            postVideoProcessInfo.isActiveScrollVideoProcess
+          }
+          prevOnClose={() => {
+            resetPostVideoProcessInfo();
+          }}
+        >
+          <ProfilePostDetailBody
+            postId={postDetailInfoPopup.postId}
+            snsPost={snsPost}
+            isIntereset={isIntereset}
+            setIsInterest={setIsInterest}
+            windowWidthSize={windowWidthSize}
+            funcPrevCloseButton={funcPrevCloseButton}
+            linkPopupInfo={{
+              isLinkPopup: false,
+              isReplaced: true,
+            }}
+            isErrorProfilePost={isErrorByProfilePost}
+            searchType={postDetailInfoPopup.searchType}
+          />
+        </ProfilePostDetailPopupLayout>
+      )}
+      <ProfilePostDetailPopupManager
         postId={postDetailInfoPopup.postId}
         snsPost={snsPost}
-        setSnsPost={setSnsPost}
-        isIntereset={isIntereset}
-        setIsInterest={setIsInterest}
         replyMsg={replyMsg}
         setReplyMsg={setReplyMsg}
-        windowWidthSize={theme.systemSize.appDisplaySize.maxWidthNum}
         likeIconRef={likeIconRef}
         likeCountRef={likeCountRef}
         commentReplyCountRef={commentReplyCountRef}
         postCommentTextareaRef={postCommentTextareaRef}
-        isFixedPopup={false}
-        isClosed={
-          isPostDetailInfoPopup && isValidString(postDetailInfoPopup.postId)
-        }
-        prevCloseButtonByMobile={() => {
-          setIsExternalCloseFunc(true);
-        }}
+        funcPrevCloseButton={funcPrevCloseButton}
+        windowWidthSize={windowWidthSize}
+        setIsInterest={setIsInterest}
+        isError={isErrorByProfilePost}
+        errorMsg={errorByProfilePost?.response?.data.message || ''}
       />
-    </ProfilePostDetailPopupLayout>
+    </>
   );
 };
 

@@ -2,7 +2,7 @@ import ErrorMsgPopup from 'components/popups/ErrorMsgPopup';
 import LoadingPopup from 'components/popups/LoadingPopup';
 import { EMAIL_SIGNUP_CODE_QUERY_PARAM } from 'const/login/EmailConst';
 import { HOME_PATH, SIGNUP_PATH } from 'const/PathConst';
-import { useGoBackOrNavigate } from 'global/util/historyStateUtil';
+import { useGoBackOrNavigate } from 'global/util/HistoryStateUtil';
 import React, { useEffect, useState } from 'react';
 import { postAuthSignupVerifyEmail } from 'services/auth/postAuthSignupVerifyEmail';
 

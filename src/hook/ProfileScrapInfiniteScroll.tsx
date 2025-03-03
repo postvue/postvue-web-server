@@ -12,7 +12,7 @@ const ProfileScrapInfiniteScroll: React.FC<
   ProfileScrapInfiniteScrollBetaProps
 > = ({ scrapId }) => {
   const { ref, inView } = useInView();
-  const { fetchNextPage, hasNextPage, isFetchingNextPage } =
+  const { fetchNextPage, hasNextPage, isFetchingNextPage, data } =
     QueryStateProfileScrap(scrapId);
 
   useEffect(() => {
@@ -23,7 +23,12 @@ const ProfileScrapInfiniteScroll: React.FC<
 
   return (
     <ScrollBottomContainer ref={ref}>
-      <InViewComponent />
+      <InViewComponent
+        hasLoadingIcon={
+          (data ? data?.pages[0].snsPostRspList.length > 5 : false) &&
+          hasNextPage
+        }
+      />
     </ScrollBottomContainer>
   );
 };

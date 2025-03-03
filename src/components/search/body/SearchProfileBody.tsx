@@ -14,6 +14,7 @@ import {
 import SearchProfileWithFollowListInfiniteScroll from 'hook/SearchProfileWithFollowListInfiniteScroll';
 import useWindowSize from 'hook/customhook/useWindowSize';
 import { QueryStateSearchProfileUserListInfinite } from 'hook/queryhook/QueryStateSearchProfileUserListInfinite';
+import theme from 'styles/theme';
 import SearchFilterButton from './SearchFilterButton';
 
 const SearchProfileBody: React.FC = () => {
@@ -60,12 +61,20 @@ const SearchProfileBody: React.FC = () => {
 };
 
 const SearchPostBodyContinaer = styled.div`
+  padding-top: ${({ theme }) => theme.systemSize.header.heightNumber}px;
+
+  height: 100%;
+  min-height: calc(100dvh - ${theme.systemSize.header.height});
+
   @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
-    margin-top: ${({ theme }) => theme.systemSize.header.heightNumber}px;
+    padding-top: ${theme.systemSize.header.heightNumber + 10}px;
+    min-height: calc(100dvh - ${theme.systemSize.header.heightNumber + 10}px);
   }
 `;
 const SearchFilterContainer = styled.div`
-  position: sticky;
+  padding-top: env(safe-area-inset-top);
+  position: fixed;
+  max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
   z-index: 10;
   width: 100%;
   top: ${({ theme }) => theme.systemSize.header.height};

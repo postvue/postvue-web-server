@@ -22,23 +22,6 @@ const SnsSharePopup: React.FC = () => {
   return (
     <>
       {windowWidth <= MEDIA_MOBILE_MAX_WIDTH_NUM ? (
-        // <PopupLayout
-        //   setIsPopup={setIsSharePopup}
-        //   isTouchScrollBar={true}
-        //   popupWrapStyle={PopupWrapStyle}
-        //   hasFixedActive={true}
-        // >
-        //   <SnsShareBody shareLink={shareLink} />
-        // </PopupLayout>
-        // <Sheet isOpen={isSharePopup} onClose={() => setIsSharePopups(false)}>
-        //   <Sheet.Container>
-        //     <Sheet.Header />
-        //     <Sheet.Content>
-        //       {<SnsShareBody shareLink={shareLink} />}
-        //     </Sheet.Content>
-        //   </Sheet.Container>
-        //   <Sheet.Backdrop />
-        // </Sheet>
         <>
           {sharePopupInfo.isActive && (
             <BottomSnapSheetLayout
@@ -48,13 +31,14 @@ const SnsSharePopup: React.FC = () => {
                   isActive: false,
                   shareLink: '',
                   mainImageUrl: '',
-                  isFixed: false,
                 })
               }
-              isFixed={sharePopupInfo.isFixed}
               heightNum={700}
               bottomSheetHeader={<SnsSharePopupHeader />}
               BottomSheetBottom={<SnsAnotherSharePoupElement />}
+              BottomSheetBottomWrapStyle={{
+                overflowX: 'scroll',
+              }}
             >
               <SnsSharePopupBody shareLink={sharePopupInfo.shareLink} />
             </BottomSnapSheetLayout>
@@ -67,7 +51,7 @@ const SnsSharePopup: React.FC = () => {
               onClose={() => resetSharePopupInfo()}
               popupWrapStyle={{
                 height: '500px',
-                width: `${SharePopupBodyHeight}px`,
+                maxWidth: '450px',
               }}
             >
               <SnsSharePopupHeader
@@ -90,7 +74,5 @@ const SnsSharePopup: React.FC = () => {
     </>
   );
 };
-
-const SharePopupBodyHeight = 500;
 
 export default SnsSharePopup;

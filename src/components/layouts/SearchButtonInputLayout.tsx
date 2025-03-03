@@ -34,7 +34,7 @@ const SearchButtonInputLayout: React.FC<SearchButtonInputLayoutProps> = ({
 };
 
 const SearchWrap = styled.div`
-  border-radius: 17px;
+  border-radius: 20px;
   background-color: ${({ theme }) => theme.grey.Grey1};
   height: 36px;
 

@@ -3,19 +3,20 @@ import RoundSquareCenterPopupLayout from 'components/layouts/RoundSquareCenterPo
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
 import useWindowSize from 'hook/customhook/useWindowSize';
 import React, { useState } from 'react';
-import { useRecoilState } from 'recoil';
-import { isActivePostComplaintPopupAtom } from 'states/PostAtom';
+import { useRecoilState, useResetRecoilState } from 'recoil';
+import { activePostComplaintPopupAtom } from 'states/PostAtom';
 import PostComplaintPopupBody from './PostComplaintPopupBody';
 
 interface PostComplaintPopupProps {
-  isFixed?: boolean;
+  postId: string;
 }
 
-const PostComplaintPopup: React.FC<PostComplaintPopupProps> = ({
-  isFixed = true,
-}) => {
-  const [isActivePostComplaintPopup, setIsActivePostComplaintPopup] =
-    useRecoilState(isActivePostComplaintPopupAtom);
+const PostComplaintPopup: React.FC<PostComplaintPopupProps> = ({ postId }) => {
+  const [activePostComplaintPopup, setActivePostComplaintPopup] =
+    useRecoilState(activePostComplaintPopupAtom);
+  const resetActivePostComplaintPopup = useResetRecoilState(
+    activePostComplaintPopupAtom,
+  );
 
   const [isExternalCloseFunc, setIsExternalCloseFunc] =
     useState<boolean>(false);
@@ -33,25 +34,31 @@ const PostComplaintPopup: React.FC<PostComplaintPopupProps> = ({
         //   <PostComplaintPopupBody />
         //   </PopupLayout>
         <BottomSheetLayout
-          isFixed={isFixed}
-          isOpen={isActivePostComplaintPopup}
-          onClose={() => setIsActivePostComplaintPopup(false)}
-          heightNum={500}
+          isOpen={activePostComplaintPopup.isActive}
+          onClose={() => resetActivePostComplaintPopup()}
+          heightNum={
+            470 +
+              parseFloat(
+                getComputedStyle(document.documentElement).getPropertyValue(
+                  '--safe-area-inset-bottom',
+                ),
+              ) || 0
+          }
           isExternalCloseFunc={isExternalCloseFunc}
-          setIsExternalCloseFunc={setIsExternalCloseFunc}
         >
           <PostComplaintPopupBody
+            postId={postId}
             setIsExternalCloseFunc={setIsExternalCloseFunc}
           />
         </BottomSheetLayout>
       ) : (
         <>
-          {isActivePostComplaintPopup && (
+          {activePostComplaintPopup.isActive && (
             <RoundSquareCenterPopupLayout
-              onClose={() => setIsActivePostComplaintPopup(false)}
+              onClose={() => resetActivePostComplaintPopup()}
               popupWrapStyle={{ height: '500px', width: '400px' }}
             >
-              <PostComplaintPopupBody />
+              <PostComplaintPopupBody postId={postId} />
             </RoundSquareCenterPopupLayout>
           )}
         </>

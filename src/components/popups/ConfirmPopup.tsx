@@ -8,7 +8,7 @@ interface ConfirmPopupLayoutProps {
   confirmPopupSubTitle?: string;
   isActive?: boolean;
   actionFunc?: () => void;
-  setIsPopup: React.Dispatch<React.SetStateAction<boolean>>;
+  onClose: () => void;
   hasTransparentOverLay?: boolean;
   hasFixedActive?: boolean;
   popupOverLayContainerStyle?: React.CSSProperties;
@@ -26,7 +26,7 @@ const ConfirmPopup: React.FC<ConfirmPopupLayoutProps> = ({
   popupWrapStyle,
   isActive = true,
   actionFunc,
-  setIsPopup,
+  onClose,
   hasTransparentOverLay = false,
   hasFixedActive = true,
 }) => {
@@ -47,7 +47,7 @@ const ConfirmPopup: React.FC<ConfirmPopupLayoutProps> = ({
 
   return (
     <ConfirmPopupLayoutOverlay
-      onClick={() => setIsPopup(false)}
+      onClick={onClose}
       style={popupOverLayContainerStyle}
       $hasTransparentOverLay={hasTransparentOverLay}
     >
@@ -66,7 +66,7 @@ const ConfirmPopup: React.FC<ConfirmPopupLayoutProps> = ({
               </ConfirmPopupSubTitle>
             </ConfirmPopupTitleWrap>
             <ConfirmPopupSelectButtonWrap>
-              <ConfirmPopupSelectCancelButton onClick={() => setIsPopup(false)}>
+              <ConfirmPopupSelectCancelButton onClick={onClose}>
                 <ConfirmPopupSelectTitle>취소</ConfirmPopupSelectTitle>
               </ConfirmPopupSelectCancelButton>
               <ConfirmPopupSelectConfirmButton onClick={onClickConfirm}>

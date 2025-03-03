@@ -46,7 +46,7 @@ const ProfileAccountSettingBlockListBody: React.FC = () => {
           {profileBlockedUserList &&
             profileBlockedUserList.pages.flatMap((value) =>
               value.map((v, key) => {
-                if (v.blockedUserName.startsWith(blockSearchInput)) {
+                if (v.blockedUsername.startsWith(blockSearchInput)) {
                   return (
                     <ProfileSettingBlockUserWrap key={key}>
                       <ProfileSettingBlockUserInfoWrap>
@@ -56,16 +56,23 @@ const ProfileAccountSettingBlockListBody: React.FC = () => {
                             ACCOUNT_NOT_PROFILE_IMG_PATH
                           }
                         />
-                        <ProfileSettingBlockUserName>
-                          {v.blockedUserName}
-                        </ProfileSettingBlockUserName>
+                        <ProfileSettingNameWrap>
+                          <div>
+                            <ProfileSettingBlockNickname>
+                              {v.blockedNickname}
+                            </ProfileSettingBlockNickname>
+                            <ProfileSettingBlockUsername>
+                              @{v.blockedUsername}
+                            </ProfileSettingBlockUsername>
+                          </div>
+                        </ProfileSettingNameWrap>
                       </ProfileSettingBlockUserInfoWrap>
                       <ProfileSettingBlockingButtonWrap>
                         <ProfileSettingBlockingButton
                           onClick={() => {
                             setBlockedUserInfo({
                               userId: v.blockedUserId,
-                              username: v.blockedUserName,
+                              username: v.blockedUsername,
                             });
                             setIsActiveProfileBlockPopup(true);
                           }}
@@ -78,6 +85,14 @@ const ProfileAccountSettingBlockListBody: React.FC = () => {
                 }
               }),
             )}
+          {profileBlockedUserList &&
+            profileBlockedUserList.pages.flatMap((v) => v).length <= 0 && (
+              <NotBlockedUserListTitleWrap>
+                <NotBlockedUserListTitle>
+                  차단 유저가 없습니다.
+                </NotBlockedUserListTitle>
+              </NotBlockedUserListTitleWrap>
+            )}
         </ProfileSettingBlockUserListContainer>
         <ProfileBlockedUserListInfiniteScroll />
       </ProfileSettingBlockListBodyContainer>
@@ -87,7 +102,6 @@ const ProfileAccountSettingBlockListBody: React.FC = () => {
             username: blckedUserInfo.username,
             userId: blckedUserInfo.userId,
           }}
-          isBlocked={true}
         />
       )}
     </>
@@ -121,11 +135,23 @@ const ProfileSettingBlockUserProfileImg = styled.img`
   width: 50px;
   height: 50px;
   border-radius: 30px;
+  object-fit: cover;
 `;
 
-const ProfileSettingBlockUserName = styled.div`
+const ProfileSettingNameWrap = styled.div`
   margin: auto 0;
+`;
+
+const ProfileSettingBlockUsername = styled.div`
+  font: ${({ theme }) => theme.fontSizes.Body2};
+  color: ${({ theme }) => theme.grey.Grey6};
+`;
+
+const ProfileSettingBlockNickname = styled.div`
   font: ${({ theme }) => theme.fontSizes.Subhead2};
+
+  color: ${({ theme }) => theme.grey.Grey8};
+  font: ${({ theme }) => theme.fontSizes.Subhead3};
 `;
 
 const ProfileSettingBlockingButtonWrap = styled.div`
@@ -136,6 +162,18 @@ const ProfileSettingBlockingButton = styled.div`
   color: ${({ theme }) => theme.mainColor.Blue};
   font: ${({ theme }) => theme.fontSizes.Subhead2};
   cursor: pointer;
+`;
+
+const NotBlockedUserListTitleWrap = styled.div``;
+
+const NotBlockedUserListTitle = styled.div`
+  top: calc(50%);
+  left: 50%;
+  position: absolute;
+  transform: translate(-50%, -50%);
+
+  font: ${({ theme }) => theme.fontSizes.Body3};
+  color: ${({ theme }) => theme.grey.Grey6};
 `;
 
 export default ProfileAccountSettingBlockListBody;

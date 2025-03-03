@@ -47,6 +47,7 @@ const SnsSharePopupHeader: React.FC<SnsSharePopupHeaderProps> = ({
         ...SnsSharePopupHeaderStyle,
         ...{ position: 'static' },
       }}
+      isInsetTopMatin={false}
     >
       <SnsShareSearchInputWrap>
         <SearchButtonInputWrap>

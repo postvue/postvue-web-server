@@ -1,6 +1,5 @@
 import { ReactComponent as PrevButtonIcon } from 'assets/images/icon/svg/PrevButtonIcon.svg';
 import PrevButtonHeaderHeader from 'components/layouts/PrevButtonHeaderHeader';
-import { HOME_PATH } from 'const/PathConst';
 import { SIGNUP_STEP_QUERY_PARAM } from 'const/QueryParamConst';
 import {
   SIGNUP_BIRTHDATE_GENDER_INPUT_STEP_QUERY_PARAM_VALUE,
@@ -14,6 +13,7 @@ import {
   SIGNUP_USERNAME_INPUT_STEP_QUERY_PARAM_VALUE,
   SIGNUP_USERNAME_INPUT_STEP_VALUE,
 } from 'const/SignupConst';
+import { stackRouterLogin } from 'global/util/reactnative/nativeRouter';
 import React, { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useRecoilState, useSetRecoilState } from 'recoil';
@@ -65,7 +65,7 @@ const SignupHeader: React.FC = () => {
   };
 
   const onClose = () => {
-    naviage(HOME_PATH, { replace: true });
+    stackRouterLogin({ isNavigate: true, navigate: naviage });
   };
 
   useEffect(() => {
@@ -78,6 +78,7 @@ const SignupHeader: React.FC = () => {
 
   return (
     <PrevButtonHeaderHeader
+      HeaderLayoutStyle={{ position: 'static' }}
       hasTitleReactNode={true}
       isActionFunc={true}
       actionFunc={() => {

@@ -12,7 +12,7 @@ import {
 
 export interface ProfileClipListQueryInterface {
   pages: GetMyProfileClipListRsp[];
-  pageParams: unknown[];
+  pageParams: string[];
 }
 
 export const QueryStateProfileClipListInfinite = (): UseInfiniteQueryResult<

@@ -2,10 +2,12 @@ import _debounce from 'lodash/debounce';
 import { useCallback, useEffect, useRef } from 'react';
 
 interface PropsType {
+  refObject?: React.RefObject<HTMLDivElement>;
   path: string;
 }
 
-const useWindowScrollY = ({
+const useObjectScrollY = ({
+  refObject,
   path,
 }: PropsType): { scrollInfos: number; scrollRemove: () => void } => {
   const scrollY = useRef(Number(sessionStorage.getItem(`${path}_scroll_pos`)));
@@ -16,18 +18,31 @@ const useWindowScrollY = ({
   }, []);
 
   const saveScroll = _debounce(function () {
-    scrollY.current = window.scrollY;
+    scrollY.current = refObject
+      ? refObject.current?.scrollTop || 0
+      : window.scrollY;
+
+    sessionStorage.setItem(`${path}_scroll_pos`, String(scrollY.current));
   }, 50);
 
   useEffect(() => {
-    window.addEventListener('scroll', saveScroll);
+    if (refObject) {
+      if (!refObject.current) return;
+      refObject.current.addEventListener('scroll', saveScroll);
+    } else {
+      window.addEventListener('scroll', saveScroll);
+    }
     return () => {
-      window.removeEventListener('scroll', saveScroll);
-      sessionStorage.setItem(`${path}_scroll_pos`, String(scrollY.current));
+      if (refObject) {
+        if (!refObject.current) return;
+        refObject.current.removeEventListener('scroll', saveScroll);
+      } else {
+        window.removeEventListener('scroll', saveScroll);
+      }
     };
   }, []);
 
   return { scrollInfos: scrollY.current, scrollRemove };
 };
 
-export default useWindowScrollY;
+export default useObjectScrollY;

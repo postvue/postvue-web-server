@@ -16,6 +16,7 @@ type MasonryProps = {
   rowGap: number;
   breakPointOption: breakPointColumns;
   loadMoreRef: React.RefObject<HTMLDivElement>;
+  fixNum?: number;
 };
 
 const Masonry: React.FC<MasonryProps> = ({
@@ -24,6 +25,7 @@ const Masonry: React.FC<MasonryProps> = ({
   rowGap,
   breakPointOption,
   loadMoreRef,
+  fixNum,
 }) => {
   const [columnCount, setColumnCount] = useRecoilState(masonryColumnCountAtom);
   const [columnWidth, setColumnWidth] = useState(2);
@@ -38,10 +40,13 @@ const Masonry: React.FC<MasonryProps> = ({
 
   // 칼럼 개수 설정
   useEffect(() => {
+    console.log('오잉');
     const resizeHandler = () => {
       // 윈도우 너비
       const wWidth = window.innerWidth;
-      setColumnCount(utils.caculateColumnCount(wWidth, breakPointOption));
+      setColumnCount(
+        utils.caculateColumnCount(wWidth, breakPointOption, fixNum),
+      );
     };
 
     resizeHandler();
@@ -51,8 +56,8 @@ const Masonry: React.FC<MasonryProps> = ({
 
   // 반응형 너비
   useEffect(() => {
-    console.log('킹콩권', columnCount);
     if (!columnCount) return;
+    console.log('오잉스');
     const resizeHandler = () => {
       if (masonryRef.current) {
         const scrollBarWidth = 0; // 스크롤바 너비
@@ -75,6 +80,7 @@ const Masonry: React.FC<MasonryProps> = ({
   // Wrap 컴포넌트 설정
   useEffect(() => {
     wrapRefs.forEach((el) => {
+      console.log('오잉킹');
       const wrapEl = el.current;
 
       if (wrapEl) {
@@ -95,6 +101,7 @@ const Masonry: React.FC<MasonryProps> = ({
       // 이미지가 있다면 이미지 로딩 후, reload를 업데이트함으로써 Brick 컴포넌트 설정 및 배치
       if (brickEl && wrapEl) {
         const imgEl = wrapEl.querySelector('img');
+        console.log('잉');
 
         // const videoEl = wrapEl.querySelector('video');
 
@@ -134,7 +141,6 @@ const Masonry: React.FC<MasonryProps> = ({
   // Container 컴포넌트 설정
   useEffect(() => {
     const containerEl = containerRef.current;
-    console.log('헤ㅎ헤ㅔ헤');
 
     if (containerEl) {
       containerEl.style.position = 'relative';
@@ -150,6 +156,7 @@ const Masonry: React.FC<MasonryProps> = ({
 
     // Brick 컴포넌트 배치하기
     brickRefs.forEach((el) => {
+      console.log('바뀜');
       const brickEl = el.current;
       const minIndex = columnPos.findIndex(
         (v) => v === Math.min.apply(null, columnPos),

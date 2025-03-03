@@ -1,11 +1,16 @@
-import { ReactComponent as FeelogLogo } from 'assets/images/icon/svg/pc/FeelogLogo.svg';
+import { queryClient } from 'App';
+import { ReactComponent as FeelogLogo } from 'assets/images/icon/svg/logo/FeelogLargeLogo.svg';
 import BottomNextButton from 'components/common/buttton/BottomNextButton';
 import PasswordVisibleInputElement from 'components/profile/profileaccountsetting/profileaccountsettingmanage/password/PasswordVisibleInputElement';
 import { INIT_EMPTY_STRING_VALUE } from 'const/AttributeConst';
 import { HOME_PATH } from 'const/PathConst';
+import { QUERY_STATE_NOTIFICATION_MSG } from 'const/QueryClientConst';
 import { CALLBACK_URL } from 'const/QueryParamConst';
 import { SETTING_EDIT_PASSWORD_PHASE_TEXT } from 'const/SystemPhraseConst';
-import { isApp, stackRouterLogin } from 'global/util/reactnative/StackRouter';
+import {
+  isApp,
+  stackRouterLoginSuccess,
+} from 'global/util/reactnative/nativeRouter';
 import { isValidString } from 'global/util/ValidUtil';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -46,8 +51,12 @@ const LoginEmailPopupBody: React.FC<LoginEmailPopupBodyProps> = ({
       .then((value) => {
         const callbackUrl = sessionStorage.getItem(CALLBACK_URL);
         const url = callbackUrl ? callbackUrl : HOME_PATH;
+        queryClient.invalidateQueries({
+          queryKey: [QUERY_STATE_NOTIFICATION_MSG],
+        });
+
         if (isApp()) {
-          stackRouterLogin(value);
+          stackRouterLoginSuccess(value);
         } else {
           navigate(url);
         }
@@ -69,20 +78,23 @@ const LoginEmailPopupBody: React.FC<LoginEmailPopupBodyProps> = ({
   };
   return (
     <>
-      <SignupLogoWrap>
-        <FeelogLogo />
-      </SignupLogoWrap>
-      <SignupEmailSubTitle>어떤 경험을 느껴보고 싶나요?</SignupEmailSubTitle>
+      <LoginLogoWrap>
+        <LoginLogoSubWrap>
+          <FeelogLogo />
+        </LoginLogoSubWrap>
+      </LoginLogoWrap>
+      <LoginEmailSubTitle>Feelog</LoginEmailSubTitle>
 
-      <SignupEmailInputWrap>
-        <SignupEmailInputSubWrap>
-          <SignupEmailInput
+      <LoginEmailInputWrap>
+        <LoginEmailInputSubWrap>
+          <LoginEmailInput
             type={'email'}
             value={email}
             placeholder="이메일"
             onChange={onChangeEmail}
+            onKeyDown={handleKeyPress}
           />
-        </SignupEmailInputSubWrap>
+        </LoginEmailInputSubWrap>
         <ProfilePasswordInputWrap>
           <PasswordVisibleInputElement
             password={password}
@@ -91,15 +103,15 @@ const LoginEmailPopupBody: React.FC<LoginEmailPopupBodyProps> = ({
             onKeyDown={handleKeyPress}
           />
           {!isVerifedEmail && (
-            <SignupMinAgeWrap>
-              <SignupMinAgeCheck>비밀번호가 틀립니다.</SignupMinAgeCheck>
-            </SignupMinAgeWrap>
+            <LoginMinAgeWrap>
+              <LoginMinAgeCheck>비밀번호가 틀립니다.</LoginMinAgeCheck>
+            </LoginMinAgeWrap>
           )}
         </ProfilePasswordInputWrap>
-      </SignupEmailInputWrap>
+      </LoginEmailInputWrap>
 
-      <SignupWrap $height={height}>
-        <SignupButton onClick={onOpen}>이메일로 가입하기</SignupButton>
+      <LoginWrap $height={height}>
+        <LoginButton onClick={onOpen}>이메일로 가입하기</LoginButton>
         <BottomNextButton
           title="로그인"
           notActiveTitle="로그인"
@@ -108,17 +120,17 @@ const LoginEmailPopupBody: React.FC<LoginEmailPopupBodyProps> = ({
           actionFunc={onClicLoginEmail}
           BottomNextButtonWrapContainerStyle={{ position: 'static' }}
         />
-      </SignupWrap>
+      </LoginWrap>
     </>
   );
 };
 
-const SignupWrap = styled.div<{ $height: number }>`
+const LoginWrap = styled.div<{ $height: number }>`
   width: 100%;
   margin-top: ${(props) => props.$height - 370}px;
 `;
 
-const SignupButton = styled.div`
+const LoginButton = styled.div`
   text-align: center;
   font: ${({ theme }) => theme.fontSizes.Body1};
   color: ${({ theme }) => theme.grey.Grey5};
@@ -126,32 +138,35 @@ const SignupButton = styled.div`
   padding: 2px 4px;
   cursor: pointer;
 `;
-const SignupEmailSubTitle = styled.div`
+const LoginEmailSubTitle = styled.div`
   text-align: center;
-  font: ${({ theme }) => theme.fontSizes.Body2};
+  font: ${({ theme }) => theme.fontSizes.Subhead2};
   margin-bottom: 20px;
-  color: ${({ theme }) => theme.grey.Grey5};
 `;
 
-const SignupLogoWrap = styled.div`
+const LoginLogoWrap = styled.div`
   display: flex;
-  margin: 0 auto;
   margin-bottom: 5px;
 `;
 
-const SignupEmailInputWrap = styled.div`
+const LoginLogoSubWrap = styled.div`
+  display: flex;
+  margin: 0 auto;
+`;
+
+const LoginEmailInputWrap = styled.div`
   margin: 0 20px;
   gap: 20px;
   display: flex;
   flex-flow: column;
 `;
 
-const SignupEmailInputSubWrap = styled.div`
+const LoginEmailInputSubWrap = styled.div`
   display: flex;
   flex-flow: column;
 `;
 
-const SignupEmailInput = styled.input`
+const LoginEmailInput = styled.input`
   outline: none;
   border: 0px;
 
@@ -172,26 +187,26 @@ const ProfilePasswordInputWrap = styled.div`
   position: relative;
 `;
 
-const ProfilePasswordInput = styled.input`
-  padding: 15px 16px;
-  background-color: white;
-  border: 1px solid ${({ theme }) => theme.grey.Grey1};
+// const ProfilePasswordInput = styled.input`
+//   padding: 15px 16px;
+//   background-color: white;
+//   border: 1px solid ${({ theme }) => theme.grey.Grey1};
 
-  width: 100%;
-  box-sizing: border-box;
-  outline: none;
-  border-radius: 30px;
-  font: ${({ theme }) => theme.fontSizes.Body2};
-`;
+//   width: 100%;
+//   box-sizing: border-box;
+//   outline: none;
+//   border-radius: 30px;
+//   font: ${({ theme }) => theme.fontSizes.Body2};
+// `;
 
-const SignupMinAgeWrap = styled.div`
+const LoginMinAgeWrap = styled.div`
   margin: 7px 0px 0px
     ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding};
   position: absolute;
   bottom: -27px;
 `;
 
-const SignupMinAgeCheck = styled.div`
+const LoginMinAgeCheck = styled.div`
   font: ${({ theme }) => theme.fontSizes.Body2};
   color: ${({ theme }) => theme.errorColor.Red};
 `;

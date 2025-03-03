@@ -1,13 +1,10 @@
 // import axios from 'axios';
 
-import { ACCESS_TOKEN } from 'const/LocalStorageConst';
+import { CHANNEL_USER_ID } from 'const/LocalStorageConst';
+import { AuthTokenRsp } from 'const/ReactNativeConst';
+import { setAccessTokenToLocalStorage } from 'global/util/CookieUtil';
 import { api } from 'services';
 import { NAVER_LOGIN_API_PATH } from 'services/appApiPath';
-
-interface AuthTokenRes {
-  accessToken: string;
-  refreshToken: string;
-}
 
 interface postNaverLoginReq {
   naverAccessToken: string;
@@ -16,7 +13,7 @@ interface postNaverLoginReq {
 // Point 가져오기
 export const postNaverLogin = (
   naverAccessToken: string,
-): Promise<AuthTokenRes> => {
+): Promise<AuthTokenRsp> => {
   const data: postNaverLoginReq = {
     naverAccessToken: naverAccessToken,
   };
@@ -24,9 +21,10 @@ export const postNaverLogin = (
   return api
     .post(NAVER_LOGIN_API_PATH, data)
     .then((res) => {
-      const authToken: AuthTokenRes = res.data.data;
+      const authToken: AuthTokenRsp = res.data.data;
 
-      localStorage.setItem(ACCESS_TOKEN, authToken.accessToken);
+      setAccessTokenToLocalStorage(authToken.accessToken);
+      localStorage.setItem(CHANNEL_USER_ID, authToken.userId);
 
       return authToken;
     })

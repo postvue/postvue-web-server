@@ -18,4 +18,5 @@ export interface termOfServiceInterface {
   agreeToPrivacyPolicy: boolean;
   agreeToPrivacyPolicyToThirdPaties: boolean;
   agreeToMarketingCommunications: boolean;
+  agreeToTermsOfUserGeoLocation: boolean;
 }

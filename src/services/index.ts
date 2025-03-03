@@ -6,12 +6,13 @@ import {
 } from 'const/HttpStatusConst';
 import { ACCESS_TOKEN, INVALID_ACCESS_TOKEN } from 'const/LocalStorageConst';
 import { LOGIN_PATH } from 'const/PathConst';
-import { CALLBACK_URL } from 'const/QueryParamConst';
 import { SERVER_API_PATH } from 'const/SystemAttrConst';
 import { TOKEN_EXPIRED_SPECIFICATION } from 'const/SystemSpecificationConst';
 import { UNAUTHORIZED_ERROR_LINK_LIST } from 'const/WebSocketStompErrorConst';
 import { getAccessTokenByBearer } from 'global/util/AuthUtil';
 import { setAccessTokenToLocalStorage } from 'global/util/CookieUtil';
+// import { resetNotificationMsgListByLocalStorage } from 'global/util/NotificationUtil';
+import { stackRouterLogin } from 'global/util/reactnative/nativeRouter';
 import QueryString from 'qs';
 import { postRefreshToken } from './auth/postRefreshToken';
 
@@ -173,7 +174,6 @@ async function interceptorErrorFunc(error: any) {
           //리프레시 토큰 요청이 성공할 때, 200번 때
 
           const newAccessToken = response.accessToken;
-          localStorage.setItem(ACCESS_TOKEN, newAccessToken);
 
           //진행중이던 요청 이어서하기
           originRequest.headers.authorization =
@@ -192,9 +192,12 @@ async function interceptorErrorFunc(error: any) {
             localStorage.setItem(ACCESS_TOKEN, '');
 
             originRequest.headers.authorization = '';
-            window.location.replace(
-              `${LOGIN_PATH}?${CALLBACK_URL}=` + currentPath,
-            );
+            // resetNotificationMsgListByLocalStorage();
+            // window.location.replace(
+            //   `${LOGIN_PATH}?${CALLBACK_URL}=` + currentPath,
+            // );
+
+            stackRouterLogin({ isNavigate: false, callbackUrl: currentPath });
           } else {
             // 나머지 오류 일때,
             return Promise.reject(err);
@@ -212,13 +215,8 @@ async function interceptorErrorFunc(error: any) {
 
 export async function handleWebSocketStomp(func: () => void): Promise<void> {
   postRefreshToken()
-    .then((response) => {
+    .then(() => {
       //리프레시 토큰 요청이 성공할 때, 200번 때
-
-      // localStorage에 저장
-      const newAccessToken = response.accessToken;
-      setAccessTokenToLocalStorage(newAccessToken);
-
       func();
     })
     .catch((err: AxiosError) => {
@@ -240,7 +238,9 @@ export async function handleWebSocketStomp(func: () => void): Promise<void> {
           return;
         }
 
-        window.location.replace(`${LOGIN_PATH}?${CALLBACK_URL}=` + currentPath);
+        // resetNotificationMsgListByLocalStorage();
+        // window.location.replace(`${LOGIN_PATH}?${CALLBACK_URL}=` + currentPath);
+        stackRouterLogin({ isNavigate: false, callbackUrl: currentPath });
       } else {
         // 나머지 오류 일때,
         throw err;

@@ -19,6 +19,7 @@ interface SearchInputElementProps {
   debouncedGetSearchQuery: DebouncedFunc<(searchQuery: string) => void>;
   onSearchQuery?: () => void;
   onClicDeletekFunc?: () => void;
+  onEmptyTermFunc?: () => void;
   SearchButtonInputLayoutStyle?: React.CSSProperties;
   hasHandlePress?: boolean;
 }
@@ -35,6 +36,7 @@ const SearchInputTemplate: React.FC<SearchInputElementProps> = ({
   debouncedGetSearchQuery,
   onSearchQuery,
   onClicDeletekFunc,
+  onEmptyTermFunc,
   SearchButtonInputLayoutStyle,
   hasHandlePress = true,
 }) => {
@@ -44,8 +46,8 @@ const SearchInputTemplate: React.FC<SearchInputElementProps> = ({
 
   const isEmptyTermFunc = () => {
     setSearchTempWord('');
-    if (onClicDeletekFunc) {
-      onClicDeletekFunc();
+    if (onEmptyTermFunc) {
+      onEmptyTermFunc();
     }
   };
 

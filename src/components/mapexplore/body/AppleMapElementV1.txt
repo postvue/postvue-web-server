@@ -1,0 +1,47 @@
+import { PostMapPostInfiniteInterface } from 'hook/queryhook/QueryStatePostMapPostInfinite';
+import React from 'react';
+import { GeoPositionInterface } from 'states/MapExploreAtom';
+import styled from 'styled-components';
+import MapkitClient, { MoveLocationType } from './MapkitClient';
+
+interface AppleMapElementProps {
+  mapPost: PostMapPostInfiniteInterface | undefined;
+  mapLocation: GeoPositionInterface;
+  onSetMapMoveLocation: (moveLocation: MoveLocationType) => void;
+  scrollEndEventFunc?: (e: mapkit.EventBase<mapkit.Map>) => void;
+  isRefresh: boolean;
+  coordinateSpan?: number;
+}
+
+const AppleMapElement: React.FC<AppleMapElementProps> = ({
+  mapPost,
+  mapLocation,
+  onSetMapMoveLocation,
+  scrollEndEventFunc,
+  isRefresh,
+  coordinateSpan,
+}) => {
+  return (
+    <>
+      <AppleMapElementWrap>
+        <MapkitClient
+          mapPost={mapPost}
+          mapLocation={mapLocation}
+          onSetMapMoveLocation={onSetMapMoveLocation}
+          scrollEndEventFunc={scrollEndEventFunc}
+          isRefresh={isRefresh}
+          coordinateSpan={coordinateSpan}
+        />
+      </AppleMapElementWrap>
+    </>
+  );
+};
+
+const AppleMapElementWrap = styled.div`
+  height: 100%;
+  .mk-map-view {
+    border-radius: 30px;
+  }
+`;
+
+export default AppleMapElement;
