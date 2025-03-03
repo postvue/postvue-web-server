@@ -22,10 +22,18 @@ const MsgConversationSettingPopup: React.FC<
     // >
     //   <MsgConversationSettingPopupBody targetProfileInfo={targetProfileInfo} />
     // </PopupLayout>
+
     <BottomSheetLayout
       isOpen={isSettingByMsgConversation}
       onClose={() => setIsSettingByMsgConversation(false)}
-      heightNum={250}
+      heightNum={
+        220 +
+          parseFloat(
+            getComputedStyle(document.documentElement).getPropertyValue(
+              '--safe-area-inset-bottom',
+            ),
+          ) || 0
+      }
     >
       <MsgConversationSettingPopupBody targetProfileInfo={targetProfileInfo} />
     </BottomSheetLayout>

@@ -86,9 +86,9 @@ const ProfileAccountPasswordEditBody: React.FC = () => {
             onChangePassword={onChangeCurrentPassword}
             placeholder={SETTING_EDIT_CURRENT_PASSWORD_PHASE_TEXT}
           />
-          <ProfileIsForgetCurrentPasswordTitle>
+          {/* <ProfileIsForgetCurrentPasswordTitle>
             비밀번호를 잊으셨나요?
-          </ProfileIsForgetCurrentPasswordTitle>
+          </ProfileIsForgetCurrentPasswordTitle> */}
         </ProfileCurrentPasswordSubContainer>
         <BoundaryStickBar />
 
@@ -130,7 +130,7 @@ const ProfileAccountPasswordEditBody: React.FC = () => {
 };
 
 const ProfileEditPasswordContainer = styled.div`
-  padding-top: 30px;
+  padding-top: calc(30px + env(safe-area-inset-top));
 `;
 
 const ProfileCurrentPasswordSubContainer = styled.div`
@@ -142,6 +142,7 @@ const ProfileIsForgetCurrentPasswordTitle = styled.div`
   font: ${({ theme }) => theme.fontSizes.Body2};
   color: ${({ theme }) => theme.grey.Grey5};
   padding-left: 5px;
+  padding-top: 5px;
   cursor: pointer;
 `;
 

@@ -7,7 +7,7 @@ import {
 } from 'const/PostCommentConst';
 import { QUERY_STATE_POST_COMMENT_REPLY_LIST } from 'const/QueryClientConst';
 import { PostLikeRsp } from 'global/interface/post';
-import { animateCount, AnimationDirection } from 'global/util/commentUtil';
+import { animateCount, AnimationDirection } from 'global/util/CommentUtil';
 import { convertQueryTemplate } from 'global/util/TemplateUtil';
 import { putPostCommentLike } from 'services/post/putPostCommentLike';
 import { PostCommetListInfiniteInterface } from './QueryStatePostCommentListInfinite';

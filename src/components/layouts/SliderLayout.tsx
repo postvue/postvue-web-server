@@ -87,7 +87,7 @@ const SliderLayout: React.FC<SliderLayoutProps> = ({
 
   const handleTouchMove = (e: React.TouchEvent) => {
     const touch = e.touches[0];
-    console.log(touch);
+
     handleMove(touch.clientX);
   };
 

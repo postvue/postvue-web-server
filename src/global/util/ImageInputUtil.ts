@@ -2,22 +2,18 @@ import React from 'react';
 import { UPLOAD_IMG_MAX_HEIGHT } from '../../const/SystemAttrConst';
 
 export async function uploadImgUtil(
-  e: React.ChangeEvent<HTMLInputElement>,
+  imgFile: File,
   setUploadImgFile: React.Dispatch<React.SetStateAction<Blob | null>>,
   setUploadImgUrl: React.Dispatch<React.SetStateAction<string>>,
 ): Promise<void> {
-  if (!e.target.files) {
-    return;
-  }
   try {
-    const file = e.target.files[0];
     const resizedImage = await resizeImage(
-      file,
+      imgFile,
       UPLOAD_IMG_MAX_HEIGHT,
       UPLOAD_IMG_MAX_HEIGHT,
     );
 
-    const uploadFile = new File([resizedImage], file.name);
+    const uploadFile = new File([resizedImage], imgFile.name);
 
     // const reader = new FileReader();
     // reader.onloadend = () => {
@@ -39,9 +35,16 @@ export async function resizeImage(
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
-      const canvas = document.createElement('canvas');
       let width = img.width;
       let height = img.height;
+
+      // 원본이 maxWidth, maxHeight보다 작으면 그대로 반환
+      if (width <= maxWidth && height <= maxHeight) {
+        resolve(file);
+        return;
+      }
+
+      const canvas = document.createElement('canvas');
 
       if (width > height) {
         if (width > maxWidth) {

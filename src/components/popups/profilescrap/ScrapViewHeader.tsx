@@ -2,9 +2,9 @@ import { PROFILE_NEW_SCRAP_PATH } from 'const/PathConst';
 import {
   POST_CONTENT_TYPE,
   POST_CONTENT_URL,
-  POST_ID,
+  POST_ID_QUERY_PARAM,
 } from 'const/QueryParamConst';
-import { stackRouterPush } from 'global/util/reactnative/StackRouter';
+import { stackRouterPush } from 'global/util/reactnative/nativeRouter';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -26,7 +26,7 @@ const ScrapViewHeader: React.FC<ScrapViewHeaderProps> = ({
   const onClickCreateScrapWithPost = () => {
     stackRouterPush(
       navigate,
-      `${PROFILE_NEW_SCRAP_PATH}?${POST_ID}=${postId}&${POST_CONTENT_URL}=${postContentUrl}&${POST_CONTENT_TYPE}=${postContentType}`,
+      `${PROFILE_NEW_SCRAP_PATH}?${POST_ID_QUERY_PARAM}=${postId}&${POST_CONTENT_URL}=${postContentUrl}&${POST_CONTENT_TYPE}=${postContentType}`,
     );
   };
   return (

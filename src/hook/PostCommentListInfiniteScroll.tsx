@@ -13,18 +13,34 @@ const PostCommentListInfiniteScroll: React.FC<
 > = ({ postId }) => {
   const { ref, inView } = useInView();
 
-  const { fetchNextPage, hasNextPage, isFetchingNextPage } =
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
     QueryStatePostCommentListInfinite(postId);
 
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
-  }, [inView]); //hasNextPage, isFetchingNextPage
+  }, [inView]);
+
+  useEffect(() => {
+    if (
+      hasNextPage &&
+      !isFetchingNextPage &&
+      data &&
+      data.pages[0].snsPostCommentRspList.length < 10
+    ) {
+      fetchNextPage();
+    }
+  }, [data, hasNextPage]);
 
   return (
     <ScrollBottomContainer ref={ref}>
-      <InViewComponent />
+      <InViewComponent
+        hasLoadingIcon={
+          (data ? data?.pages[0].snsPostCommentRspList.length > 5 : false) &&
+          hasNextPage
+        }
+      />
     </ScrollBottomContainer>
   );
 };

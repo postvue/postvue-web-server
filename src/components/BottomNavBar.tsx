@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import {
   isActivPostComposeBySourceUrlPopupAtom,
   isActivPostComposeSelectPopupAtom,
@@ -14,8 +14,7 @@ import {
 import {
   EXPLORE_PATH,
   HOME_PATH,
-  MESSAGE_INBOX_PATH,
-  PROFILE_CLIP_LIST_PATH,
+  PROFILE_MY_ACCOUNT_ROUTE_PATH,
   PROFILE_SCRAP_LIST_PATH,
 } from '../const/PathConst';
 import PostComposeButton from './common/buttton/PostComposeButton';
@@ -24,28 +23,34 @@ import { ReactComponent as HomeTabActiveIcon } from 'assets/images/icon/svg/navb
 import { ReactComponent as HomeTabNotActiveIcon } from 'assets/images/icon/svg/navbar/HomeTabNotActiveIcon.svg';
 import { ReactComponent as MapTabActiveIcon } from 'assets/images/icon/svg/navbar/MapTabActiveIcon.svg';
 import { ReactComponent as MapTabNotActiveIcon } from 'assets/images/icon/svg/navbar/MapTabNotActiveIcon.svg';
-import { ReactComponent as MessageTabActiveIcon } from 'assets/images/icon/svg/navbar/MessageTabActiveIcon.svg';
-import { ReactComponent as MessageTabActiveIconByUnread } from 'assets/images/icon/svg/navbar/MessageTabActiveIconByUnread.svg';
-import { ReactComponent as MessageTabNotActiveIcon } from 'assets/images/icon/svg/navbar/MessageTabNotActiveIcon.svg';
-import { ReactComponent as MessageTabNotActiveIconByUnread } from 'assets/images/icon/svg/navbar/MessageTabNotActiveIconByUnread.svg';
 import { ReactComponent as ProfileTabActiveIcon } from 'assets/images/icon/svg/navbar/ProfileTabActiveIcon.svg';
+import { ReactComponent as ProfileTabActiveIconByUnread } from 'assets/images/icon/svg/navbar/ProfileTabActiveIconByUnread.svg';
 import { ReactComponent as ProfileTabNotActiveIcon } from 'assets/images/icon/svg/navbar/ProfileTabNotActiveIcon.svg';
+import { ReactComponent as ProfileTabNotActiveIconByUnread } from 'assets/images/icon/svg/navbar/ProfileTabNotActiveIconByUnread.svg';
+import { ReactComponent as ScrapTabActiveIcon } from 'assets/images/icon/svg/navbar/ScrapTabActiveIcon.svg';
+import { ReactComponent as ScrapTabNotActiveIcon } from 'assets/images/icon/svg/navbar/ScrapTabNotActiveIcon.svg';
 import {
   HOME_PAGE_NAME,
+  isMainTab,
   MAP_PAGE_NAME,
-  MESSAGE_PAGE_NAME,
+  PROFILE_PAGE_NAME,
   SCRAP_PAGE_NAME,
 } from 'const/ReactNativeConst';
 import { MEDIA_MOBILE_MAX_WIDTH } from 'const/SystemAttrConst';
+import { EXPLORE_TAB_NAME, FEED_TAB_NAME } from 'const/TabConst';
 import { isUserLoggedIn } from 'global/util/AuthUtil';
 import {
-  navigateToFirstStackWithUrl,
+  isApp,
+  navigateToMainTab,
+  navigateToTabWithUrl,
   sendVibrationLightEvent,
-} from 'global/util/reactnative/StackRouter';
+} from 'global/util/reactnative/nativeRouter';
+import { useActiveUserSessionHookByIndexedDb } from 'hook/db/useActiveUserSessionHookByIndexedDb';
+import { useSnsNotificationHookByIndexedDb } from 'hook/db/useSnsNotifcationHookByIndexedDb';
 import { QueryStateMsgInboxListInfinite } from 'hook/queryhook/QueryStateMsgInboxListInfinite';
+import { homeTabInfoAtom } from 'states/HomePageAtom';
 import { sendedMsgListInfoAtom } from 'states/MessageAtom';
-import { notificationMsgHashMapAtom } from 'states/NotificationAtom';
-import { isPostDetailInfoPopupAtom } from 'states/PostAtom';
+import { scrapTabInfoAtom } from 'states/ProfileAtom';
 
 interface BottomNavBarProps {
   BottomNavBarContainerRef?: React.RefObject<HTMLDivElement>;
@@ -55,12 +60,11 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({
   BottomNavBarContainerRef,
 }) => {
   const [selectedPath, setSelectedPath] = useState<string>();
+  const { activeUserSessions } = useActiveUserSessionHookByIndexedDb();
 
   const setIsActivePostComposeSelectPopup = useSetRecoilState(
     isActivPostComposeSelectPopupAtom,
   );
-
-  const setIsPostDetailInfoPopup = useSetRecoilState(isPostDetailInfoPopupAtom);
 
   const setIsActivePostComposeBySourceUrlPopup = useSetRecoilState(
     isActivPostComposeBySourceUrlPopupAtom,
@@ -69,11 +73,11 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({
   const { data: msgInboxMessageList } =
     QueryStateMsgInboxListInfinite(isUserLoggedIn());
   const sendedMsgListInfo = useRecoilValue(sendedMsgListInfoAtom);
-  const notificationMsgHashMap = useRecoilValue(notificationMsgHashMapAtom);
 
-  const onClickNavTab = () => {
-    setIsPostDetailInfoPopup(false);
-  };
+  const { hasUnreadNotifications } = useSnsNotificationHookByIndexedDb();
+
+  const [mainTabInfo, setHomeTabInfo] = useRecoilState(homeTabInfoAtom);
+  const setScrapTabInfo = useSetRecoilState(scrapTabInfoAtom);
 
   useEffect(() => {
     return () => {
@@ -94,109 +98,222 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({
         <StyleActiveTab
           onClick={() => {
             sendVibrationLightEvent();
-            navigateToFirstStackWithUrl(navigate, HOME_PAGE_NAME, HOME_PATH);
+            if (isMainTab()) {
+              navigateToTabWithUrl(navigate, MAP_PAGE_NAME, EXPLORE_PATH);
+            } else {
+              navigateToMainTab(navigate, MAP_PAGE_NAME, EXPLORE_PATH);
+            }
           }}
         >
-          {location.pathname === HOME_PATH ? (
+          {location.pathname === EXPLORE_PATH ? (
             <TabWrap>
-              <HomeTabActiveIcon />
-              <ActiveTabText>홈피드</ActiveTabText>
+              <TabSubWrap>
+                <MapTabActiveIcon />
+                <ActiveTabText>{EXPLORE_TAB_NAME}</ActiveTabText>
+              </TabSubWrap>
             </TabWrap>
           ) : (
             <TabWrap>
-              <HomeTabNotActiveIcon />
-              <TabText>홈피드</TabText>
+              <TabSubWrap>
+                <MapTabNotActiveIcon />
+                <TabText>{EXPLORE_TAB_NAME}</TabText>
+              </TabSubWrap>
             </TabWrap>
           )}
         </StyleActiveTab>
         <StyleActiveTab
           onClick={() => {
             sendVibrationLightEvent();
-            navigateToFirstStackWithUrl(navigate, MAP_PAGE_NAME, EXPLORE_PATH);
+            if (isMainTab()) {
+              if (location.pathname === HOME_PATH) {
+                if (isApp()) {
+                  setHomeTabInfo((prev) => ({
+                    ...prev,
+                    scrollInfo: { scroll: 0, isActive: true },
+                  }));
+                } else {
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+              } else {
+                navigateToTabWithUrl(navigate, HOME_PAGE_NAME, HOME_PATH);
+              }
+            } else {
+              navigateToMainTab(navigate, HOME_PAGE_NAME, HOME_PATH);
+            }
           }}
         >
-          {location.pathname === EXPLORE_PATH ? (
+          {location.pathname === HOME_PATH ? (
             <TabWrap>
-              <MapTabActiveIcon />
-              <ActiveTabText>탐색</ActiveTabText>
+              <TabSubWrap>
+                <HomeTabActiveIcon />
+                <ActiveTabText>{FEED_TAB_NAME}</ActiveTabText>
+              </TabSubWrap>
             </TabWrap>
           ) : (
             <TabWrap>
-              <MapTabNotActiveIcon />
-              <TabText>탐색</TabText>
+              <TabSubWrap>
+                <HomeTabNotActiveIcon />
+                <TabText>{FEED_TAB_NAME}</TabText>
+              </TabSubWrap>
             </TabWrap>
           )}
         </StyleActiveTab>
         <StyleActiveTab>
           <TabWrap>
-            <PostComposeButton />
+            <TabSubWrap style={{ height: '45px' }}>
+              <PostComposeButton />
+            </TabSubWrap>
           </TabWrap>
         </StyleActiveTab>
-        <StyleActiveTab
+        {/* @REFER: 메시지 버그 수정 시, */}
+        {/* <StyleActiveTab
           onClick={() => {
             sendVibrationLightEvent();
-            navigateToFirstStackWithUrl(
-              navigate,
-              MESSAGE_PAGE_NAME,
-              MESSAGE_INBOX_PATH,
-            );
+
+            if (isMainTab()) {
+              navigateToTabWithUrl(
+                navigate,
+                MESSAGE_PAGE_NAME,
+                MESSAGE_INBOX_PATH,
+              );
+            } else {
+              navigateToMainTab(
+                navigate,
+                MESSAGE_PAGE_NAME,
+                MESSAGE_INBOX_PATH,
+              );
+            }
           }}
         >
           {selectedPath == MESSAGE_INBOX_PATH ? (
             <TabWrap>
-              {sendedMsgListInfo.unreadMsgNum > 0 ||
-              Array.from(notificationMsgHashMap.entries()).some(
-                (value) => value[1].isRead === false,
-              ) ||
-              (msgInboxMessageList &&
-                msgInboxMessageList?.pages
-                  .flatMap((v) => v)
-                  .filter((v) => v.unreadCount > 0).length > 0) ? (
-                <MessageTabActiveIconByUnread />
-              ) : (
-                <MessageTabActiveIcon />
-              )}
-              <ActiveTabText>메시지</ActiveTabText>
+              <TabSubWrap>
+                {sendedMsgListInfo.unreadMsgNum > 0 ||
+                Array.from(notificationMsgHashMap.entries()).some(
+                  (value) => value[1].isRead === false,
+                ) ||
+                (msgInboxMessageList &&
+                  msgInboxMessageList?.pages
+                    .flatMap((v) => v)
+                    .filter((v) => v.unreadCount > 0).length > 0) ? (
+                  <MessageTabActiveIconByUnread />
+                ) : (
+                  <MessageTabActiveIcon />
+                )}
+                <ActiveTabText>메시지</ActiveTabText>
+              </TabSubWrap>
             </TabWrap>
           ) : (
             <TabWrap>
-              {sendedMsgListInfo.unreadMsgNum > 0 ||
-              Array.from(notificationMsgHashMap.entries()).some(
-                (value) => value[1].isRead === false,
-              ) ||
-              (msgInboxMessageList &&
-                msgInboxMessageList?.pages
-                  .flatMap((v) => v)
-                  .filter((v) => v.unreadCount > 0).length > 0) ? (
-                <MessageTabNotActiveIconByUnread />
-              ) : (
-                <MessageTabNotActiveIcon />
-              )}
-              <TabText>메시지</TabText>
+              <TabSubWrap>
+                {sendedMsgListInfo.unreadMsgNum > 0 ||
+                Array.from(notificationMsgHashMap.entries()).some(
+                  (value) => value[1].isRead === false,
+                ) ||
+                (msgInboxMessageList &&
+                  msgInboxMessageList?.pages
+                    .flatMap((v) => v)
+                    .filter((v) => v.unreadCount > 0).length > 0) ? (
+                  <MessageTabNotActiveIconByUnread />
+                ) : (
+                  <MessageTabNotActiveIcon />
+                )}
+                <TabText>메시지</TabText>
+              </TabSubWrap>
             </TabWrap>
           )}
-        </StyleActiveTab>
+        </StyleActiveTab> */}
 
         <StyleActiveTab
           onClick={() => {
             sendVibrationLightEvent();
-            navigateToFirstStackWithUrl(
-              navigate,
-              SCRAP_PAGE_NAME,
-              PROFILE_CLIP_LIST_PATH,
-            );
+
+            if (isMainTab()) {
+              if (location.pathname === PROFILE_SCRAP_LIST_PATH) {
+                if (isApp()) {
+                  setScrapTabInfo((prev) => ({
+                    ...prev,
+                    scrollInfo: { scroll: 0, isActive: true },
+                  }));
+                } else {
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+              } else {
+                navigateToTabWithUrl(
+                  navigate,
+                  SCRAP_PAGE_NAME,
+                  PROFILE_SCRAP_LIST_PATH,
+                );
+              }
+            } else {
+              navigateToMainTab(
+                navigate,
+                SCRAP_PAGE_NAME,
+                PROFILE_SCRAP_LIST_PATH,
+              );
+            }
           }}
         >
-          {selectedPath === PROFILE_CLIP_LIST_PATH ||
-          selectedPath === PROFILE_SCRAP_LIST_PATH ? (
+          {selectedPath === PROFILE_SCRAP_LIST_PATH ? (
             <TabWrap>
-              <ProfileTabActiveIcon />
-              <ActiveTabText>스크랩</ActiveTabText>
+              <TabSubWrap>
+                <ScrapTabActiveIcon />
+                <ActiveTabText>스크랩</ActiveTabText>
+              </TabSubWrap>
             </TabWrap>
           ) : (
             <TabWrap>
-              <ProfileTabNotActiveIcon />
-              <TabText>스크랩</TabText>
+              <TabSubWrap>
+                <ScrapTabNotActiveIcon />
+                <TabText>스크랩</TabText>
+              </TabSubWrap>
+            </TabWrap>
+          )}
+        </StyleActiveTab>
+        <StyleActiveTab
+          onClick={() => {
+            sendVibrationLightEvent();
+
+            if (isMainTab()) {
+              if (location.pathname === PROFILE_MY_ACCOUNT_ROUTE_PATH) {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              } else {
+                navigateToTabWithUrl(
+                  navigate,
+                  PROFILE_PAGE_NAME,
+                  PROFILE_MY_ACCOUNT_ROUTE_PATH,
+                );
+              }
+            } else {
+              navigateToMainTab(
+                navigate,
+                PROFILE_PAGE_NAME,
+                PROFILE_MY_ACCOUNT_ROUTE_PATH,
+              );
+            }
+          }}
+        >
+          {selectedPath === PROFILE_MY_ACCOUNT_ROUTE_PATH ? (
+            <TabWrap>
+              <TabSubWrap>
+                {hasUnreadNotifications ? (
+                  <ProfileTabActiveIconByUnread />
+                ) : (
+                  <ProfileTabActiveIcon />
+                )}
+                <ActiveTabText>프로필</ActiveTabText>
+              </TabSubWrap>
+            </TabWrap>
+          ) : (
+            <TabWrap>
+              <TabSubWrap>
+                {hasUnreadNotifications ? (
+                  <ProfileTabNotActiveIconByUnread />
+                ) : (
+                  <ProfileTabNotActiveIcon />
+                )}
+                <TabText>프로필</TabText>
+              </TabSubWrap>
             </TabWrap>
           )}
         </StyleActiveTab>
@@ -214,12 +331,13 @@ const BottomNavBarContainer = styled.div`
   right: 0;
   width: 100%;
   margin: 0px auto;
-  padding: 10px 0 0px 0;
+  height: 55px;
   background-color: white;
   border-top: 1px solid ${({ theme }) => theme.grey.Grey2};
 
   display: flex;
   justify-content: space-around;
+  padding-bottom: env(safe-area-inset-bottom);
 
   @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
     display: none;
@@ -244,23 +362,31 @@ const StyleTab = styled.div`
 
 const StyleActiveTab = styled.div`
   width: 60px;
+  display: flex;
 `;
 
 const TabWrap = styled.div`
-  align-items: center;
   display: flex;
-  flex-direction: column;
-  text-decoration: none;
+
+  margin: auto;
 `;
 
+const TabSubWrap = styled.div`
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  text-decoration: none;
+  justify-content: center;
+  height: 55px;
+`;
 const TabText = styled.span`
-  padding-top: 5px;
+  // padding-top: 5px;
   font: ${({ theme }) => theme.fontSizes.Body1};
   color: ${({ theme }) => theme.grey.Grey4};
 `;
 
 const ActiveTabText = styled(TabText)`
-  padding-top: 5px;
+  // padding-top: 5px;
   font: ${({ theme }) => theme.fontSizes.Body1};
   color: ${({ theme }) => theme.mainColor.Black};
 `;

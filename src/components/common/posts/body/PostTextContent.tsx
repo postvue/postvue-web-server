@@ -4,9 +4,10 @@ import styled from 'styled-components';
 import { SEARCH_POST_PATH } from '../../../../const/PathConst';
 
 import LinkifyTextComponent from 'components/LinkifyTextComponent';
-import { stackRouterPush } from 'global/util/reactnative/StackRouter';
+import { RoutePushEventDateInterface } from 'const/ReactNativeConst';
+import { stackRouterPush } from 'global/util/reactnative/nativeRouter';
 import { isValidString } from 'global/util/ValidUtil';
-import { convertDiffrenceDateTime } from '../../../../global/util/DateTimeUtil';
+import { convertDiffrenceDateTimeByString } from '../../../../global/util/DateTimeUtil';
 
 interface PostTextContentProps {
   postTitle: string;
@@ -36,17 +37,19 @@ const PostTextContent: React.FC<PostTextContentProps> = ({
   };
 
   useEffect(() => {
-    if (textRef.current) {
-      const textHeight = textRef.current.scrollHeight;
-      const lineHeight = parseFloat(
-        getComputedStyle(textRef.current).lineHeight,
-      );
-      const maxAllowedHeight = lineHeight * bodyTextMaxLines;
+    setTimeout(() => {
+      if (textRef.current) {
+        const textHeight = textRef.current.scrollHeight;
+        const lineHeight = parseFloat(
+          getComputedStyle(textRef.current).lineHeight,
+        );
+        const maxAllowedHeight = lineHeight * bodyTextMaxLines;
 
-      if (textHeight > maxAllowedHeight) {
-        setIsTruncated(true);
+        if (textHeight > maxAllowedHeight) {
+          setIsTruncated(true);
+        }
       }
-    }
+    }, 100);
   }, [bodyTextMaxLines]);
 
   return (
@@ -73,13 +76,16 @@ const PostTextContent: React.FC<PostTextContentProps> = ({
           )}
         </PostTextFieldContentWrap>
       )}
-      <PostDateTime>{convertDiffrenceDateTime(postedAt)}</PostDateTime>
+      <PostDateTime>{convertDiffrenceDateTimeByString(postedAt)}</PostDateTime>
       <PostTagWrap onClick={(e) => e.stopPropagation()}>
         {tags.map((v, i) => (
           <div
-            onClick={() =>
-              stackRouterPush(navigate, `${SEARCH_POST_PATH}/${v}`)
-            }
+            onClick={() => {
+              const data: RoutePushEventDateInterface = {
+                isShowInitBottomNavBar: true,
+              };
+              stackRouterPush(navigate, `${SEARCH_POST_PATH}/${v}`, data);
+            }}
             key={i}
           >
             <PostTag>#{v}</PostTag>
@@ -135,6 +141,7 @@ const PostTag = styled.div`
 
 const BodyExpandedButton = styled.div`
   position: absolute;
+  cursor: pointer;
   right: 0;
   bottom: 0;
   font: ${({ theme }) => theme.fontSizes.Body3};

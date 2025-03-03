@@ -1,7 +1,8 @@
 import { ReactComponent as SearchButtonIcon } from 'assets/images/icon/svg/SearchButtonIcon.svg';
 import { SEARCH_PATH } from 'const/PathConst';
+import { SEARCH_PAGE_NAME } from 'const/ReactNativeConst';
 import { MEDIA_MOBILE_MAX_WIDTH } from 'const/SystemAttrConst';
-import { stackRouterPush } from 'global/util/reactnative/StackRouter';
+import { navigateToTabWithUrl } from 'global/util/reactnative/nativeRouter';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -10,7 +11,11 @@ const SearchTabComponent: React.FC = () => {
   const navigate = useNavigate();
   return (
     <SearchTab>
-      <SubTabContainer onClick={() => stackRouterPush(navigate, SEARCH_PATH)}>
+      <SubTabContainer
+        onClick={() => {
+          navigateToTabWithUrl(navigate, SEARCH_PAGE_NAME, SEARCH_PATH);
+        }}
+      >
         <SearchButtonIcon />
       </SubTabContainer>
     </SearchTab>

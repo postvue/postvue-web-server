@@ -7,7 +7,7 @@ import {
   QUERY_STATE_POST_COMMENT_REPLY_LIST,
 } from 'const/QueryClientConst';
 import { PostComment } from 'global/interface/post';
-import { animateCount } from 'global/util/commentUtil';
+import { animateCount } from 'global/util/CommentUtil';
 import { convertQueryTemplate } from 'global/util/TemplateUtil';
 import { createPostCommentReply } from 'services/post/createPostCommentReply';
 import { GetPostCommentsRsp } from 'services/post/getPostComments';
@@ -83,7 +83,7 @@ export const QueryMutationCreatePostCommentReply = (): UseMutationResult<
                 // 첫 번째 페이지에 새로운 아이템을 추가
                 return {
                   ...page,
-                  snsPostCommentRspList: [data, ...page.snsPostCommentRspList], // 맨 앞에 새로운 아이템 추가
+                  snsPostCommentRspList: [...page.snsPostCommentRspList, data], // 맨 앞에 새로운 아이템 추가
                 } as GetPostCommentsRsp;
               }
               return page;

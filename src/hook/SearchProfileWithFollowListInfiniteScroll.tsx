@@ -13,7 +13,7 @@ const SearchProfileWithFollowListInfiniteScroll: React.FC<
 > = ({ username }) => {
   const { ref, inView } = useInView();
 
-  const { fetchNextPage, hasNextPage, isFetchingNextPage } =
+  const { fetchNextPage, hasNextPage, isFetchingNextPage, data } =
     QueryStateSearchProfileUserListInfinite(username, true);
 
   useEffect(() => {
@@ -24,7 +24,13 @@ const SearchProfileWithFollowListInfiniteScroll: React.FC<
 
   return (
     <PostRelationWrap ref={ref}>
-      <InViewComponent />
+      <InViewComponent
+        hasLoadingIcon={
+          (data
+            ? data?.pages[0].getProfileUserByUsernameList.length > 5
+            : false) && hasNextPage
+        }
+      />
     </PostRelationWrap>
   );
 };

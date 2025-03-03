@@ -7,25 +7,35 @@ import {
   isSettingByMsgConversationAtom,
   profileInfoByDirectMsgAtom,
 } from '../../../states/MessageAtom';
-import { sessionActiveUserInfoHashMapAtom } from '../../../states/SessionAtom';
 import theme from '../../../styles/theme';
 import PrevButton from '../../PrevButton';
 
 import { ReactComponent as SettingVerticalDotIcon } from 'assets/images/icon/svg/SettingVerticalDotIcon.svg';
 import HeaderLayout from 'components/layouts/HeaderLayout';
 import ContextMenuPopup from 'components/popups/ContextMenuPopup';
-import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
-import { stackRouterPush } from 'global/util/reactnative/StackRouter';
+import {
+  MEDIA_MOBILE_MAX_WIDTH,
+  MEDIA_MOBILE_MAX_WIDTH_NUM,
+} from 'const/SystemAttrConst';
 import useWindowSize from 'hook/customhook/useWindowSize';
+import { useActiveUserSessionHookByIndexedDb } from 'hook/db/useActiveUserSessionHookByIndexedDb';
 import MsgConversationSettingPopupBody from '../popup/MsgConversationSettingPopupBody';
 
-const MsgConversationHeader: React.FC = () => {
+interface MsgConversationHeaderProps {
+  MsgConversationHeaderStyle?: React.CSSProperties;
+  MsgConversationHeaderSubStyle?: React.CSSProperties;
+  isPrevButton?: boolean;
+}
+
+const MsgConversationHeader: React.FC<MsgConversationHeaderProps> = ({
+  MsgConversationHeaderStyle,
+  MsgConversationHeaderSubStyle,
+  isPrevButton = true,
+}) => {
   const msgSettingButtonRef = useRef<HTMLDivElement>(null);
 
   const profileInfoByDirectMsg = useRecoilValue(profileInfoByDirectMsgAtom);
-  const sessionActiveUserInfoHashMap = useRecoilValue(
-    sessionActiveUserInfoHashMapAtom,
-  );
+  const { activeUserSessions } = useActiveUserSessionHookByIndexedDb();
   const navigate = useNavigate();
   const [isSettingByMsgConversation, setIsSettingByMsgConversation] =
     useRecoilState(isSettingByMsgConversationAtom);
@@ -37,23 +47,30 @@ const MsgConversationHeader: React.FC = () => {
   const { windowWidth } = useWindowSize();
 
   return (
-    <MsgConversationHeaderContainer>
+    <MsgConversationHeaderContainer
+      style={{ ...{ flexShrink: '0' }, ...MsgConversationHeaderStyle }}
+    >
       <HeaderLayout
         HeaderLayoutStyle={{
-          paddingBottom: '5px',
-          borderBottom: `1px solid ${theme.grey.Grey2}`,
+          ...{
+            paddingBottom: '5px',
+            borderBottom: `1px solid ${theme.grey.Grey2}`,
+            position: 'static',
+          },
+          ...MsgConversationHeaderSubStyle,
         }}
       >
         <MsgProfileHeaderContainer>
           <MsgProfileHeaderWrap>
-            <PrevButtonWrap>
-              <PrevButton style={PrevStyle} />
-            </PrevButtonWrap>
+            {isPrevButton && (
+              <PrevButtonWrap>
+                <PrevButton style={PrevStyle} />
+              </PrevButtonWrap>
+            )}
             <FollowProfileInfoWrap>
               <div
                 onClick={() =>
-                  stackRouterPush(
-                    navigate,
+                  navigate(
                     `${PROFILE_LIST_PATH}/${profileInfoByDirectMsg.username}`,
                   )
                 }
@@ -65,16 +82,21 @@ const MsgConversationHeader: React.FC = () => {
                     />
                     <FollowActive
                       $sessionState={
-                        sessionActiveUserInfoHashMap.get(
-                          profileInfoByDirectMsg.targetUserId,
+                        activeUserSessions.find(
+                          (v) => v.id === profileInfoByDirectMsg.targetUserId,
                         )?.sessionState || false
                       }
                     />
                   </FolowProfileActiveWrap>
                   <FollowProfileNameWrap>
-                    <FollowProfileName>
-                      {profileInfoByDirectMsg.username}
-                    </FollowProfileName>
+                    <FollowNameWrap>
+                      <FollowProfileNickname>
+                        {profileInfoByDirectMsg.nickname}
+                      </FollowProfileNickname>
+                      <FollowProfileUsername>
+                        @{profileInfoByDirectMsg.username}
+                      </FollowProfileUsername>
+                    </FollowNameWrap>
                   </FollowProfileNameWrap>
                 </FollowProfileInfoLinkWrap>
               </div>
@@ -91,7 +113,7 @@ const MsgConversationHeader: React.FC = () => {
                 msgSettingButtonRef.current && (
                   <ContextMenuPopup
                     contextMenuRef={msgSettingButtonRef.current}
-                    setIsActive={setIsSettingByMsgConversation}
+                    onClose={() => setIsSettingByMsgConversation(false)}
                   >
                     <MsgConversationSettingPopupBody
                       MsgSettingContainerStyle={{ padding: '20px' }}
@@ -109,8 +131,12 @@ const MsgConversationHeader: React.FC = () => {
 
 const MsgConversationHeaderContainer = styled.div`
   width: 100%;
-  max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
   position: fixed;
+  max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
+
+  @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
+    max-width: ${theme.systemSize.appDisplaySize.widthByPc};
+  }
   background-color: ${({ theme }) => theme.mainColor.White};
   z-index: 100;
 `;
@@ -149,6 +175,7 @@ const FollowProfileInfoLinkWrap = styled.div`
 
 const FolowProfileActiveWrap = styled.div`
   position: relative;
+  margin: auto 0;
 `;
 
 const FollowProfileImg = styled.img`
@@ -156,6 +183,7 @@ const FollowProfileImg = styled.img`
   height: 35px;
   border-radius: 20px;
   vertical-align: bottom;
+  object-fit: cover;
 `;
 
 const FollowActive = styled.div<{ $sessionState: boolean }>`
@@ -173,9 +201,18 @@ const FollowActive = styled.div<{ $sessionState: boolean }>`
 const FollowProfileNameWrap = styled.div`
   display: flex;
 `;
-const FollowProfileName = styled.div`
-  font: ${({ theme }) => theme.fontSizes.Subhead3};
+
+const FollowNameWrap = styled.div`
   margin: auto 0;
+`;
+
+const FollowProfileUsername = styled.div`
+  font: ${({ theme }) => theme.fontSizes.Body1};
+  color: ${({ theme }) => theme.grey.Grey6};
+`;
+
+const FollowProfileNickname = styled.div`
+  font: ${({ theme }) => theme.fontSizes.Subhead2};
 `;
 
 const SettingButtonWrap = styled.div`

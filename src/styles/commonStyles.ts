@@ -8,6 +8,42 @@ export const filterBrigntnessStyle = css`
   }
 `;
 
+export const hoverComponentStyle = css`
+  cursor: pointer;
+
+  border-radius: 16px;
+
+  transition: background 0.2s ease-in-out;
+  @media (hover: hover) {
+    &:hover {
+      background: rgba(0, 0, 0, 0.05);
+    }
+  }
+
+  @media (hover: none) {
+    &:active {
+      background: rgba(0, 0, 0, 0.05);
+    }
+  }
+`;
+
+export const hoverComponentNotRoundStyle = css`
+  cursor: pointer;
+
+  transition: background 0.2s ease-in-out;
+  @media (hover: hover) {
+    &:hover {
+      background: rgba(0, 0, 0, 0.05);
+    }
+  }
+
+  @media (hover: none) {
+    &:active {
+      background: rgba(0, 0, 0, 0.05);
+    }
+  }
+`;
+
 export const hoverRoundCoverStyle = css`
   cursor: pointer;
 

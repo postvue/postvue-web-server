@@ -42,6 +42,7 @@ export const QueryStatePostCommentReplyListInfinite = (
 
       return getPostCommentReplies(postId, commentId, pageParam);
     },
+    refetchOnMount: 'always',
 
     getNextPageParam: (lastPage) => {
       // Increment pageParam by 1 for the next page

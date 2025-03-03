@@ -1,3 +1,4 @@
+import { DateTime } from 'luxon';
 import { NOT_DATE_TIME } from '../../const/SystemPhraseConst';
 
 export const convertDtStrToDStr = (dateTimeString: string): string => {
@@ -33,10 +34,51 @@ export const convertDtStrToDTStr = (dateTimeString: string): string => {
   }
 };
 
-export const convertDiffrenceDateTime = (dateTimeString: string): string => {
-  if (!dateTimeString) {
+export const convertDiffrenceDateTime = (dateTime: Date): string => {
+  try {
+    const currentDate = new Date();
+    const postDate = dateTime;
+
+    const diffInMillis = currentDate.getTime() - postDate.getTime();
+    const diffInMinutes = Math.floor(diffInMillis / (1000 * 60));
+    const diffInHours = Math.floor(diffInMillis / (1000 * 60 * 60));
+
+    // 1. 같은 날인 경우 (시간 차이만 보여줌)
+    if (diffInHours < 1) {
+      return `${diffInMinutes}분 전`;
+    }
+
+    if (diffInHours < 24) {
+      return `${diffInHours}시간 전`;
+    }
+
+    // 2. 1년 미만일 때는 일 단위로 표시
+    const diffInDays = Math.floor(diffInMillis / (1000 * 60 * 60 * 24));
+    if (diffInDays < 365) {
+      return `${diffInDays}일 전`;
+    }
+
+    // 3. 1년 이상인 경우 정확한 년 차이 계산
+    let diffInYears = currentDate.getFullYear() - postDate.getFullYear();
+    const hasBirthdayPassedThisYear =
+      currentDate.getMonth() > postDate.getMonth() ||
+      (currentDate.getMonth() === postDate.getMonth() &&
+        currentDate.getDate() >= postDate.getDate());
+
+    if (!hasBirthdayPassedThisYear) {
+      diffInYears--;
+    }
+
+    return `${diffInYears}년 전`;
+  } catch (e) {
     return NOT_DATE_TIME;
   }
+};
+
+export const convertDiffrenceDateTimeByString = (
+  dateTimeString: string,
+): string => {
+  if (!isISODate(dateTimeString)) return NOT_DATE_TIME;
 
   try {
     const currentDate = new Date();
@@ -155,3 +197,37 @@ export function formatToMinutesAndSeconds(seconds: number): string {
   const remainingSeconds = seconds % 60;
   return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
 }
+
+export function returnMapPeriodDate(date: Date): string {
+  const now = new Date();
+  const year = date.getFullYear() % 100;
+  const month = date.getMonth() + 1; // JavaScript의 getMonth()는 0부터 시작하므로 +1 필요
+  const day = date.getDate();
+
+  return now.getFullYear() === year
+    ? `${month}월 ${day}일`
+    : `${year}년 ${month}월 ${day}일`;
+}
+
+export function isISODate(str: string): boolean {
+  return DateTime.fromISO(str, { zone: 'utc' }).isValid;
+}
+
+const formatter = new Intl.DateTimeFormat(undefined, {
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+  timeZoneName: 'short',
+  hour12: false,
+});
+
+export const formattedTimes = (dateTime: string): string => {
+  return formatter.format(new Date(dateTime));
+};
+export const convertDateToCurrentCountryISO = (date: Date): string | null => {
+  const dateTime = DateTime.fromJSDate(date).setZone('system');
+  return dateTime.toISO();
+};

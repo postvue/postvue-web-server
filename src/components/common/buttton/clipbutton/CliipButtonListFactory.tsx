@@ -1,36 +1,22 @@
-import { onClickClipGlobalState } from 'global/globalstateaction/onClickClipGlobalState';
-import { QueryStateProfileAccountPostList } from 'hook/queryhook/QueryStateProfileAccountPostList';
 import React from 'react';
-import { PostClipRsp } from '../../../../global/interface/post';
 import ClipButton from './ClipButton';
 
 interface ClipButtonListFactoryProps {
   username: string;
   postId: string;
+  isClipped: boolean;
 }
 
 const ClipButtonListFactory: React.FC<ClipButtonListFactoryProps> = ({
   username,
   postId,
+  isClipped,
 }) => {
-  const { data: profilePostList } = QueryStateProfileAccountPostList(username);
-  const snsPost = profilePostList?.pages
-    .flatMap((value) => value.snsPostRspList)
-    .find((value) => value.postId === postId);
-
-  const setClipListButtonState = (value: PostClipRsp) => {
-    if (snsPost) {
-      onClickClipGlobalState(username, postId, !snsPost.isClipped, snsPost);
-    }
-  };
+  // const { data: profilePost } = QueryStateProfilePost(postId, true);
 
   return (
     <>
-      <ClipButton
-        postId={postId}
-        setClipStete={setClipListButtonState}
-        isClipped={snsPost?.isClipped || false}
-      />
+      <ClipButton username={username} postId={postId} isClipped={isClipped} />
     </>
   );
 };

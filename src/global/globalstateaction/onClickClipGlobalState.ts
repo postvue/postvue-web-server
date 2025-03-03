@@ -1,11 +1,8 @@
 import { queryClient } from 'App';
 import { QUERY_STATE_PROFILE_ACCOUNT_POST_LIST } from 'const/QueryClientConst';
 import { PostRsp } from 'global/interface/post';
-import { refetchProfileScrapList } from 'global/util/channel/static/refetchProfileScrapList';
-import {
-  setQueryProfileClipList,
-  setQueryRemoveProfileClipList,
-} from 'global/util/channel/static/setQueryProfileClipList';
+import { fetchProfileScrapListInfinite } from 'global/util/channel/static/fetchProfileScrapListInfinite';
+import { setQueryOrFetchProfileClipListInfinite } from 'global/util/channel/static/setQueryOrFetchProfileClipListInfinite';
 import { ProfilePostListQueryInterface } from 'hook/queryhook/QueryStateProfileAccountPostList';
 import 'swiper/css';
 
@@ -45,59 +42,7 @@ export const onClickClipGlobalState = (
     },
   );
 
-  if (isClipped) {
-    // queryClient.setQueryData(
-    //   [QUERY_STATE_PROFILE_CLIP_LIST],
-    //   (oldData: ProfileClipListQueryInterface) => {
-    //     if (!oldData) {
-    //       return oldData;
-    //     }
-    //     return {
-    //       ...oldData,
-    //       pages: oldData.pages.map((page, index) => {
-    //         // 삭제할 댓글을 제외한 새로운 리스트를 반환
-    //         if (index !== 0) return page;
-    //         const updatedProfileClipList = [...page.snsPostRspList];
-    //         updatedProfileClipList.unshift(snsPost);
+  setQueryOrFetchProfileClipListInfinite(postId, isClipped, snsPost);
 
-    //         const date: GetMyProfileClipListRsp = {
-    //           ...page,
-    //           snsPostRspList: updatedProfileClipList,
-    //         };
-
-    //         return date;
-    //       }),
-    //     };
-    //   },
-    // );
-    setQueryProfileClipList(snsPost);
-  } else {
-    // queryClient.setQueryData(
-    //   [QUERY_STATE_PROFILE_CLIP_LIST],
-    //   (oldData: ProfileClipListQueryInterface) => {
-    //     if (!oldData) {
-    //       return oldData;
-    //     }
-    //     return {
-    //       ...oldData,
-    //       pages: oldData.pages.map((page) => {
-    //         // 삭제할 댓글을 제외한 새로운 리스트를 반환
-    //         const updatedProfileClipList = page.snsPostRspList.filter(
-    //           (value) => value.postId !== postId,
-    //         );
-
-    //         const date: GetMyProfileClipListRsp = {
-    //           ...page,
-    //           snsPostRspList: updatedProfileClipList,
-    //         };
-
-    //         return date;
-    //       }),
-    //     };
-    //   },
-    // );
-    setQueryRemoveProfileClipList(postId);
-  }
-
-  refetchProfileScrapList();
+  fetchProfileScrapListInfinite();
 };

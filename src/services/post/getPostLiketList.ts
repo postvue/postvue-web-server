@@ -3,7 +3,7 @@ import { PostProfileInfoRsp } from '../../global/interface/post';
 import { LIKE_LIST_PATH, POST_LIST_PATH } from '../appApiPath';
 import { CURSOR_PARAM } from '../appApiQueryParam';
 
-interface GetRePostsRsp {
+export interface GetPostLikeRsp {
   cursorId: string;
   snsPostLikeGetRspList: PostProfileInfoRsp[];
 }
@@ -11,7 +11,7 @@ interface GetRePostsRsp {
 export const getPostLikeList = (
   postId: string,
   cursorId: string,
-): Promise<GetRePostsRsp> => {
+): Promise<GetPostLikeRsp> => {
   return optAuthApi
     .get(
       `${POST_LIST_PATH}/${postId}${LIKE_LIST_PATH}?${CURSOR_PARAM}=${cursorId}`,

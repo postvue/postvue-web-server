@@ -1,20 +1,17 @@
 import { ReactComponent as SettingVerticalDotIcon } from 'assets/images/icon/svg/SettingVerticalDotIcon.svg';
-import { NOTIFICATION_LIST_PATH } from 'const/PathConst';
 import React, { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useRecoilState, useRecoilValue } from 'recoil';
+import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
 
-import { ReactComponent as NotificationActiveIcon } from 'assets/images/icon/svg/NotificationActiveIcon.svg';
-import { ReactComponent as NotificationNotActiveIcon } from 'assets/images/icon/svg/NotificationNotActiveIcon.svg';
+import SearchTabComponent from 'components/home/header/SearchTabComponent';
 import HeaderLayout from 'components/layouts/HeaderLayout';
+import NotificationTabButton from 'components/notification/NotificationTabButton';
 import ContextMenuPopup from 'components/popups/ContextMenuPopup';
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
-import { stackRouterPush } from 'global/util/reactnative/StackRouter';
 import useWindowSize from 'hook/customhook/useWindowSize';
 import { QueryStateMyProfileInfo } from 'hook/queryhook/QueryStateMyProfileInfo';
 import { isActiveMsgBlockHiddenManagePopupAtom } from 'states/MsgInboxAtom';
-import { notificationMsgHashMapAtom } from 'states/NotificationAtom';
 import MsgBlockHiddenManagePopupBody from '../popup/MsgBlockHiddenManagePopupBody';
 
 const MessageInboxHeader: React.FC = () => {
@@ -24,19 +21,11 @@ const MessageInboxHeader: React.FC = () => {
     isActiveMsgBlockHiddenManagePopup,
     setIsActiveMsgBlockHiddenManagePopup,
   ] = useRecoilState(isActiveMsgBlockHiddenManagePopupAtom);
-  const { data: myAccountSettingInfo } = QueryStateMyProfileInfo();
+  const { data: myAccountSettingInfo, isFetched } = QueryStateMyProfileInfo();
 
   const onClickPopup = () => {
     setIsActiveMsgBlockHiddenManagePopup(true);
   };
-
-  // const { data: lastNotificationList } = QueryStateNotificationMsg(
-  //   getLastNotificationReadAt(),
-  // );
-
-  // const [hasNotification, setHasNotification] = useState<boolean>(false);
-
-  const notificationMsgHashMap = useRecoilValue(notificationMsgHashMapAtom);
 
   const { windowWidth } = useWindowSize();
 
@@ -45,20 +34,23 @@ const MessageInboxHeader: React.FC = () => {
       <HeaderLayout>
         <MessageInboxHeaderWrap>
           <ProfileNameWrap>
-            <ProfileNameDiv>{myAccountSettingInfo?.username}</ProfileNameDiv>
+            {isFetched && (
+              <ProfileNameDiv>
+                {/* <ProfileNickname>
+                {myAccountSettingInfo?.nickname}.
+              </ProfileNickname> */}
+                <ProfileUsername>
+                  @{myAccountSettingInfo?.username}
+                </ProfileUsername>
+              </ProfileNameDiv>
+            )}
           </ProfileNameWrap>
           <MessageSettingWrap>
-            <NotificationTab
-              onClick={() => stackRouterPush(navigate, NOTIFICATION_LIST_PATH)}
-            >
-              {Array.from(notificationMsgHashMap.entries()).some(
-                (value) => value[1].isRead === false,
-              ) ? (
-                <NotificationActiveIcon />
-              ) : (
-                <NotificationNotActiveIcon />
-              )}
-            </NotificationTab>
+            <SearchTabComponent />
+            {windowWidth < MEDIA_MOBILE_MAX_WIDTH_NUM && (
+              <NotificationTabButton />
+            )}
+
             <SettingButtonWrap>
               <SettingButton onClick={onClickPopup} ref={msgInboxSettingRef}>
                 <SettingVerticalDotIcon />
@@ -68,7 +60,7 @@ const MessageInboxHeader: React.FC = () => {
                 msgInboxSettingRef.current && (
                   <ContextMenuPopup
                     contextMenuRef={msgInboxSettingRef.current}
-                    setIsActive={setIsActiveMsgBlockHiddenManagePopup}
+                    onClose={() => setIsActiveMsgBlockHiddenManagePopup(false)}
                   >
                     <MsgBlockHiddenManagePopupBody
                       BlockedHiddenManageContainerStyle={{ margin: '20px' }}
@@ -100,13 +92,24 @@ const ProfileNameWrap = styled.div`
   display: flex;
 `;
 const ProfileNameDiv = styled.div`
+  margin: auto 0px;
+  display: flex;
+  gap: 5px;
+`;
+
+const ProfileNickname = styled.div`
   font: ${({ theme }) => theme.fontSizes.Headline2};
   margin: auto 0px;
 `;
 
+const ProfileUsername = styled.div`
+  font: ${({ theme }) => theme.fontSizes.Headline2};
+  color: ${({ theme }) => theme.grey.Grey9};
+`;
+
 const MessageSettingWrap = styled.div`
   display: flex;
-  gap: 10px;
+  gap: 13px;
 `;
 
 const SettingButtonWrap = styled.div`
@@ -117,12 +120,6 @@ const SettingButton = styled.div`
   display: flex;
   margin: auto 0px;
   cursor: pointer;
-`;
-
-const NotificationTab = styled.div`
-  cursor: pointer;
-  display: flex;
-  margin: auto 0px;
 `;
 
 export default MessageInboxHeader;

@@ -1,13 +1,10 @@
-import { queryClient } from 'App';
-import { ReactComponent as FeelogLogo } from 'assets/images/icon/svg/logo/FeelogLogo62x30.svg';
+import { ReactComponent as FeelogLogo } from 'assets/images/icon/svg/logo/FeelogLogo.svg';
 import TabStickBar from 'components/common/container/TabStickBar';
 import HeaderLayout from 'components/layouts/HeaderLayout';
-import { QUERY_STATE_MY_PROFILE_INFO } from 'const/QueryClientConst';
 import { MEDIA_MOBILE_MAX_WIDTH } from 'const/SystemAttrConst';
-import { PostRsp } from 'global/interface/post';
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
 import { useRecoilState } from 'recoil';
+import { homeTabInfoAtom } from 'states/HomePageAtom';
 import styled from 'styled-components';
 import { ACTIVE_CLASS_NAME } from '../../../const/ClassNameConst';
 import {
@@ -16,17 +13,10 @@ import {
   TASTE_FOR_ME_TAB_ID,
   TASTE_FOR_ME_TAB_NAME,
 } from '../../../const/TabConfigConst';
-import { HomeHistoryInterface } from '../../../global/interface/localstorage/HomeHistoryInterface';
-import {
-  getHomeHistory,
-  saveMainTabIdByHomeHistory,
-} from '../../../global/util/HomeUtil';
-import { homeTabIdAtom } from '../../../states/HomePageAtom';
 import SearchTabComponent from './SearchTabComponent';
 
 const HomeHeader: React.FC = () => {
-  const navigate = useNavigate();
-  const [mainTabId, setMainTabId] = useRecoilState(homeTabIdAtom);
+  const [mainTabInfo, setMainTabInfo] = useRecoilState(homeTabInfoAtom);
 
   const mainTabList = [
     {
@@ -39,17 +29,17 @@ const HomeHeader: React.FC = () => {
     },
   ];
 
-  useEffect(() => {
-    const homeHistory: HomeHistoryInterface = getHomeHistory();
-    setMainTabId(homeHistory.mainTabId);
+  // useEffect(() => {
+  // const homeHistory: HomeHistoryInterface = getHomeHistory();
 
-    setTimeout(() => {
-      const queryData: PostRsp | undefined = queryClient.getQueryData([
-        QUERY_STATE_MY_PROFILE_INFO,
-      ]);
-      console.log(queryData);
-    }, 2000);
-  }, []);
+  // setMainTabInfo({
+  //   activeTabId: homeHistory.mainTabId,
+  //   scrollInfo: {
+  //     isActive: false,
+  //     scroll: 0,
+  //   },
+  // });
+  // }, []);
 
   return (
     <>
@@ -62,6 +52,7 @@ const HomeHeader: React.FC = () => {
       >
         <HomeHeaderContainer>
           <AppLogoWrap>
+            {/* <FeelogLogo /> */}
             <FeelogLogo />
           </AppLogoWrap>
 
@@ -69,14 +60,24 @@ const HomeHeader: React.FC = () => {
             {mainTabList.map((v, i) => (
               <TabItem
                 key={i}
-                className={mainTabId === v.tabId ? ACTIVE_CLASS_NAME : ''}
+                className={
+                  mainTabInfo.activeTabId === v.tabId ? ACTIVE_CLASS_NAME : ''
+                }
                 onClick={() => {
-                  saveMainTabIdByHomeHistory(v.tabId);
-                  setMainTabId(v.tabId);
+                  // saveMainTabIdByHomeHistory(v.tabId);
+
+                  setMainTabInfo({
+                    activeTabId: v.tabId,
+                    scrollInfo: {
+                      isActive: false,
+                      scroll: 0,
+                    },
+                  });
                 }}
               >
                 {v.tabName}
-                {mainTabId === v.tabId && <TabStickBar />}
+
+                {mainTabInfo.activeTabId === v.tabId && <TabStickBar />}
               </TabItem>
             ))}
           </HomeTabContainer>
@@ -93,12 +94,13 @@ const HomeHeaderContainer = styled.div`
   display: flex;
   justify-content: space-between;
   padding: 0 15px;
+  position: relative;
 `;
 
 const HomeTabContainer = styled.div`
   display: flex;
   gap: 20px;
-  position: fixed;
+  position: absolute;
   z-index: 1;
   left: 50%;
   top: 50%;

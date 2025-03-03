@@ -10,19 +10,33 @@ export const isActivPostComposePopupAtom = atom<boolean>({
   default: false,
 });
 
+export const isActivPostVideoComposePopupAtom = atom<boolean>({
+  key: 'isActivPostVideoComposePopup',
+  default: false,
+});
+
+export type PostEditType = 'image' | 'video' | '';
+
 export const postEditActiveInfoPopupAtom = atom<{
   postId: string;
+  type: PostEditType;
   isActive: boolean;
 }>({
   key: 'postEditActiveInfoPopup',
   default: {
     postId: '',
+    type: '',
     isActive: false,
   },
 });
 
 export const isActivPostComposeSelectPopupAtom = atom<boolean>({
   key: 'isActivPostComposeSelectPopup',
+  default: false,
+});
+
+export const isNotSupportVideoConfirmPopupAtom = atom<boolean>({
+  key: 'isNotSupportVideoConfirmPopup',
   default: false,
 });
 
@@ -51,6 +65,11 @@ export const isActivPostComposeTargetAudiencePopupAtom = atom<boolean>({
   default: false,
 });
 
+export const isActivPostComposeVideoSelectTypePopupAtom = atom<boolean>({
+  key: 'isActivPostComposeVideoSelectTypePopup',
+  default: false,
+});
+
 export const isActivPostComposeLocationPopupAtom = atom<boolean>({
   key: 'isActivPostComposeLocationPopup',
   default: false,
@@ -61,5 +80,7 @@ export const postComposeAddressRelationAtom = atom<MapAddressRelation>({
   default: {
     roadAddr: '',
     buildName: '',
+    latitude: 0,
+    longitude: 0,
   },
 });

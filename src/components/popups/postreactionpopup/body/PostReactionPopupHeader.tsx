@@ -4,8 +4,6 @@ import {
   POST_REACTION_COMMENT_NAME,
   POST_REACTION_LIKE_ID,
   POST_REACTION_LIKE_NAME,
-  POST_REACTION_REPOST_ID,
-  POST_REACTION_REPOST_NAME,
 } from 'const/TabConfigConst';
 import React from 'react';
 import { useRecoilState } from 'recoil';
@@ -23,10 +21,6 @@ const PostReactionPopupHeader: React.FC<PostReactionPopupHeaderProps> = ({
     {
       tabId: POST_REACTION_COMMENT_ID,
       tabName: POST_REACTION_COMMENT_NAME,
-    },
-    {
-      tabId: POST_REACTION_REPOST_ID,
-      tabName: POST_REACTION_REPOST_NAME,
     },
     {
       tabId: POST_REACTION_LIKE_ID,

@@ -13,7 +13,7 @@ interface ToggleProps {
 const ToggleSwitchButton: React.FC<ToggleProps> = ({
   width = 40,
   height = 24,
-  backgroundColor = theme.mainColor.Blue,
+  backgroundColor = theme.mainColor.Black,
   isActive = false,
   actionFunc,
 }) => {

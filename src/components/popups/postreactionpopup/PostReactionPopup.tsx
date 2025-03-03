@@ -1,9 +1,10 @@
 import BottomSnapSheetLayout from 'components/layouts/BottomSnapSheetLayout';
 import RoundSquareCenterPopupLayout from 'components/layouts/RoundSquareCenterPopupLayout';
+import { COMMENT_CONTAINER_ID } from 'const/IdNameConst';
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
 import { POST_REACTION_COMMENT_ID } from 'const/TabConfigConst';
 import useWindowSize from 'hook/customhook/useWindowSize';
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { PostCommentReplyMsgInfo } from '../../../global/interface/post';
 import {
@@ -21,7 +22,7 @@ interface PostReactionPopupProps {
   setReplyMsg: React.Dispatch<
     React.SetStateAction<PostCommentReplyMsgInfo | null>
   >;
-  isFixed?: boolean;
+  heightNum?: number;
 }
 
 const PostReactionPopup: React.FC<PostReactionPopupProps> = ({
@@ -29,7 +30,7 @@ const PostReactionPopup: React.FC<PostReactionPopupProps> = ({
   username,
   replyMsg,
   setReplyMsg,
-  isFixed = true,
+  heightNum,
 }) => {
   // Ref 관련 변수
   const likeIconRef = useRef<{ [key: string]: SVGSVGElement | null }>({});
@@ -44,6 +45,12 @@ const PostReactionPopup: React.FC<PostReactionPopupProps> = ({
   const { windowWidth, windowHeight } = useWindowSize();
 
   const reactionTabId = useRecoilValue(postReactionTabIdAtom);
+
+  useEffect(() => {
+    return () => {
+      setReplyMsg(null);
+    };
+  }, []);
 
   return (
     <>
@@ -64,11 +71,13 @@ const PostReactionPopup: React.FC<PostReactionPopupProps> = ({
         //   />
         // </PopupLayout>
         <BottomSnapSheetLayout
-          isFixed={isFixed}
           isOpen={isPopupActive}
           onClose={() => setIsPopupActive(false)}
-          heightNum={Math.floor(windowHeight * (10 / 11))}
+          heightNum={
+            heightNum ? heightNum : Math.floor(windowHeight * (10 / 11))
+          }
           bottomSheetHeader={<PostReactionPopupHeader />}
+          scrollContainerElementId={COMMENT_CONTAINER_ID}
           BottomSheetBottom={
             reactionTabId === POST_REACTION_COMMENT_ID && (
               <PostReactionCommentSendElement
@@ -89,6 +98,7 @@ const PostReactionPopup: React.FC<PostReactionPopupProps> = ({
             postCommentTextareaRef={postCommentTextareaRef}
             commentReplyCountRef={commentReplyCountRef}
             setReplyMsg={setReplyMsg}
+            PostReactionPopupBodyStyle={{ height: '100%' }}
           />
         </BottomSnapSheetLayout>
       ) : (
@@ -96,7 +106,6 @@ const PostReactionPopup: React.FC<PostReactionPopupProps> = ({
           {isPopupActive && (
             <RoundSquareCenterPopupLayout
               onClose={() => setIsPopupActive(false)}
-              popupWrapStyle={{ height: '90%' }}
             >
               <PostReactionPopupHeader
                 PostReactionTabStyle={{ flexShrink: 0 }}

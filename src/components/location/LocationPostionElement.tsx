@@ -10,7 +10,6 @@ interface LocationPositionElementProps {
 
 const LocationPositionElement: React.FC<LocationPositionElementProps> = ({
   onClickAddress,
-
   buildName,
   roadAddr,
 }) => {
@@ -24,6 +23,7 @@ const LocationPositionElement: React.FC<LocationPositionElementProps> = ({
 
 const LocatoinPositionWrap = styled.div`
   cursor: pointer;
+  width: 100%;
 `;
 
 const LocatoinPositionBuildName = styled.div`

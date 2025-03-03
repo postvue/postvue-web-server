@@ -4,7 +4,7 @@ import {
 } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { PAGE_NUM } from 'const/PageConfigConst';
-import { QUERY_STATE_RECOMM_FAVORITTE_TAG_LIST } from 'const/QueryClientConst';
+import { QUERY_STATE_PROFILE_BLOCKED_USER_LIST } from 'const/QueryClientConst';
 import { ProfileBlockedUserRsp } from 'global/interface/profile';
 import { getProfileBlockedUserList } from 'services/profile/getProfileBlockedUserList';
 
@@ -23,7 +23,7 @@ export const QueryStateProfileBlockedUserList = (): UseInfiniteQueryResult<
     ProfileBlockedUserListInterface,
     [string]
   >({
-    queryKey: [QUERY_STATE_RECOMM_FAVORITTE_TAG_LIST], // query key
+    queryKey: [QUERY_STATE_PROFILE_BLOCKED_USER_LIST], // query key
     queryFn: async ({ pageParam }) => {
       // pageParam이 string인지 확인
 

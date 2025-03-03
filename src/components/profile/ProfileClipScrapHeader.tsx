@@ -3,26 +3,28 @@ import React, { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { ACTIVE_CLASS_NAME } from '../../const/ClassNameConst';
-import {
-  PROFILE_CLIP_LIST_PATH,
-  PROFILE_LIST_PATH,
-  PROFILE_SCRAP_LIST_PATH,
-} from '../../const/PathConst';
 import MyAccountSettingInfoState from '../common/state/MyAccountSettingInfoState';
 
-import AccountSettingButton from 'components/common/buttton/AccountSettingButton';
 import TabStickBar from 'components/common/container/TabStickBar';
-import { stackRouterPush } from 'global/util/reactnative/StackRouter';
+import SearchTabComponent from 'components/home/header/SearchTabComponent';
+import {
+  PROFILE_CLIP_TAB_ID,
+  PROFILE_CLIP_TAB_NAME,
+  PROFILE_SCRAP_TAB_ID,
+  PROFILE_SCRAP_TAB_NAME,
+} from 'const/TabConfigConst';
 import { QueryStateMyProfileInfo } from 'hook/queryhook/QueryStateMyProfileInfo';
+import { useRecoilState } from 'recoil';
+import { scrapTabInfoAtom } from 'states/ProfileAtom';
 
 const ProfileClipScrapHeader: React.FC = () => {
   const { data: myAccountSettingInfo } = QueryStateMyProfileInfo();
 
-  const currentPathName = location.pathname;
-
   const navigate = useNavigate();
 
   const ProfileTabWrapRef = useRef<HTMLDivElement>(null);
+
+  const [scrapTabInfo, setScrapTabInfo] = useRecoilState(scrapTabInfoAtom);
 
   return (
     <>
@@ -36,7 +38,7 @@ const ProfileClipScrapHeader: React.FC = () => {
         <MyAccountSettingInfoState />
         <ProfileClipScrapHeaderWrap>
           <ProfileAccountButton>
-            <ProfileAccountButtonImg
+            {/* <ProfileAccountButtonImg
               src={myAccountSettingInfo?.profilePath}
               alt={myAccountSettingInfo?.username}
               onClick={() =>
@@ -45,41 +47,58 @@ const ProfileClipScrapHeader: React.FC = () => {
                   `${PROFILE_LIST_PATH}/${myAccountSettingInfo?.username}`,
                 )
               }
-            />
+            /> */}
           </ProfileAccountButton>
           <ProfileCategoryContainer>
             <ProfileCategoryWrap ref={ProfileTabWrapRef}>
               <ProfileClipButton
                 className={
-                  currentPathName === PROFILE_CLIP_LIST_PATH
+                  scrapTabInfo.activeTabId === PROFILE_CLIP_TAB_ID
                     ? ACTIVE_CLASS_NAME
                     : ''
                 }
                 onClick={() => {
-                  navigate(PROFILE_CLIP_LIST_PATH);
+                  setScrapTabInfo({
+                    activeTabId: PROFILE_CLIP_TAB_ID,
+                    scrollInfo: {
+                      isActive: false,
+                      scroll: 0,
+                    },
+                  });
                 }}
               >
-                클립
-                {currentPathName === PROFILE_CLIP_LIST_PATH && <TabStickBar />}
+                {PROFILE_CLIP_TAB_NAME}
+                {scrapTabInfo.activeTabId === PROFILE_CLIP_TAB_ID && (
+                  <TabStickBar />
+                )}
               </ProfileClipButton>
 
               <ProfileScrapButton
                 className={
-                  currentPathName === PROFILE_SCRAP_LIST_PATH
+                  scrapTabInfo.activeTabId === PROFILE_SCRAP_TAB_ID
                     ? ACTIVE_CLASS_NAME
                     : ''
                 }
                 onClick={() => {
-                  navigate(PROFILE_SCRAP_LIST_PATH);
+                  setScrapTabInfo({
+                    activeTabId: PROFILE_SCRAP_TAB_ID,
+                    scrollInfo: {
+                      isActive: false,
+                      scroll: 0,
+                    },
+                  });
                 }}
               >
-                스크랩
-                {currentPathName === PROFILE_SCRAP_LIST_PATH && <TabStickBar />}
+                {PROFILE_SCRAP_TAB_NAME}
+                {scrapTabInfo.activeTabId === PROFILE_SCRAP_TAB_ID && (
+                  <TabStickBar />
+                )}
               </ProfileScrapButton>
             </ProfileCategoryWrap>
           </ProfileCategoryContainer>
           <ProfileSettingButton>
-            <AccountSettingButton />
+            {/* <AccountSettingButton /> */}
+            <SearchTabComponent />
           </ProfileSettingButton>
         </ProfileClipScrapHeaderWrap>
       </HeaderLayout>

@@ -1,7 +1,7 @@
 import BorderCircleButton from 'components/common/buttton/BorderCircleButton';
 import LoadingComponent from 'components/common/container/LoadingComponent';
 import { ACTIVE_CLASS_NAME } from 'const/ClassNameConst';
-import { MSG_CONTENT_TEXT_TYPE } from 'const/MsgContentTypeConst';
+import { DirectMsgReq } from 'global/interface/message';
 import { isValidString } from 'global/util/ValidUtil';
 import ProfileMyFollowingListInfiniteScroll from 'hook/ProfileMyFollowingListInfiniteScroll';
 import ProfileSearchUserListInfiniteScroll from 'hook/ProfileSearchUserListInfiniteScroll';
@@ -9,7 +9,8 @@ import { QueryStateMyProfileFollowingList } from 'hook/queryhook/QueryStateMyPro
 import { QueryStateSearchProfileUserListInfinite } from 'hook/queryhook/QueryStateSearchProfileUserListInfinite';
 import React, { useEffect, useState } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
-import msgConversationWsService from 'services/message/MsgConversationWsService';
+import { createDirectMsgConversation } from 'services/message/createDirectMsgConversation';
+
 import {
   isLoadingSearchSharePoupupAtom,
   isShareUserSearchInputActiveAtom,
@@ -57,12 +58,29 @@ const SnsSharePopupBody: React.FC<SnsShareBodyProps> = ({
     QueryStateSearchProfileUserListInfinite(shareUserSearchWord);
 
   const onClickShareButton = (targetUserId: string, shareLink: string) => {
-    msgConversationWsService.sendMessage(targetUserId, {
-      msgType: MSG_CONTENT_TEXT_TYPE,
-      msgContent: shareLink,
+    // msgConversationWsService.sendMessage(targetUserId, {
+    //   msgType: MSG_CONTENT_TEXT_TYPE,
+    //   msgContent: shareLink,
+    // });
+    const formData = new FormData();
+
+    const directMsgReq: DirectMsgReq = {
+      msgTextContent: shareLink,
+    };
+
+    const directMsgReqBlob = new Blob([JSON.stringify(directMsgReq)], {
+      type: 'application/json',
     });
 
-    setSenededSharedList(new Map(sendedSharedList).set(targetUserId, true));
+    formData.append('directMsgReq', directMsgReqBlob);
+    createDirectMsgConversation(targetUserId, formData)
+      .then(() => {
+        setSenededSharedList(new Map(sendedSharedList).set(targetUserId, true));
+      })
+      .catch((error: any) => {
+        const data: any = error.response.data.message;
+        alert(data);
+      });
   };
 
   const [sendedSharedList, setSenededSharedList] = useState<
@@ -102,7 +120,12 @@ const SnsSharePopupBody: React.FC<SnsShareBodyProps> = ({
     );
   };
 
+  const duration = 500;
+  const [init, setInit] = useState<boolean>(false);
   useEffect(() => {
+    setTimeout(() => {
+      setInit(true);
+    }, duration);
     return () => {
       setShareUserSearchWord('');
       setShareUserSearchTempWord('');
@@ -114,11 +137,11 @@ const SnsSharePopupBody: React.FC<SnsShareBodyProps> = ({
         <SnsUserShareContainer>
           {shareUserSearchTempWord === '' && (
             <>
-              {ProfileFollowData && (
+              {ProfileFollowData && init && (
                 <>
                   {ProfileFollowData.pages.flatMap((page) =>
                     page
-                      .filter((value) => value.isFollowed && !value.isBlocked)
+                      .filter((value) => value.isFollowed)
                       .map((v, i) => (
                         <PostProfileMyFollowContainer key={i}>
                           <PostProfileMyFollowWrap>
@@ -150,24 +173,29 @@ const SnsSharePopupBody: React.FC<SnsShareBodyProps> = ({
             isValidString(shareUserSearchWord) &&
             ProfileSearchUserList && (
               <>
-                {ProfileSearchUserList.pages.flatMap((page) =>
-                  page.getProfileUserByUsernameList.map((v, i) => (
-                    <PostProfileMyFollowContainer key={i}>
-                      <PostProfileMyFollowWrap>
-                        <ProfileImgUsernameWrap>
-                          <PostProfileMyFollowImg src={v.profilePath} />
-                          <ShareUserWrap>
-                            <ShareUserNickname>{v.nickname}</ShareUserNickname>
-                            <ShareUserUsername>@{v.username}</ShareUserUsername>
-                          </ShareUserWrap>
-                        </ProfileImgUsernameWrap>
-                        {sendedSharedList.get(v.userId)
-                          ? SenedShareButton()
-                          : ShareButton(v.userId)}
-                      </PostProfileMyFollowWrap>
-                    </PostProfileMyFollowContainer>
-                  )),
-                )}
+                {init &&
+                  ProfileSearchUserList.pages.flatMap((page) =>
+                    page.getProfileUserByUsernameList.map((v, i) => (
+                      <PostProfileMyFollowContainer key={i}>
+                        <PostProfileMyFollowWrap>
+                          <ProfileImgUsernameWrap>
+                            <PostProfileMyFollowImg src={v.profilePath} />
+                            <ShareUserWrap>
+                              <ShareUserNickname>
+                                {v.nickname}
+                              </ShareUserNickname>
+                              <ShareUserUsername>
+                                @{v.username}
+                              </ShareUserUsername>
+                            </ShareUserWrap>
+                          </ProfileImgUsernameWrap>
+                          {sendedSharedList.get(v.userId)
+                            ? SenedShareButton()
+                            : ShareButton(v.userId)}
+                        </PostProfileMyFollowWrap>
+                      </PostProfileMyFollowContainer>
+                    )),
+                  )}
                 <ProfileSearchUserListInfiniteScroll
                   username={shareUserSearchWord}
                 />
@@ -177,7 +205,6 @@ const SnsSharePopupBody: React.FC<SnsShareBodyProps> = ({
       </SnsSharePopupBodyContainer>
 
       {/* sns other 컴포넌트 영역 */}
-      <>{}</>
       {loading && isShareUserSearchInputActive && (
         <LoadingComponent
           LoadingComponentStyle={{

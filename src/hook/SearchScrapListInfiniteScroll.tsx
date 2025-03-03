@@ -13,7 +13,7 @@ const SearchScrapListInfiniteScroll: React.FC<
 > = ({ searchQuery }) => {
   const { ref, inView } = useInView();
 
-  const { fetchNextPage, hasNextPage, isFetchingNextPage } =
+  const { fetchNextPage, hasNextPage, isFetchingNextPage, data } =
     QueryStateSearchScrapListInfinite(searchQuery);
 
   useEffect(() => {
@@ -24,7 +24,11 @@ const SearchScrapListInfiniteScroll: React.FC<
 
   return (
     <PostRelationWrap ref={ref}>
-      <InViewComponent />
+      <InViewComponent
+        hasLoadingIcon={
+          (data ? data?.pages[0].length > 5 : false) && hasNextPage
+        }
+      />
     </PostRelationWrap>
   );
 };

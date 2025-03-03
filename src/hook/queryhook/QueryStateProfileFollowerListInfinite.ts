@@ -45,6 +45,7 @@ export const QueryStateProfileFollowerListInfinite = (
 
     initialPageParam: PAGE_NUM,
     enabled: isValidString(username),
+    refetchOnMount: 'always',
     retry: false,
   });
 };

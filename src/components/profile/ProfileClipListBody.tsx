@@ -1,45 +1,60 @@
 import ProfileClipListInfiniteScroll from 'hook/ProfileClipListInfiniteScroll';
-import React, { useEffect } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
-import SnsPostMasonryLayout_ from 'components/layouts/SnsPostMasonryLayout_';
-import { QueryStateProfileClipListInfinite } from 'hook/queryhook/QueryStateProfileClipListInfinite';
-import theme from '../../styles/theme';
+import { queryClient } from 'App';
+import SnsPostMasonryLayout from 'components/layouts/SnsPostMasonryLayout';
+import PullToRefreshComponent from 'components/PullToRefreshComponent';
+import { INIT_CURSOR_ID } from 'const/PageConfigConst';
+import { QUERY_STATE_PROFILE_CLIP_LIST } from 'const/QueryClientConst';
+import {
+  ProfileClipListQueryInterface,
+  QueryStateProfileClipListInfinite,
+} from 'hook/queryhook/QueryStateProfileClipListInfinite';
+import { getMyProfileClipList } from 'services/profile/getProfileClipList';
+import theme from 'styles/theme';
 const ProfileClipListBody: React.FC = () => {
   const { data: myProfileClipList } = QueryStateProfileClipListInfinite();
 
-  useEffect(() => {
-    console.log(myProfileClipList);
-  }, [myProfileClipList]);
-
   return (
-    <ProfileClipBodyContainer>
-      {myProfileClipList && (
-        <SnsPostMasonryLayout_
-          snsPostList={myProfileClipList?.pages.flatMap((v) =>
-            v.snsPostRspList.map((value) => value),
-          )}
-        />
-      )}
-      {myProfileClipList &&
-        myProfileClipList?.pages.flatMap((v) => v.snsPostRspList).length <=
-          0 && (
-          <ProifileNotClipTitleWrap>
-            <ProifileNotClipTitle>
-              아직 저장한 클립이 없네요... 😢
-            </ProifileNotClipTitle>
-          </ProifileNotClipTitleWrap>
-        )}
+    <div>
+      <PullToRefreshComponent
+        onRefresh={async () => {
+          const fetchData = await getMyProfileClipList(INIT_CURSOR_ID);
 
-      <ProfileClipListInfiniteScroll />
-    </ProfileClipBodyContainer>
+          const data: ProfileClipListQueryInterface = {
+            pageParams: [INIT_CURSOR_ID],
+            pages: [{ ...fetchData }],
+          };
+
+          queryClient.setQueryData([QUERY_STATE_PROFILE_CLIP_LIST], data);
+        }}
+      >
+        <ProfileClipBodyContainer>
+          <div style={{ paddingTop: '10px' }}></div>
+          {myProfileClipList && (
+            <SnsPostMasonryLayout
+              snsPostList={myProfileClipList?.pages.flatMap((v) =>
+                v.snsPostRspList.map((value) => value),
+              )}
+            />
+          )}
+          {myProfileClipList &&
+            myProfileClipList?.pages.flatMap((v) => v.snsPostRspList).length <=
+              0 && (
+              <ProifileNotClipTitleWrap>
+                <ProifileNotClipTitle>저장한 클립이 없음</ProifileNotClipTitle>
+              </ProifileNotClipTitleWrap>
+            )}
+
+          <ProfileClipListInfiniteScroll />
+        </ProfileClipBodyContainer>
+      </PullToRefreshComponent>
+    </div>
   );
 };
 
 const ProfileClipBodyContainer = styled.div`
-  padding-top: 10px;
-  // height: calc(100dvh - 65px - ${theme.systemSize.bottomNavBar.height});
-  // overflow: scroll;
   & {
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -47,6 +62,7 @@ const ProfileClipBodyContainer = styled.div`
   &::-webkit-scrollbar {
     display: none;
   }
+  min-height: calc(100dvh - ${theme.systemSize.header.height});
 `;
 
 const ProifileNotClipTitleWrap = styled.div`

@@ -1,20 +1,20 @@
 import React from 'react';
 
-import SnsPostMasonryLayout_ from 'components/layouts/SnsPostMasonryLayout_';
 import {
   MAP_CONTENT_LOCATION_TYPE,
   MAP_CONTENT_POST_TYPE,
 } from 'const/MapExploreConst';
-import MapExploreListInfiniteScroll from 'hook/MapExploreListInfiniteScroll';
-import { QueryStateMapExploreList } from 'hook/queryhook/QueryStateMapExploreList';
-import { QueryStatePostMapPostInfinite } from 'hook/queryhook/QueryStatePostMapPostInfinite';
 import { useRecoilValue } from 'recoil';
 import {
+  isActiveMyMapAtom,
+  mapClusterPostListInfoAtom,
   mapContentTypeAtom,
-  mapExploreFilterTabAtom,
-  mapSearchPostWordAtom,
 } from 'states/MapExploreAtom';
 import styled from 'styled-components';
+import MapExploreLocationContentBody from './MapExploreLocationContentBody';
+import MapExploreMyPostBody from './MapExploreMyPostBody';
+import MapExplorePostContentBody from './MapExplorePostContentBody';
+import MapExploreSelectClusterBody from './MapExploreSelectClusterBody';
 
 interface MapExploreBodyProps {
   latitude: number;
@@ -23,6 +23,11 @@ interface MapExploreBodyProps {
   MapSnsPostLayoutStyle?: React.CSSProperties;
   MapExploreInfiniteScrollStyle?: React.CSSProperties;
   masonryLayoutNum?: number;
+  linkPopupInfo?: {
+    isLinkPopup: boolean;
+    isReplaced: boolean;
+  };
+  funcPrevButton?: () => void;
 }
 
 const MapExploreBody: React.FC<MapExploreBodyProps> = ({
@@ -31,53 +36,67 @@ const MapExploreBody: React.FC<MapExploreBodyProps> = ({
   mapExploreBodyStyle,
   MapSnsPostLayoutStyle,
   MapExploreInfiniteScrollStyle,
-  masonryLayoutNum = 2,
+  masonryLayoutNum,
+  linkPopupInfo,
+  funcPrevButton,
 }) => {
-  const mapExploreFilterTab = useRecoilValue(mapExploreFilterTabAtom);
   const mapContentType = useRecoilValue(mapContentTypeAtom);
-  const { data: postMapLocation } = QueryStateMapExploreList(
-    latitude,
-    longitude,
-    mapExploreFilterTab,
-  );
-  const mapSearchPostWord = useRecoilValue(mapSearchPostWordAtom);
 
-  const { data: postMapPost } =
-    QueryStatePostMapPostInfinite(mapSearchPostWord);
+  const mapClusterPostListInfo = useRecoilValue(mapClusterPostListInfoAtom);
+
+  const isActiveMyMap = useRecoilValue(isActiveMyMapAtom);
 
   return (
     <MapExloreBodyContainer style={mapExploreBodyStyle}>
-      {mapContentType === MAP_CONTENT_LOCATION_TYPE && postMapLocation && (
+      {!isActiveMyMap && (
         <>
-          <SnsPostMasonryLayout_
-            SnsPostMasonryLayoutStyle={MapSnsPostLayoutStyle}
-            snsPostList={postMapLocation?.pages.flatMap((v) =>
-              v.map((value) => value),
+          <div
+            style={{
+              display: mapClusterPostListInfo.isActive ? 'none' : 'block',
+            }}
+          >
+            {mapContentType === MAP_CONTENT_LOCATION_TYPE && (
+              <MapExploreLocationContentBody
+                mapContentType={mapContentType}
+                latitude={latitude}
+                longitude={longitude}
+                MapSnsPostLayoutStyle={MapSnsPostLayoutStyle}
+                MapExploreInfiniteScrollStyle={MapExploreInfiniteScrollStyle}
+                masonryLayoutNum={masonryLayoutNum}
+                linkPopupInfo={linkPopupInfo}
+                funcPrevButton={funcPrevButton}
+              />
             )}
-          />
-          <MapExploreListInfiniteScroll
-            latitude={latitude}
-            longitude={longitude}
+            {mapContentType === MAP_CONTENT_POST_TYPE && (
+              <MapExplorePostContentBody
+                mapContentType={mapContentType}
+                latitude={latitude}
+                longitude={longitude}
+                MapSnsPostLayoutStyle={MapSnsPostLayoutStyle}
+                masonryLayoutNum={masonryLayoutNum}
+                linkPopupInfo={linkPopupInfo}
+                funcPrevButton={funcPrevButton}
+              />
+            )}
+          </div>
+          <MapExploreSelectClusterBody
+            mapClusterPostListInfo={mapClusterPostListInfo}
+            MapSnsPostLayoutStyle={MapSnsPostLayoutStyle}
             MapExploreInfiniteScrollStyle={MapExploreInfiniteScrollStyle}
-            nearFilter={mapExploreFilterTab}
+            masonryLayoutNum={masonryLayoutNum}
+            linkPopupInfo={linkPopupInfo}
+            funcPrevButton={funcPrevButton}
           />
         </>
       )}
-      {mapContentType === MAP_CONTENT_POST_TYPE && postMapPost && (
-        <>
-          <SnsPostMasonryLayout_
-            SnsPostMasonryLayoutStyle={MapSnsPostLayoutStyle}
-            snsPostList={postMapPost?.pages.flatMap((v) =>
-              v.map((value) => value),
-            )}
-          />
-          <MapExploreListInfiniteScroll
-            latitude={latitude}
-            longitude={longitude}
-            MapExploreInfiniteScrollStyle={MapExploreInfiniteScrollStyle}
-            nearFilter={mapExploreFilterTab}
-          />
-        </>
+      {isActiveMyMap && (
+        <MapExploreMyPostBody
+          isActiveMyMap={isActiveMyMap}
+          MapSnsPostLayoutStyle={MapSnsPostLayoutStyle}
+          masonryLayoutNum={masonryLayoutNum}
+          linkPopupInfo={linkPopupInfo}
+          funcPrevButton={funcPrevButton}
+        />
       )}
     </MapExloreBodyContainer>
   );

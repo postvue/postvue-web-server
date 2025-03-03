@@ -19,7 +19,10 @@ const ProfileScrapTargetAudiencePopupBody: React.FC<
 > = ({ targetAudValue, setTargetAudValue }) => {
   return (
     <ProfileScrapTargetHeaderContainer>
-      <HeaderLayout HeaderLayoutStyle={{ position: 'static' }}>
+      <HeaderLayout
+        HeaderLayoutStyle={{ position: 'static' }}
+        isInsetTopMatin={false}
+      >
         <ProfileScrapTargetHeaderTitle>공개 대상</ProfileScrapTargetHeaderTitle>
       </HeaderLayout>
       <ProfileScrapTargetBodyContainer>

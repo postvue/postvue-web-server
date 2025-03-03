@@ -91,6 +91,7 @@ const SignupStepSubTitle = styled.div`
 
 const SignupInputWrap = styled.div`
   margin: 0 ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding};
+  flex: 1;
 `;
 
 const SignupNicknameInput = styled.input`

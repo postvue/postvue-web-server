@@ -1,14 +1,15 @@
+import { ReactComponent as LinkButtonIcon } from 'assets/images/icon/svg/LinkButtonIcon.svg';
 import BoundaryStickBar from 'components/common/container/BoundaryStickBar';
 import ContextMenuPopup from 'components/popups/ContextMenuPopup';
 import { onClickClipBoardCopyButton } from 'global/util/ToastUtil';
 import React from 'react';
-import msgConversationWsService from 'services/message/MsgConversationWsService';
+import msgConversationWsService from 'services/websocket/message/MsgConversationWsService';
 import styled from 'styled-components';
 
 interface MyMsgConversationReactionContextPopupProps {
   msgConversationReactionContextRef: HTMLDivElement;
   setActiveMsgReactionPopup: React.Dispatch<
-    React.SetStateAction<number | boolean>
+    React.SetStateAction<{ isActive: boolean; msgId: number }>
   >;
   msgText: string;
   msgId: string;
@@ -23,19 +24,30 @@ const MyMsgConversationReactionContextPopup: React.FC<
 }) => {
   const onClickDeleteMsg = (msgId: string) => {
     msgConversationWsService.deleteMessage(msgId);
-    setActiveMsgReactionPopup(false);
+    setActiveMsgReactionPopup({
+      isActive: false,
+      msgId: 0,
+    });
   };
 
   return (
     <ContextMenuPopup
-      setIsActive={setActiveMsgReactionPopup}
+      onClose={() =>
+        setActiveMsgReactionPopup({
+          isActive: false,
+          msgId: 0,
+        })
+      }
       contextMenuRef={msgConversationReactionContextRef}
     >
       <MsgReactionPopupWrap>
         <ReactionCopyButton
           onClick={() => {
-            setActiveMsgReactionPopup(false);
-            onClickClipBoardCopyButton(msgText);
+            setActiveMsgReactionPopup({
+              isActive: false,
+              msgId: 0,
+            });
+            onClickClipBoardCopyButton(msgText, <LinkButtonIcon />);
           }}
         >
           복사

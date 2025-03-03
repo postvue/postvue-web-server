@@ -28,7 +28,7 @@ export const QueryMutationCreatePostComment = (): UseMutationResult<
               // 첫 번째 페이지에 새로운 아이템을 추가
               return {
                 ...page,
-                snsPostCommentRspList: [data, ...page.snsPostCommentRspList], // 맨 앞에 새로운 아이템 추가
+                snsPostCommentRspList: [...page.snsPostCommentRspList, data], // 맨 앞에 새로운 아이템 추가
               } as GetPostCommentsRsp;
             }
             return page;

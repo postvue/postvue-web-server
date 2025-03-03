@@ -2,6 +2,7 @@ import BottomNextButton from 'components/common/buttton/BottomNextButton';
 import RoundSquareCenterPopupLayout from 'components/layouts/RoundSquareCenterPopupLayout';
 import React from 'react';
 import styled from 'styled-components';
+import theme from 'styles/theme';
 
 interface SignupSendedEmailPopupProps {
   onClose: () => void;
@@ -14,7 +15,7 @@ const SignupSendedEmailPopup: React.FC<SignupSendedEmailPopupProps> = ({
     <>
       <RoundSquareCenterPopupLayout
         onClose={onClose}
-        popupWrapStyle={{ height: '230px', width: '300px' }}
+        popupWrapStyle={{ height: '200px', width: '300px' }}
       >
         <SendedEmailWrap>
           <SendedEmailTitle>인증 메일이 보내졌습니다.</SendedEmailTitle>
@@ -24,9 +25,11 @@ const SignupSendedEmailPopup: React.FC<SignupSendedEmailPopupProps> = ({
         </SendedEmailWrap>
 
         <BottomNextButton
+          backgroundColor={theme.mainColor.Black}
           title="확인"
           actionFunc={onClose}
           isTransparent={true}
+          BottomNextButtonWrapContainerStyle={{ paddingBottom: '15px' }}
         />
       </RoundSquareCenterPopupLayout>
     </>

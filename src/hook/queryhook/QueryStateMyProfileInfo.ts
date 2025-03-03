@@ -9,11 +9,13 @@ import { getMyProfileInfo } from 'services/profile/getMyProfileInfo';
 
 export const QueryStateMyProfileInfo = (
   active = true,
+  hasAuthToken = true,
 ): UseQueryResult<ProfileMyInfo, AxiosError<unknown, any>> => {
   return useQuery<ProfileMyInfo, AxiosError>({
     queryKey: [QUERY_STATE_MY_PROFILE_INFO],
-    queryFn: () => getMyProfileInfo(),
+    queryFn: () => getMyProfileInfo(hasAuthToken),
     staleTime: MY_PROFILE_STALE_TIME,
     enabled: active,
+    retry: false,
   });
 };

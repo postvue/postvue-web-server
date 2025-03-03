@@ -11,6 +11,7 @@ export const MAKE_NEW_SCRAP_INPUT_PHASE_TEXT = '스크랩 제목을 작성하세
 export const SAVE_POST_TO_SCRAP = '스크랩 저장';
 export const CREATE_SCRAP = '신규 스크랩 생성';
 export const UPDATE_SCRAP = '스크랩 수정됨';
+export const DELETE_SCRAP = '스크랩 삭제';
 
 export const MSG_MANAGE_SERACH_INPUT_PHASE_TEXT = '사용자 검색';
 export const POST_COMMENT_INPUT_PLACEHOLDER = '님 게시물에 댓글 달기';
@@ -35,8 +36,7 @@ export const SETTING_EDIT_CHECK_PASSWORD_PHASE_TEXT = '새 비밀번호 확인';
 
 export const SETTING_DELETE_ACCOUNT_PHASE_TEXT = '계정 삭제';
 
-export const SETTING_AFTER_DELETE_ACCOUNT_MAIN_MOVE_PHASE_TEXT =
-  '메인 페이지로';
+export const SETTING_AFTER_DELETE_ACCOUNT_MAIN_MOVE_PHASE_TEXT = '확인';
 
 export const SETTING_PFOFILE_BLOCKED_LIST_SEARCH_INPUT_PHASE_TEXT =
   '사용자 검색';
@@ -47,3 +47,5 @@ export const MAP_EXPLORE_SELECT_LOCATION_PHARSE_TEXT =
   '가고 싶은 장소가 있나요?';
 
 export const API_SUCCESS_PHARSE_TEXT = '결과가 없습니다.';
+
+export const FAVORITE_TERM_TITLE = '즐겨찾는 검색어';

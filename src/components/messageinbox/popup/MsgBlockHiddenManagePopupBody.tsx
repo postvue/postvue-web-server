@@ -6,7 +6,7 @@ import {
   MSG_BLOCK_LIST_TAB_NAME,
   MSG_HIDDEN_LIST_TAB_NAME,
 } from 'const/TabConfigConst';
-import { stackRouterPush } from 'global/util/reactnative/StackRouter';
+import { stackRouterPush } from 'global/util/reactnative/nativeRouter';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSetRecoilState } from 'recoil';

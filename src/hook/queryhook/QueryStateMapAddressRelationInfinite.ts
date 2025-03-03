@@ -4,7 +4,7 @@ import {
 } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
 import { PAGE_NUM } from 'const/PageConfigConst';
-import { QUERY_STATE_RECOMM_FAVORITTE_TAG_LIST } from 'const/QueryClientConst';
+import { QUERY_STATE_MAP_ADDRES_RELATION_LIST } from 'const/QueryClientConst';
 import { MapAddressRelation } from 'global/interface/map';
 import { isValidString } from 'global/util/ValidUtil';
 import { getMapAddressReplations } from 'services/maps/getMapAddressRelations';
@@ -16,6 +16,8 @@ export interface MapAddressRelationInfiniteInterface {
 
 export const QueryStateMapAddressRelationInfinite = (
   srchQry: string,
+  latitude?: number,
+  longitude?: number,
   isActive = true,
 ): UseInfiniteQueryResult<
   MapAddressRelationInfiniteInterface,
@@ -24,10 +26,9 @@ export const QueryStateMapAddressRelationInfinite = (
   return useInfiniteQuery<
     MapAddressRelation[],
     AxiosError,
-    MapAddressRelationInfiniteInterface,
-    [string]
+    MapAddressRelationInfiniteInterface
   >({
-    queryKey: [QUERY_STATE_RECOMM_FAVORITTE_TAG_LIST + '_' + srchQry], // query key
+    queryKey: [QUERY_STATE_MAP_ADDRES_RELATION_LIST, srchQry], // query key
     queryFn: async ({ pageParam }) => {
       // pageParam이 string인지 확인
 
@@ -35,7 +36,7 @@ export const QueryStateMapAddressRelationInfinite = (
         // pageParam이 유효하지 않은 경우 빈 결과를 반환하거나 에러를 던집니다.
         return [];
       }
-      return getMapAddressReplations(srchQry, pageParam);
+      return getMapAddressReplations(srchQry, pageParam, latitude, longitude);
     },
 
     getNextPageParam: (lastPage, allPages) => {

@@ -17,18 +17,23 @@ export interface PostMapPostInfiniteInterface {
 
 export const QueryStatePostMapPostInfinite = (
   srchQry: string,
+  latitude: number,
+  longitude: number,
   isActive = true,
+  startDate: string | null,
+  endDate: string | null,
 ): UseInfiniteQueryResult<
   PostMapPostInfiniteInterface,
   AxiosError<unknown, any>
 > => {
-  return useInfiniteQuery<
-    PostRsp[],
-    AxiosError,
-    PostMapPostInfiniteInterface,
-    [string]
-  >({
-    queryKey: [convertQueryTemplate(QUERY_STATE_POST_MAP_POST_LIST, srchQry)], // query key
+  return useInfiniteQuery<PostRsp[], AxiosError, PostMapPostInfiniteInterface>({
+    queryKey: [
+      QUERY_STATE_POST_MAP_POST_LIST,
+      convertQueryTemplate(
+        convertQueryTemplate(latitude.toString(), longitude.toString()),
+        srchQry,
+      ),
+    ], // query key
     queryFn: async ({ pageParam }) => {
       // pageParam이 string인지 확인
 
@@ -36,7 +41,14 @@ export const QueryStatePostMapPostInfinite = (
         // pageParam이 유효하지 않은 경우 빈 결과를 반환하거나 에러를 던집니다.
         return [];
       }
-      return getPostMapPostBySrchQry(srchQry, pageParam);
+      return getPostMapPostBySrchQry(
+        srchQry,
+        pageParam,
+        latitude,
+        longitude,
+        startDate || '',
+        endDate || '',
+      );
     },
 
     getNextPageParam: (lastPage, allPages) => {

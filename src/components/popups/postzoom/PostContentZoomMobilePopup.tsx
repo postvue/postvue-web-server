@@ -1,9 +1,10 @@
 import { animated, config, useSpring } from '@react-spring/web';
 import { useDrag } from '@use-gesture/react';
 import { ReactComponent as PostContentZoomExitButtonIcon } from 'assets/images/icon/svg/PostContentZoomExitButtonIcon.svg';
-import { OVERFLOW_HIDDEN } from 'const/AttributeConst';
-import React, { useEffect, useRef, useState } from 'react';
+import { sendPopupEvent } from 'global/util/reactnative/nativeRouter';
+import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import { lock, unlock } from 'tua-body-scroll-lock';
 
 interface PostContentZoomMobilePopupProps {
   children: React.ReactNode;
@@ -14,7 +15,6 @@ interface PostContentZoomMobilePopupProps {
   setIsExternalCloseFunc: React.Dispatch<React.SetStateAction<boolean>>;
   currentIndex: number;
   contentLength: number;
-  isFixed?: boolean;
 }
 
 const PostContentZoomMobilePopup: React.FC<PostContentZoomMobilePopupProps> = ({
@@ -26,7 +26,6 @@ const PostContentZoomMobilePopup: React.FC<PostContentZoomMobilePopupProps> = ({
   setIsExternalCloseFunc,
   currentIndex,
   contentLength,
-  isFixed = true,
 }) => {
   const BottomSheetContainerRef = useRef<HTMLDivElement>(null);
   const height = window.innerHeight;
@@ -45,14 +44,14 @@ const PostContentZoomMobilePopup: React.FC<PostContentZoomMobilePopupProps> = ({
     api.start({
       y: height,
       immediate: false,
-      config: config.default,
+      config: { tension: 300, friction: 15, mass: 5, clamp: true },
       onRest: () => {
+        removeFixBody();
         onClose(); // 애니메이션이 끝난 후 실행
       },
     });
   };
 
-  const [test, setTest] = useState<string>('');
   const bind = useDrag(
     ({
       last,
@@ -79,9 +78,6 @@ const PostContentZoomMobilePopup: React.FC<PostContentZoomMobilePopupProps> = ({
         if (oy < 0 || oy / Math.abs(ox) <= 7 / 6) return;
         api.start({ y: oy, immediate: true });
       }
-      setTest(
-        `가속도: ${vy}, 높이 ${oy}, 너비 ${ox} 기울기 ${oy / Math.abs(ox)}, 범위: ${oy / Math.abs(ox) >= 6 / 7}, ${oy / Math.abs(ox) <= 7 / 6}`,
-      );
     },
     {
       from: () => [0, y.get()],
@@ -98,26 +94,49 @@ const PostContentZoomMobilePopup: React.FC<PostContentZoomMobilePopupProps> = ({
     opacity: y.to([0, height], [0.92, 0], 'clamp'),
   };
 
+  const isFixBody = () => {
+    // if (!isFixed) return;
+    // document.documentElement.style.overflow = OVERFLOW_HIDDEN;
+    // document.documentElement.style.touchAction = 'none';
+    // document.body.style.overflow = OVERFLOW_HIDDEN;
+    // document.body.style.touchAction = 'none';
+    // document.documentElement.style.overscrollBehavior = 'none';
+    // document.body.style.overscrollBehavior = 'none';
+    sendPopupEvent(true);
+    if (!BottomSheetContainerRef.current) return;
+    lock([BottomSheetContainerRef.current]);
+  };
+
+  const isCloseRef = useRef<boolean>(false);
+  const removeFixBody = () => {
+    // if (!isFixed) return;
+    // document.documentElement.style.overflow = '';
+    // document.documentElement.style.touchAction = '';
+    // document.body.style.overflow = '';
+    // document.body.style.touchAction = '';
+    // document.documentElement.style.overscrollBehavior = '';
+    // document.body.style.overscrollBehavior = '';
+
+    if (isCloseRef.current) return;
+
+    sendPopupEvent(false);
+    unlock([], { useGlobalLockState: true });
+    isCloseRef.current = true;
+  };
+
   useEffect(() => {
     if (isOpen) {
       open({ canceled: false });
-      if (!isFixed) return;
-      document.documentElement.style.overflow = OVERFLOW_HIDDEN;
-      document.documentElement.style.touchAction = 'none';
-      document.body.style.overflow = OVERFLOW_HIDDEN;
-      document.body.style.touchAction = 'none';
-      document.documentElement.style.overscrollBehavior = 'none';
-      document.body.style.overscrollBehavior = 'none';
-    } else {
-      if (!isFixed) return;
-      document.documentElement.style.overflow = '';
-      document.documentElement.style.touchAction = '';
-      document.body.style.overflow = '';
-      document.body.style.touchAction = '';
-      document.documentElement.style.overscrollBehavior = '';
-      document.body.style.overscrollBehavior = '';
+
+      isFixBody();
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    return () => {
+      removeFixBody();
+    };
+  }, []);
 
   useEffect(() => {
     if (!isExternalCloseFunc) return;
@@ -141,8 +160,7 @@ const PostContentZoomMobilePopup: React.FC<PostContentZoomMobilePopupProps> = ({
       {contentLength > 1 && (
         <CurrentSlidePositionWrap as={animated.div} style={bgStyle}>
           <CurrentSlidePosition>
-            {currentIndex}/{contentLength}{' '}
-            <div style={{ color: 'white' }}>{test}</div>
+            {currentIndex + 1}/{contentLength}
           </CurrentSlidePosition>
         </CurrentSlidePositionWrap>
       )}
@@ -225,6 +243,7 @@ const PostZoomExitButtonWrap = styled.div`
   margin: 10px 10px 0 0;
   z-index: 1500;
   cursor: pointer;
+  padding-top: env(safe-area-inset-top);
 `;
 
 export default PostContentZoomMobilePopup;

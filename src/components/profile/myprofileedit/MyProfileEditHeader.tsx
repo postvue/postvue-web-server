@@ -1,8 +1,17 @@
 import PrevButtonHeaderHeader from 'components/layouts/PrevButtonHeaderHeader';
+import { MEDIA_MIDDLE_WIDTH_NUM } from 'const/SystemAttrConst';
+import { ACCOUNT_SETTING_PROFILE_EDIT_TAB_NAME } from 'const/TabConfigConst';
+import useWindowSize from 'hook/customhook/useWindowSize';
 import React from 'react';
 
 const MyProfileEditHeader: React.FC = () => {
-  return <PrevButtonHeaderHeader titleName={'프로필 수정'} />;
+  const { windowWidth } = useWindowSize();
+  return (
+    <PrevButtonHeaderHeader
+      titleName={ACCOUNT_SETTING_PROFILE_EDIT_TAB_NAME}
+      isActionFunc={windowWidth >= MEDIA_MIDDLE_WIDTH_NUM}
+    />
+  );
 };
 
 export default MyProfileEditHeader;

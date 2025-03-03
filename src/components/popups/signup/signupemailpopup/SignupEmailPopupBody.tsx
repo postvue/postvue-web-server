@@ -1,4 +1,4 @@
-import { ReactComponent as FeelogLogo } from 'assets/images/icon/svg/pc/FeelogLogo.svg';
+import { ReactComponent as FeelogLogo } from 'assets/images/icon/svg/logo/FeelogLargeLogo.svg';
 import BottomNextButton from 'components/common/buttton/BottomNextButton';
 import LoadingPopup from 'components/popups/LoadingPopup';
 import PasswordVisibleInputElement from 'components/profile/profileaccountsetting/profileaccountsettingmanage/password/PasswordVisibleInputElement';
@@ -81,13 +81,14 @@ const SignupEmailPopupBody: React.FC<SignupEmailPOpupBodyProps> = ({
       });
   };
   return (
-    <>
-      {' '}
+    <SignupContainer>
       {/* <SignupEmailTitle>Feelog</SignupEmailTitle> */}
       <SignupLogoWrap>
-        <FeelogLogo />
+        <SignupLogoSubWrap>
+          <FeelogLogo />
+        </SignupLogoSubWrap>
       </SignupLogoWrap>
-      <SignupEmailSubTitle>어떤 경험을 느껴보고 싶나요?</SignupEmailSubTitle>
+      <SignupEmailSubTitle>Feelog</SignupEmailSubTitle>
       <SignupEmailInputWrap>
         <SignupEmailInputSubWrap>
           <SignupEmailInput
@@ -145,21 +146,30 @@ const SignupEmailPopupBody: React.FC<SignupEmailPOpupBodyProps> = ({
         BottomNextButtonWrapContainerStyle={{ position: 'static' }}
       />
       {loadingBySignupEmail && <LoadingPopup />}
-    </>
+    </SignupContainer>
   );
 };
 
+const SignupContainer = styled.div`
+  display: flex;
+  height: calc(100% - 40px);
+  flex-direction: column;
+`;
+
 const SignupEmailSubTitle = styled.div`
   text-align: center;
-  font: ${({ theme }) => theme.fontSizes.Body2};
+  font: ${({ theme }) => theme.fontSizes.Subhead2};
   margin-bottom: 20px;
-  color: ${({ theme }) => theme.grey.Grey5};
 `;
 
 const SignupLogoWrap = styled.div`
   display: flex;
-  margin: 0 auto;
   margin-bottom: 5px;
+`;
+
+const SignupLogoSubWrap = styled.div`
+  display: flex;
+  margin: 0 auto;
 `;
 
 const SignupEmailInputWrap = styled.div`
@@ -167,6 +177,7 @@ const SignupEmailInputWrap = styled.div`
   gap: 20px;
   display: flex;
   flex-flow: column;
+  flex: 1;
 `;
 
 const SignupEmailInputSubWrap = styled.div`

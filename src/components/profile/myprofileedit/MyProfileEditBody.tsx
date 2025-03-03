@@ -2,15 +2,22 @@ import { AxiosError } from 'axios';
 import BottomNextButton from 'components/common/buttton/BottomNextButton';
 import BoundaryStickBar from 'components/common/container/BoundaryStickBar';
 import LoadingPopup from 'components/popups/LoadingPopup';
-import { PROFILE_LIST_PATH } from 'const/PathConst';
+import { HOME_PATH, PROFILE_ACCOUNT_ROUTE_PATH } from 'const/PathConst';
+import { useGoBackOrNavigate } from 'global/util/HistoryStateUtil';
 import { uploadImgUtil } from 'global/util/ImageInputUtil';
+import {
+  isApp,
+  sendNativeImageUploadEvent,
+  stackRouterBack,
+} from 'global/util/reactnative/nativeRouter';
 import { isValidString } from 'global/util/ValidUtil';
 import { QueryMutationPutMyProfileInfo } from 'hook/queryhook/QueryMutationPutMyProfileInfo';
 import { QueryStateMyProfileInfo } from 'hook/queryhook/QueryStateMyProfileInfo';
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useRecoilState } from 'recoil';
+import { generatePath, useNavigate } from 'react-router-dom';
+import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil';
 import { PutMyProfileInfoReq } from 'services/profile/putMyProfileInfo';
+import { nativeUploadImgFileAtom } from 'states/NativeAtom';
 import { isLoadingPopupAtom } from 'states/SystemConfigAtom';
 import styled from 'styled-components';
 
@@ -27,6 +34,14 @@ const MyProfileEditBody: React.FC = () => {
     null,
   );
 
+  const goBackOrNavigate = useGoBackOrNavigate(
+    myAccountSettingInfo
+      ? generatePath(PROFILE_ACCOUNT_ROUTE_PATH, {
+          username: myAccountSettingInfo.username,
+        })
+      : HOME_PATH,
+  );
+
   const putMyProfileInfoMutation = QueryMutationPutMyProfileInfo();
 
   const [isLoadingPopup, setIsLoadingPopup] =
@@ -39,6 +54,7 @@ const MyProfileEditBody: React.FC = () => {
       website: userLink,
       introduce: userIntroduce,
     };
+
     const putMyProfileInfoReqBlob = new Blob(
       [JSON.stringify(putMyProfileInfoReq)],
       {
@@ -55,14 +71,20 @@ const MyProfileEditBody: React.FC = () => {
       .mutateAsync(formData)
       .then(() => {
         if (myAccountSettingInfo?.userId) {
-          setIsLoadingPopup(false);
-          navigate(`${PROFILE_LIST_PATH}/${myAccountSettingInfo?.username}`, {
-            replace: true,
-          });
+          if (isApp()) {
+            stackRouterBack(navigate);
+          } else {
+            goBackOrNavigate();
+          }
         }
       })
       .catch((error: AxiosError) => {
-        throw error;
+        const data: any = error.response?.data;
+        console.log(error);
+        alert(data.message);
+      })
+      .finally(() => {
+        setIsLoadingPopup(false);
       });
   };
 
@@ -77,30 +99,57 @@ const MyProfileEditBody: React.FC = () => {
 
   const profileUploadImgId = 'profile-img-edit-id';
 
+  const nativeUploadImgFile = useRecoilValue(nativeUploadImgFileAtom);
+  const resetNativeUploadImgFile = useResetRecoilState(nativeUploadImgFileAtom);
+  useEffect(() => {
+    if (!isApp() || nativeUploadImgFile.imgFile === null) return;
+
+    uploadImgUtil(
+      nativeUploadImgFile.imgFile,
+      setProfileUploadImgFile,
+      setUserProfilePath,
+    );
+    resetNativeUploadImgFile();
+  }, [nativeUploadImgFile]);
+
   return (
     <>
       {!loading && (
         <MyProfileEditBodyContainer>
           <MyProfileImgEditWrap>
             <MyProfileImgEditImgSubWrap>
-              <ProfileImgUploadImgLabel htmlFor={profileUploadImgId}>
-                <MyProfileImgEditImg $src={userProfilePath}>
-                  <MyProfileImgEdit>수정</MyProfileImgEdit>
-                </MyProfileImgEditImg>
-
-                <ProfileImgUploadInput
-                  id={profileUploadImgId}
-                  accept="image/*"
-                  type="file"
-                  onChange={(e) => {
-                    uploadImgUtil(
-                      e,
-                      setProfileUploadImgFile,
-                      setUserProfilePath,
-                    );
+              {isApp() ? (
+                <ProfileImgUploadImgLabel
+                  htmlFor={profileUploadImgId}
+                  onClick={() => {
+                    sendNativeImageUploadEvent();
                   }}
-                />
-              </ProfileImgUploadImgLabel>
+                >
+                  <MyProfileImgEditImg $src={userProfilePath}>
+                    <MyProfileImgEdit>수정</MyProfileImgEdit>
+                  </MyProfileImgEditImg>
+                </ProfileImgUploadImgLabel>
+              ) : (
+                <ProfileImgUploadImgLabel htmlFor={profileUploadImgId}>
+                  <MyProfileImgEditImg $src={userProfilePath}>
+                    <MyProfileImgEdit>수정</MyProfileImgEdit>
+                  </MyProfileImgEditImg>
+
+                  <ProfileImgUploadInput
+                    id={profileUploadImgId}
+                    accept="image/jpeg, image/png, image/gif, image/bmp, image/webp, image/heic"
+                    type="file"
+                    onChange={(e) => {
+                      if (!e.target.files) return;
+                      uploadImgUtil(
+                        e.target.files[0],
+                        setProfileUploadImgFile,
+                        setUserProfilePath,
+                      );
+                    }}
+                  />
+                </ProfileImgUploadImgLabel>
+              )}
             </MyProfileImgEditImgSubWrap>
           </MyProfileImgEditWrap>
           <ProfileAccountSettingElementWrap>
@@ -161,7 +210,9 @@ const MyProfileEditBody: React.FC = () => {
   );
 };
 
-const MyProfileEditBodyContainer = styled.div``;
+const MyProfileEditBodyContainer = styled.div`
+  padding-top: env(safe-area-inset-top);
+`;
 
 const MyProfileImgEditWrap = styled.div`
   display: flex;

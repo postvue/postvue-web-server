@@ -53,15 +53,21 @@ const PostComposeTargetAudiencePopup: React.FC<
         <BottomSheetLayout
           isOpen={isActivPostComposeTargetAudiencePopup}
           onClose={() => setIsActivPostComposeTargetAudiencePopup(false)}
-          heightNum={250}
+          heightNum={
+            220 +
+              parseFloat(
+                getComputedStyle(document.documentElement).getPropertyValue(
+                  '--safe-area-inset-bottom',
+                ),
+              ) || 0
+          }
           isExternalCloseFunc={isExternalCloseFunc}
-          setIsExternalCloseFunc={setIsExternalCloseFunc}
         >
           <PostComposeTargetAudiencePopupBody
             targetAudTabId={targetAudTabId}
             setTargetAudTabId={setTargetAudTabId}
             targetAudTabList={targetAudTabList}
-            setIsExternalCloseFunc={setIsExternalCloseFunc}
+            onClose={() => setIsExternalCloseFunc(true)}
           />
         </BottomSheetLayout>
       ) : (
@@ -77,7 +83,7 @@ const PostComposeTargetAudiencePopup: React.FC<
                 targetAudTabId={targetAudTabId}
                 setTargetAudTabId={setTargetAudTabId}
                 targetAudTabList={targetAudTabList}
-                setIsExternalCloseFunc={setIsExternalCloseFunc}
+                onClose={() => setIsActivPostComposeTargetAudiencePopup(false)}
               />
             </RoundSquareCenterPopupLayout>
           )}

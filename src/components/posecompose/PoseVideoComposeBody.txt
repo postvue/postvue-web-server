@@ -1,0 +1,728 @@
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  SetterOrUpdater,
+  useRecoilState,
+  useRecoilValue,
+  useResetRecoilState,
+} from 'recoil';
+import {
+  isActivPostComposeLocationPopupAtom,
+  isActivPostComposeTargetAudiencePopupAtom,
+  isActivPostComposeVideoSelectTypePopupAtom,
+  postComposeAddressRelationAtom,
+} from 'states/PostComposeAtom';
+import styled from 'styled-components';
+
+import { ReactComponent as AccountSettingArrowButtonIcon } from 'assets/images/icon/svg/AccountSettingArrowButtonIcon.svg';
+import { ReactComponent as PostComposeDeleteButtonIcon } from 'assets/images/icon/svg/PostComposeDeleteButtonIcon.svg';
+import BorderCircleButton from 'components/common/buttton/BorderCircleButton';
+import LoadingPopup from 'components/popups/LoadingPopup';
+import TagSearchPopup from 'components/popups/tagsearchpopup/TagSearchPopup';
+import { ACTIVE_CLASS_NAME } from 'const/ClassNameConst';
+import {
+  POST_COMPOSE__SCRAP_SELECT_TAB_NAME,
+  POST_COMPOSE__TARGET_AUDIENCE_TAB_NAME,
+  POST_COMPOSE_LOCATION_TAB_NAME,
+  POST_COMPOSE_TARGET_AUD_FOLLOW_TAB_ID,
+  POST_COMPOSE_TARGET_AUD_FOLLOW_TAB_NAME,
+  POST_COMPOSE_TARGET_AUD_PRIVATE_TAB_ID,
+  POST_COMPOSE_TARGET_AUD_PRIVATE_TAB_NAME,
+  POST_COMPOSE_TARGET_AUD_PUBLIC_TAB_ID,
+  POST_COMPOSE_TARGET_AUD_PUBLIC_TAB_NAME,
+} from 'const/TabConfigConst';
+import { PostUploadContent } from 'global/interface/post';
+import { isTagSearchPopupAtom } from 'states/TagAtom';
+import theme from 'styles/theme';
+
+import { ReactComponent as PostComposeButtonIcon } from 'assets/images/icon/svg/post/PostComposeButtonIcon.svg';
+import { ReactComponent as PostComposeTagDeleteButtonIcon } from 'assets/images/icon/svg/PostComposeTagDeleteButtonIcon.svg';
+import BoundaryStickBar from 'components/common/container/BoundaryStickBar';
+import HorizontalGrabScrollContainer from 'components/common/container/HorizontalGrabScrollContainer';
+import PostComposeLocationPopup from 'components/popups/postcompose/postcomposelocationpopup/PostComposeLocationPopup';
+import PostComposeTargetAudiencePopup from 'components/popups/postcompose/PostComposeTargetAudiencePopup';
+import PostVideoComposeSelectTypePopup from 'components/popups/postcompose/postvideocomposepopup/PostVideoComposeSelectTypePopup';
+import SelectScrapByComposePopup from 'components/popups/profilescrap/SelectScrapByComposePopup';
+import {
+  FILE_IMAGE_CONTENT_TYPE,
+  FILE_VIDEO_CONTENT_TYPE,
+} from 'const/fileConst';
+import { MAX_POST_VIDEO_DURATION } from 'const/PostComposeConst';
+import { MAX_POST_BODY_TEXT_NUM } from 'const/PostConst';
+import { POST_VIDEO_TYPE } from 'const/PostContentTypeConst';
+import { MEDIA_MOBILE_MAX_WIDTH } from 'const/SystemAttrConst';
+import { formatToMinutesAndSeconds } from 'global/util/DateTimeUtil';
+import { isApp } from 'global/util/reactnative/nativeRouter';
+import { useDropzone } from 'react-dropzone';
+import { nativeUploadImgFileAtom } from 'states/NativeAtom';
+import { selectScrapByComposePopupInfoAtom } from 'states/ProfileAtom';
+import PostComposeButton from './PostComposeButton';
+import PostUploadVideoElement from './PostUploadVideoElement';
+
+interface PostVideoComposeBodyProps {
+  postTitle: string;
+  postBodyText: string;
+  postTagList: string[];
+  postUploadContentList: PostUploadContent[];
+  setPostUploadContentList: SetterOrUpdater<PostUploadContent[]>;
+  setPostTitle: React.Dispatch<React.SetStateAction<string>>;
+  setPostBodyText: React.Dispatch<React.SetStateAction<string>>;
+  setPostTagList: React.Dispatch<React.SetStateAction<string[]>>;
+  targetAudienceId: number;
+  setTargetAudienceId: React.Dispatch<React.SetStateAction<number>>;
+  isLoadingPopup: boolean;
+  setIsLoadingPopup: React.Dispatch<React.SetStateAction<boolean>>;
+  onClickActionFunc: () => void;
+  composeButtonTitle: string;
+  hasTransparentOverLay?: boolean;
+}
+
+const PoseVideoComposeBody: React.FC<PostVideoComposeBodyProps> = ({
+  postTitle,
+  postBodyText,
+  postTagList,
+  postUploadContentList,
+  targetAudienceId,
+  setPostTitle,
+  setPostBodyText,
+  setPostTagList,
+  setPostUploadContentList,
+  setTargetAudienceId,
+  isLoadingPopup,
+  setIsLoadingPopup,
+  onClickActionFunc,
+  composeButtonTitle,
+  hasTransparentOverLay = false,
+}) => {
+  const [selectScrapByComposePopupInfo, setSelectScrapByComposePopupInfo] =
+    useRecoilState(selectScrapByComposePopupInfoAtom);
+  // 팝업 상태 값
+  const [
+    isActivPostComposeTargetAudiencePopup,
+    setIsActivPostComposeTargetAudiencePopup,
+  ] = useRecoilState(isActivPostComposeTargetAudiencePopupAtom);
+
+  const [
+    isActivPostComposeVideoSelectTypePopup,
+    setIsActivPostComposeVideoSelectTypePopup,
+  ] = useRecoilState(isActivPostComposeVideoSelectTypePopupAtom);
+
+  const bottomNextButtonRef = useRef<HTMLDivElement>(null);
+  const postUploadListRef = useRef<HTMLDivElement>(null);
+  const tagListRef = useRef<HTMLDivElement>(null);
+  const [bottomNextButtonHeight, setBottomNextButtonHeight] =
+    useState<number>(0);
+
+  // 포스트 콘텐츠 내용
+  const [poseComposeAddressRelation, setPoseComposeAddressRelation] =
+    useRecoilState(postComposeAddressRelationAtom);
+
+  const resetPoseComposeAddressRelation = useResetRecoilState(
+    postComposeAddressRelationAtom,
+  );
+
+  const targetAudTabList = [
+    {
+      tabName: POST_COMPOSE_TARGET_AUD_PUBLIC_TAB_NAME,
+      tabId: POST_COMPOSE_TARGET_AUD_PUBLIC_TAB_ID,
+    },
+    {
+      tabName: POST_COMPOSE_TARGET_AUD_FOLLOW_TAB_NAME,
+      tabId: POST_COMPOSE_TARGET_AUD_FOLLOW_TAB_ID,
+    },
+    {
+      tabName: POST_COMPOSE_TARGET_AUD_PRIVATE_TAB_NAME,
+      tabId: POST_COMPOSE_TARGET_AUD_PRIVATE_TAB_ID,
+    },
+  ];
+
+  const [isTagSearchPopup, setIsTagSearchPopupAtom] =
+    useRecoilState(isTagSearchPopupAtom);
+
+  const [
+    isActivePostComposeLocationPopup,
+    setIsActivePostComposeLocationPopup,
+  ] = useRecoilState(isActivPostComposeLocationPopupAtom);
+
+  const postComposeTabList = [
+    {
+      tabName: POST_COMPOSE_LOCATION_TAB_NAME,
+      func: () => setIsActivePostComposeLocationPopup(true),
+    },
+    {
+      tabName: POST_COMPOSE__SCRAP_SELECT_TAB_NAME,
+      func: () =>
+        setSelectScrapByComposePopupInfo((prev) => ({
+          ...prev,
+          isActive: true,
+        })),
+    },
+    {
+      tabName: POST_COMPOSE__TARGET_AUDIENCE_TAB_NAME,
+      func: () => setIsActivPostComposeTargetAudiencePopup(true),
+    },
+  ];
+
+  const textareaParentRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (bottomNextButtonRef.current) {
+      setBottomNextButtonHeight(bottomNextButtonRef.current.offsetHeight);
+    }
+
+    return () => {
+      setPostUploadContentList([]);
+      setIsTagSearchPopupAtom(false);
+      setIsLoadingPopup(false);
+      setIsActivePostComposeLocationPopup(false);
+      resetPoseComposeAddressRelation();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (postUploadListRef.current) {
+      postUploadListRef.current.scrollLeft =
+        postUploadListRef.current.scrollWidth;
+    }
+  }, [postUploadContentList]);
+
+  const onUploadMedia = (
+    blobUrl: string,
+    fileType: 'video' | 'image',
+    file: File,
+  ) => {
+    if (fileType === FILE_VIDEO_CONTENT_TYPE) {
+      const video = document.createElement('video');
+      video.src = blobUrl;
+      video.onloadedmetadata = () => {
+        const duration = video.duration;
+        if (duration > MAX_POST_VIDEO_DURATION) {
+          // 180초 = 3분
+          alert(
+            `${MAX_POST_VIDEO_DURATION}분 이하의 영상만 업로드할 수 있습니다.`,
+          );
+          URL.revokeObjectURL(blobUrl); // 메모리 누수 방지
+          return null;
+        } else {
+          setPostUploadContentList((prev) => [
+            ...prev,
+            {
+              contentUrl: blobUrl,
+              contentType: POST_VIDEO_TYPE,
+              isLink: false,
+              fileBlob: file,
+              isUploadedLink: false,
+              filename: file.name,
+              sort: prev.length,
+              isExist: false,
+            },
+          ]); // 이미지 미리보기 URL 설정
+        }
+      };
+    }
+  };
+
+  const nativeUploadImgFile = useRecoilValue(nativeUploadImgFileAtom);
+  const resetNativeUploadImgFile = useResetRecoilState(nativeUploadImgFileAtom);
+  const [videoDuration, setVideoDuration] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!isApp() || nativeUploadImgFile.imgFile === null) return;
+    const blobUrl = URL.createObjectURL(nativeUploadImgFile.imgFile);
+    const file = nativeUploadImgFile.imgFile;
+
+    setPostUploadContentList((prev) => [
+      ...prev,
+      {
+        contentUrl: blobUrl,
+        contentType: POST_VIDEO_TYPE,
+        isLink: false,
+        fileBlob: file,
+        isUploadedLink: false,
+        filename: file.name,
+        sort: prev.length,
+        isExist: false,
+      },
+    ]); // 이미지 미리보기 URL 설정
+    setVideoDuration(nativeUploadImgFile.uploadInfo?.duration || null);
+    resetNativeUploadImgFile();
+  }, [nativeUploadImgFile]);
+
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    const file = acceptedFiles[0];
+    const fileType = file.type.startsWith(FILE_IMAGE_CONTENT_TYPE)
+      ? FILE_IMAGE_CONTENT_TYPE
+      : FILE_VIDEO_CONTENT_TYPE;
+    const fileBlobUrl = URL.createObjectURL(file);
+
+    onUploadMedia(fileBlobUrl, fileType, file);
+  }, []);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      'video/mp4': ['.mp4'],
+      'video/quicktime': ['.mov'],
+      'video/x-msvideo': ['.avi'],
+      'video/webm': ['.webm'],
+      'application/vnd.apple.mpegurl': ['.m3u8'],
+    },
+    multiple: false,
+  });
+
+  return (
+    <>
+      <PoseComposeBodyContainer>
+        <div style={{ paddingTop: `env(safe-area-inset-top)` }} />
+        <ProfileScrapImgListWrap ref={postUploadListRef}>
+          {postUploadContentList.length == 1 && (
+            <PostImgWrap>
+              {videoDuration && (
+                <VideoDurationWrap>
+                  <VideoDurationElement>
+                    {formatToMinutesAndSeconds(Math.round(videoDuration))}
+                  </VideoDurationElement>
+                </VideoDurationWrap>
+              )}
+
+              {postUploadContentList[0].contentUrl && (
+                <>
+                  {isApp() ? (
+                    <>
+                      <PostUploadImg src={postUploadContentList[0].contentUrl}>
+                        <PostComposeDeleteButtonWrap
+                          onClick={() => {
+                            setPostUploadContentList([]);
+                          }}
+                        >
+                          <PostComposeDeleteButtonIcon />
+                        </PostComposeDeleteButtonWrap>
+                      </PostUploadImg>
+                    </>
+                  ) : (
+                    <>
+                      <PostUploadVideoElement
+                        videoUrl={postUploadContentList[0].contentUrl}
+                      />
+                    </>
+                  )}
+                </>
+              )}
+            </PostImgWrap>
+          )}
+          <>
+            {postUploadContentList.length <= 0 && (
+              <>
+                {isApp() ? (
+                  <PostImgWrap
+                    onClick={() => {
+                      setIsActivPostComposeVideoSelectTypePopup(true);
+                    }}
+                  >
+                    <PostEmptyImgWrap $isDragActive={isDragActive}>
+                      <PostEmptyImgSubWrap>
+                        <PostUploadButton>
+                          <PostComposeButtonIcon />
+                        </PostUploadButton>
+                      </PostEmptyImgSubWrap>
+                    </PostEmptyImgWrap>
+                  </PostImgWrap>
+                ) : (
+                  <PostImgWrap {...getRootProps()}>
+                    <PostEmptyImgWrap $isDragActive={isDragActive}>
+                      <PostEmptyImgSubWrap>
+                        <PostUploadButton>
+                          <PostComposeButtonIcon />
+                        </PostUploadButton>
+                        <PostUploadDraggableTitle>
+                          파일을 선택하거나 <br />
+                          여기로 끌어다 놓으세요.
+                        </PostUploadDraggableTitle>
+                      </PostEmptyImgSubWrap>
+                      <input {...getInputProps()} />
+                    </PostEmptyImgWrap>
+                  </PostImgWrap>
+                )}
+              </>
+            )}
+          </>
+        </ProfileScrapImgListWrap>
+
+        <PostComposeTitleWrap>
+          <PostComposeTitle
+            placeholder={'제목을 넣어주세요'}
+            onChange={(e) => {
+              setPostTitle(e.target.value);
+            }}
+            value={postTitle}
+          ></PostComposeTitle>
+        </PostComposeTitleWrap>
+        <PostComposeDescWrap ref={textareaParentRef}>
+          <PostComposeDesc
+            ref={textareaRef}
+            style={{
+              height: textareaParentRef.current
+                ? textareaParentRef.current.clientHeight - 10 + 'px'
+                : 'auto',
+            }}
+            placeholder={'게시물 본문을 작성하세요.'}
+            onChange={(e) => {
+              if (e.target.value.length > MAX_POST_BODY_TEXT_NUM) return;
+              setPostBodyText(e.target.value);
+            }}
+            value={postBodyText}
+          />
+          <PostComposeDescMaxNum>
+            {postBodyText.length} / {MAX_POST_BODY_TEXT_NUM}
+          </PostComposeDescMaxNum>
+        </PostComposeDescWrap>
+
+        <PostBottomLayoutContainer>
+          <PostVideoComposeBodyConatiner
+            $bottomNextButtonHeight={bottomNextButtonHeight}
+          >
+            <PostComposeTagListContainer>
+              <HorizontalGrabScrollContainer horiontalContainerRef={tagListRef}>
+                {postTagList.map((value, key) => (
+                  <PostComposeTagWrap key={key}>
+                    <BorderCircleButton
+                      className={ACTIVE_CLASS_NAME}
+                      contentText={`#${value}`}
+                      activeBackgroundColor={theme.mainColor.Blue}
+                      activeBorderColor={theme.mainColor.Blue}
+                      activeFontColor={theme.mainColor.White}
+                    />
+                    <PostComposeTagDeleteWrap
+                      onClick={() => {
+                        setPostTagList((prev) =>
+                          prev.filter((preValue) => preValue !== value),
+                        );
+                      }}
+                    >
+                      <PostComposeTagDeleteButtonIcon />
+                    </PostComposeTagDeleteWrap>
+                  </PostComposeTagWrap>
+                ))}
+                <BorderCircleButton
+                  className={''}
+                  contentText={'#해시태그'}
+                  deactiveBackgroundColor={theme.grey.Grey1}
+                  deactiveBorderColor={theme.grey.Grey1}
+                  deactiveFontColor={theme.grey.Grey8}
+                  onClickFunc={() => setIsTagSearchPopupAtom(true)}
+                />
+              </HorizontalGrabScrollContainer>
+            </PostComposeTagListContainer>
+            <PostVideoComposeBodyWrap>
+              {postComposeTabList.map((value, key) => (
+                <React.Fragment key={key}>
+                  <BoundaryStickBar />
+                  <PostComposeElementWrap onClick={value.func}>
+                    <PostComposeElementTitle>
+                      {value.tabName}
+                    </PostComposeElementTitle>
+                    <PostComposeArrowButtonWrap>
+                      {value.tabName ===
+                        POST_COMPOSE__TARGET_AUDIENCE_TAB_NAME && (
+                        <PostComposeTargetDiv>
+                          {targetAudTabList[targetAudienceId].tabName}
+                        </PostComposeTargetDiv>
+                      )}
+                      {value.tabName === POST_COMPOSE_LOCATION_TAB_NAME && (
+                        <PostComposeLcationDiv>
+                          {poseComposeAddressRelation.roadAddr}
+                        </PostComposeLcationDiv>
+                      )}
+                      {value.tabName ===
+                        POST_COMPOSE__SCRAP_SELECT_TAB_NAME && (
+                        <PostComposeTargetDiv>
+                          {selectScrapByComposePopupInfo.scrapInfoList.length >
+                          0
+                            ? selectScrapByComposePopupInfo.scrapInfoList
+                                .length > 1
+                              ? `${selectScrapByComposePopupInfo.scrapInfoList[0].scrapName} 외 스크랩`
+                              : selectScrapByComposePopupInfo.scrapInfoList[0]
+                                  .scrapName
+                            : ''}
+                        </PostComposeTargetDiv>
+                      )}
+                      <PostComposeArrowButtonSubWrap>
+                        <AccountSettingArrowButtonIcon />
+                      </PostComposeArrowButtonSubWrap>
+                    </PostComposeArrowButtonWrap>
+                  </PostComposeElementWrap>
+                </React.Fragment>
+              ))}
+            </PostVideoComposeBodyWrap>
+          </PostVideoComposeBodyConatiner>
+        </PostBottomLayoutContainer>
+      </PoseComposeBodyContainer>
+      <PostComposeButton
+        title={composeButtonTitle}
+        bottomNextButtonRef={bottomNextButtonRef}
+        onClickActionFunc={onClickActionFunc}
+        isActive={postUploadContentList.length > 0}
+        PostComposeButtonStyle={{ position: 'static' }}
+      />
+
+      {isTagSearchPopup && (
+        <TagSearchPopup
+          tagList={postTagList}
+          setTagList={setPostTagList}
+          hasTransparentOverLay={hasTransparentOverLay}
+        />
+      )}
+
+      {isActivPostComposeVideoSelectTypePopup && (
+        <PostVideoComposeSelectTypePopup />
+      )}
+
+      {isActivPostComposeTargetAudiencePopup && (
+        <PostComposeTargetAudiencePopup
+          targetAudTabList={targetAudTabList}
+          targetAudTabId={targetAudienceId}
+          setTargetAudTabId={setTargetAudienceId}
+          hasTransparentOverLay={hasTransparentOverLay}
+        />
+      )}
+
+      {isActivePostComposeLocationPopup && (
+        <PostComposeLocationPopup
+          setAddress={setPoseComposeAddressRelation}
+          hasTransparentOverLay={hasTransparentOverLay}
+        />
+      )}
+
+      {isLoadingPopup && <LoadingPopup />}
+      {selectScrapByComposePopupInfo.isActive && <SelectScrapByComposePopup />}
+    </>
+  );
+};
+
+const PoseComposeBodyContainer = styled.div`
+  margin-top: 6px;
+  width: 100%;
+
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+`;
+
+const ProfileScrapImgListWrap = styled.div`
+  display: flex;
+  gap: 5px;
+  overflow-x: auto;
+  white-space: nowrap;
+
+  padding: 0 ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding};
+
+  & {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`;
+
+const PostImgWrap = styled.div`
+  width: 40%;
+  margin: 0 auto;
+
+  position: relative;
+`;
+
+const PostSubImgWrap = styled.div`
+  width: 100%;
+  border-radius: 20px;
+  aspect-ratio: 3/4;
+`;
+
+const PostEmptyImgWrap = styled(PostSubImgWrap)<{ $isDragActive: boolean }>`
+  background-color: ${({ theme }) => theme.grey.Grey1};
+  border: 2px solid
+    ${(props) =>
+      props.$isDragActive ? theme.mainColor.Blue : theme.grey.Grey1};
+  display: flex;
+  cursor: pointer;
+`;
+
+const PostEmptyImgSubWrap = styled.div`
+  display: flex;
+  margin: auto;
+  flex-flow: column;
+`;
+
+const PostUploadImg = styled(PostSubImgWrap)<{ src: string }>`
+  background: url(${(props) => props.src}) center center / cover;
+  vertical-align: bottom;
+  position: relative;
+`;
+
+const PostComposeTitleWrap = styled.div`
+  padding: 23px
+    ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding} 14px
+    ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding};
+`;
+
+const PostComposeTitle = styled.input`
+  width: 100%;
+  outline: none;
+  border: 0px;
+
+  font: ${({ theme }) => theme.fontSizes.Subhead3};
+  color: ${({ theme }) => theme.grey.Grey8};
+  background-color: ${({ theme }) => theme.mainColor.White};
+`;
+
+const PostComposeDescWrap = styled.div`
+  margin: 0 ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding};
+  flex: 1;
+  position: relative;
+`;
+
+const PostComposeDescMaxNum = styled.div`
+  position: absolute;
+  font: ${({ theme }) => theme.fontSizes.Body1};
+  padding: 5px 5px;
+  margin-bottom: 3px;
+  border-radius: 20px;
+  bottom: 0px;
+  right: 0px;
+  backdrop-filter: blur(1px);
+  color: ${theme.grey.Grey5};
+`;
+
+const PostComposeDesc = styled.textarea`
+  resize: none;
+  width: 100%;
+
+  font: ${({ theme }) => theme.fontSizes.Body3};
+  outline: none;
+  border: 0px;
+
+  color: ${({ theme }) => theme.grey.Grey8};
+  background-color: ${({ theme }) => theme.mainColor.White};
+
+  &::-webkit-scrollbar {
+    display: block;
+    width: 5px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: ${({ theme }) => theme.grey.Grey5};
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background-color: ${({ theme }) => theme.grey.Grey1};
+  }
+`;
+
+const PostVideoComposeBodyConatiner = styled.div<{
+  $bottomNextButtonHeight: number;
+}>`
+    display: flex;
+    flex-flow: column;
+    gap: 16px;
+    // position: absolute;
+    bottom: calc(${(props) => props.$bottomNextButtonHeight}px + 10px);
+    width: 100%;
+
+}`;
+
+const PostVideoComposeBodyWrap = styled.div``;
+
+const PostComposeElementWrap = styled.div`
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+  cursor: pointer;
+  padding: 10px
+    ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding};
+`;
+
+const PostComposeElementTitle = styled.div`
+  font: ${({ theme }) => theme.fontSizes.Body4};
+  white-space: nowrap;
+`;
+
+const PostComposeArrowButtonWrap = styled.div`
+  display: flex;
+  gap: 5px;
+`;
+
+const PostComposeArrowButtonSubWrap = styled.div`
+  display: flex;
+  margin: auto 0;
+`;
+
+const PostBottomLayoutContainer = styled.div``;
+
+const PostComposeTagListContainer = styled.div``;
+
+const PostComposeDeleteButtonWrap = styled.div`
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  margin: 8px;
+  cursor: pointer;
+`;
+
+const PostComposeTagWrap = styled.div`
+  position: relative;
+`;
+
+const PostComposeTagDeleteWrap = styled.div`
+  position: absolute;
+  right: 0;
+  top: 0;
+  cursor: pointer;
+`;
+
+const PostComposeTargetDiv = styled.div`
+  margin: auto 0;
+  font: ${({ theme }) => theme.fontSizes.Body2};
+`;
+
+const PostComposeLcationDiv = styled.div`
+  font: ${({ theme }) => theme.fontSizes.Body2};
+`;
+
+const PostUploadButton = styled.div`
+  display: flex;
+  justify-content: center;
+`;
+
+const PostUploadDraggableTitle = styled.div`
+  word-wrap: break-word;
+  word-break: break-all;
+  white-space: normal;
+  text-align: center;
+  padding: 0 20px;
+
+  font: ${({ theme }) => theme.fontSizes.Body3};
+  color: ${({ theme }) => theme.grey.Grey6};
+
+  @media (max-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
+    display: none;
+  }
+`;
+
+const VideoDurationWrap = styled.div`
+  position: absolute;
+  top: 0px;
+  padding: 3px 9px;
+  margin: 8px 0px 0px 8px;
+  border-radius: 20px;
+
+  background-color: rgb(247 247 247 / 50%);
+  z-index: 10;
+`;
+
+const VideoDurationElement = styled.div`
+  font: ${({ theme }) => theme.fontSizes.Body3};
+  font-size: 13px;
+  color: ${({ theme }) => theme.grey.Grey9};
+`;
+
+export default PoseVideoComposeBody;

@@ -82,11 +82,11 @@ const TagSearchQueryItem = styled.div`
 `;
 
 const TagSearchQueryName = styled.div`
-  font: ${({ theme }) => theme.fontSizes.Body3};
+  font: ${({ theme }) => theme.fontSizes.Body4};
 `;
 
 const TagSearchQueryAdd = styled.div`
-  font: ${({ theme }) => theme.fontSizes.Body2};
+  font: ${({ theme }) => theme.fontSizes.Body3};
   color: ${({ theme }) => theme.grey.Grey7};
 `;
 

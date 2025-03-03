@@ -1,16 +1,24 @@
 import { ReactComponent as SearchWordDeleteButtonIcon } from 'assets/images/icon/svg/SearchWordDeleteButtonIcon.svg';
 import { RECENTLY_SEARCH_WORD_LIST_LOCAL_STORAGE } from 'const/LocalStorageConst';
+import { RoutePushEventDateInterface } from 'const/ReactNativeConst';
 import { MEDIA_MOBILE_MAX_WIDTH } from 'const/SystemAttrConst';
-import { stackRouterPush } from 'global/util/reactnative/StackRouter';
+import { SEARCH_INPUT_PHARSE_TEXT } from 'const/SystemPhraseConst';
+import { stackRouterPush } from 'global/util/reactnative/nativeRouter';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
-import { SEARCH_POST_PATH } from '../../../const/PathConst';
+import {
+  SEARCH_POST_PATH,
+  SEARCH_TAG_POST_PATH,
+} from '../../../const/PathConst';
 import { SearchRecentKeywordInterface } from '../../../global/interface/localstorage/SearchInterface';
 import {
   deleteRecentlyKeyword,
   getRecentSearchWordList,
+  handleSearch,
+  removeHashTag,
+  startsWithHashTag,
 } from '../../../global/util/SearchUtil';
 import { isValidString } from '../../../global/util/ValidUtil';
 import { getSearchQuery } from '../../../services/search/getSearchQuery';
@@ -84,9 +92,27 @@ const SearchSuggestBody: React.FC<SearchSuggestBodyProps> = ({
   }, []);
 
   const onNavigate = (word: string) => {
-    setIsSearchInputActive(false);
-    if (searchWord === word) return;
-    stackRouterPush(navigate, `${SEARCH_POST_PATH}/${word}`);
+    if (searchWord === word) {
+      setIsSearchInputActive(false);
+    } else {
+      handleSearch(RECENTLY_SEARCH_WORD_LIST_LOCAL_STORAGE, word);
+      const data: RoutePushEventDateInterface = {
+        isShowInitBottomNavBar: true,
+      };
+      if (startsWithHashTag(word)) {
+        stackRouterPush(
+          navigate,
+          `${SEARCH_TAG_POST_PATH}/${removeHashTag(word)}`,
+          data,
+        );
+      } else {
+        stackRouterPush(navigate, `${SEARCH_POST_PATH}/${word}`, data);
+      }
+
+      setTimeout(() => {
+        setIsSearchInputActive(false);
+      }, 500);
+    }
   };
 
   return (
@@ -94,69 +120,79 @@ const SearchSuggestBody: React.FC<SearchSuggestBodyProps> = ({
       style={SearchSuggestBodyContiainerStyle}
       ref={suggestBodyRef}
     >
-      <SearchRecentWordContainer style={SearchSuggestBodyWrapStyle}>
-        {!isValidString(searchTempWord) ? (
-          <>
-            {recentSearchWordList.length > 0 && (
-              <>
-                <SearchRelatedTitle>최근 검색어</SearchRelatedTitle>
-                <SuggestSearchWordContainer
-                  style={SearchSearchWordContainerStyle}
-                >
-                  {recentSearchWordList &&
-                    recentSearchWordList
-                      .slice(0)
-                      .reverse()
-                      .map((v, i) => (
-                        <SearchQueryElement
-                          key={i}
-                          searchQueryWord={v.name}
-                          onClickSearchQueryItem={() => {
-                            onNavigate(v.name);
-                          }}
-                        >
-                          <RecentDeleteButtonWrap
-                            onClick={() => onClickDeleteSearchWord(v.name)}
+      <div>
+        <SearchRecentWordContainer style={SearchSuggestBodyWrapStyle}>
+          {!isValidString(searchTempWord) ? (
+            <>
+              {recentSearchWordList.length > 0 && (
+                <>
+                  <SearchRelatedTitle>최근 검색어</SearchRelatedTitle>
+                  <SuggestSearchWordContainer
+                    style={SearchSearchWordContainerStyle}
+                  >
+                    {recentSearchWordList &&
+                      recentSearchWordList
+                        .slice(0)
+                        .reverse()
+                        .map((v, i) => (
+                          <SearchQueryElement
+                            key={i}
+                            searchQueryWord={v.name}
+                            SearchWordContainerStyle={{
+                              padding: '10px 21px',
+                            }}
+                            onClickSearchQueryItem={() => {
+                              onNavigate(v.name);
+                            }}
                           >
-                            <SearchWordDeleteButtonIcon />
-                          </RecentDeleteButtonWrap>
-                        </SearchQueryElement>
-                      ))}
-                </SuggestSearchWordContainer>
-              </>
-            )}
-            {recentSearchWordList.length <= 0 && (
-              <NotSuggestTitle>
-                관심 있는 태그나 키워드를 검색해보세요.
-              </NotSuggestTitle>
-            )}
-          </>
-        ) : (
-          <SuggestSearchWordContainer>
-            {searchQueryRelationHashMap
-              .get(searchTempWord)
-              ?.map((value, index) => (
-                <React.Fragment key={index}>
+                            <RecentDeleteButtonWrap
+                              onClick={() => onClickDeleteSearchWord(v.name)}
+                            >
+                              <SearchWordDeleteButtonIcon />
+                            </RecentDeleteButtonWrap>
+                          </SearchQueryElement>
+                        ))}
+                  </SuggestSearchWordContainer>
+                </>
+              )}
+              {recentSearchWordList.length <= 0 && (
+                <NotSuggestTitle>{SEARCH_INPUT_PHARSE_TEXT}</NotSuggestTitle>
+              )}
+            </>
+          ) : (
+            <SuggestSearchWordContainer>
+              {searchQueryRelationHashMap
+                .get(searchTempWord)
+                ?.map((value, index) => (
+                  <React.Fragment key={index}>
+                    <SearchQueryElement
+                      searchQueryWord={value}
+                      onClickSearchQueryItem={() => {
+                        onNavigate(value);
+                      }}
+                      SearchWordContainerStyle={{
+                        padding: '10px 21px',
+                      }}
+                    />
+                  </React.Fragment>
+                ))}
+              {searchQueryRelationHashMap.get(searchTempWord) &&
+                searchQueryRelationHashMap.get(searchTempWord)?.length ===
+                  0 && (
                   <SearchQueryElement
-                    searchQueryWord={value}
+                    searchQueryWord={`"${searchTempWord}" 검색`}
                     onClickSearchQueryItem={() => {
-                      onNavigate(value);
+                      onNavigate(searchTempWord);
+                    }}
+                    SearchWordContainerStyle={{
+                      padding: '10px 21px',
                     }}
                   />
-                </React.Fragment>
-              ))}
-            {searchQueryRelationHashMap.get(searchTempWord) &&
-              searchQueryRelationHashMap.get(searchTempWord)?.length === 0 && (
-                <SearchQueryElement
-                  searchQueryWord={`"${searchTempWord}" 검색`}
-                  onClickSearchQueryItem={() => {
-                    onNavigate(searchTempWord);
-                  }}
-                />
-              )}
-          </SuggestSearchWordContainer>
-        )}
-      </SearchRecentWordContainer>
+                )}
+            </SuggestSearchWordContainer>
+          )}
+        </SearchRecentWordContainer>
+      </div>
     </SearchSuggestBodyContainer>
   );
 };
@@ -166,39 +202,41 @@ const SearchSuggestBodyContainer = styled.div`
   height: calc(100% - ${theme.systemSize.header.height});
   top: ${theme.systemSize.header.height};
   width: 100%;
+  z-index: 200;
+  padding-top: env(safe-area-inset-top);
 
   background-color: ${({ theme }) => theme.mainColor.White};
-  z-index: 20;
   overscroll-behavior: contain;
   overflow-y: auto;
   max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
 
   @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
     border-radius: 20px;
-    border: 1px solid ${({ theme }) => theme.grey.Grey2};
+    border: 1px solid ${theme.grey.Grey2};
+    position: absolute;
     height: 500px;
     overflow: auto;
     padding-bottom: 20px;
 
-    max-width: ${({ theme }) => theme.systemSize.appDisplaySize.widthByPc};
     z-index: 1000;
-    width: 100%;
+    width: calc(100% - 2px);
+    max-width: none;
   }
 `;
 
 const SearchRelatedTitle = styled.div`
   font: ${({ theme }) => theme.fontSizes.Headline1};
   padding-bottom: 12px;
+  padding: 0 21px 10px 21px;
 `;
 
 const SearchRecentWordContainer = styled.div`
-  margin: 22px 21px 41px 21px;
+  margin: 22px 0 41px 0;
 `;
 
 const SuggestSearchWordContainer = styled.div`
   display: flex;
   flex-flow: column;
-  gap: 22px;
 `;
 
 const RecentDeleteButtonWrap = styled.div`

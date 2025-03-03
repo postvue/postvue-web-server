@@ -1,20 +1,25 @@
+import { APP_SERVICE_NAME } from 'const/AppInfoConst';
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 
 interface PageHelmentInfoElementProps {
   title: string;
+  description?: string;
   ogTitle?: string;
   ogDescription?: string;
   ogImage?: string;
   ogUrl?: string;
+  canonicalHref?: string;
 }
 
 const PageHelmentInfoElement: React.FC<PageHelmentInfoElementProps> = ({
   title,
+  description,
   ogTitle,
   ogDescription,
   ogImage,
   ogUrl,
+  canonicalHref,
 }) => {
   return (
     <>
@@ -22,26 +27,24 @@ const PageHelmentInfoElement: React.FC<PageHelmentInfoElementProps> = ({
         <title>{title}</title>
         <meta
           name="description"
-          content="이 페이지는 SEO 최적화를 위한 예시 페이지입니다."
+          content={description}
+          data-react-helmet="true"
         />
+        <meta property="og:title" content={ogTitle} data-react-helmet="true" />
         <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+          property="og:description"
+          content={ogDescription}
+          data-react-helmet="true"
         />
-        <meta property="og:title" content={ogTitle} />
-        <meta property="og:description" content={ogDescription} />
-        <meta property="og:image" content={ogImage} />
-        <meta property="og:url" content={ogUrl} />
-        <meta property="og:type" content="article" />
-        <meta name="robots" content="index, follow" />
-        <link
-          rel="canonical"
-          href="https://namu.wiki/w/%EC%A0%95%EC%9A%B0%EC%84%B1"
-        ></link>
+        <meta property="og:image" content={ogImage} data-react-helmet="true" />
+        <meta property="og:url" content={ogUrl} data-react-helmet="true" />
+        <meta property="og:type" content="article" data-react-helmet="true" />
+        <meta name="robots" content="index, follow" data-react-helmet="true" />
+        <link rel="canonical" href={canonicalHref}></link>
         <link
           rel="search"
           type="application/opensearchdescription+xml"
-          title="나무위키"
+          title={APP_SERVICE_NAME}
           href="/opensearch.xml"
         ></link>
       </Helmet>

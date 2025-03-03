@@ -1,7 +1,12 @@
 export const QUERY_STALE_TIME = 1000 * 60;
 export const QUERY_CACHE_TIME = 1000 * 60 * 5;
 
+export const QUERY_STATE_SEARCH_FAVORITE_PREVIEW_TERM_LIST =
+  'searchFavoriteTermPreviewList';
+
 export const QUERY_STATE_SEARCH_FAVORITE_TERM_LIST = 'searchFavoriteTermList';
+
+export const QUERY_STATE_SEARCH_TERM_INFO = 'searchTermInfo';
 
 export const STALE_30_MINUTES_TIME = 60 * 1000 * 30; // 30분
 
@@ -11,6 +16,7 @@ export const STALE_5_MINUTES_TIME = 60 * 1000 * 5; // 30분
 export const QUERY_STATE_PROFILE_POST = 'profilePost';
 export const QUERY_STATE_PROFILE_POST_INFO = 'profilePostInfo';
 export const QUERY_STATE_POST_COMMENT_LIST = 'profilePostCommentList';
+export const QUERY_STATE_POST_LIKE_LIST = 'profilePostLikeList';
 export const QUERY_STATE_POST_COMMENT_REPLY_LIST =
   'profilePostCommentReplyList';
 export const QUERY_STATE_POST_COMMENT_REPLY_REPLIES =
@@ -34,8 +40,11 @@ export const QUERY_STATE_PROFILE_ACCOUNT_INFO = 'profileAccountInfo';
 // 프로필 스크랩 리스트(보드)
 export const QUERY_STATE_POST_SCRAP_PREVIEW_LIST = 'postScrapPreviewList';
 export const QUERY_STATE_PROFILE_SCRAP_INFO = 'profileScrapInfo';
-// 포스트, 스크랩 preview
+
+// 포스트, 스크랩 보드
 export const QUERY_STATE_PROFILE_SCRAP_LIST = 'profileScrapList';
+
+export const QUERY_STATE_PROFILE_SCRAP = 'profileScrap';
 
 // 포스트 게시글 링크
 export const QUERY_STATE_POST_RESOURCE_DOC_IMAGE_LIST =
@@ -52,6 +61,10 @@ export const QUERY_STATE_PROFILE_EXISTENCE = 'profileExistence';
 
 // 상세 게시글
 export const QUERY_STATE_RECOMM_FAVORITTE_TAG_LIST = 'recommFavoriteTagList';
+
+export const QUERY_STATE_MAP_ADDRES_RELATION_LIST = 'mapAddresRelationList';
+
+export const QUERY_STATE_PROFILE_BLOCKED_USER_LIST = 'profileBlockedUserList';
 
 // 회웑 AUTH 관련
 export const QUERY_STATE_MY_PROFILE_INFO = 'myProfileInfo';
@@ -74,6 +87,8 @@ export const QUERY_STATE_MAP_ADDRESS_LIST_BY_GEO = 'mapAddressListByGeo';
 
 export const QUERY_STATE_MAP_EXPLORE_LIST = 'mapExploreList';
 
+export const QUERY_STATE_MAP_MY_POST_LIST = 'mapMyPostList';
+
 export const QUERY_STATE_MAP_LOCATION = 'mapLocation';
 
 export const QUERY_STATE_MAP_LOCAL_SEARCH_LIST = 'mapLocalSearchList';
@@ -92,3 +107,9 @@ export const QUERY_STATE_SEARCH_PROFILE_USER_LIST = 'searchProfileUserList';
 // 메시지
 export const QUERY_STATE_MSG_CONVERSATION_LIST = 'msgConversationList';
 export const QUERY_STATE_MSG_INBOX_LIST = 'msgInboxList';
+
+// 추천 리스트
+export const QUERY_STATE_TASTE_FOR_ME_LIST = 'tasteForMeList';
+
+// 태그 추천
+export const QUERY_STATE_RECOMM_TAG_LIST = 'recommTagList';

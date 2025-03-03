@@ -6,7 +6,7 @@ import { QueryStateProfileBlockedUserList } from './queryhook/QueryStateProfileB
 
 const ProfileBlockedUserListInfiniteScroll: React.FC = () => {
   const { ref, inView } = useInView();
-  const { fetchNextPage, hasNextPage, isFetchingNextPage } =
+  const { fetchNextPage, hasNextPage, isFetchingNextPage, data } =
     QueryStateProfileBlockedUserList();
 
   useEffect(() => {
@@ -17,7 +17,11 @@ const ProfileBlockedUserListInfiniteScroll: React.FC = () => {
 
   return (
     <ScrollBottomContainer ref={ref}>
-      <InViewComponent />
+      <InViewComponent
+        hasLoadingIcon={
+          (data ? data?.pages[0].length > 10 : false) && hasNextPage
+        }
+      />
     </ScrollBottomContainer>
   );
 };

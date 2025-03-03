@@ -81,24 +81,23 @@ const TagSearchPopup: React.FC<TagSearchPopupProps> = ({
           isOpen={isTagSearchPopup}
           onClose={() => setIsTagSearchPopup(false)}
           heightNum={700}
+          initDuration={0}
           bottomSheetHeader={
             <TagSearchPopupHeader
               tagSearchInputRef={tagSearchInputRef}
-              setIsTagSearchPopup={setIsTagSearchPopup}
+              onClose={() => setIsExternalCloseFunc(true)}
               tagSearchInput={tagSearchInput}
               tagSearchQueryHashMap={tagSearchQueryHashMap}
               setTagSearchQueryHashMap={setTagSearchQueryHashMap}
               onSearchInputDelete={onSearchInputDelete}
               setLoading={setLoading}
               saveTagToList={saveTagToList}
-              setIsExternalCloseFunc={setIsExternalCloseFunc}
             />
           }
           BottomSheetBottom={
             <TagSelectedListElement tagList={tagList} setTagList={setTagList} />
           }
           isExternalCloseFunc={isExternalCloseFunc}
-          setIsExternalCloseFunc={setIsExternalCloseFunc}
         >
           <TagSearchPopupBody
             tagSearchInput={tagSearchInput}
@@ -119,14 +118,13 @@ const TagSearchPopup: React.FC<TagSearchPopupProps> = ({
             >
               <TagSearchPopupHeader
                 tagSearchInputRef={tagSearchInputRef}
-                setIsTagSearchPopup={setIsTagSearchPopup}
+                onClose={() => setIsTagSearchPopup(false)}
                 tagSearchInput={tagSearchInput}
                 tagSearchQueryHashMap={tagSearchQueryHashMap}
                 setTagSearchQueryHashMap={setTagSearchQueryHashMap}
                 onSearchInputDelete={onSearchInputDelete}
                 setLoading={setLoading}
                 saveTagToList={saveTagToList}
-                setIsExternalCloseFunc={setIsExternalCloseFunc}
               />
               <TagSearchPopupBody
                 tagSearchInput={tagSearchInput}

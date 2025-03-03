@@ -1,4 +1,4 @@
-import BodyHiddenScrollElement from 'components/BodyHiddenScrollElement';
+import useBodyAdaptProps from 'hook/customhook/useBodyAdaptProps';
 import React from 'react';
 import styled from 'styled-components';
 import theme from 'styles/theme';
@@ -14,13 +14,17 @@ const PopupOverLayLayout: React.FC<PopupOverLayLayoutProps> = ({
   PopupOverLayLayoutStyle,
   isLight,
 }) => {
+  useBodyAdaptProps([
+    { key: 'overflow', value: 'hidden' },
+    { key: 'touch-action', value: 'none' },
+    { key: 'overscroll-behavior', value: 'none' },
+  ]);
   return (
     <PopupOverLayLayoutContainer
       style={PopupOverLayLayoutStyle}
       $isLight={isLight}
     >
       {children}
-      <BodyHiddenScrollElement />
     </PopupOverLayLayoutContainer>
   );
 };

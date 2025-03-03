@@ -1,17 +1,83 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><link href="%PUBLIC_URL%/favicon.ico" rel="icon"><meta content="width=device-width,initial-scale=1" name="viewport"><meta content="#ffffff" name="theme-color"><meta content="Postvue app" name="description"><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" name="viewport"><link href="%PUBLIC_URL%/logo192.png" rel="apple-touch-icon"><!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    --><link href="%PUBLIC_URL%/manifest.json" rel="manifest"><!-- 카카오 서비스 스크립트 추가 --><script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js" crossorigin="anonymous" integrity="sha384-TiCUE00h649CAMonG018J2ujOgDKW/kVWlChEuu4jK2vxfAAD0eZxzCKakxg55G4"></script><link href="https://t1.kakaocdn.net" rel="preconnect"><!-- 네이버 로그인 스크립트 추가--><script src="https://static.nid.naver.com/js/naveridlogin_js_sdk_2.0.2.js" type="text/javascript" charset="utf-8"></script><link href="https://static.nid.naver.com" rel="preconnect"><link href="https://oapi.map.naver.com" rel="preconnect"><!-- 네이버 지도 스크립트 추가 --><script src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId=kzwisw1jao" type="text/javascript"></script><!-- Google tag (gtag.js) --><script src="https://www.googletagmanager.com/gtag/js?id=G-MB2JC0B2B0" async></script><script>window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta content="#ffffff" name="theme-color">
+<meta content="Feelog" name="description">
+<meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover" name="viewport">
+<meta name="google" content="notranslate">
+<!--
+manifest.json provides metadata used when your web app is installed on a
+user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
+-->
+<link href="%PUBLIC_URL%/manifest.json" rel="manifest">
+<!-- 카카오 서비스 스크립트 추가 -->
+<!-- <script src="https://developers.kakao.com/sdk/js/kakao.js"></script> -->
+<!-- <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js" crossorigin="anonymous" integrity="sha384-TiCUE00h649CAMonG018J2ujOgDKW/kVWlChEuu4jK2vxfAAD0eZxzCKakxg55G4"></script> -->
+<!-- <link href="https://t1.kakaocdn.net" rel="preconnect"> -->
+<!-- 네이버 로그인 스크립트 추가-->
+<!-- <script src="https://static.nid.naver.com/js/naveridlogin_js_sdk_2.0.2.js" type="text/javascript" charset="utf-8"></script>
+<link href="https://static.nid.naver.com" rel="preconnect"> -->
 
-      gtag('config', 'G-MB2JC0B2B0');</script><title>Feelog</title><link href="https://www.googletagmanager.com" rel="preconnect"><link href="https://www.google-analytics.com" rel="preconnect"></head><body><noscript>Welcome to Feelog</noscript><div id="root"></div><!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
+<!-- 네이버 지도 스크립트 추가 -->
+<!-- <link href="https://oapi.map.naver.com" rel="preconnect"> -->
+<!-- <script src="https://oapi.map.naver.com/openapi/v3/maps.js?ncpClientId=kzwisw1jao" type="text/javascript"></script> -->
+<!-- Google tag (gtag.js) -->
+<script src="https://www.googletagmanager.com/gtag/js?id=G-MB2JC0B2B0" async></script>
+<script>window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-MB2JC0B2B0');
+</script>
 
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
 
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    --></body></html>
+<title>Feelog</title>
+<link href="https://www.googletagmanager.com" rel="preconnect">
+<link href="https://www.google-analytics.com" rel="preconnect">
+
+<!-- favicon -->
+<link rel="apple-touch-icon" sizes="57x57" href="/assets/favicon/apple-icon-57x57.png">
+<link rel="apple-touch-icon" sizes="60x60" href="/assets/favicon/apple-icon-60x60.png">
+<link rel="apple-touch-icon" sizes="72x72" href="/assets/favicon/apple-icon-72x72.png">
+<link rel="apple-touch-icon" sizes="76x76" href="/assets/favicon/apple-icon-76x76.png">
+<link rel="apple-touch-icon" sizes="114x114" href="/assets/favicon/apple-icon-114x114.png">
+<link rel="apple-touch-icon" sizes="120x120" href="/assets/favicon/apple-icon-120x120.png">
+<link rel="apple-touch-icon" sizes="144x144" href="/assets/favicon/apple-icon-144x144.png">
+<link rel="apple-touch-icon" sizes="152x152" href="/assets/favicon/apple-icon-152x152.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-icon-180x180.png">
+<link rel="icon" type="image/png" sizes="192x192"  href="/assets/favicon/android-icon-192x192.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="96x96" href="/assets/favicon/favicon-96x96.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon/favicon-16x16.png">
+<link rel="manifest" href="/manifest.json">
+<meta name="msapplication-TileColor" content="#ffffff">
+<meta name="msapplication-TileImage" content="/assets/favicon/ms-icon-144x144.png">
+<meta name="theme-color" content="#ffffff">
+
+<meta property="og:title" content="Feelog" />
+<meta
+    property="og:description"
+    content="특별한 순간을 기록해보세요"
+/>
+<meta property="og:image" content="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQYTgOSNcoi0SEPU_H5__5QGfdVvNLyJ4--xw&s" />
+<meta property="og:type" content="article" />
+<meta name="robots" content="index, follow" />
+
+
+</head>
+
+<body>
+<noscript>Welcome to Feelog</noscript>
+<div id="root"></div>
+<!--
+This HTML file is a template.
+If you open it directly in the browser, you will see an empty page.
+
+You can add webfonts, meta tags, or analytics to this file.
+The build step will place the bundled scripts into the <body> tag.
+
+To begin the development, run `npm start` or `yarn start`.
+To create a production bundle, use `npm run build` or `yarn build`.
+-->
+</body>
+</html>

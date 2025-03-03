@@ -1,7 +1,8 @@
 const mainColor = {
-  SkyBlue0: '#88C7F5',
+  SkyBlue0: 'rgb(209 235 255)',
   SkyBlue1: '#54A1D9',
-  Blue: '#1D77FF',
+  Blue: '#1F9EFF',
+  // #1D77FF
   Red: '#FF5E3A',
   White: '#FFFFFF',
   Black: '#000000',
@@ -88,12 +89,14 @@ const background = {
 
 const maxWidthNum = 500;
 const profilePostMaxWidthNum = 530;
+const widthByPcNum = 600;
 
 const systemSize = {
   appDisplaySize: {
     maxWidthNum: maxWidthNum,
     maxWidth: `${maxWidthNum}px`,
-    widthByPc: '600px',
+    widthByPcNum: widthByPcNum,
+    widthByPc: `${widthByPcNum}px`,
     profilePostMaxWidthNum: profilePostMaxWidthNum,
     profilePostMaxWidth: `${profilePostMaxWidthNum}px`,
 
@@ -101,8 +104,8 @@ const systemSize = {
     bottomButtonMargin: '40px',
   },
   bottomNavBar: {
-    heightNum: 80,
-    height: '80px',
+    heightNum: 55,
+    height: '55px',
   },
   header: {
     height: '50px',
@@ -111,6 +114,7 @@ const systemSize = {
     //@REFER: 22px 또는 21px로 할 지 결정
     //paddingLeftRightMargin: '22px',
   },
+
   popupTopBodyBottomScrollArea: {
     height: '80px',
   },

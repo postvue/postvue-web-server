@@ -3,6 +3,7 @@ import {
   SEARCH_POST_LASTEST_QUERY_PARAM,
   SEARCH_POST_MY_NEAR_QUERY_PARAM,
   SEARCH_POST_POPULAR_QUERY_PARAM,
+  SearchPostFilterTabType,
 } from 'const/TabConfigConst';
 import { getIsRetentionTimeInMinutes } from 'global/util/DateTimeUtil';
 import {
@@ -19,7 +20,6 @@ import {
 } from 'react-router-dom';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
-import { NAVIGATION_TO } from '../../../const/AppConst';
 import {
   DISPLAY_FLEX,
   DISPLAY_NONE,
@@ -39,35 +39,40 @@ import {
   searchTempWordAtom,
   searchWordAtom,
 } from '../../../states/SearchPostAtom';
-import { animationStyle } from '../../../styles/animations';
 import theme from '../../../styles/theme';
 import PrevButton from '../../PrevButton';
 import HeaderLayout from '../../layouts/HeaderLayout';
 import SearchButtonInputElement from './SearchButtonInputElement';
 
 import LoadingComponent from 'components/common/container/LoadingComponent';
+import { SEARCH_TAG_POST_PATH } from 'const/PathConst';
+import { EVENT_DATA_ROUTE_BACK_TYPE } from 'const/ReactNativeConst';
+import useOutsideClick from 'hook/customhook/useOutsideClick';
 import useWindowSize from 'hook/customhook/useWindowSize';
+import SearchSuggestBody from '../body/SearchSuggestBody';
 
 interface SearchHeaderProps {
   backToUrl: string;
   searchUrl: string;
-  navigateType?: string;
+  prevNavigateType?: string;
   isShowFavoriteTermButton?: boolean;
   favoriteTermButton?: React.ReactNode;
   SearchHeaderContainerStyle?: React.CSSProperties;
+  SearchButtonInputLayoutStyle?: React.CSSProperties;
   isPrevButton?: boolean;
-  searchHeaderRef?: React.RefObject<HTMLDivElement>;
+  SearchSuggestBodyContiainerStyle?: React.CSSProperties;
 }
 
 const SearchHeader: React.FC<SearchHeaderProps> = ({
   backToUrl,
   searchUrl,
-  navigateType = NAVIGATION_TO,
+  prevNavigateType = EVENT_DATA_ROUTE_BACK_TYPE,
   isShowFavoriteTermButton = false,
   favoriteTermButton,
   SearchHeaderContainerStyle,
+  SearchButtonInputLayoutStyle,
   isPrevButton = true,
-  searchHeaderRef,
+  SearchSuggestBodyContiainerStyle,
 }) => {
   const deleteButtonRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -75,13 +80,22 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
     useRecoilState(searchScrollPositionStateAtom);
 
   const param = useParams();
-  const searchWordText = param.search_word || INIT_EMPTY_STRING_VALUE;
-
   const [searchParams] = useSearchParams();
-  const filterQueryParam = [
-    SEARCH_POST_LASTEST_QUERY_PARAM,
-    SEARCH_POST_MY_NEAR_QUERY_PARAM,
-  ].includes(searchParams.get(SEARCH_POST_FILTER_QUERY_PARAM) || '')
+  const searchWordText = param.search_word
+    ? location.pathname.startsWith(SEARCH_TAG_POST_PATH)
+      ? '#' + param.search_word
+      : param.search_word
+    : INIT_EMPTY_STRING_VALUE;
+
+  const isSearchPostFilterTabType = (
+    value: string | null,
+  ): value is SearchPostFilterTabType =>
+    value === SEARCH_POST_LASTEST_QUERY_PARAM ||
+    value === SEARCH_POST_MY_NEAR_QUERY_PARAM;
+
+  const filterQueryParam = isSearchPostFilterTabType(
+    searchParams.get(SEARCH_POST_FILTER_QUERY_PARAM),
+  )
     ? searchParams.get(SEARCH_POST_FILTER_QUERY_PARAM) ||
       SEARCH_POST_POPULAR_QUERY_PARAM
     : SEARCH_POST_POPULAR_QUERY_PARAM;
@@ -215,48 +229,82 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
 
   const { windowWidth } = useWindowSize();
 
+  const searchHeaderRef = useRef<HTMLDivElement>(null);
+
+  const suggestBodyRef = useRef<HTMLDivElement>(null);
+
+  useOutsideClick([searchHeaderRef, suggestBodyRef], () => {
+    setIsSearchInputActive(false);
+  });
+
   return (
     <>
-      <HeaderLayout
-        HeaderLayoutStyle={{
-          ...{
-            position: 'fixed',
-            maxWidth:
-              windowWidth >= MEDIA_MOBILE_MAX_WIDTH_NUM
-                ? theme.systemSize.appDisplaySize.widthByPc
-                : theme.systemSize.appDisplaySize.maxWidth,
-          },
-          ...SearchHeaderContainerStyle,
+      <div
+        style={{
+          position:
+            windowWidth >= MEDIA_MOBILE_MAX_WIDTH_NUM ? 'sticky' : 'static',
+          zIndex: '100',
+          top: windowWidth >= MEDIA_MOBILE_MAX_WIDTH_NUM ? 0 : 'none',
         }}
-        HeaderLayoutRef={searchHeaderRef}
       >
-        <SearchHeaderWrap>
-          <SearchContainerWrap>
-            {isPrevButton && !isSearchInputActive && (
-              <PrevButtonWrap>
-                <PrevButton
-                  style={PrevStyle}
-                  to={backToUrl}
-                  type={navigateType}
-                />
-              </PrevButtonWrap>
-            )}
-            <SearchButtonInputElement
-              searchInputRef={searchInputRef}
-              deleteButtonRef={deleteButtonRef}
-              setLoading={setLoading}
-              isShowFavoriteTermButton={isShowFavoriteTermButton}
-              favoriteTermButton={favoriteTermButton}
-              searchUrl={searchUrl}
-            />
-          </SearchContainerWrap>
-          {isSearchInputActive && (
-            <SearchInputCancelButton onClick={onClickCancelSearchInput}>
-              취소
-            </SearchInputCancelButton>
-          )}
-        </SearchHeaderWrap>
-      </HeaderLayout>
+        <HeaderLayout
+          HeaderLayoutStyle={{
+            ...{
+              position:
+                windowWidth >= MEDIA_MOBILE_MAX_WIDTH_NUM
+                  ? 'absolute'
+                  : 'fixed',
+              maxWidth:
+                windowWidth >= MEDIA_MOBILE_MAX_WIDTH_NUM
+                  ? theme.systemSize.appDisplaySize.widthByPc
+                  : theme.systemSize.appDisplaySize.maxWidth,
+              zIndex: 300,
+            },
+            ...SearchHeaderContainerStyle,
+          }}
+          HeaderLayoutRef={searchHeaderRef}
+        >
+          <SearchHeaderWrap>
+            <SearchInpuElementWrap>
+              <SearchContainerWrap>
+                {isPrevButton && (
+                  <PrevButtonWrap $shrink={!isSearchInputActive}>
+                    <PrevButton
+                      style={PrevStyle}
+                      to={backToUrl}
+                      type={prevNavigateType}
+                    />
+                  </PrevButtonWrap>
+                )}
+
+                <SearchInpuElementSubWrap>
+                  <SearchButtonInputElement
+                    searchInputRef={searchInputRef}
+                    deleteButtonRef={deleteButtonRef}
+                    setLoading={setLoading}
+                    isShowFavoriteTermButton={isShowFavoriteTermButton}
+                    favoriteTermButton={favoriteTermButton}
+                    searchUrl={searchUrl}
+                    SearchButtonInputLayoutStyle={SearchButtonInputLayoutStyle}
+                  />
+                </SearchInpuElementSubWrap>
+              </SearchContainerWrap>
+            </SearchInpuElementWrap>
+            <SearchInputCancelButtonWrap $shrink={isSearchInputActive}>
+              <SearchInputCancelButton onClick={onClickCancelSearchInput}>
+                취소
+              </SearchInputCancelButton>
+            </SearchInputCancelButtonWrap>
+          </SearchHeaderWrap>
+        </HeaderLayout>
+        {isSearchInputActive && (
+          <SearchSuggestBody
+            suggestBodyRef={suggestBodyRef}
+            SearchSuggestBodyContiainerStyle={SearchSuggestBodyContiainerStyle}
+          />
+        )}
+      </div>
+
       {loading && isSearchInputActive && (
         <LoadingComponent
           LoadingComponentStyle={{
@@ -275,8 +323,16 @@ const SearchHeaderWrap = styled.div`
   display: flex;
 `;
 
-const PrevButtonWrap = styled.div`
+const PrevButtonWrap = styled.div<{ $shrink: boolean }>`
   display: flex;
+
+  transition:
+    width 0.3s ease,
+    opacity 0.3s ease;
+  flex: 0 0 auto;
+  width: ${(props) => (props.$shrink ? '20px' : '0')};
+  opacity: ${(props) => (props.$shrink ? '1' : '0')};
+  overflow: hidden;
 `;
 
 const PrevStyle: React.CSSProperties = {
@@ -289,13 +345,42 @@ const SearchContainerWrap = styled.div`
   width: 100%;
 `;
 
+const SearchInpuElementWrap = styled.div`
+  display: flex;
+  transition: flex 0.5s ease;
+  flex: 1;
+  width: auto;
+  opacity: 1;
+  overflow: hidden;
+`;
+
+const SearchInpuElementSubWrap = styled.div`
+  display: flex;
+  transition: flex 0.3s ease;
+  flex: 1;
+  width: auto;
+  opacity: 1;
+  overflow: hidden;
+`;
+
+const SearchInputCancelButtonWrap = styled.div<{ $shrink: boolean }>`
+  display: flex;
+  border-radius: 5px;
+  transition:
+    width 0.5s ease,
+    opacity 0.5s ease;
+  flex: 0 0 auto;
+  width: ${(props) => (props.$shrink ? '50px' : '0')};
+  opacity: ${(props) => (props.$shrink ? '1' : '0')};
+  overflow: hidden;
+`;
+
 const SearchInputCancelButton = styled.div`
   margin: auto 0px;
   white-space: nowrap;
   padding-right: 20px;
   cursor: pointer;
   font: ${({ theme }) => theme.fontSizes.Body4};
-  // animation: ${animationStyle.slideLeft} 0.1s ease-in forwards;
 `;
 
 export default SearchHeader;

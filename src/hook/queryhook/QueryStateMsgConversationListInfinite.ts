@@ -35,10 +35,6 @@ export const QueryStateMsgConversationListInfinite = (
     queryFn: async ({ pageParam }) => {
       // pageParam이 string인지 확인
 
-      console.log(
-        convertQueryTemplate(QUERY_STATE_MSG_CONVERSATION_LIST, targetUserId),
-      );
-
       if (typeof pageParam !== 'string') {
         // pageParam이 유효하지 않은 경우 빈 결과를 반환하거나 에러를 던집니다.
         return { cursorId: ZERO_CURSOR_ID, msgConversationRspList: [] };
@@ -56,5 +52,6 @@ export const QueryStateMsgConversationListInfinite = (
 
     initialPageParam: INIT_CURSOR_ID,
     enabled: isValidString(targetUserId),
+    retry: false,
   });
 };
