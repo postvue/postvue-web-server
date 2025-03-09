@@ -1,12 +1,9 @@
+import { PROFILE_SCRAP_TAB_ID } from 'const/TabConfigConst';
 import { atom } from 'recoil';
-import { GetProfileScrapInfoRsp } from 'services/profile/getProfileScrapInfo';
 import { INIT_CURSOR_ID } from '../const/PageConfigConst';
 import { TargetAudienceCategory } from '../const/ScrapConst';
-import { PostProfileInfoRsp } from '../global/interface/post';
-import {
-  ProfileScrap,
-  TargetAudienceInterface,
-} from '../global/interface/profile';
+import { PostProfileInfoRsp, PostRsp } from '../global/interface/post';
+import { TargetAudienceInterface } from '../global/interface/profile';
 
 export const cursorIdByScrapListAtom = atom<string>({
   key: 'cursorIdByScrapList',
@@ -23,7 +20,7 @@ export const cursorIdByClipListAtom = atom<string>({
   default: INIT_CURSOR_ID,
 });
 
-export const myProfileScrapAtom = atom<ProfileScrap[]>({
+export const myProfileScrapAtom = atom<PostRsp[]>({
   key: 'myProfileScrap',
   default: [],
 });
@@ -48,14 +45,17 @@ export const cursorIdByProfilePostListAtom = atom<string>({
   default: INIT_CURSOR_ID,
 });
 
-export const isActiveScrapViewPopupAtom = atom<boolean>({
-  key: 'isActiveScrapViewPopup',
-  default: false,
-});
-
-export const isActiveProfileBlockPopupAtom = atom<boolean>({
-  key: 'isActiveProfileBlockPopup',
-  default: false,
+export const activeProfileBlockPopupInfoAtom = atom<{
+  isActive: boolean;
+  username: string;
+  userId: string;
+}>({
+  key: 'activeProfileBlockPopupInfo',
+  default: {
+    isActive: false,
+    userId: '',
+    username: '',
+  },
 });
 
 export const myProfileFollowingHashMapAtom = atom<
@@ -70,30 +70,22 @@ export const cursorIdByMyProfileFollowingAtom = atom<string>({
   default: INIT_CURSOR_ID,
 });
 
-export const profileScrapInfoAtom = atom<GetProfileScrapInfoRsp>({
-  key: 'myProfileScrapInfo',
-  default: {
-    scrapId: '',
-    scrapName: '',
-    scrapNum: 0,
-    lastPostedAt: '',
-    isMe: false,
-    targetAudience: '',
-    userId: '',
-    username: '',
-    nickname: '',
-    profilePath: '',
-  },
-});
-
 export const isActiveProfileScarpTargetAudPopupAtom = atom<boolean>({
   key: 'isActiveProfileScarpTargetAudPopup',
   default: false,
 });
 
-export const isActiveProfileAccountPopupAtom = atom<boolean>({
-  key: 'isActiveProfileAccountPopup',
-  default: false,
+export const activeProfileAccountPopupInfoAtom = atom<{
+  isActive: boolean;
+  userId: string;
+  username: string;
+}>({
+  key: 'activeProfileAccountPopupInfo',
+  default: {
+    isActive: false,
+    userId: '',
+    username: '',
+  },
 });
 
 export const isActivePrivateProfileConfirmPopupAtom = atom<boolean>({
@@ -101,7 +93,62 @@ export const isActivePrivateProfileConfirmPopupAtom = atom<boolean>({
   default: false,
 });
 
-export const isActiveScrapViewPopupByMasonryAtom = atom<boolean>({
-  key: 'isActiveScrapViewPopupByMasonry',
-  default: false,
+export const activeScrapViewPopupInfoAtom = atom<{
+  isActive: boolean;
+  snsPost: PostRsp | null;
+}>({
+  key: 'activeScrapViewPopupInfo',
+  default: {
+    isActive: false,
+    snsPost: null,
+  },
+});
+
+export const activeMapScrapPopupAtom = atom<{
+  isActive: boolean;
+  scrapId: string;
+}>({
+  key: 'activeMapScrapPopup',
+  default: {
+    isActive: false,
+    scrapId: '',
+  },
+});
+
+export const selectScrapByComposePopupInfoAtom = atom<{
+  isActive: boolean;
+  scrapInfoList: { scrapId: string; scrapName: string }[];
+}>({
+  key: 'selectScrapByComposePopupInfo',
+  default: {
+    isActive: false,
+    scrapInfoList: [],
+  },
+});
+
+export const scrapTabInfoAtom = atom<{
+  activeTabId: number;
+  scrollInfo: { isActive: boolean; scroll: number };
+}>({
+  key: 'profileScrapTabId',
+  default: {
+    activeTabId: PROFILE_SCRAP_TAB_ID,
+    scrollInfo: {
+      isActive: false,
+      scroll: 0,
+    },
+  },
+});
+
+export const activeProfileAccountComplaintPopupAtom = atom<{
+  isActive: boolean;
+  userId: string;
+  username: string;
+}>({
+  key: 'activeProfileAccountComplaintPopup',
+  default: {
+    isActive: false,
+    userId: '',
+    username: '',
+  },
 });

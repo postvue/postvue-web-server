@@ -26,4 +26,8 @@ yarn-error.log*
 .env.production.local
 
 # docker
-docker-compose
+docker-compose.yml
+
+
+#temp
+temp.file

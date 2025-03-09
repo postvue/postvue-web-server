@@ -1,14 +1,16 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
 import HeaderLayout from '../../layouts/HeaderLayout';
 
 import LoadingComponent from 'components/common/container/LoadingComponent';
 import { LOCATION_SEARCH_INPUT_PHARSE_TEXT } from 'const/SystemPhraseConst';
+import { getCurrentPosition } from 'global/util/PositionUtil';
 import { getSearchQueryByDebounce } from 'global/util/SearchUtil';
 import { isValidString } from 'global/util/ValidUtil';
 import { QueryStateMapAddressRelationInfinite } from 'hook/queryhook/QueryStateMapAddressRelationInfinite';
 import {
+  currentGisInfoAtom,
   isLocationSearchInputActiveAtom,
   locationSearchWordAtom,
 } from 'states/GeoLocationAtom';
@@ -39,8 +41,13 @@ const LocationSearchHeader: React.FC<LocationSearchHeaderProps> = ({
   const [isLocationSearchInputActive, setIsLocationSearchInputActive] =
     useRecoilState(isLocationSearchInputActiveAtom);
 
-  const { data, isFetching } =
-    QueryStateMapAddressRelationInfinite(locationSearchWord);
+  const [currentGisInfo, setCurrentGisInfo] =
+    useRecoilState(currentGisInfoAtom);
+  const { data } = QueryStateMapAddressRelationInfinite(
+    locationSearchWord,
+    currentGisInfo.latitude,
+    currentGisInfo.longitude,
+  );
 
   const debouncedGetSearchQuery = getSearchQueryByDebounce(
     (word: string) => {
@@ -53,6 +60,15 @@ const LocationSearchHeader: React.FC<LocationSearchHeaderProps> = ({
     1500,
   );
 
+  useEffect(() => {
+    getCurrentPosition({
+      actionFunc: (position) => {
+        setCurrentGisInfo(position);
+      },
+      isAlertError: false,
+    });
+  }, []);
+
   return (
     <>
       <HeaderLayout
@@ -60,6 +76,7 @@ const LocationSearchHeader: React.FC<LocationSearchHeaderProps> = ({
           ...LocationHeaderContainer,
           ...{ position: 'static' },
         }}
+        isInsetTopMatin={false}
       >
         <LocationHeaderWrap>
           <SearchContainerWrap>
@@ -74,6 +91,9 @@ const LocationSearchHeader: React.FC<LocationSearchHeaderProps> = ({
               setSearchTempWord={setLocationSearchTempWord}
               debouncedGetSearchQuery={debouncedGetSearchQuery}
               onClicDeletekFunc={() => {
+                setLocationSearchWord('');
+              }}
+              onEmptyTermFunc={() => {
                 setLocationSearchWord('');
               }}
             />

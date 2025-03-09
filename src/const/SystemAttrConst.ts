@@ -19,3 +19,6 @@ export const MEDIA_MIDDLE_1400_WIDTH = `${MEDIA_MIDDLE_1400_WIDTH_NUM}px`;
 
 export const SERVER_PATH = process.env.REACT_APP_SERVER_PATH;
 export const SERVER_API_PATH = process.env.REACT_APP_SERVER_API_URL;
+export const WEBSOCKET_URL = process.env.REACT_APP_WEBSOCKET_URL;
+
+export const SERVICE_USAGE_TIME = 1000 * 60 * 4; // 4분;

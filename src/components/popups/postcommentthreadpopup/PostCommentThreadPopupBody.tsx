@@ -2,32 +2,26 @@ import { QueryStatePostCommentListInfinite } from 'hook/queryhook/QueryStatePost
 import React, { useEffect, useRef, useState } from 'react';
 import { useRecoilValue } from 'recoil';
 import styled from 'styled-components';
-import theme from 'styles/theme';
-import { POST_COMMENT_INPUT_PLACEHOLDER } from '../../../const/SystemPhraseConst';
 import {
   PostComment,
   PostCommentReplyMsgInfo,
   PostCommentWithReplies,
   PostRsp,
 } from '../../../global/interface/post';
-import { getGroupComments } from '../../../global/util/commentUtil';
+import { getGroupComments } from '../../../global/util/CommentUtil';
 
+import { COMMENT_THREAD_CONTAINER_ID } from 'const/IdNameConst';
 import PostCommentReplyListInfiniteScroll from 'hook/PostCommentReplyListInfiniteScroll';
 import { QueryStatePostCommentReplyListInfinite } from 'hook/queryhook/QueryStatePostCommentReplyListInfinite';
 import { activeCommentByPostCommentThreadAtom } from '../../../states/PostThreadAtom';
-import CommentInputSenderElement from '../../common/comment/CommentInputSenderElement';
-import PrevButtonHeaderHeader from '../../layouts/PrevButtonHeaderHeader';
 import PostCommentElement from '../postreactionpopup/body/PostCommentElement';
 import PostCommentReplyElement from '../postreactionpopup/body/PostCommentReplyElement';
 
 interface PostCommentThreadPopupBodyProps {
   snsPost: PostRsp;
-  replyMsg: PostCommentReplyMsgInfo | null;
   setReplyMsg: React.Dispatch<
     React.SetStateAction<PostCommentReplyMsgInfo | null>
   >;
-  isActiveThreadPopup: boolean;
-  setIsActiveThreadPopup: React.Dispatch<React.SetStateAction<boolean>>;
   postCommentTextareaRef: React.MutableRefObject<HTMLTextAreaElement | null>;
   likeIconByCommentRef: React.MutableRefObject<{
     [key: string]: SVGSVGElement | null;
@@ -38,25 +32,25 @@ interface PostCommentThreadPopupBodyProps {
   commentCountByCommentRef: React.MutableRefObject<{
     [key: string]: HTMLDivElement | null;
   }>;
+  commentReplyCountRef: React.MutableRefObject<{
+    [key: string]: HTMLDivElement | null;
+  }>;
+  PostCommentThreadPopupBodyStyle?: React.CSSProperties;
 }
 
 const PostCommentThreadPopupBody: React.FC<PostCommentThreadPopupBodyProps> = ({
   snsPost,
   postCommentTextareaRef,
-  replyMsg,
   setReplyMsg,
-  setIsActiveThreadPopup,
   likeIconByCommentRef,
   likeCountByCommentRef,
   commentCountByCommentRef,
+  commentReplyCountRef,
+  PostCommentThreadPopupBodyStyle,
 }) => {
   // Ref 관련 변수
   const likeIconRef = useRef<{ [key: string]: SVGSVGElement | null }>({});
   const likeCountRef = useRef<{ [key: string]: HTMLDivElement | null }>({});
-  const commentReplyCountRef = useRef<{ [key: string]: HTMLDivElement | null }>(
-    {},
-  );
-  const commmentInputSenderWrapRef = useRef<HTMLDivElement | null>(null);
 
   // 상태관리 변수
   const activeCommentByPostCommentThread = useRecoilValue(
@@ -67,10 +61,11 @@ const PostCommentThreadPopupBody: React.FC<PostCommentThreadPopupBodyProps> = ({
     snsPost.postId,
   );
 
-  const { data: postCommentReplyList } = QueryStatePostCommentReplyListInfinite(
-    snsPost.postId,
-    activeCommentByPostCommentThread.commentId,
-  );
+  const { data: postCommentReplyList, isFetched: isFetchedByPostCommentReply } =
+    QueryStatePostCommentReplyListInfinite(
+      snsPost.postId,
+      activeCommentByPostCommentThread.commentId,
+    );
 
   // 상수 값
   const [replyComentByComment, setReplyCommentByComment] =
@@ -101,49 +96,49 @@ const PostCommentThreadPopupBody: React.FC<PostCommentThreadPopupBodyProps> = ({
     setGroupComments(getGroupComments(postCommentReplyHashMap));
   }, [postCommentReplyList]);
 
-  const topLevelComments = Array.from(groupComments.values())
-    .filter((comment) => comment.isReplyMsg === false)
-    .sort((a, b) => b.postCommentId.localeCompare(a.postCommentId));
+  const [init, setInit] = useState<boolean>(false);
+  useEffect(() => {
+    setTimeout(() => {
+      setInit(true);
+    }, 700);
+  }, []);
+
+  const topLevelComments = Array.from(groupComments.values()).filter(
+    (comment) => comment.isReplyMsg === false,
+  );
+  // .sort((a, b) => b.postCommentId.localeCompare(a.postCommentId));
 
   return (
-    <>
-      <PrevButtonHeaderHeader
-        titleName="답글 보기"
-        isActionFunc={true}
-        actionFunc={() => setIsActiveThreadPopup(false)}
-        preNodeByState={<PreHeaderButtonNode>이전</PreHeaderButtonNode>}
-        HeaderLayoutStyle={{
-          maxWidth: theme.systemSize.appDisplaySize.maxWidth,
-          borderRadius: `${PostThreadPopupRadiusNum}px ${PostThreadPopupRadiusNum}px 0 0`,
-          position: 'static',
-        }}
-      />
+    <PostCommentContainer
+      style={PostCommentThreadPopupBodyStyle}
+      id={COMMENT_THREAD_CONTAINER_ID}
+    >
+      <PostCommentWrap>
+        {replyComentByComment && (
+          <PostCommentElement
+            postId={activeCommentByPostCommentThread.postId}
+            commentIdIndex={replyComentByComment.postCommentId}
+            postComment={replyComentByComment}
+            postCommentTextareaRef={postCommentTextareaRef}
+            setReplyMsg={setReplyMsg}
+            likeIconRef={likeIconByCommentRef}
+            likeCountRef={likeCountByCommentRef}
+            commentReplyCountRef={commentCountByCommentRef}
+            isReplyToReply={false}
+            neededGroupBar={false}
+            replyCommentNum={replyComentByComment.commentCount}
+          />
+        )}
+      </PostCommentWrap>
 
-      <PostCommentContainer>
-        <PostCommentWrap>
-          {replyComentByComment && (
-            <PostCommentElement
-              postId={activeCommentByPostCommentThread.postId}
-              commentIdIndex={replyComentByComment.postCommentId}
-              postComment={replyComentByComment}
-              postCommentTextareaRef={postCommentTextareaRef}
-              setReplyMsg={setReplyMsg}
-              likeIconRef={likeIconByCommentRef}
-              likeCountRef={likeCountByCommentRef}
-              commentReplyCountRef={commentCountByCommentRef}
-              isReplyToReply={false}
-              neededGroupBar={false}
-              replyCommentNum={replyComentByComment.commentCount}
-            />
-          )}
-        </PostCommentWrap>
-
-        <ReplyTitleWrap>
-          <ReplyTitle>답글</ReplyTitle>
-          <ReplyTitleBar />
-        </ReplyTitleWrap>
-        <PostReplyContainer>
-          {topLevelComments.map((comment) => (
+      <ReplyTitleWrap>
+        <ReplyTitle>답글</ReplyTitle>
+        <ReplyTitleBar />
+      </ReplyTitleWrap>
+      <PostReplyContainer>
+        {init &&
+          isFetchedByPostCommentReply &&
+          topLevelComments.map((comment) => (
             <PostCommentReplyElement
               key={comment.postCommentId}
               postId={activeCommentByPostCommentThread.postId}
@@ -160,43 +155,19 @@ const PostCommentThreadPopupBody: React.FC<PostCommentThreadPopupBodyProps> = ({
             />
           ))}
 
-          {activeCommentByPostCommentThread.postId !== '' &&
-            activeCommentByPostCommentThread.commentId !== '' && (
-              <PostCommentReplyListInfiniteScroll
-                postId={activeCommentByPostCommentThread.postId}
-                commentId={activeCommentByPostCommentThread.commentId}
-              />
-            )}
-        </PostReplyContainer>
-      </PostCommentContainer>
-
-      <CommentInputSenderElement
-        commentSenderRef={commmentInputSenderWrapRef}
-        postId={activeCommentByPostCommentThread.postId}
-        postCommentTextareaRef={postCommentTextareaRef}
-        commentReplyCountRef={commentReplyCountRef}
-        replyMsg={replyMsg}
-        setReplyMsg={setReplyMsg}
-        defaultSendPlaceHolder={`${activeCommentByPostCommentThread.username} ${POST_COMMENT_INPUT_PLACEHOLDER}`}
-        isReplyToReply={true}
-        isThread={true}
-        threadCommentId={activeCommentByPostCommentThread.commentId}
-        commentCountByCommentCurrent={
-          commentCountByCommentRef.current[
-            activeCommentByPostCommentThread.commentId
-          ]
-        }
-        containerBorderRadiusNum={PostThreadPopupRadiusNum}
-      />
-    </>
+        {activeCommentByPostCommentThread.postId !== '' &&
+          activeCommentByPostCommentThread.commentId !== '' && (
+            <PostCommentReplyListInfiniteScroll
+              postId={activeCommentByPostCommentThread.postId}
+              commentId={activeCommentByPostCommentThread.commentId}
+            />
+          )}
+      </PostReplyContainer>
+    </PostCommentContainer>
   );
 };
 
-const PostThreadPopupRadiusNum = 20;
-const PostCommentContainer = styled.div`
-  overflow-y: scroll;
-  height: 100%;
-`;
+const PostCommentContainer = styled.div``;
 
 const ReplyTitleWrap = styled.div``;
 
@@ -209,13 +180,6 @@ const ReplyTitle = styled.div`
   font: ${({ theme }) => theme.fontSizes.Body4};
   color: ${({ theme }) => theme.grey.Grey8};
   padding: 7px 0px 7px 30px;
-`;
-
-const PreHeaderButtonNode = styled.div`
-  padding-left: 18px;
-  font: ${({ theme }) => theme.fontSizes.Subhead3};
-  color: ${({ theme }) => theme.grey.Grey6};
-  cursor: pointer;
 `;
 
 const PostCommentWrap = styled.div``;

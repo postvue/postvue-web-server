@@ -1,11 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { SEARCH_POST_PATH } from '../../../../const/PathConst';
 
 import LinkifyTextComponent from 'components/LinkifyTextComponent';
+import { RoutePushEventDateInterface } from 'const/ReactNativeConst';
+import { stackRouterPush } from 'global/util/reactnative/nativeRouter';
 import { isValidString } from 'global/util/ValidUtil';
-import { convertDiffrenceDateTime } from '../../../../global/util/DateTimeUtil';
+import { convertDiffrenceDateTimeByString } from '../../../../global/util/DateTimeUtil';
 
 interface PostTextContentProps {
   postTitle: string;
@@ -28,22 +30,26 @@ const PostTextContent: React.FC<PostTextContentProps> = ({
   const [isTruncated, setIsTruncated] = useState<boolean>(false);
   const textRef = useRef<HTMLDivElement>(null);
 
+  const navigate = useNavigate();
+
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);
   };
 
   useEffect(() => {
-    if (textRef.current) {
-      const textHeight = textRef.current.scrollHeight;
-      const lineHeight = parseFloat(
-        getComputedStyle(textRef.current).lineHeight,
-      );
-      const maxAllowedHeight = lineHeight * bodyTextMaxLines;
+    setTimeout(() => {
+      if (textRef.current) {
+        const textHeight = textRef.current.scrollHeight;
+        const lineHeight = parseFloat(
+          getComputedStyle(textRef.current).lineHeight,
+        );
+        const maxAllowedHeight = lineHeight * bodyTextMaxLines;
 
-      if (textHeight > maxAllowedHeight) {
-        setIsTruncated(true);
+        if (textHeight > maxAllowedHeight) {
+          setIsTruncated(true);
+        }
       }
-    }
+    }, 100);
   }, [bodyTextMaxLines]);
 
   return (
@@ -70,12 +76,20 @@ const PostTextContent: React.FC<PostTextContentProps> = ({
           )}
         </PostTextFieldContentWrap>
       )}
-      <PostDateTime>{convertDiffrenceDateTime(postedAt)}</PostDateTime>
+      <PostDateTime>{convertDiffrenceDateTimeByString(postedAt)}</PostDateTime>
       <PostTagWrap onClick={(e) => e.stopPropagation()}>
         {tags.map((v, i) => (
-          <Link to={`${SEARCH_POST_PATH}/${v}`} key={i}>
+          <div
+            onClick={() => {
+              const data: RoutePushEventDateInterface = {
+                isShowInitBottomNavBar: true,
+              };
+              stackRouterPush(navigate, `${SEARCH_POST_PATH}/${v}`, data);
+            }}
+            key={i}
+          >
             <PostTag>#{v}</PostTag>
-          </Link>
+          </div>
         ))}
       </PostTagWrap>
     </>
@@ -127,6 +141,7 @@ const PostTag = styled.div`
 
 const BodyExpandedButton = styled.div`
   position: absolute;
+  cursor: pointer;
   right: 0;
   bottom: 0;
   font: ${({ theme }) => theme.fontSizes.Body3};

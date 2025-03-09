@@ -1,9 +1,10 @@
 import LongPressToResizeButton from 'components/common/buttton/LongPressToResizeButton';
 import { ProfileInfoByDirectMsg } from 'global/interface/profile';
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import styled from 'styled-components';
 import { MsgConversation } from '../../../global/interface/message';
-import { convertDiffrenceDateTime } from '../../../global/util/DateTimeUtil';
+import { convertDiffrenceDateTimeByString } from '../../../global/util/DateTimeUtil';
+import ConversationMsgitem from './ConversationMsgItem';
 
 interface FollowConversationMsgProps {
   followInfo: ProfileInfoByDirectMsg;
@@ -20,14 +21,6 @@ const FollowConversationMsg: React.FC<FollowConversationMsgProps> = ({
   followInfo,
   groupData,
 }) => {
-  const [activeMsgReactionPopup, setActiveMsgReactionPopup] = useState<
-    boolean | number
-  >(false);
-
-  const onDownService = (msgIdx: number) => {
-    setActiveMsgReactionPopup(msgIdx);
-  };
-
   const msgContentListRef = useRef<HTMLDivElement[]>([]);
 
   return (
@@ -42,36 +35,36 @@ const FollowConversationMsg: React.FC<FollowConversationMsgProps> = ({
           <React.Fragment key={msg.msgConversation.msgId}>
             {idx === groupData.group.length - 1 || msg.showDate === true ? (
               <MsgDateWrap key={msg.msgConversation.msgId}>
-                <LongPressToResizeButton
-                  resize={0.95}
-                  onDownFunc={() => onDownService(idx)}
-                >
+                <LongPressToResizeButton resize={0.95}>
                   <MsgConversationFollowItem
                     ref={(el) => {
                       if (!el) return;
                       msgContentListRef.current[idx] = el;
                     }}
                   >
-                    {msg.msgConversation.msgContent}
+                    <ConversationMsgitem
+                      isMe={false}
+                      msgConversation={msg.msgConversation}
+                    />
                   </MsgConversationFollowItem>
                 </LongPressToResizeButton>
                 <MsgConversationFollowDate>
-                  {convertDiffrenceDateTime(msg.msgConversation.sendAt)}
+                  {convertDiffrenceDateTimeByString(msg.msgConversation.sendAt)}
                 </MsgConversationFollowDate>
               </MsgDateWrap>
             ) : (
               <MsgWrap>
-                <LongPressToResizeButton
-                  resize={0.95}
-                  onDownFunc={() => onDownService(idx)}
-                >
+                <LongPressToResizeButton resize={0.95}>
                   <MsgConversationFollowItem
                     ref={(el) => {
                       if (!el) return;
                       msgContentListRef.current[idx] = el;
                     }}
                   >
-                    {msg.msgConversation.msgContent}
+                    <ConversationMsgitem
+                      isMe={false}
+                      msgConversation={msg.msgConversation}
+                    />
                   </MsgConversationFollowItem>
                 </LongPressToResizeButton>
               </MsgWrap>
@@ -103,16 +96,14 @@ const FollowProfileImg = styled.img`
   width: 30px;
   height: 30px;
   border-radius: 20px;
+  object-fit: cover;
 `;
 
 const MsgConversationFollowItem = styled.div`
-  padding: 9px 12px;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   gap: 10px;
-  font: ${({ theme }) => theme.fontSizes.Body4};
-  background-color: ${({ theme }) => theme.grey.Grey1};
   border-radius: 20px;
   max-width: 259px;
   word-break: break-all;

@@ -3,26 +3,24 @@ import { useRecoilState } from 'recoil';
 import styled from 'styled-components';
 import HeaderLayout from '../../layouts/HeaderLayout';
 
-import SearchInputTemplate from 'components/common/input/SearchInputTemplate';
+import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
 import { MAP_EXPLORE_SELECT_LOCATION_PHARSE_TEXT } from 'const/SystemPhraseConst';
 import { getSearchQueryByDebounce } from 'global/util/SearchUtil';
+import useWindowSize from 'hook/customhook/useWindowSize';
 import {
   isMapExploreSearchResultActiveAtom,
   isMapSearchInputActiveAtom,
   mapSearchTempWordAtom,
 } from 'states/MapExploreAtom';
+import MapSearchInputElement from './MapSearchInputElement';
 
 interface MapExploreSearchHeaderProps {
-  MapExploreHeaderActiveContainer?: React.CSSProperties;
-  MapExploreHeaderNotActiveContainer?: React.CSSProperties;
   SearchButtonInputLayoutActiveStyle?: React.CSSProperties;
   SearchButtonInputLayoutNotActiceStyle?: React.CSSProperties;
   address: string;
 }
 
 const MapExploreSearchHeader: React.FC<MapExploreSearchHeaderProps> = ({
-  MapExploreHeaderActiveContainer,
-  MapExploreHeaderNotActiveContainer,
   SearchButtonInputLayoutActiveStyle,
   SearchButtonInputLayoutNotActiceStyle,
   address,
@@ -65,18 +63,45 @@ const MapExploreSearchHeader: React.FC<MapExploreSearchHeaderProps> = ({
     };
   }, []);
 
+  const { windowWidth } = useWindowSize();
+
   return (
     <>
       <HeaderLayout
-        HeaderLayoutStyle={
-          isMapSearchInputActive
-            ? MapExploreHeaderActiveContainer
-            : MapExploreHeaderNotActiveContainer
-        }
+        HeaderLayoutStyle={{
+          ...{
+            height: '60px',
+            paddingTop: '0px',
+            backgroundColor: 'transparent',
+            position: 'static',
+          },
+        }}
       >
         <MapExploreHeaderWrap>
-          <SearchContainerWrap>
+          {/* <SearchContainerWrap>
             <SearchInputTemplate
+              searchInputRef={searchInputRef}
+              deleteButtonRef={deleteButtonRef}
+              placeholder={
+                isMapSearchInputActive
+                  ? MAP_EXPLORE_SELECT_LOCATION_PHARSE_TEXT
+                  : address
+              }
+              searchTempWord={mapSearchTempWord}
+              setSearchTempWord={setMapSearchTempWord}
+              isSearchInputActive={isMapSearchInputActive}
+              setIsSearchInputActive={setIsMapSearchInputActive}
+              debouncedGetSearchQuery={debouncedGetSearchQuery}
+              SearchButtonInputLayoutStyle={
+                isMapSearchInputActive
+                  ? SearchButtonInputLayoutActiveStyle
+                  : SearchButtonInputLayoutNotActiceStyle
+              }
+              hasHandlePress={false}
+            />
+          </SearchContainerWrap> */}
+          <SearchContainerWrap>
+            <MapSearchInputElement
               searchInputRef={searchInputRef}
               deleteButtonRef={deleteButtonRef}
               placeholder={
@@ -98,11 +123,12 @@ const MapExploreSearchHeader: React.FC<MapExploreSearchHeaderProps> = ({
             />
           </SearchContainerWrap>
 
-          {isMapSearchInputActive && (
-            <SearchInputCancelButton onClick={onClickCancelSearchInput}>
-              취소
-            </SearchInputCancelButton>
-          )}
+          {isMapSearchInputActive &&
+            windowWidth <= MEDIA_MOBILE_MAX_WIDTH_NUM && (
+              <SearchInputCancelButton onClick={onClickCancelSearchInput}>
+                취소
+              </SearchInputCancelButton>
+            )}
         </MapExploreHeaderWrap>
       </HeaderLayout>
       {/* {mapSearchTempWord !== '' &&
@@ -131,6 +157,10 @@ const SearchInputCancelButton = styled.div`
   white-space: nowrap;
   padding-right: 20px;
   cursor: pointer;
+
+  --webkit-animation: scale-up-hor-right 0.4s
+    cubic-bezier(0.39, 0.575, 0.565, 1) both;
+  // animation: scale-up-hor-right 0.4s cubic-bezier(0.39, 0.575, 0.565, 1) both;
 `;
 
 export default MapExploreSearchHeader;

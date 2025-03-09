@@ -1,4 +1,3 @@
-import { SERVER_PATH } from 'const/SystemAttrConst';
 import Hls from 'hls.js';
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
@@ -9,6 +8,7 @@ interface HlsPlayerProps {
   poster?: string;
   VideoStyle?: React.CSSProperties;
   onError?: () => void;
+  onEnded?: () => void;
   autoPlay?: boolean;
   preload?: boolean;
 }
@@ -18,35 +18,60 @@ const HlsPlayer: React.FC<HlsPlayerProps> = ({
   src,
   poster,
   VideoStyle,
+  onEnded,
   onError,
   autoPlay = false,
   preload = false,
 }) => {
-  let isHls = false;
-
   useEffect(() => {
     const video = videoRef.current;
-
     if (!video) return;
 
+    let isHls = false;
+    let hls: Hls | null = null;
+
     try {
-      const urlObj = new URL(src); // 유효한 URL인지 확인
-      isHls =
-        urlObj.pathname.endsWith('.m3u8') && urlObj.origin === SERVER_PATH;
+      const urlObj = new URL(src);
+      isHls = urlObj.pathname.endsWith('.m3u8');
     } catch (e) {
       return;
     }
 
     if (Hls.isSupported() && isHls) {
-      const hls = new Hls();
+      hls = new Hls();
       hls.loadSource(src);
       hls.attachMedia(video);
 
-      return () => hls.destroy();
+      hls.on(Hls.Events.ERROR, (event, data) => {
+        if (data.fatal) {
+          switch (data.type) {
+            case Hls.ErrorTypes.NETWORK_ERROR:
+              console.error(data.type);
+              hls?.startLoad();
+              break;
+            case Hls.ErrorTypes.MEDIA_ERROR:
+              console.error(data.type);
+              hls?.recoverMediaError();
+              break;
+            default:
+              console.error(data.type);
+              hls?.destroy();
+          }
+        }
+      });
+    } else {
+      video.src = src; // 일반 비디오 파일 처리
     }
-  }, []);
 
-  return Hls.isSupported() && isHls ? (
+    return () => {
+      if (hls) {
+        hls.destroy();
+        hls = null;
+      }
+    };
+  }, [src]); // src가 변경될 때마다 실행됨
+
+  return (
     <VideoElement
       ref={videoRef}
       autoPlay={autoPlay}
@@ -54,17 +79,7 @@ const HlsPlayer: React.FC<HlsPlayerProps> = ({
       poster={poster}
       style={VideoStyle}
       onError={onError}
-      preload={preload ? 'auto' : 'none'}
-    />
-  ) : (
-    <VideoElement
-      ref={videoRef}
-      autoPlay={autoPlay}
-      src={src}
-      playsInline
-      poster={poster}
-      style={VideoStyle}
-      onError={onError}
+      onEnded={onEnded}
       preload={preload ? 'auto' : 'none'}
     />
   );
@@ -72,9 +87,11 @@ const HlsPlayer: React.FC<HlsPlayerProps> = ({
 
 const VideoElement = styled.video`
   width: 100%;
-  height: auto;
+  object-fit: cover;
+  height: 100%;
   vertical-align: bottom;
   border-radius: 20px;
+  pointer-events: none;
 `;
 
 export default HlsPlayer;

@@ -1,8 +1,11 @@
 import { animated, config, useSpring } from '@react-spring/web';
 import { useDrag } from '@use-gesture/react';
-import { OVERFLOW_HIDDEN } from 'const/AttributeConst';
+import { sendPopupEvent } from 'global/util/reactnative/nativeRouter';
 import React, { useEffect, useRef, useState } from 'react';
+import { useResetRecoilState, useSetRecoilState } from 'recoil';
+import { isFixScrollToPostDetailPopupAtom } from 'states/PostAtom';
 import styled from 'styled-components';
+import { lock, unlock } from 'tua-body-scroll-lock';
 
 interface BottomSheetLayoutProps {
   children: React.ReactNode;
@@ -11,9 +14,10 @@ interface BottomSheetLayoutProps {
   threshold?: number;
   onClose: () => void;
   isExternalCloseFunc?: boolean;
-  setIsExternalCloseFunc?: React.Dispatch<React.SetStateAction<boolean>>;
-  isFixed?: boolean;
   isAvaliScroll?: boolean;
+  OverlaySheetStyle?: React.CSSProperties;
+  BottomSheetContainerStyle?: React.CSSProperties;
+  isScrollBar?: boolean;
 }
 
 const BottomSheetLayout: React.FC<BottomSheetLayoutProps> = ({
@@ -23,11 +27,22 @@ const BottomSheetLayout: React.FC<BottomSheetLayoutProps> = ({
   threshold = 70,
   onClose,
   isExternalCloseFunc,
-  setIsExternalCloseFunc,
-  isFixed = true,
   isAvaliScroll = true,
+  OverlaySheetStyle,
+  BottomSheetContainerStyle,
+  isScrollBar = true,
 }) => {
+  const setIsFixScrollToPostDetailPopup = useSetRecoilState(
+    isFixScrollToPostDetailPopupAtom,
+  );
+  const resetIsFixScrollToPostDetailPopup = useResetRecoilState(
+    isFixScrollToPostDetailPopupAtom,
+  );
+
+  const BottomSnapSheetLayoutRef = useRef<HTMLDivElement>(null);
   const BottomSheetContainerRef = useRef<HTMLDivElement>(null);
+
+  const BottomSheetScrollRef = useRef<HTMLDivElement>(null);
   const [height, setHeight] = useState<number>(heightNum || 0);
 
   const [{ y }, api] = useSpring(() => ({ y: height }));
@@ -36,19 +51,36 @@ const BottomSheetLayout: React.FC<BottomSheetLayoutProps> = ({
     api.start({
       y: 0,
       immediate: false,
-      config: canceled
-        ? config.wobbly
-        : { tension: 300, friction: 15, mass: 5, clamp: true },
+      config: canceled ? config.wobbly : config.default,
     });
+    setIsFixScrollToPostDetailPopup(true);
+  };
+
+  const isFixBody = () => {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    lock([BottomSnapSheetLayoutRef.current!, BottomSheetScrollRef.current!]);
+
+    sendPopupEvent(true);
+  };
+
+  const isRemoveFixRef = useRef<boolean>(false);
+  const removeFixBody = () => {
+    if (isRemoveFixRef.current) return;
+    unlock([], { useGlobalLockState: true });
+    sendPopupEvent(false);
+    isRemoveFixRef.current = true;
   };
 
   const close = () => {
+    removeFixBody();
+
     api.start({
       y: height,
       immediate: false,
       config: { tension: 300, friction: 15, mass: 5, clamp: true },
       onRest: () => {
         onClose(); // 애니메이션이 끝난 후 실행
+        resetIsFixScrollToPostDetailPopup();
       },
     });
   };
@@ -92,32 +124,13 @@ const BottomSheetLayout: React.FC<BottomSheetLayoutProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      const y = window.scrollY;
+      // react native로 popup 고정 전달
+
       open({ canceled: false });
 
-      if (!isFixed) return;
-      document.documentElement.style.overflow = OVERFLOW_HIDDEN;
-      document.documentElement.style.touchAction = 'none';
-      document.body.style.overflow = OVERFLOW_HIDDEN;
-      document.body.style.touchAction = 'none';
-      document.documentElement.style.overscrollBehavior = 'none';
-      document.body.style.overscrollBehavior = 'none';
-      //   root.style.overflow = OVERFLOW_HIDDEN;
-
-      //   root.style.display = 'flow-root';
+      isFixBody();
     } else {
-      //   document.documentElement.style.overflow = 'auto';
-      //   document.body.style.overflow = '';
-      //   root.style.overflow = '';
-      //   root.style.display = '';
-
-      if (!isFixed) return;
-      document.documentElement.style.overflow = '';
-      document.documentElement.style.touchAction = '';
-      document.body.style.overflow = '';
-      document.body.style.touchAction = '';
-      document.documentElement.style.overscrollBehavior = '';
-      document.body.style.overscrollBehavior = '';
+      close();
     }
   }, [isOpen]);
 
@@ -127,7 +140,6 @@ const BottomSheetLayout: React.FC<BottomSheetLayoutProps> = ({
 
     const resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
-        console.log(entry.contentRect.height);
         setHeight(entry.contentRect.height);
       }
     });
@@ -138,29 +150,45 @@ const BottomSheetLayout: React.FC<BottomSheetLayoutProps> = ({
   }, [BottomSheetContainerRef.current]);
 
   useEffect(() => {
-    console.log('케인', isExternalCloseFunc);
     if (!isExternalCloseFunc) return;
     close();
-    if (setIsExternalCloseFunc) {
-      setIsExternalCloseFunc(false);
-    }
   }, [isExternalCloseFunc]);
 
+  useEffect(() => {
+    return () => {
+      close();
+    };
+  }, []);
+
   return (
-    <BottomSheetLayoutConatiner as={animated.div} style={{ display: display }}>
+    <BottomSheetLayoutConatiner
+      as={animated.div}
+      style={{ display: display }}
+      ref={BottomSnapSheetLayoutRef}
+    >
       <OverlayBackground
         as={animated.div}
         onClick={() => close()}
-        style={bgStyle}
+        style={{ ...bgStyle, ...OverlaySheetStyle }}
       />
       <BottomSheetContainer
         ref={BottomSheetContainerRef}
         as={animated.div}
         {...bind()}
-        style={{ bottom: `calc(-100dvh + ${height - 100}px)`, y }}
+        style={{
+          ...{ bottom: `calc(-100dvh + ${height - 100}px)`, y },
+          ...BottomSheetContainerStyle,
+        }}
       >
-        <PopupScrollBar />
-        <BottomSheetWrap $heightNum={height}>{children}</BottomSheetWrap>
+        <PopupScrollWrap>
+          {isScrollBar ? <PopupScrollBar /> : <PopupScrollNotBar />}
+        </PopupScrollWrap>
+        <BottomSheetWrap
+          ref={BottomSheetScrollRef}
+          $heightNum={height - ScrollBarHeight}
+        >
+          {children}
+        </BottomSheetWrap>
       </BottomSheetContainer>
     </BottomSheetLayoutConatiner>
   );
@@ -203,17 +231,32 @@ const BottomSheetContainer = styled.div`
 
 const BottomSheetWrap = styled.div<{ $heightNum: number }>`
   height: ${(props) => props.$heightNum}px;
-  display: flex;
-  flex-flow: column;
+
+  // overflow-y: hidden;
+  overscroll-behavior: none;
+  touch-action: pan-y;
+  transform: none;
+  user-select: none;
+  will-change: auto;
 `;
 
-const PopupScrollBar = styled.div`
+const ScrollBarHeight = 30;
+
+const PopupScrollWrap = styled.div`
+  height: ${ScrollBarHeight}px;
+  display: flex;
+`;
+
+const PopupScrollNotBar = styled.div`
   height: 4px;
   width: 50px;
   z-index: 1000;
   border-radius: 3px;
   display: flex;
-  margin: 7px auto 20px auto;
+  margin: auto;
+`;
+
+const PopupScrollBar = styled(PopupScrollNotBar)`
   background-color: ${({ theme }) => theme.grey.Grey2};
 `;
 

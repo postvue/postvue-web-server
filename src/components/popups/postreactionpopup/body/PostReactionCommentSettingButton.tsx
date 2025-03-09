@@ -1,16 +1,10 @@
-import { ProfileMyInfo } from 'global/interface/profile';
-import { QueryMutationDeletePostComment } from 'hook/queryhook/QueryMutationDeletePostComment';
+import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
+import useWindowSize from 'hook/customhook/useWindowSize';
 import React, { useRef, useState } from 'react';
-import { useSetRecoilState } from 'recoil';
-import {
-  activePostCommentComplaintPopupAtom,
-  postBlockedUserInfoAtom,
-} from 'states/PostAtom';
-import { isActiveProfileBlockPopupAtom } from 'states/ProfileAtom';
-import { isLoadingPopupAtom } from 'states/SystemConfigAtom';
+import { useRecoilState } from 'recoil';
+import { commentSettingPopupInfoAtom } from 'states/PostAtom';
 import styled from 'styled-components';
-import { getMyAccountSettingInfo } from '../../../../global/util/MyAccountSettingUtil';
-import ContextMenuPopup from '../../ContextMenuPopup';
+import PostReactionCommentSettingContextPopup from './PostReactionCommentSettingContextPopup';
 
 interface PostReactionCommentSettingButtonProps {
   postId: string;
@@ -24,33 +18,28 @@ const PostReactionCommentSettingButton: React.FC<
 > = ({ postId, userId, commentId, username }) => {
   const postCommentSettingRef = useRef<HTMLDivElement>(null);
 
-  const myAccountSettingInfo: ProfileMyInfo = getMyAccountSettingInfo();
+  const { windowWidth } = useWindowSize();
 
   const [isCommentSettingContextMenu, setIsCommentSettingContextMenu] =
     useState<boolean | string>(false);
+
+  const [commentSettingPopupInfo, setCommentSettingPopupInfo] = useRecoilState(
+    commentSettingPopupInfoAtom,
+  );
+
   const onClickSettingContextMenu = (postIdIndex: string) => {
-    setIsCommentSettingContextMenu(postIdIndex);
+    if (windowWidth >= MEDIA_MOBILE_MAX_WIDTH_NUM) {
+      setIsCommentSettingContextMenu(postIdIndex);
+    } else {
+      setCommentSettingPopupInfo({
+        isActive: true,
+        postId: postId,
+        userId: userId,
+        username: username,
+        commentId: commentId,
+      });
+    }
   };
-
-  const deletePostCommentQuery = QueryMutationDeletePostComment();
-  const setIsLoadingPopup = useSetRecoilState(isLoadingPopupAtom);
-  const onClickDeletePostComment = (commentId: string) => {
-    setIsLoadingPopup(true);
-    setTimeout(() => {
-      deletePostCommentQuery.mutate({ commentId });
-      setIsLoadingPopup(false);
-    }, 500);
-  };
-
-  const setIsActiveProfileBlock = useSetRecoilState(
-    isActiveProfileBlockPopupAtom,
-  );
-
-  const setPostBlockedUserInfo = useSetRecoilState(postBlockedUserInfoAtom);
-
-  const setActivePostCommentComplaintPopup = useSetRecoilState(
-    activePostCommentComplaintPopupAtom,
-  );
 
   return (
     <PostCommentSettingButtonContainer
@@ -102,53 +91,15 @@ const PostReactionCommentSettingButton: React.FC<
         </PostCommentSettingIcon>
       </PostCommentSettingWrap>
       {isCommentSettingContextMenu !== false &&
-        isCommentSettingContextMenu === postId &&
-        postCommentSettingRef.current && (
-          <ContextMenuPopup
-            contextMenuRef={postCommentSettingRef.current}
-            setIsActive={setIsCommentSettingContextMenu}
-            hasFixedActive={false}
-          >
-            <PostCommentSettingItemWrap>
-              {myAccountSettingInfo.userId === userId ? (
-                <>
-                  <PostCommentSettingItem
-                    onClick={() => onClickDeletePostComment(commentId)}
-                  >
-                    삭제하기
-                  </PostCommentSettingItem>
-                  <PostCommentSettingItem>수정하기</PostCommentSettingItem>
-                </>
-              ) : (
-                <>
-                  <PostCommentSettingItem
-                    onClick={() => {
-                      setIsCommentSettingContextMenu(false);
-                      setActivePostCommentComplaintPopup({
-                        isActive: true,
-                        postId: postId,
-                        commentId: commentId,
-                      });
-                    }}
-                  >
-                    신고 하기
-                  </PostCommentSettingItem>
-                  <PostCommentSettingItem
-                    onClick={() => {
-                      setIsCommentSettingContextMenu(false);
-                      setIsActiveProfileBlock(true);
-                      setPostBlockedUserInfo({
-                        userId: userId,
-                        username: username,
-                      });
-                    }}
-                  >
-                    사용자 차단
-                  </PostCommentSettingItem>
-                </>
-              )}
-            </PostCommentSettingItemWrap>
-          </ContextMenuPopup>
+        isCommentSettingContextMenu === postId && (
+          <PostReactionCommentSettingContextPopup
+            postCommentSettingRef={postCommentSettingRef}
+            postId={postId}
+            userId={userId}
+            username={username}
+            onClose={() => setIsCommentSettingContextMenu(false)}
+            commentId={commentId}
+          />
         )}
     </PostCommentSettingButtonContainer>
   );
@@ -163,15 +114,5 @@ const PostCommentSettingWrap = styled.div`
 `;
 
 const PostCommentSettingIcon = styled.svg``;
-
-const PostCommentSettingItemWrap = styled.div``;
-
-const PostCommentSettingItem = styled.div`
-  font: ${({ theme }) => theme.fontSizes.Body3};
-  padding: 16px 20px;
-  display: flex;
-  justify-content: space-between;
-  cursor: pointer;
-`;
 
 export default PostReactionCommentSettingButton;

@@ -2,6 +2,7 @@ import { ReactComponent as AccountSettingArrowButtonIcon } from 'assets/images/i
 import React from 'react';
 import styled from 'styled-components';
 
+import { CHANNEL_USER_ID } from 'const/LocalStorageConst';
 import {
   HOME_PATH,
   PROFILE_BIRTHDATE_EDIT_PATH,
@@ -18,10 +19,20 @@ import {
   ACCOUNT_SETTING_PASSWORD_EDIT_TAB_NAME,
 } from 'const/TabConfigConst';
 import { resetAccountInfoByLogout } from 'global/util/AuthUtil';
+import {
+  isApp,
+  stackRouterLogout,
+  stackRouterPush,
+} from 'global/util/reactnative/nativeRouter';
+import { useActiveUserSessionHookByIndexedDb } from 'hook/db/useActiveUserSessionHookByIndexedDb';
+import { useSnsNotificationHookByIndexedDb } from 'hook/db/useSnsNotifcationHookByIndexedDb';
 import { useNavigate } from 'react-router-dom';
 import { postAuthLogout } from 'services/auth/postAuthLogout';
+import { hoverComponentNotRoundStyle } from 'styles/commonStyles';
 
 const ProfileAccountSettingManageBody: React.FC = () => {
+  const { resetNotifications } = useSnsNotificationHookByIndexedDb();
+  const { resetActiveUserSessions } = useActiveUserSessionHookByIndexedDb();
   const navigate = useNavigate();
   const settingTabList = [
     {
@@ -50,7 +61,15 @@ const ProfileAccountSettingManageBody: React.FC = () => {
     postAuthLogout()
       .then(() => {
         resetAccountInfoByLogout();
-        location.href = HOME_PATH;
+        localStorage.setItem(CHANNEL_USER_ID, '');
+        // resetNotificationMsgListByLocalStorage();
+        resetNotifications();
+        resetActiveUserSessions();
+        if (isApp()) {
+          stackRouterLogout();
+        } else {
+          location.href = HOME_PATH;
+        }
       })
       .catch(() => {
         alert('오류로 인해 로그아웃에 실패했습니다. 다시 시도해주세요.');
@@ -63,7 +82,7 @@ const ProfileAccountSettingManageBody: React.FC = () => {
           <ProfileAccountSettingElementWrap
             key={key}
             onClick={() => {
-              navigate(value.url);
+              stackRouterPush(navigate, value.url);
             }}
           >
             <ProfileAccountSettingElementTitle>
@@ -84,21 +103,22 @@ const ProfileAccountSettingManageBody: React.FC = () => {
   );
 };
 
-const ProfileAccountSettingBodyContainer = styled.div`
-  padding: 0 ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding};
-`;
+const ProfileAccountSettingBodyContainer = styled.div``;
 
 const ProfileAccountSettingBodyWrap = styled.div`
     display: flex;
     flex-flow: column;
-    gap: ${({ theme }) => theme.systemSize.settingGap};
-    padding-top: 35px;
+    padding-top: 20px;
 }`;
 
 const ProfileAccountSettingElementWrap = styled.div`
   display: flex;
   justify-content: space-between;
   cursor: pointer;
+  padding: 15px
+    ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding};
+
+  ${hoverComponentNotRoundStyle}
 `;
 
 const ProfileAccountSettingElementTitle = styled.div`

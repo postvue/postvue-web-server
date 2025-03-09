@@ -1,50 +1,31 @@
-import { onClickClipGlobalState } from 'global/globalstateaction/onClickClipGlobalState';
 import React from 'react';
-import { useRecoilState } from 'recoil';
+import { useRecoilValue } from 'recoil';
 import { postRspAtom } from 'states/PostAtom';
-import { systemPostRspHashMapAtom } from 'states/SystemConfigAtom';
-import { PostClipRsp } from '../../../../global/interface/post';
 import ClipButton from './ClipButton';
 
 interface ClipButtonSingleFactoryProps {
   username: string;
   postId: string;
+  onClickFunc?: () => void;
 }
 
 const ClipButtonSingleFactory: React.FC<ClipButtonSingleFactoryProps> = ({
   username,
   postId,
+  onClickFunc,
 }) => {
-  const [snsPost, setSnsPost] = useRecoilState(postRspAtom);
-
-  const [snsSystemPostHashMap, setSnsSystemPostHashMap] = useRecoilState(
-    systemPostRspHashMapAtom,
-  );
-
-  const setClipSingleButtonState = (value: PostClipRsp) => {
-    onClickClipGlobalState(username, postId, !snsPost.isClipped, snsPost);
-
-    const newSnsPostHashMap = new Map(snsSystemPostHashMap);
-    const snsPostTemp = newSnsPostHashMap.get(postId);
-    if (snsPostTemp !== undefined) {
-      newSnsPostHashMap.set(postId, {
-        ...snsPostTemp,
-        isClipped: value.isClipped,
-      });
-    }
-
-    setSnsSystemPostHashMap(newSnsPostHashMap);
-
-    setSnsPost((prev) => ({ ...prev, isClipped: value.isClipped }));
-  };
+  const snsPost = useRecoilValue(postRspAtom);
 
   return (
     <>
-      <ClipButton
-        postId={postId}
-        setClipStete={setClipSingleButtonState}
-        isClipped={snsPost?.isClipped || false}
-      />
+      {snsPost && (
+        <ClipButton
+          postId={postId}
+          username={username}
+          isClipped={snsPost.isClipped}
+          onClickFunc={onClickFunc}
+        />
+      )}
     </>
   );
 };

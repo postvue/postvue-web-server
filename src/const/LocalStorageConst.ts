@@ -10,6 +10,7 @@ export const HOME_HISTORY_LOCAL_STORAGE = 'home-history';
 export const ACCESS_TOKEN = 'access-token';
 export const INVALID_ACCESS_TOKEN = 'invalid-access-token';
 export const RECENTLY_KEYWORD_LIST = 'recently-keyword-list';
+export const CHANNEL_USER_ID = 'userId';
 
 // 알림
 export const NOTIFICATION_MSG_LIST = 'notification-msg-list';

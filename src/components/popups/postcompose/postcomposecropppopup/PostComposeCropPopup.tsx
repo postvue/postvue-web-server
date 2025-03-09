@@ -68,7 +68,6 @@ const PostComposeCropPopup: React.FC<PostComposeCropPopupProps> = ({
               isTouchScrollBar={false}
               popupOverLayContainerStyle={{ borderRadius: '0px' }}
               hasTransparentOverLay={true}
-              hasFixedActive={false}
               popupWrapStyle={{ borderRadius: '0px' }}
             >
               <PrevButtonHeaderHeader

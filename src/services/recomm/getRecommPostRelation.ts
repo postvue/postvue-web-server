@@ -1,20 +1,21 @@
 import { optAuthApi } from '..';
 import { PostRsp } from '../../global/interface/post';
 import { POST_LIST_PATH, RECOMM_PATH, RELATION_PATH } from '../appApiPath';
-import { CURSOR_PARAM } from '../appApiQueryParam';
+import { PAGE_PARAM, SEARCH_TYPE_PARAM } from '../appApiQueryParam';
 
-export interface GetRecommPostRelationRsp {
-  cursorId: string;
-  snsPostRspList: PostRsp[];
-}
+// export interface GetRecommPostRelationRsp {
+//   page: number;
+//   snsPostRspList: PostRsp[];
+// }
 
 export const getRecommPostRelation = (
   postId: string,
-  cursorId: string,
-): Promise<GetRecommPostRelationRsp> => {
+  searchType: string,
+  page: number,
+): Promise<PostRsp[]> => {
   return optAuthApi
     .get(
-      `${RECOMM_PATH}${POST_LIST_PATH}/${postId}${RELATION_PATH}?${CURSOR_PARAM}=${cursorId}`,
+      `${RECOMM_PATH}${POST_LIST_PATH}/${postId}${RELATION_PATH}?${PAGE_PARAM}=${page}&${SEARCH_TYPE_PARAM}=${searchType}`,
     )
     .then((res) => {
       console.log(res.data);

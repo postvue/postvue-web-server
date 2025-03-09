@@ -1,4 +1,5 @@
 import CommentInputSenderElement from 'components/common/comment/CommentInputSenderElement';
+import { COMMENT_CONTAINER_ID } from 'const/IdNameConst';
 import { POST_COMMENT_INPUT_PLACEHOLDER } from 'const/SystemPhraseConst';
 import { PostCommentReplyMsgInfo } from 'global/interface/post';
 import React, { useRef } from 'react';
@@ -32,6 +33,7 @@ const PostReactionCommentSendElement: React.FC<
     <CommentInputSenderElement
       postId={postId}
       //@REFER: snsPostCommentHashMap 잔재 제거 필요
+      // @ANSWER: 나중 기록을 위해 삭제 하지 마시오
       // snsPostCommentHashMap={snsPostCommentHashMap}
       // setSnsPostCommentHashMap={setSnsPostCommentHashMap}
       commentSenderRef={commentSenderRef}
@@ -40,7 +42,7 @@ const PostReactionCommentSendElement: React.FC<
       defaultSendPlaceHolder={`${username} ${POST_COMMENT_INPUT_PLACEHOLDER}`}
       replyMsg={replyMsg}
       setReplyMsg={setReplyMsg}
-      containerBorderRadiusNum={20}
+      commentContainerTypeId={COMMENT_CONTAINER_ID}
     />
   );
 };

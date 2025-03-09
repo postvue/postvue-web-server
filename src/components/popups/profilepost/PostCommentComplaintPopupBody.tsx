@@ -2,29 +2,32 @@ import MyAccountSettingInfoState from 'components/common/state/MyAccountSettingI
 import { PostReportType } from 'const/PostReportConst';
 import { isValidString } from 'global/util/ValidUtil';
 import React, { useState } from 'react';
-import { useRecoilState, useSetRecoilState } from 'recoil';
+import { useResetRecoilState, useSetRecoilState } from 'recoil';
 import { createPostCommentReport } from 'services/post/createPostCommentReport';
 import {
-  isActivePostComplaintCompletePopupAtom,
-  isActivePostComplaintPopupAtom,
+  activePostCommentComplaintPopupAtom,
+  activePostComplaintCompletePopupAtom,
 } from 'states/PostAtom';
 import styled from 'styled-components';
 import theme from 'styles/theme';
 
 interface PostCommentComplaintPopupBodyProps {
   postId: string;
+  userId: string;
+  username: string;
   commentId: string;
   setIsExternalCloseFunc?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const PostCommentComplaintPopupBody: React.FC<
   PostCommentComplaintPopupBodyProps
-> = ({ postId, commentId, setIsExternalCloseFunc }) => {
-  const [isActivePostComplaintPopup, setIsActivePostComplaintPopup] =
-    useRecoilState(isActivePostComplaintPopupAtom);
+> = ({ postId, userId, username, commentId, setIsExternalCloseFunc }) => {
+  const resetActivePostCommentComplaintPopup = useResetRecoilState(
+    activePostCommentComplaintPopupAtom,
+  );
 
-  const setIsActivePostComplaintCompletePopup = useSetRecoilState(
-    isActivePostComplaintCompletePopupAtom,
+  const setActivePostComplaintCompletePopup = useSetRecoilState(
+    activePostComplaintCompletePopupAtom,
   );
 
   const [otherReportContent, setOtherReportConet] = useState<string>('');
@@ -43,11 +46,15 @@ const PostCommentComplaintPopupBody: React.FC<
       postReportReasonType,
     })
       .then(() => {
-        setIsActivePostComplaintPopup(false);
+        resetActivePostCommentComplaintPopup();
         if (setIsExternalCloseFunc) {
           setIsExternalCloseFunc(true);
         }
-        setIsActivePostComplaintCompletePopup(true);
+        setActivePostComplaintCompletePopup({
+          isActive: true,
+          userId: userId,
+          username: username,
+        });
       })
       .catch((error) => {
         alert(error);
@@ -59,7 +66,7 @@ const PostCommentComplaintPopupBody: React.FC<
       <PostComplaintPopupWrap>
         <PostComplaintTypeWrap
           onClick={() => {
-            onClickSendComplaint(null, PostReportType.SENSITIVE_CONTENT);
+            onClickSendComplaint(null, PostReportType.SENSITIVE_COMMENT);
           }}
         >
           성적이거나 민감한 댓글입니다.
@@ -106,7 +113,7 @@ const PostCommentComplaintPopupBody: React.FC<
           />
         </PostComplaintTypeWrap>
       </PostComplaintPopupWrap>
-      {isActivePostComplaintPopup && <MyAccountSettingInfoState />}
+      <MyAccountSettingInfoState />
     </PostCommentComplaintPopupContainer>
   );
 };

@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { hoverComponentNotRoundStyle } from 'styles/commonStyles';
 
 interface LocationPositionElementProps {
   onClickAddress: () => void;
@@ -10,7 +11,6 @@ interface LocationPositionElementProps {
 
 const LocationPositionElement: React.FC<LocationPositionElementProps> = ({
   onClickAddress,
-
   buildName,
   roadAddr,
 }) => {
@@ -24,6 +24,10 @@ const LocationPositionElement: React.FC<LocationPositionElementProps> = ({
 
 const LocatoinPositionWrap = styled.div`
   cursor: pointer;
+  width: 100%;
+  padding: 10px 0;
+
+  ${hoverComponentNotRoundStyle}
 `;
 
 const LocatoinPositionBuildName = styled.div`

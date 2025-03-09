@@ -1,30 +1,22 @@
-import { ReactComponent as FeelogLogo } from 'assets/images/icon/svg/logo/FeelogLogo62x30.svg';
-import { ReactComponent as SearchButtonIcon } from 'assets/images/icon/svg/SearchButtonIcon.svg';
+import { ReactComponent as FeelogLogo } from 'assets/images/icon/svg/logo/FeelogLogo.svg';
 import TabStickBar from 'components/common/container/TabStickBar';
 import HeaderLayout from 'components/layouts/HeaderLayout';
 import { MEDIA_MOBILE_MAX_WIDTH } from 'const/SystemAttrConst';
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
 import { useRecoilState } from 'recoil';
+import { homeTabInfoAtom } from 'states/HomePageAtom';
 import styled from 'styled-components';
 import { ACTIVE_CLASS_NAME } from '../../../const/ClassNameConst';
-import { SEARCH_PATH } from '../../../const/PathConst';
 import {
   FOLLOW_FOR_ME_TAB_ID,
   FOLLOW_FOR_ME_TAB_NAME,
   TASTE_FOR_ME_TAB_ID,
   TASTE_FOR_ME_TAB_NAME,
 } from '../../../const/TabConfigConst';
-import { HomeHistoryInterface } from '../../../global/interface/localstorage/HomeHistoryInterface';
-import {
-  getHomeHistory,
-  saveMainTabIdByHomeHistory,
-} from '../../../global/util/HomeUtil';
-import { homeTabIdAtom } from '../../../states/HomePageAtom';
+import SearchTabComponent from './SearchTabComponent';
 
 const HomeHeader: React.FC = () => {
-  const navigate = useNavigate();
-  const [mainTabId, setMainTabId] = useRecoilState(homeTabIdAtom);
+  const [mainTabInfo, setMainTabInfo] = useRecoilState(homeTabInfoAtom);
 
   const mainTabList = [
     {
@@ -37,10 +29,17 @@ const HomeHeader: React.FC = () => {
     },
   ];
 
-  useEffect(() => {
-    const homeHistory: HomeHistoryInterface = getHomeHistory();
-    setMainTabId(homeHistory.mainTabId);
-  }, []);
+  // useEffect(() => {
+  // const homeHistory: HomeHistoryInterface = getHomeHistory();
+
+  // setMainTabInfo({
+  //   activeTabId: homeHistory.mainTabId,
+  //   scrollInfo: {
+  //     isActive: false,
+  //     scroll: 0,
+  //   },
+  // });
+  // }, []);
 
   return (
     <>
@@ -53,26 +52,36 @@ const HomeHeader: React.FC = () => {
       >
         <HomeHeaderContainer>
           <AppLogoWrap>
+            {/* <FeelogLogo /> */}
             <FeelogLogo />
           </AppLogoWrap>
+
           <HomeTabContainer>
             {mainTabList.map((v, i) => (
               <TabItem
                 key={i}
-                className={mainTabId === v.tabId ? ACTIVE_CLASS_NAME : ''}
+                className={
+                  mainTabInfo.activeTabId === v.tabId ? ACTIVE_CLASS_NAME : ''
+                }
                 onClick={() => {
-                  saveMainTabIdByHomeHistory(v.tabId);
-                  setMainTabId(v.tabId);
+                  // saveMainTabIdByHomeHistory(v.tabId);
+
+                  setMainTabInfo({
+                    activeTabId: v.tabId,
+                    scrollInfo: {
+                      isActive: false,
+                      scroll: 0,
+                    },
+                  });
                 }}
               >
                 {v.tabName}
-                {mainTabId === v.tabId && <TabStickBar />}
+
+                {mainTabInfo.activeTabId === v.tabId && <TabStickBar />}
               </TabItem>
             ))}
           </HomeTabContainer>
-          <SubTabContainer onClick={() => navigate(SEARCH_PATH)}>
-            <SearchButtonIcon />
-          </SubTabContainer>
+          <SearchTabComponent />
         </HomeHeaderContainer>
       </HeaderLayout>
     </>
@@ -85,15 +94,17 @@ const HomeHeaderContainer = styled.div`
   display: flex;
   justify-content: space-between;
   padding: 0 15px;
+  position: relative;
 `;
 
 const HomeTabContainer = styled.div`
   display: flex;
   gap: 20px;
-  position: fixed;
+  position: absolute;
   z-index: 1;
   left: 50%;
-  transform: translate(-50%, 50%);
+  top: 50%;
+  transform: translate(-50%, -50%);
 `;
 
 const TabItem = styled.div`
@@ -111,17 +122,6 @@ const TabItem = styled.div`
   &.active {
     color: black;
   }
-`;
-const SubTabContainer = styled.div`
-  cursor: pointer;
-  @media (max-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
-    display: flex;
-  }
-
-  @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
-    display: none;
-  }
-  margin: auto 0px;
 `;
 
 const AppLogoWrap = styled.div`

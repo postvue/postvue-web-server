@@ -39,6 +39,7 @@ export const QueryStatePostCommentListInfinite = (
 
       return getPostComments(postId, pageParam);
     },
+    refetchOnMount: 'always',
 
     getNextPageParam: (lastPage) => {
       // Increment pageParam by 1 for the next page
@@ -46,7 +47,6 @@ export const QueryStatePostCommentListInfinite = (
         ? lastPage.cursorId
         : undefined;
     },
-
     initialPageParam: INIT_CURSOR_ID,
   });
 };

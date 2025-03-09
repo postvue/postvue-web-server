@@ -13,7 +13,7 @@ import {
   GetProfileSearchUsersRsp,
 } from 'services/profile/getProfileSearchUsers';
 
-export interface ProfilePostRelationQueryInterface {
+export interface SearchProfileUserListQueryInterface {
   pages: GetProfileSearchUsersRsp[];
   pageParams: unknown[];
 }
@@ -21,13 +21,13 @@ export const QueryStateSearchProfileUserListInfinite = (
   username: string,
   hasFollowInfo = false,
 ): UseInfiniteQueryResult<
-  ProfilePostRelationQueryInterface,
+  SearchProfileUserListQueryInterface,
   AxiosError<unknown, any>
 > => {
   return useInfiniteQuery<
     GetProfileSearchUsersRsp,
     AxiosError,
-    ProfilePostRelationQueryInterface,
+    SearchProfileUserListQueryInterface,
     [string]
   >({
     queryKey: [

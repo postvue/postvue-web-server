@@ -1,19 +1,18 @@
 import BottomNextButton from 'components/common/buttton/BottomNextButton';
 import BoundaryStickBar from 'components/common/container/BoundaryStickBar';
-import ProfileScrapTargetAudiencePopup from 'components/popups/ProfileScrapTargetAudiencePopup';
+import MyAccountSettingInfoState from 'components/common/state/MyAccountSettingInfoState';
 import React, { useEffect } from 'react';
-import { useRecoilState, useResetRecoilState, useSetRecoilState } from 'recoil';
+import { useRecoilState, useResetRecoilState } from 'recoil';
 import styled from 'styled-components';
-import { POST_IMAGE_TYPE } from '../../const/PostContentTypeConst';
-import { TargetAudienceCategory } from '../../const/ScrapConst';
+import theme from 'styles/theme';
 import { MAKE_NEW_SCRAP_INPUT_PHASE_TEXT } from '../../const/SystemPhraseConst';
-import { isValidString } from '../../global/util/ValidUtil';
 import {
   isActiveProfileScarpTargetAudPopupAtom,
   scrapTargetAudienceAtom,
 } from '../../states/ProfileAtom';
 
 interface ProfileComposeScrapBodyProps {
+  isActive: boolean;
   actionFunc: () => void;
   buttonTitle: string;
   postId?: string;
@@ -21,9 +20,13 @@ interface ProfileComposeScrapBodyProps {
   postContentType?: string;
   scrapName: string;
   setScrapName: React.Dispatch<React.SetStateAction<string>>;
+  ProfileMakeScrapBodyContainerStyle?: React.CSSProperties;
+  BottomNextButtonWrapContainerStyle?: React.CSSProperties;
+  isInsetTop?: boolean;
 }
 
 const ProfileComposeScrapBody: React.FC<ProfileComposeScrapBodyProps> = ({
+  isActive,
   buttonTitle,
   actionFunc,
   postId,
@@ -31,21 +34,19 @@ const ProfileComposeScrapBody: React.FC<ProfileComposeScrapBodyProps> = ({
   postContentType,
   scrapName,
   setScrapName,
+  ProfileMakeScrapBodyContainerStyle,
+  BottomNextButtonWrapContainerStyle,
+  isInsetTop = true,
 }) => {
   const [scrapTargetAudience, setScrapTargetAudience] = useRecoilState(
     scrapTargetAudienceAtom,
   );
   const resetScrapTargetAudience = useResetRecoilState(scrapTargetAudienceAtom);
 
-  const targetAudienceList = [
-    TargetAudienceCategory.PUBLIC_TARGET_AUDIENCE,
-    TargetAudienceCategory.PROTECTED_TARGET_AUDIENCE,
-    TargetAudienceCategory.PRIVATE_TARGET_AUDIENCE,
-  ];
-
-  const setIsActiveProfileScarpTargetAudPopup = useSetRecoilState(
-    isActiveProfileScarpTargetAudPopupAtom,
-  );
+  const [
+    isActiveProfileScarpTargetAudPopup,
+    setIsActiveProfileScarpTargetAudPopup,
+  ] = useRecoilState(isActiveProfileScarpTargetAudPopupAtom);
 
   useEffect(() => {
     return () => {
@@ -60,8 +61,11 @@ const ProfileComposeScrapBody: React.FC<ProfileComposeScrapBodyProps> = ({
 
   return (
     <>
-      <ProfileMakeScrapBodyContainer>
-        {postId && postContentUrl && postContentType === POST_IMAGE_TYPE && (
+      <ProfileMakeScrapBodyContainer style={ProfileMakeScrapBodyContainerStyle}>
+        {isInsetTop && (
+          <div style={{ paddingTop: `env(safe-area-inset-top)` }} />
+        )}
+        {postId && postContentUrl && (
           <TogetherPostWrap>
             <TogetherPostImg src={postContentUrl} />
           </TogetherPostWrap>
@@ -103,26 +107,24 @@ const ProfileComposeScrapBody: React.FC<ProfileComposeScrapBodyProps> = ({
         </TargetAudienceWrap>
 
         <BottomNextButton
-          isActive={
-            isValidString(scrapName) &&
-            targetAudienceList.includes(scrapTargetAudience)
-          }
+          isActive={isActive}
           actionFunc={actionFunc}
           title={buttonTitle}
           notActiveTitle={buttonTitle}
+          isTransparent={true}
+          BottomNextButtonWrapContainerStyle={
+            BottomNextButtonWrapContainerStyle
+          }
         />
       </ProfileMakeScrapBodyContainer>
 
-      <ProfileScrapTargetAudiencePopup
-        targetAudValue={scrapTargetAudience}
-        setTargetAudValue={setScrapTargetAudience}
-      />
+      <MyAccountSettingInfoState />
     </>
   );
 };
 
 const ProfileMakeScrapBodyContainer = styled.div`
-  height: calc(100vh - ${({ theme }) => theme.systemSize.header.height});
+  height: calc(100dvh - ${theme.systemSize.header.heightNumber}px);
   position: relative;
 `;
 

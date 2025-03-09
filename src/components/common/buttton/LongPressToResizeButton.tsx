@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 interface LongPressToResizeButtonProps {
@@ -17,27 +17,47 @@ const LongPressToResizeButton: React.FC<LongPressToResizeButtonProps> = ({
   onDownFunc,
 }) => {
   const [isPressed, setIsPressed] = useState(false);
+  const [isScrolling, setIsScrolling] = useState(false);
 
   const pressTimerRef = useRef<number | null>(null);
-  const handleMouseStart = (): void => {
-    // 배경색을 조금 어둡게 변경
+  const scrollTimerRef = useRef<number | null>(null);
 
-    // 꾹 눌렀을 때 타이머 시작
+  const handleTouchMove = () => {
+    setIsScrolling(true);
+    if (scrollTimerRef.current) {
+      clearTimeout(scrollTimerRef.current);
+    }
+    scrollTimerRef.current = window.setTimeout(() => {
+      setIsScrolling(false);
+    }, 500); // 스크롤 멈춤 감지 딜레이
+  };
+
+  useEffect(() => {
+    return () => {
+      if (scrollTimerRef.current) {
+        clearTimeout(scrollTimerRef.current);
+      }
+    };
+  }, []);
+
+  const handleMouseStart = (): void => {
+    if (isScrolling) return; // 스크롤 중이면 실행 방지
+
     setIsPressed(true);
     if (!onDownFunc) return;
     pressTimerRef.current = window.setTimeout(() => {
       onDownFunc();
-    }, resizeSpeedRate * 1000); //  동안 꾹 눌렀을 때 감지
+    }, resizeSpeedRate * 1000);
   };
+
   const handleMouseEnd = (): void => {
-    // 버튼에서 손을 떼면 타이머 취소 및 색상 복구
     setIsPressed(false);
-    if (!onDownFunc) return;
     if (pressTimerRef.current) {
       clearTimeout(pressTimerRef.current);
       pressTimerRef.current = null;
     }
   };
+
   return (
     <LongPressToResizeButtonContainer
       style={LongPressToResizeButtonContainerStyle}
@@ -49,6 +69,7 @@ const LongPressToResizeButton: React.FC<LongPressToResizeButtonProps> = ({
       onMouseLeave={handleMouseEnd}
       onTouchStart={handleMouseStart}
       onTouchEnd={handleMouseEnd}
+      onTouchMove={handleTouchMove}
     >
       {children}
     </LongPressToResizeButtonContainer>
@@ -64,10 +85,6 @@ const LongPressToResizeButtonContainer = styled.div<{
   transition: transform ${(props) => props.$resizeSpeedRate}s ease;
   transform: ${({ $isPressed, $resize }) =>
     $isPressed ? `scale(${$resize})` : `scale(1)`};
-
-  // @REFER: 데스크탑에서 특정 사진, 화면 깨지는 문제 있음
-  // display: flex;
-  // margin: auto 0;
 `;
 
 export default LongPressToResizeButton;

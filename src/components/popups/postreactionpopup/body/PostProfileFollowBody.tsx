@@ -1,61 +1,90 @@
-import { PROFILE_LIST_PATH } from 'const/PathConst';
-import React, { ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
+import NoResultComponent from 'components/common/container/NoResultComponent';
+import { PROFILE_ACCOUNT_ROUTE_PATH } from 'const/PathConst';
+import { RoutePushEventDateInterface } from 'const/ReactNativeConst';
+import { isApp, stackRouterPush } from 'global/util/reactnative/nativeRouter';
+import PostLikeListInfiniteScroll from 'hook/PostLikeListInfiniteScroll';
+import { QueryStatePostLikeListInfinite } from 'hook/queryhook/QueryStatePostLikeListInfinite';
+import React from 'react';
+import { generatePath, useNavigate } from 'react-router-dom';
 import { useSetRecoilState } from 'recoil';
 import { isPostReactionAtom } from 'states/PostReactionAtom';
 import styled from 'styled-components';
-import { PostProfileInfoRsp } from '../../../../global/interface/post';
 import theme from '../../../../styles/theme';
 import FollowButton from '../../../common/buttton/FollowButton';
 
 interface PostProfileFollowBodyProps {
-  PostProfileFollowInfiniteScroll: ReactNode;
-  postProfileInfoMap: Map<string, PostProfileInfoRsp>;
+  postId: string;
 }
 
 const PostProfileFollowBody: React.FC<PostProfileFollowBodyProps> = ({
-  PostProfileFollowInfiniteScroll,
-  postProfileInfoMap,
+  postId,
 }) => {
   const setIsPopupActive = useSetRecoilState(isPostReactionAtom);
   const navigate = useNavigate();
+
+  const { data: postProfileLikeList, isFetched: isFetchedByPostProfileLike } =
+    QueryStatePostLikeListInfinite(postId);
   return (
     <>
-      {Array.from(postProfileInfoMap.entries()).map(([k, v]) => {
-        return (
-          <React.Fragment key={k}>
-            <PostProfileFollowContainer key={k}>
-              <PostProfileFollowWrap>
-                <PostProfileFollowSubWrap
-                  onClick={() => {
-                    setIsPopupActive(false);
-                    navigate(`${PROFILE_LIST_PATH}/${v.username}`);
-                    window.scrollTo(0, 0);
-                  }}
-                >
-                  <ProfileImgUsernameWrap>
-                    <PostProfileFollowImg src={v.profilePath} />
-                    <PostProfileFollowUsername>
-                      {v.username}
-                    </PostProfileFollowUsername>
-                  </ProfileImgUsernameWrap>
-                </PostProfileFollowSubWrap>
-                {v.isMe ? (
-                  ''
-                ) : (
-                  <FollowButton
-                    fontSize={theme.fontSizes.Subhead3}
-                    userId={v.userId}
-                    isFollow={v.isFollowed}
-                  />
-                )}
-              </PostProfileFollowWrap>
-            </PostProfileFollowContainer>
-            <RepostBorderStickBar />
-          </React.Fragment>
-        );
-      })}
-      {PostProfileFollowInfiniteScroll}
+      {isFetchedByPostProfileLike && (
+        <>
+          {postProfileLikeList?.pages
+            .flatMap((v) => v.snsPostLikeGetRspList)
+            .map((v, k) => {
+              return (
+                <React.Fragment key={k}>
+                  <PostProfileFollowContainer key={k}>
+                    <PostProfileFollowWrap>
+                      <PostProfileFollowSubWrap
+                        onClick={() => {
+                          const data: RoutePushEventDateInterface = {
+                            isShowInitBottomNavBar: true,
+                          };
+                          stackRouterPush(
+                            navigate,
+                            generatePath(PROFILE_ACCOUNT_ROUTE_PATH, {
+                              username: v.username,
+                            }),
+                            data,
+                          );
+                          if (!isApp()) {
+                            setIsPopupActive(false);
+                            window.scrollTo(0, 0);
+                          }
+                        }}
+                      >
+                        <ProfileImgUsernameWrap>
+                          <PostProfileFollowImg src={v.profilePath} />
+                          <PostProfileFollowUsername>
+                            {v.username}
+                          </PostProfileFollowUsername>
+                        </ProfileImgUsernameWrap>
+                      </PostProfileFollowSubWrap>
+                      {v.isMe ? (
+                        ''
+                      ) : (
+                        <FollowButton
+                          fontSize={theme.fontSizes.Subhead3}
+                          userId={v.userId}
+                          username={v.username}
+                          isFollow={v.isFollowed}
+                        />
+                      )}
+                    </PostProfileFollowWrap>
+                  </PostProfileFollowContainer>
+                  <RepostBorderStickBar />
+                </React.Fragment>
+              );
+            })}
+          {postProfileLikeList &&
+            postProfileLikeList?.pages.flatMap((v) => v.snsPostLikeGetRspList)
+              .length <= 0 && (
+              <NoResultComponent title={'좋아요를 해주세요.'} />
+            )}
+        </>
+      )}
+
+      <PostLikeListInfiniteScroll postId={postId} />
     </>
   );
 };

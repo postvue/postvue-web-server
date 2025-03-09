@@ -18,5 +18,6 @@ export const QueryStateProfileScrapInfo = (
     queryFn: () => getProfileScrapInfo(scrapId),
     staleTime: STALE_30_MINUTES_TIME,
     enabled: isValidString(scrapId),
+    retry: false,
   });
 };

@@ -1,0 +1,311 @@
+import { createCoordinate } from 'components/lib/mapkitjs/utils';
+import {
+  MAP_EXPLORE_POST_POPUP_MIDDLE_STATE_TYPE,
+  MAP_POSITION_ICON_PATH,
+  MapExplorePostPopupStateType,
+} from 'const/MapExploreConst';
+import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
+import { MapAddressByGeoRsp } from 'global/interface/map';
+import { isValidString } from 'global/util/ValidUtil';
+import useWindowSize from 'hook/customhook/useWindowSize';
+import { debounce } from 'lodash';
+import React, { useEffect, useRef } from 'react';
+import { GeoPositionInterface } from 'states/MapExploreAtom';
+import theme from 'styles/theme';
+
+const POS_CONTROL_GAP_NUM = 0.01;
+const MAP_COORINATE_SPAN = 0.06;
+// let currentAnnotation: mapkit.MarkerAnnotation | null = null;
+
+export interface MoveLocationType {
+  latitude: number;
+  longitude: number;
+  isMoved: boolean;
+}
+
+interface MapkitClientProps {
+  mapLocation: GeoPositionInterface;
+  map: mapkit.Map;
+  mapkit: typeof mapkit;
+  onSetMapMoveLocation: (moveLocation: MoveLocationType) => void;
+  coordinateSpan?: number;
+  activeMapPos: {
+    latitude: number;
+    longitude: number;
+    isActive: boolean;
+  };
+  setActiveMap: React.Dispatch<
+    React.SetStateAction<{
+      latitude: number;
+      longitude: number;
+      isActive: boolean;
+    }>
+  >;
+  mapExplorePostPopupState: MapExplorePostPopupStateType;
+  mapAddress: MapAddressByGeoRsp | undefined;
+  isFetchedByMapAddress: boolean;
+  scrollEndEventFunc: ((e: mapkit.EventBase<mapkit.Map>) => void) | undefined;
+}
+
+const SelectAnnotation: React.FC<MapkitClientProps> = ({
+  mapLocation,
+  onSetMapMoveLocation,
+  coordinateSpan = 0.05,
+  map,
+  mapkit,
+  activeMapPos,
+  setActiveMap,
+  mapExplorePostPopupState,
+  mapAddress,
+  isFetchedByMapAddress,
+  scrollEndEventFunc,
+}) => {
+  const currentAnnotationRef = useRef<mapkit.MarkerAnnotation | null>(null);
+  const initRef = useRef(false);
+  const geocoderRef = useRef<mapkit.Geocoder | null>(null);
+  const selectHandlerRef = useRef<((event: any) => void) | null>(null);
+
+  const { windowWidth } = useWindowSize();
+
+  const deleteAndReturnCurrentAnnotation = async (
+    map: mapkit.Map,
+    mapkit: typeof globalThis.mapkit,
+    coordinate: mapkit.Coordinate,
+  ): Promise<mapkit.MarkerAnnotation> => {
+    // 기존 annotation이 있다면 event listener를 제거하고 삭제합니다.
+    if (currentAnnotationRef.current) {
+      if (selectHandlerRef.current) {
+        currentAnnotationRef.current.removeEventListener(
+          'select',
+          selectHandlerRef.current,
+        );
+      }
+      map.removeAnnotation(currentAnnotationRef.current);
+      currentAnnotationRef.current = null;
+    }
+
+    // 이미지 로드 (Promise 처리)
+    const loadImage = (src: string): Promise<string> =>
+      new Promise((resolve, reject) => {
+        const img = new Image();
+        img.src = src;
+        img.onload = () => resolve(src);
+        img.onerror = () => reject(new Error(`Failed to load image: ${src}`));
+      });
+
+    const glyphImageSrc = await loadImage(MAP_POSITION_ICON_PATH);
+    const newAnnotation = new mapkit.MarkerAnnotation(coordinate, {
+      color: theme.mainColor.Blue,
+      glyphImage: { 1: glyphImageSrc },
+    });
+    map.addAnnotation(newAnnotation);
+    return newAnnotation;
+  };
+
+  const selectAnnotationAndGeoCoding = async (
+    map: mapkit.Map,
+    mapkit: typeof globalThis.mapkit,
+    coordinate: mapkit.Coordinate,
+  ) => {
+    try {
+      const newAnnotation = await deleteAndReturnCurrentAnnotation(
+        map,
+        mapkit,
+        coordinate,
+      );
+      // handler를 stable한 함수 참조로 저장합니다.
+      const handler = () => {
+        setActiveMap({
+          latitude: newAnnotation.coordinate.latitude,
+          longitude: newAnnotation.coordinate.longitude,
+          isActive: true,
+        });
+      };
+      selectHandlerRef.current = handler;
+      newAnnotation.addEventListener('select', handler, { passive: true });
+      currentAnnotationRef.current = newAnnotation;
+    } catch (error) {
+      console.error('selectAnnotationAndGeoCoding error:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (initRef.current) return;
+    map.showsCompass = mapkit.FeatureVisibility.Hidden;
+    // map.isRotationAvailable = false;
+    map.showsMapTypeControl = false;
+
+    geocoderRef.current = new mapkit.Geocoder({ language: 'ko-KR' });
+
+    // setTimeout(() => {
+    //   const posCoordinate = new mapkit.Coordinate(
+    //     mapLocation.latitude -
+    //       (windowWidth >= MEDIA_MOBILE_MAX_WIDTH_NUM ? 0 : POS_CONTROL_GAP_NUM),
+    //     mapLocation.longitude,
+    //   );
+    //   const markerCoordinate = new mapkit.Coordinate(
+    //     mapLocation.latitude,
+    //     mapLocation.longitude,
+    //   );
+    //   map.setCenterAnimated(posCoordinate, false);
+
+    //   const span = new mapkit.CoordinateSpan(coordinateSpan, coordinateSpan);
+    //   const region = new mapkit.CoordinateRegion(posCoordinate, span);
+    //   map.setRegionAnimated(region, false);
+
+    //   if (currentAnnotation) return;
+    //   // selectAnnotationAndGeoCoding(map, mapkit, markerCoordinate);
+
+    //   initRef.current = true;
+    // }, 100);
+
+    setTimeout(() => {
+      initRef.current = true;
+    }, 300);
+  }, [map, mapkit]);
+
+  const mapMoveToPosition = async (coordinate: mapkit.Coordinate) => {
+    await selectAnnotationAndGeoCoding(map, mapkit, coordinate);
+
+    if (mapLocation.isMoveCenter) {
+      const isInit = initRef.current;
+      const moveFunc = () => {
+        const posCoordinate =
+          mapExplorePostPopupState === MAP_EXPLORE_POST_POPUP_MIDDLE_STATE_TYPE
+            ? new mapkit.Coordinate(
+                mapLocation.latitude -
+                  (windowWidth >= MEDIA_MOBILE_MAX_WIDTH_NUM
+                    ? 0
+                    : POS_CONTROL_GAP_NUM),
+                mapLocation.longitude,
+              )
+            : coordinate;
+
+        if (isInit) {
+          map.setCenterAnimated(posCoordinate, true);
+        }
+
+        const currentLatDelta = map.region.span.latitudeDelta;
+        const currentLngDelta = map.region.span.longitudeDelta;
+
+        if (
+          currentLatDelta >= MAP_COORINATE_SPAN &&
+          currentLngDelta >= MAP_COORINATE_SPAN
+        ) {
+          const span = new mapkit.CoordinateSpan(
+            MAP_COORINATE_SPAN,
+            MAP_COORINATE_SPAN,
+          );
+
+          const region = new mapkit.CoordinateRegion(posCoordinate, span);
+          setTimeout(() => {
+            map.setRegionAnimated(region, isInit && true);
+          }, 500);
+        }
+      };
+      if (initRef.current) {
+        moveFunc();
+      } else {
+        setTimeout(() => {
+          moveFunc();
+        }, 100);
+      }
+    }
+  };
+
+  const debounceOnMove = debounce((coordinate: mapkit.Coordinate) => {
+    mapMoveToPosition(coordinate);
+  }, 20);
+
+  useEffect(() => {
+    if (!mapLocation) return;
+    const currentPostion = currentAnnotationRef.current?.coordinate;
+
+    if (
+      currentPostion &&
+      currentPostion.latitude === mapLocation.latitude &&
+      currentPostion.longitude === mapLocation.longitude
+    ) {
+      return;
+    }
+
+    const coordinate = createCoordinate(
+      mapLocation.latitude,
+      mapLocation.longitude,
+    );
+
+    debounceOnMove(coordinate);
+  }, [mapLocation]);
+
+  useEffect(() => {
+    if (
+      !isFetchedByMapAddress ||
+      !currentAnnotationRef.current ||
+      !activeMapPos.isActive
+    )
+      return;
+
+    if (!mapAddress || (mapAddress && !isValidString(mapAddress.address))) {
+      if (!geocoderRef.current) return;
+
+      geocoderRef.current.reverseLookup(
+        currentAnnotationRef.current.coordinate,
+        (error, data) => {
+          const first = !error && data.results ? data.results[0] : null;
+          if (!currentAnnotationRef.current) return;
+          currentAnnotationRef.current.title = (first && first.name) || '';
+        },
+      );
+    } else {
+      currentAnnotationRef.current.title = mapAddress.address;
+    }
+
+    setActiveMap((prev) => ({ ...prev, isActive: false }));
+  }, [isFetchedByMapAddress, activeMapPos.isActive]);
+
+  useEffect(() => {
+    const funcSingleTap = async (event: any) => {
+      const point = event.pointOnPage;
+      const coordinate = map.convertPointOnPageToCoordinate(point);
+      await selectAnnotationAndGeoCoding(map, mapkit, coordinate);
+      onSetMapMoveLocation({
+        latitude: coordinate.latitude,
+        longitude: coordinate.longitude,
+        isMoved: true,
+      });
+    };
+    map.addEventListener('single-tap', funcSingleTap, { passive: true });
+
+    if (scrollEndEventFunc) {
+      map.addEventListener('scroll-end', scrollEndEventFunc, {
+        passive: true,
+      });
+    }
+
+    return () => {
+      map.removeEventListener('single-tap', funcSingleTap);
+
+      if (scrollEndEventFunc) {
+        map.removeEventListener('scroll-end', scrollEndEventFunc);
+      }
+
+      // currentAnnotation이 있다면 이벤트 리스너 제거 후, annotation 제거
+      if (currentAnnotationRef.current && selectHandlerRef.current) {
+        currentAnnotationRef.current.removeEventListener(
+          'select',
+          selectHandlerRef.current,
+        );
+      }
+
+      if (currentAnnotationRef.current) {
+        map.removeAnnotation(currentAnnotationRef.current);
+        // 제거 후, ref를 null로 초기화하여 다음 마운트 시 기존 annotation 참조가 남지 않도록 함
+        currentAnnotationRef.current = null;
+      }
+    };
+  }, [map]);
+
+  return null;
+};
+
+export default SelectAnnotation;

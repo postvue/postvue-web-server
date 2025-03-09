@@ -1,38 +1,14 @@
-import React, { useState } from 'react';
+import BottomNavBar from 'components/BottomNavBar';
+import AppBaseTemplate from 'components/layouts/AppBaseTemplate';
+import React from 'react';
 import styled from 'styled-components';
 
 const TestPage: React.FC = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  const handleTabClick = (index: number) => {
-    setCurrentIndex(index);
-  };
-
-  const list = [0, 1, 2];
   return (
     <>
-      {/* <TabsWrapper>
-        {list.map((label, index) => (
-          <TabButton
-            key={label}
-            active={currentIndex === index}
-            onClick={() => handleTabClick(index)}
-          >
-            {label}
-          </TabButton>
-        ))}
-      </TabsWrapper>
-      <ViewPagerLayout tabId={currentIndex} setTabId={setCurrentIndex}>
-        <div style={Object.assign({}, styles.slide, styles.slide1)}>
-          slide n°1slide
-        </div>
-        <div style={Object.assign({}, styles.slide, styles.slide2)}>
-          slide n°2
-        </div>
-        <div style={Object.assign({}, styles.slide, styles.slide3)}>
-          slide n°3
-        </div>
-      </ViewPagerLayout> */}
+      <AppBaseTemplate isAppContainerTopMargin={false}>
+        <BottomNavBar />
+      </AppBaseTemplate>
     </>
   );
 };

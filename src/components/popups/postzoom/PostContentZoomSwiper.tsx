@@ -1,6 +1,5 @@
-import PostVideoContentELement from 'components/common/posts/element/PostVideoContentElement';
-import { POST_IMAGE_TYPE, POST_VIDEO_TYPE } from 'const/PostContentTypeConst';
-import { PostRsp } from 'global/interface/post';
+import { POST_IMAGE_TYPE } from 'const/PostContentTypeConst';
+import { PostContentInterface } from 'global/interface/post';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import SwiperCore from 'swiper';
@@ -9,16 +8,18 @@ import { Swiper, SwiperClass, SwiperSlide } from 'swiper/react';
 import PostZoomImage from './PostZoomImage';
 
 interface PostContentZoomSwiperProps {
-  snsPost: PostRsp;
+  postContents: PostContentInterface[];
   initIndex?: number;
+  currentIndex: number;
   setCurrentIndex: React.Dispatch<React.SetStateAction<number>>;
   isActive: boolean;
   isMobile: boolean;
 }
 
 const PostContentZooomSwiper: React.FC<PostContentZoomSwiperProps> = ({
-  snsPost,
+  postContents,
   initIndex = 0,
+  currentIndex,
   setCurrentIndex,
   isActive,
   isMobile,
@@ -29,41 +30,49 @@ const PostContentZooomSwiper: React.FC<PostContentZoomSwiperProps> = ({
     if (!swiper) return;
     // isActive가 true일 때만 initIndex로 이동
     if (isActive) {
-      swiper.slideTo(initIndex, 0);
+      swiper.slideTo(initIndex);
     } else {
       swiper.slideTo(0, 0); // 기본값으로 리셋
     }
   }, [initIndex, isActive, swiper]); // targetIndex 값이 변경될 때 실행
+
+  useEffect(() => {
+    if (!swiper) return;
+
+    swiper.slideTo(currentIndex);
+  }, [currentIndex]); // targetIndex 값이 변경될 때 실행
 
   return (
     <StyledSwiper
       onSwiper={setSwiper}
       spaceBetween={20}
       // slidesPerView={1}
-      loop={snsPost.postContents.length > 1}
+      // loop={postContents.length > 1}
       modules={[Pagination, Navigation, FreeMode, Navigation, Thumbs]}
       onActiveIndexChange={(swiper: SwiperClass) => {
-        setCurrentIndex(swiper.realIndex + 1);
+        setCurrentIndex(swiper.realIndex);
       }}
     >
-      {snsPost.postContents.map((value, index) => {
+      {postContents.map((value, index) => {
         return (
-          <StyledSwiperSlide key={index}>
-            <PostContentSlideWrap>
-              <PostContentSlideSubWrap>
-                {value.postContentType === POST_IMAGE_TYPE && (
-                  <PostZoomImage src={value.content} isMobile={isMobile} />
-                )}
-                {value.postContentType === POST_VIDEO_TYPE && (
-                  <PostVideoContentELement
-                    videoSrc={value.content}
-                    posterImg={value.previewImg}
-                    isUploaded={value.isUploaded}
-                  />
-                )}
-              </PostContentSlideSubWrap>
-            </PostContentSlideWrap>
-          </StyledSwiperSlide>
+          <SwiperSlide key={index}>
+            <PostContentSlideContainer>
+              <PostContentSlideWrap>
+                <PostContentSlideSubWrap>
+                  {value.postContentType === POST_IMAGE_TYPE && (
+                    <PostZoomImage src={value.content} isMobile={isMobile} />
+                  )}
+                  {/* {value.postContentType === POST_VIDEO_TYPE && (
+                    <PostVideoContentELement
+                      videoSrc={value.content}
+                      posterImg={value.previewImg}
+                      isUploaded={value.isUploaded}
+                    />
+                  )} */}
+                </PostContentSlideSubWrap>
+              </PostContentSlideWrap>
+            </PostContentSlideContainer>
+          </SwiperSlide>
         );
       })}
     </StyledSwiper>
@@ -74,8 +83,9 @@ const StyledSwiper = styled(Swiper)`
   height: 100%;
 `;
 
-const StyledSwiperSlide = styled(SwiperSlide)`
+const PostContentSlideContainer = styled.div`
   display: flex;
+  height: 100%;
 `;
 
 const PostContentSlideWrap = styled.div`

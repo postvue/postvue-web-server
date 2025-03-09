@@ -1,6 +1,5 @@
 import { ReactComponent as PrevButtonIcon } from 'assets/images/icon/svg/PrevButtonIcon.svg';
 import PrevButtonHeaderHeader from 'components/layouts/PrevButtonHeaderHeader';
-import { HOME_PATH } from 'const/PathConst';
 import { SIGNUP_STEP_QUERY_PARAM } from 'const/QueryParamConst';
 import {
   SIGNUP_BIRTHDATE_GENDER_INPUT_STEP_QUERY_PARAM_VALUE,
@@ -14,10 +13,14 @@ import {
   SIGNUP_USERNAME_INPUT_STEP_QUERY_PARAM_VALUE,
   SIGNUP_USERNAME_INPUT_STEP_VALUE,
 } from 'const/SignupConst';
+import { stackRouterLogin } from 'global/util/reactnative/nativeRouter';
 import React, { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useRecoilState } from 'recoil';
-import { signupStepNumAtom } from 'states/SignupAtom';
+import { useRecoilState, useSetRecoilState } from 'recoil';
+import {
+  signStepTransitionInfoAtom,
+  signupStepNumAtom,
+} from 'states/SignupAtom';
 import styled from 'styled-components';
 import theme from 'styles/theme';
 
@@ -50,8 +53,19 @@ const SignupHeader: React.FC = () => {
 
   const naviage = useNavigate();
 
+  const setSignStepTransitionInfo = useSetRecoilState(
+    signStepTransitionInfoAtom,
+  );
+
+  const handleBackButton = () => {
+    setSignStepTransitionInfo({
+      inTransition: true,
+      direction: 'right',
+    });
+  };
+
   const onClose = () => {
-    naviage(HOME_PATH, { replace: true });
+    stackRouterLogin({ isNavigate: true, navigate: naviage });
   };
 
   useEffect(() => {
@@ -64,10 +78,12 @@ const SignupHeader: React.FC = () => {
 
   return (
     <PrevButtonHeaderHeader
+      HeaderLayoutStyle={{ position: 'static' }}
       hasTitleReactNode={true}
       isActionFunc={true}
       actionFunc={() => {
         if (signupStepNum > 1) {
+          handleBackButton();
           setSignupStepNum(signupStepNum - 1);
         } else {
           onClose();

@@ -8,18 +8,11 @@ import {
 import {
   POST_REACTION_COMMENT_ID,
   POST_REACTION_LIKE_ID,
-  POST_REACTION_REPOST_ID,
 } from '../../../../const/TabConfigConst';
 import { PostCommentReplyMsgInfo } from '../../../../global/interface/post';
-import PostLikeListInfiniteScroll from '../../../../hook/PostLikeListInfiniteScroll';
-import RepostListInfiniteScroll from '../../../../hook/RepostListInfiniteScroll';
 import {
-  cursorIdAtomByPostReactionComment,
-  cursorIdAtomByPostReactionLike,
-  cursorIdAtomByPostReactionRepost,
+  isFocusPostReactionInputAtom,
   isPostReactionAtom,
-  postReactionLikeHashMapAtom,
-  postReactionRepostHashMapAtom,
   postReactionTabIdAtom,
   reactionPostIdAtom,
 } from '../../../../states/PostReactionAtom';
@@ -58,35 +51,12 @@ const PostReactionPopupBody: React.FC<PostReactionPopupBodyProps> = ({
   const [isPopupActive, setIsPopupActive] = useRecoilState(isPostReactionAtom);
   const setReactionPostId = useSetRecoilState(reactionPostIdAtom);
 
-  const [repostHashMap, setRepostHashMap] = useRecoilState(
-    postReactionRepostHashMapAtom,
-  );
-  const [postLikeHashMap, setPostLikeHashMap] = useRecoilState(
-    postReactionLikeHashMapAtom,
-  );
-
   const reactionTabId = useRecoilValue(postReactionTabIdAtom);
 
-  const resetRepostHashMap = useResetRecoilState(postReactionRepostHashMapAtom);
-  const resetPostLikeHashMap = useResetRecoilState(postReactionLikeHashMapAtom);
-  const resetCommentCursorNum = useResetRecoilState(
-    cursorIdAtomByPostReactionComment,
-  );
-  const resetLikeCursorNum = useResetRecoilState(
-    cursorIdAtomByPostReactionLike,
-  );
-  const resetRepostCursorNum = useResetRecoilState(
-    cursorIdAtomByPostReactionRepost,
-  );
   const resetReactionTabId = useResetRecoilState(postReactionTabIdAtom);
 
   useEffect(() => {
     return () => {
-      resetRepostHashMap();
-      resetPostLikeHashMap();
-      resetCommentCursorNum();
-      resetLikeCursorNum();
-      resetRepostCursorNum();
       resetReactionTabId();
     };
   }, []);
@@ -96,8 +66,19 @@ const PostReactionPopupBody: React.FC<PostReactionPopupBodyProps> = ({
       setReactionPostId('');
     }
   }, [isPopupActive]);
+
+  const [isFocusPostReactionInput, setIsFocusPostReactionInput] =
+    useRecoilState(isFocusPostReactionInputAtom);
   return (
-    <div style={PostReactionPopupBodyStyle}>
+    <div
+      style={{ ...PostReactionPopupBodyStyle }}
+      onClick={() => {
+        // 입력창 비활성화
+        if (isFocusPostReactionInput) {
+          setIsFocusPostReactionInput(false);
+        }
+      }}
+    >
       {reactionTabId === POST_REACTION_COMMENT_ID ? (
         <>
           {postId !== '' && (
@@ -111,29 +92,17 @@ const PostReactionPopupBody: React.FC<PostReactionPopupBodyProps> = ({
             />
           )}
         </>
-      ) : reactionTabId === POST_REACTION_REPOST_ID ? (
-        <PostProfileFollowBody
-          postProfileInfoMap={repostHashMap}
-          PostProfileFollowInfiniteScroll={
-            <RepostListInfiniteScroll postId={postId} />
-          }
-        />
       ) : reactionTabId === POST_REACTION_LIKE_ID ? (
-        <>
-          {postId && (
-            <PostProfileFollowBody
-              postProfileInfoMap={postLikeHashMap}
-              PostProfileFollowInfiniteScroll={
-                <>
-                  {postId !== '' && (
-                    <PostLikeListInfiniteScroll postId={postId} />
-                  )}
-                </>
-              }
-            />
-          )}
-        </>
+        <>{postId && <PostProfileFollowBody postId={postId} />}</>
       ) : (
+        // : reactionTabId === POST_REACTION_REPOST_ID ? (
+        //   <PostProfileFollowBody
+        //     postProfileInfoMap={repostHashMap}
+        //     PostProfileFollowInfiniteScroll={
+        //       <RepostListInfiniteScroll postId={postId} />
+        //     }
+        //   />
+        // )
         <></>
       )}
     </div>

@@ -6,14 +6,16 @@ import { QueryStateMapAddressRelationInfinite } from './queryhook/QueryStateMapA
 
 interface MapAddressRelationListInfiniteScrollProps {
   srchQry: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 const MapAddressRelationListInfiniteScroll: React.FC<
   MapAddressRelationListInfiniteScrollProps
-> = ({ srchQry }) => {
+> = ({ srchQry, latitude, longitude }) => {
   const { ref, inView } = useInView();
-  const { fetchNextPage, hasNextPage, isFetchingNextPage } =
-    QueryStateMapAddressRelationInfinite(srchQry);
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    QueryStateMapAddressRelationInfinite(srchQry, latitude, longitude);
 
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
@@ -21,9 +23,24 @@ const MapAddressRelationListInfiniteScroll: React.FC<
     }
   }, [inView]); //hasNextPage, isFetchingNextPage
 
+  useEffect(() => {
+    if (
+      hasNextPage &&
+      !isFetchingNextPage &&
+      data &&
+      data.pages[0].length < 0
+    ) {
+      fetchNextPage();
+    }
+  }, [data, hasNextPage]);
+
   return (
     <ScrollBottomContainer ref={ref}>
-      <InViewComponent />
+      <InViewComponent
+        hasLoadingIcon={
+          (data ? data?.pages[0].length > 5 : false) && hasNextPage
+        }
+      />
     </ScrollBottomContainer>
   );
 };

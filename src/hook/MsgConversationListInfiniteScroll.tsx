@@ -13,7 +13,7 @@ const MsgConversationListInfiniteScroll: React.FC<
 > = ({ targetUserId }) => {
   const { ref, inView } = useInView();
 
-  const { fetchNextPage, hasNextPage, isFetchingNextPage } =
+  const { fetchNextPage, hasNextPage, isFetchingNextPage, data } =
     QueryStateMsgConversationListInfinite(targetUserId);
 
   useEffect(() => {
@@ -24,7 +24,13 @@ const MsgConversationListInfiniteScroll: React.FC<
 
   return (
     <ScrollBottomContainer ref={ref}>
-      <InViewComponent inViewBottomNumByPc={66} />
+      <InViewComponent
+        inViewBottomNumByPc={66}
+        hasLoadingIcon={
+          (data ? data?.pages[0].msgConversationRspList.length > 5 : false) &&
+          hasNextPage
+        }
+      />
     </ScrollBottomContainer>
   );
 };

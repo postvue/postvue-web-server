@@ -1,70 +1,73 @@
-import React, { useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
+import { queryClient } from 'App';
+import PullToRefreshComponent from 'components/PullToRefreshComponent';
+import { PAGE_NUM } from 'const/PageConfigConst';
+import { QUERY_STATE_PROFILE_SCRAP_LIST } from 'const/QueryClientConst';
+import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
+import { stackRouterPush } from 'global/util/reactnative/nativeRouter';
+import useWindowSize from 'hook/customhook/useWindowSize';
 import {
-  PROFILE_NEW_SCRAP_PATH,
-  PROFILE_SCRAP_LIST_PATH,
-} from '../../const/PathConst';
+  ProfileScrapListQueryInterface,
+  QueryStateProfileScrapList,
+} from 'hook/queryhook/QueryStateProfileScrapList';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { getProfileScrapList } from 'services/profile/getProfileScrapList';
+import styled from 'styled-components';
+import { PROFILE_SCRAP_LIST_PATH } from '../../const/PathConst';
 import ProfileScrapViewBody from '../common/body/ProfileScrapViewBody';
-import FloatingActionButtonLayout from '../layouts/FloatingActionButtonLayout';
+import ProfileMakeScrapFloatingButton from './ProfileMakeScrapFloatingButton';
 
 const ProfileScrapListBody: React.FC = () => {
   const navigate = useNavigate();
 
-  const MakeScrapScrollRef = useRef<HTMLDivElement>(null);
+  const { windowWidth } = useWindowSize();
+
+  const { data: profileScrapList, isFetched: isFetchedByProfileScrapList } =
+    QueryStateProfileScrapList();
 
   return (
-    <ProfileScrapListBodyContainer>
-      <ProfileScrapViewBody
-        profileScrapViewRef={MakeScrapScrollRef}
-        onButtonEvent={(scrapId: string) => {
-          navigate(`${PROFILE_SCRAP_LIST_PATH}/${scrapId}`);
+    <ProfileScrapListContainer>
+      <PullToRefreshComponent
+        onRefresh={async () => {
+          const fetchData = await getProfileScrapList(PAGE_NUM);
+
+          const data: ProfileScrapListQueryInterface = {
+            pageParams: [PAGE_NUM],
+            pages: [[...fetchData]],
+          };
+
+          queryClient.setQueryData([QUERY_STATE_PROFILE_SCRAP_LIST], data);
         }}
-      />
-      <FloatingActionButtonLayout bottomGap={56}>
-        <Link to={PROFILE_NEW_SCRAP_PATH}>
-          <MakeScrapButton>
-            <MakeScrapButtonIconWrap>
-              <MakeScrapButtonIcon
-                xmlns="http://www.w3.org/2000/svg"
-                width="13"
-                height="13"
-                viewBox="0 0 13 13"
-                fill="none"
-              >
-                <path
-                  d="M6.49992 0.958252V12.0416M0.958252 6.49992H12.0416"
-                  stroke="#3D4248"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </MakeScrapButtonIcon>
-            </MakeScrapButtonIconWrap>
-            <MakeScrapButtonTitle>스크랩 추가하기</MakeScrapButtonTitle>
-          </MakeScrapButton>
-        </Link>
-      </FloatingActionButtonLayout>
-    </ProfileScrapListBodyContainer>
+      >
+        <ProfileScrapListBodyContainer>
+          <ProfileScrapViewBody
+            onButtonEvent={({ scrapId, scrapName }) => {
+              stackRouterPush(
+                navigate,
+                `${PROFILE_SCRAP_LIST_PATH}/${scrapId}`,
+              );
+            }}
+          />
+        </ProfileScrapListBodyContainer>
+      </PullToRefreshComponent>
+      {windowWidth < MEDIA_MOBILE_MAX_WIDTH_NUM && (
+        <ProfileMakeScrapFloatingButton
+          isShow={
+            (isFetchedByProfileScrapList &&
+              profileScrapList &&
+              profileScrapList?.pages.flatMap((v) => v).length > 0) ||
+            false
+          }
+        />
+      )}
+    </ProfileScrapListContainer>
   );
 };
 
+const ProfileScrapListContainer = styled.div`
+  // padding-top: 20px;
+`;
+
 const ProfileScrapListBodyContainer = styled.div``;
-
-const MakeScrapButton = styled.div`
-  display: flex;
-  gap: 6px;
-`;
-
-const MakeScrapButtonIconWrap = styled.div`
-  display: flex;
-`;
-
-const MakeScrapButtonIcon = styled.svg`
-  margin: auto 0;
-`;
-
-const MakeScrapButtonTitle = styled.div`
-  font: ${({ theme }) => theme.fontSizes.Subhead1};
-`;
 
 export default ProfileScrapListBody;

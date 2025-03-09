@@ -1,25 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import {
-  SetterOrUpdater,
-  useRecoilState,
-  useRecoilValue,
-  useResetRecoilState,
-} from 'recoil';
+import { generatePath, useNavigate } from 'react-router-dom';
+import { useRecoilState, useResetRecoilState, useSetRecoilState } from 'recoil';
 
 import styled from 'styled-components';
 import 'swiper/css';
 import { FreeMode, Navigation, Pagination, Thumbs } from 'swiper/modules';
-import { Swiper, SwiperSlide } from 'swiper/react';
+import { Swiper, SwiperClass, SwiperSlide } from 'swiper/react';
 import FollowButton from '../../../components/common/buttton/FollowButton';
 import PostReactionSingleElement from '../../../components/common/posts/body/PostReactionSingleElement';
 import PostTextContent from '../../../components/common/posts/body/PostTextContent';
 import PrevButtonHeaderHeader from '../../../components/layouts/PrevButtonHeaderHeader';
-import BlockUserPopup from '../../../components/popups/BlockUserPopup';
-import PostReactionPopup from '../../../components/popups/postreactionpopup/PostReactionPopup';
-import ScrapViewPopup from '../../../components/popups/profilescrap/ScrapViewPopup';
-import ToastMsgPopup from '../../../components/popups/ToastMsgPopup';
-import { PROFILE_LIST_PATH } from '../../../const/PathConst';
+import { PROFILE_ACCOUNT_ROUTE_PATH } from '../../../const/PathConst';
 import {
   POST_IMAGE_TYPE,
   POST_VIDEO_TYPE,
@@ -27,33 +18,24 @@ import {
 import { removePostByHiddenPostIdList } from '../../../global/util/HiddenPostIdListUtil';
 import { isValidString } from '../../../global/util/ValidUtil';
 import {
-  activePostCommentComplaintPopupAtom,
-  isActivePostComplaintCompletePopupAtom,
-  isActivePostComplaintPopupAtom,
-  isActivePostDeletePopupAtom,
+  activePostComplaintCompletePopupAtom,
+  activePostComplaintPopupAtom,
   isSettingPopupAtom,
-  postBlockedUserInfoAtom,
   postContentZoomPopupInfoAtom,
-  postRspAtom,
+  postExternelEventInfoAtom,
 } from '../../../states/PostAtom';
+import { isPostReactionAtom } from '../../../states/PostReactionAtom';
 import {
-  isPostReactionAtom,
-  reactionPostIdAtom,
-} from '../../../states/PostReactionAtom';
-import {
-  isActiveProfileBlockPopupAtom,
-  isActiveScrapViewPopupAtom,
+  activeProfileBlockPopupInfoAtom,
+  activeScrapViewPopupInfoAtom,
 } from '../../../states/ProfileAtom';
-import { isLoadingPopupAtom } from '../../../states/SystemConfigAtom';
 import theme from '../../../styles/theme';
 
 import PostCotentZoomPopup from 'components/popups/postzoom/PostContentZoomPopup';
-import ProfilePostSettingPopup from 'components/popups/ProfilePostSettingPopup';
 import {
   MEDIA_MOBILE_MAX_WIDTH,
   MEDIA_MOBILE_MAX_WIDTH_NUM,
 } from 'const/SystemAttrConst';
-import { getMyAccountSettingInfo } from 'global/util/MyAccountSettingUtil';
 import PostRelationListInfiniteScroll from 'hook/PostRelationInfiniteScroll';
 import { postPostInterested } from 'services/post/postPostInterested';
 import 'swiper/css/pagination';
@@ -61,94 +43,75 @@ import 'swiper/css/pagination';
 import { ReactComponent as PostPreButtonIcon } from 'assets/images/icon/svg/profilepost/PostPreButtonIcon.svg';
 import { ReactComponent as ProfilePostSettingButtonIcon } from 'assets/images/icon/svg/profilepost/ProfilePostSettingButtonIcon.svg';
 import ContextMenuPopup from 'components/popups/ContextMenuPopup';
-import LoadingPopup from 'components/popups/LoadingPopup';
-import PostCommentThreadPopup from 'components/popups/postcommentthreadpopup/PostCommentThreadPopup';
-import PostComplaintCompletePopup from 'components/popups/profilepost/PostComplaintCompletePopup';
-import PostComplaintPopup from 'components/popups/profilepost/PostComplaintPopup';
 
 import LoadingComponent from 'components/common/container/LoadingComponent';
-import PostVideoContentELement from 'components/common/posts/element/PostVideoContentElement';
-import SnsPostMasonryLayout_ from 'components/layouts/SnsPostMasonryLayout_';
-import ConfirmPopup from 'components/popups/ConfirmPopup';
-import PostCommentComplaintPopup from 'components/popups/profilepost/PostCommentComplaintPopup';
+import PostVideoContentElementV3 from 'components/common/posts/element/PostVideoContentElementV3';
+import SnsPostMasonryLayout from 'components/layouts/SnsPostMasonryLayout';
 import ProfilePostSettingBody from 'components/post/ProfilePostSettingBody';
-import { PostCommentReplyMsgInfo, PostRsp } from 'global/interface/post';
-import { getRandomImage } from 'global/util/shareUtil';
+import { POST_RELATION_SEARCH_TYPE } from 'const/PostConst';
+import { RoutePushEventDateInterface } from 'const/ReactNativeConst';
+import { PostRsp } from 'global/interface/post';
+import { stackRouterPush } from 'global/util/reactnative/nativeRouter';
+import { getRandomImage } from 'global/util/ShareUtil';
 import ProfileAccountPostListInfiniteScroll from 'hook/ProfileAccountPostListInfiniteScroll';
 import { QueryStatePostRelationListInfinite } from 'hook/queryhook/QueryStatePostRelationListInfinite';
 import { QueryStateProfileAccountPostList } from 'hook/queryhook/QueryStateProfileAccountPostList';
-import { deletePost } from 'services/post/deletePost';
-import { activeCommentByPostCommentThreadAtom } from 'states/PostThreadAtom';
 import { borderShadowStyle_prop } from 'styles/commonStyles';
-import SwiperCore from 'swiper';
 
 interface ProfilePostDetailBodyProps {
   postId: string;
   snsPost: PostRsp;
-  setSnsPost: SetterOrUpdater<PostRsp>;
   isIntereset: boolean;
   setIsInterest: React.Dispatch<React.SetStateAction<boolean>>;
-  replyMsg: PostCommentReplyMsgInfo | null;
-  setReplyMsg: React.Dispatch<
-    React.SetStateAction<PostCommentReplyMsgInfo | null>
-  >;
   windowWidthSize: number;
-  likeIconRef: React.MutableRefObject<{
-    [key: string]: SVGSVGElement | null;
-  }>;
-  likeCountRef: React.MutableRefObject<{
-    [key: string]: HTMLDivElement | null;
-  }>;
-  commentReplyCountRef: React.MutableRefObject<{
-    [key: string]: HTMLDivElement | null;
-  }>;
-  postCommentTextareaRef: React.MutableRefObject<HTMLTextAreaElement | null>;
-  isFixedPopup: boolean;
-  isClosed?: boolean;
-  setIsExternalCloseFunc?: React.Dispatch<React.SetStateAction<boolean>>;
+  funcPrevCloseButton: () => void;
+  fixNum?: number;
+  ProfilePostWrapStyle?: React.CSSProperties;
+  PostImageWrapStyle?: React.CSSProperties;
+  linkPopupInfo?: {
+    isLinkPopup: boolean;
+    isReplaced: boolean;
+  };
+  isErrorProfilePost: boolean;
+  searchType?: POST_RELATION_SEARCH_TYPE;
 }
 
 const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
   postId,
   snsPost,
-  setSnsPost,
   isIntereset,
   setIsInterest,
-  replyMsg,
-  setReplyMsg,
   windowWidthSize,
-  likeIconRef,
-  likeCountRef,
-  commentReplyCountRef,
-  postCommentTextareaRef,
-  isFixedPopup,
-  isClosed,
-  setIsExternalCloseFunc,
+  funcPrevCloseButton,
+  fixNum,
+  ProfilePostWrapStyle,
+  PostImageWrapStyle,
+  linkPopupInfo = {
+    isLinkPopup: false,
+    isReplaced: false,
+  },
+  isErrorProfilePost,
+  searchType,
 }) => {
   const postSettingButtonRef = useRef<HTMLDivElement>(null);
 
   const [isSettingActive, setIsSettingActive] =
     useRecoilState(isSettingPopupAtom);
-  const reactionPostId = useRecoilValue(reactionPostIdAtom);
 
-  const [isPostReactionPopup, setIsPostReactionPopup] =
-    useRecoilState(isPostReactionAtom);
-  const [isActiveScrapView, setIsActiveScrapView] = useRecoilState(
-    isActiveScrapViewPopupAtom,
-  );
-  const [isActiveProfileBlock, setIsActiveProfileBlock] = useRecoilState(
-    isActiveProfileBlockPopupAtom,
-  );
-  const isLoadingPopup = useRecoilValue(isLoadingPopupAtom);
+  const setIsPostReactionPopup = useSetRecoilState(isPostReactionAtom);
 
-  const [isActivePostComplaintPopup, setIsActivePostComplaintPopup] =
-    useRecoilState(isActivePostComplaintPopupAtom);
-  const [
-    isActivePostComplaintCompletePopup,
-    setIsActivePostComplaintCompletePopup,
-  ] = useRecoilState(isActivePostComplaintCompletePopupAtom);
-  const activePostCommentComplaintPopup = useRecoilValue(
-    activePostCommentComplaintPopupAtom,
+  const resetActiveScrapViewPopupInfo = useResetRecoilState(
+    activeScrapViewPopupInfoAtom,
+  );
+  const setActiveProfileBlockInfo = useSetRecoilState(
+    activeProfileBlockPopupInfoAtom,
+  );
+
+  const resetActivePostComplaintPopup = useResetRecoilState(
+    activePostComplaintPopupAtom,
+  );
+  const resetActivePostComplaintCompletePopup = useResetRecoilState(
+    activePostComplaintCompletePopupAtom,
   );
 
   const [postContentZoomPopupInfo, setPostContentZoomPopupInfo] =
@@ -156,36 +119,24 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
 
   const [isActiveRelation, setIsActiveRelation] = useState<boolean>(false);
 
-  const { data: profilePostList, isFetched: isFetchEedProfilePost } =
-    QueryStateProfileAccountPostList(snsPost.username, isActiveRelation);
-
-  const [isActivePostDeletePopup, setIsActivePostDeletePopup] = useRecoilState(
-    isActivePostDeletePopupAtom,
+  const { data: profilePostList } = QueryStateProfileAccountPostList(
+    snsPost.username,
+    isActiveRelation,
   );
-
-  const myAccountSettingInfo = getMyAccountSettingInfo();
-
-  const resetSnsPost = useResetRecoilState(postRspAtom);
 
   const navigate = useNavigate();
 
-  const postBlockedUserInfo = useRecoilValue(postBlockedUserInfoAtom);
-
-  const [swiper, setSwiper] = useState<SwiperCore>();
-
   useEffect(() => {
     return () => {
-      resetSnsPost();
       setIsPostReactionPopup(false);
-      setIsActiveScrapView(false);
-      setIsActiveProfileBlock(false);
-      setIsActivePostComplaintPopup(false);
-      setIsActivePostComplaintCompletePopup(false);
+      resetActiveScrapViewPopupInfo();
+      setActiveProfileBlockInfo({ isActive: false, userId: '', username: '' });
+      resetActivePostComplaintPopup();
+      resetActivePostComplaintCompletePopup();
     };
   }, []);
 
   const onClickSettingButton = () => {
-    console.log('ㅋㅋㅋㅋ');
     setIsSettingActive(true);
   };
 
@@ -198,28 +149,15 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
     }
   };
 
-  const [isBlocked, setIsBlocked] = useState<boolean>(false);
-
-  const firstPostContent = snsPost?.postContents[0];
-
-  const activeCommentByPostCommentThread = useRecoilValue(
-    activeCommentByPostCommentThreadAtom,
-  );
-
-  const [currentIndex, setCurrentIndex] = useState(0);
-
   const {
     data: postRelationList,
     isFetched: isFetchedByPostRelationList,
     isLoading: isLoadingByPostRelationList,
-  } = QueryStatePostRelationListInfinite(postId || '');
+  } = QueryStatePostRelationListInfinite(postId || '', searchType);
 
   useEffect(() => {
     if (!isFetchedByPostRelationList || !postRelationList) return;
-    if (
-      postRelationList.pages.flatMap((value) => value.snsPostRspList).length <=
-      0
-    ) {
+    if (postRelationList.pages.flatMap((value) => value).length <= 0) {
       setIsActiveRelation(true);
     } else {
       setIsActiveRelation(false);
@@ -261,38 +199,118 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
 
   useEffect(() => {
     if (isValidString(postId)) {
-      setTimeout(() => {
+      if (windowWidthSize > MEDIA_MOBILE_MAX_WIDTH_NUM) {
         setIsPopupRendered(true);
-      }, 400);
+      } else {
+        setTimeout(() => {
+          setIsPopupRendered(true);
+        }, 700);
+      }
     } else {
       setIsPopupRendered(false);
     }
 
     return () => {
       setIsPopupRendered(false);
+      resetPostExternelEventInfo();
     };
   }, [postId]);
 
-  useEffect(() => {
-    if (!isClosed) return;
+  const [postExternelEventInfo, setPostExternelEventInfo] = useRecoilState(
+    postExternelEventInfoAtom,
+  );
+  const resetPostExternelEventInfo = useResetRecoilState(
+    postExternelEventInfoAtom,
+  );
 
-    swiper?.slideTo(0, 0);
-  }, [isClosed]);
+  const [swiperScrollInfo, setSwiperScrollInfo] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
+
+  const [scrollDirection, setScrollDirection] = useState<
+    'horizontal' | 'vertical' | null
+  >(null);
+  const SCROLL_THRESHOLD = 10; // 최소 이동 거리 기준
+
+  const handleTouchStart = (
+    swiper: SwiperClass,
+    event: TouchEvent | MouseEvent | PointerEvent,
+  ) => {
+    console.log(event);
+    if ('touches' in event && event.touches.length > 0) {
+      setSwiperScrollInfo({
+        x: event.touches[0].clientX,
+        y: event.touches[0].clientY,
+      });
+    } else if ('clientX' in event) {
+      setSwiperScrollInfo({ x: event.clientX, y: event.clientY });
+    }
+  };
+
+  const handleTouchMove = (
+    swiper: SwiperClass,
+    event: TouchEvent | MouseEvent | PointerEvent,
+  ) => {
+    if (!swiperScrollInfo) return;
+
+    let moveX = 0;
+    let moveY = 0;
+
+    if ('touches' in event && event.touches.length > 0) {
+      moveX = event.touches[0].clientX;
+      moveY = event.touches[0].clientY;
+    } else if ('clientX' in event) {
+      moveX = event.clientX;
+      moveY = event.clientY;
+    }
+
+    const deltaX = moveX - swiperScrollInfo.x;
+    const deltaY = moveY - swiperScrollInfo.y;
+
+    let gradient = Math.abs(deltaY) / Math.abs(deltaX);
+    gradient = gradient === Infinity ? 1000 : gradient;
+    console.log('x', deltaX, 'y', deltaY, '기울기:', gradient);
+
+    // 스크롤 방향 판별 (기울기 비교)
+    if (
+      gradient <= 7 / 6 ||
+      Math.abs(deltaX) > deltaY ||
+      Math.abs(deltaX) >= SCROLL_THRESHOLD ||
+      deltaY < -SCROLL_THRESHOLD
+    ) {
+      setScrollDirection('horizontal');
+      setPostExternelEventInfo((prev) => ({
+        ...prev,
+        isActiveSideScroll: true,
+      }));
+    } else {
+      setScrollDirection('vertical');
+      setPostExternelEventInfo((prev) => ({
+        ...prev,
+        isActiveSideScroll: false,
+      }));
+    }
+  };
+  const handleTouchEnd = () => {
+    setSwiperScrollInfo(null);
+    setScrollDirection(null);
+    setPostExternelEventInfo((prev) => ({
+      ...prev,
+      isActiveSideScroll: false,
+    }));
+  };
 
   return (
     <>
       <ProfilePostContainer>
         <div ref={elementRef}>
-          {isIntereset ? (
-            <ProfilePostWrap>
+          {isIntereset && !isErrorProfilePost && (
+            <ProfilePostWrap style={ProfilePostWrapStyle}>
               <PostPreButtonWrap>
                 <PostPreButton
                   onClick={() => {
-                    if (setIsExternalCloseFunc) {
-                      setIsExternalCloseFunc(true);
-                    } else {
-                      navigate(-1);
-                    }
+                    funcPrevCloseButton();
                   }}
                 >
                   <StylePostPreButtonIcon />
@@ -309,14 +327,19 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
                     postSettingButtonRef.current &&
                     isSettingActive && (
                       <ContextMenuPopup
-                        setIsActive={setIsSettingActive}
+                        onClose={() => setIsSettingActive(false)}
                         contextMenuRef={postSettingButtonRef.current}
                       >
                         <ProfilePostSettingBody
                           postId={postId}
-                          setIsSettingActive={setIsSettingActive}
-                          myAccountSettingInfo={myAccountSettingInfo}
-                          isBlocked={isBlocked}
+                          type={
+                            snsPost.postContents.some(
+                              (v) => v.postContentType === POST_VIDEO_TYPE,
+                            )
+                              ? 'video'
+                              : 'image'
+                          }
+                          onClose={() => setIsSettingActive(false)}
                           userId={snsPost.userId}
                           username={snsPost.username}
                           setIsInterest={setIsInterest}
@@ -328,12 +351,14 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
                     )}
                 </SettingButton>
               </SettingButtonWrap>
-              <PostImageWrap>
+              <PostImageWrap style={PostImageWrapStyle}>
                 <StyledSwiper
-                  onSwiper={setSwiper}
                   spaceBetween={20}
                   // slidesPerView={1}
                   pagination={true}
+                  onTouchStart={handleTouchStart}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
                   loop={snsPost.postContents.length > 1}
                   modules={[
                     Pagination,
@@ -353,6 +378,7 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
                               ...prev,
                               isActive: true,
                               initIndex: index,
+                              postContents: snsPost.postContents,
                             }));
                           }}
                         >
@@ -361,8 +387,8 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
                               <PostImgDiv src={value.content} />
                             </PostImgWrap>
                           )}
-                          {/* @REFER: 주석 제거 */}
-                          {value.postContentType === POST_VIDEO_TYPE && (
+                          {/* @REFER: 비디오 비활성화 */}
+                          {/* {value.postContentType === POST_VIDEO_TYPE && (
                             <PostImgWrap>
                               <PostVideoContentELement
                                 videoSrc={value.content}
@@ -374,19 +400,25 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
                                 }}
                               />
                             </PostImgWrap>
-                          )}
+                          )} */}
                         </SwiperSlide>
                       );
                     })}
                   {snsPost?.postContents.length == 1 && (
                     <PostContentFrame
-                    // onClick={() => {
-                    //   setPostContentZoomPopupInfoAtom((prev) => ({
-                    //     ...prev,
-                    //     isActive: true,
-                    //     initIndex: 0,
-                    //   }));
-                    // }}
+                      onClick={() => {
+                        if (
+                          snsPost?.postContents[0].postContentType ===
+                          POST_VIDEO_TYPE
+                        )
+                          return;
+                        setPostContentZoomPopupInfo((prev) => ({
+                          ...prev,
+                          isActive: true,
+                          initIndex: 0,
+                          postContents: snsPost.postContents,
+                        }));
+                      }}
                     >
                       {snsPost?.postContents[0].postContentType ===
                         POST_IMAGE_TYPE && (
@@ -395,23 +427,26 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
                         />
                       )}
 
-                      {/* @REFER: 주석 제거 */}
                       {snsPost?.postContents[0].postContentType ===
                         POST_VIDEO_TYPE && (
-                        <PostVideoContentELement
+                        <PostVideoContentElementV3
+                          postId={postId}
                           videoSrc={snsPost?.postContents[0].content}
                           posterImg={snsPost?.postContents[0].previewImg}
                           isUploaded={snsPost?.postContents[0].isUploaded}
-                          stateValue={postId}
-                          isVisibilityDetection={true}
-                          visibilityThreshold={0.5}
-                          PostVideoContentELementStyle={
-                            windowWidthSize < MEDIA_MOBILE_MAX_WIDTH_NUM
-                              ? {
-                                  borderRadius: `${PostContentRadis} ${PostContentRadis} 0 0`,
-                                }
-                              : {}
-                          }
+                          isClose={postExternelEventInfo.isClosePost}
+                          onClose={() => {
+                            setPostExternelEventInfo((prev) => ({
+                              ...prev,
+                              isClosePost: false,
+                            }));
+                          }}
+                          actionPopupTopScrollByMoveSeekBar={(isActive) => {
+                            setPostExternelEventInfo((prev) => ({
+                              ...prev,
+                              isActiveSideScroll: isActive,
+                            }));
+                          }}
                           PostVideoStyle={
                             windowWidthSize < MEDIA_MOBILE_MAX_WIDTH_NUM
                               ? {
@@ -419,115 +454,197 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
                                 }
                               : {}
                           }
-                          onVideoError={() => {
-                            alert(
-                              '현재 브라우저에서 해당 게시물이 호환되지 않습니다.',
-                            );
-                          }}
+                          PostVideoPosterImgStyle={
+                            windowWidthSize < MEDIA_MOBILE_MAX_WIDTH_NUM
+                              ? {
+                                  borderRadius: `${PostContentRadis} ${PostContentRadis} 0 0`,
+                                }
+                              : { borderRadius: `${PostContentRadis}` }
+                          }
                         />
+                        // <PostVideoContentELement
+                        //   videoSrc={snsPost?.postContents[0].content}
+                        //   posterImg={snsPost?.postContents[0].previewImg}
+                        //   isUploaded={snsPost?.postContents[0].isUploaded}
+                        //   stateValue={postId}
+                        //   isVisibilityDetection={true}
+                        //   visibilityThreshold={0.5}
+                        //   PostVideoStyle={
+                        //     windowWidthSize < MEDIA_MOBILE_MAX_WIDTH_NUM
+                        //       ? {
+                        //           borderRadius: `${PostContentRadis} ${PostContentRadis} 0 0`,
+                        //         }
+                        //       : {}
+                        //   }
+                        //   PostVideoPosterImgStyle={
+                        //     windowWidthSize < MEDIA_MOBILE_MAX_WIDTH_NUM
+                        //       ? {
+                        //           borderRadius: `${PostContentRadis} ${PostContentRadis} 0 0`,
+                        //         }
+                        //       : { borderRadius: `${PostContentRadis}` }
+                        //   }
+                        //   onVideoError={() => {
+                        //     alert(
+                        //       '현재 브라우저에서 해당 게시물이 호환되지 않습니다.',
+                        //     );
+                        //   }}
+                        //   onScrollVideoProcessBar={(isActive) => {
+                        //     setPostVideoProcessInfo((prev) => ({
+                        //       ...prev,
+                        //       isActiveScrollVideoProcess: isActive,
+                        //     }));
+                        //   }}
+                        //   isClose={postVideoProcessInfo.isClosePost}
+                        //   onClose={() => {
+                        //     setPostVideoProcessInfo((prev) => ({
+                        //       ...prev,
+                        //       isClosePost: false,
+                        //     }));
+                        //   }}
+                        // />
                       )}
                     </PostContentFrame>
                   )}
                 </StyledSwiper>
               </PostImageWrap>
-              {isPopupRendered && (
-                <PostContentContainer>
-                  <ProfileWrap>
-                    <ProfileLinkDiv
-                      onClick={() => {
-                        navigate(`${PROFILE_LIST_PATH}/${snsPost?.username}`);
-                      }}
-                    >
-                      <ProfileImg src={snsPost?.profilePath} />
-                      <ProfileUserNameFollowWrap>
-                        <ProfileFollowButtonWrap>
-                          <ProfileUserName>{snsPost?.username}</ProfileUserName>
-                          {snsPost?.followable ? (
-                            <FollowButton
-                              userId={snsPost.userId}
-                              fontSize={theme.fontSizes.Subhead2}
-                              style={FollowStyle}
-                              isFollow={snsPost.isFollowed}
-                            />
-                          ) : (
-                            <></>
-                          )}
-                        </ProfileFollowButtonWrap>
+
+              <PostContentContainer>
+                <ProfileWrap>
+                  <ProfileLinkDiv
+                    onClick={() => {
+                      setPostExternelEventInfo((prev) => ({
+                        ...prev,
+                        isClosePost: true,
+                      }));
+                      const path = generatePath(PROFILE_ACCOUNT_ROUTE_PATH, {
+                        username: snsPost?.username,
+                      });
+
+                      const queryParams = new URLSearchParams({
+                        postId: postId,
+                      }).toString();
+
+                      const fullPath = `${path}?${queryParams}`;
+
+                      const data: RoutePushEventDateInterface = {
+                        isShowInitBottomNavBar: true,
+                      };
+                      stackRouterPush(navigate, fullPath, data);
+                    }}
+                  >
+                    <ProfileImg src={snsPost?.profilePath} />
+                    <ProfileUserNameFollowWrap>
+                      <ProfileFollowButtonWrap>
+                        <ProfileUserName>{snsPost?.username}</ProfileUserName>
+                        {snsPost?.followable ? (
+                          <FollowButton
+                            userId={snsPost.userId}
+                            username={snsPost.username}
+                            postId={snsPost.postId}
+                            fontSize={theme.fontSizes.Subhead2}
+                            style={FollowStyle}
+                            isFollow={snsPost.isFollowed}
+                          />
+                        ) : (
+                          <></>
+                        )}
+                      </ProfileFollowButtonWrap>
+                      <ProfilePositionWrap>
                         <ProfilePosition>
                           {snsPost.location.address}
                         </ProfilePosition>
-                        {/**@REFER: 수정 */}
-                      </ProfileUserNameFollowWrap>
-                    </ProfileLinkDiv>
-                  </ProfileWrap>
+                      </ProfilePositionWrap>
+                    </ProfileUserNameFollowWrap>
+                  </ProfileLinkDiv>
+                </ProfileWrap>
 
-                  {postId && (
-                    <PostReactionSingleElement
-                      username={snsPost.username}
-                      postId={snsPost.postId}
-                      mainImageUrl={getRandomImage(
-                        snsPost.postContents
-                          .filter((v) => v.postContentType === POST_IMAGE_TYPE)
-                          .map((v) => v.content),
-                        snsPost.profilePath,
-                      )}
-                    />
-                  )}
-
-                  <PostTextContent
-                    postTitle={snsPost.postTitle}
-                    postBodyText={snsPost.postBodyText}
-                    postedAt={snsPost.postedAt}
-                    tags={snsPost.tags}
-                    isExpandedBodyText={true}
+                {postId && (
+                  <PostReactionSingleElement
+                    username={snsPost.username}
+                    postId={snsPost.postId}
+                    mainImageUrl={getRandomImage(
+                      snsPost.postContents
+                        .filter((v) => v.postContentType === POST_IMAGE_TYPE)
+                        .map((v) => v.content),
+                      snsPost.profilePath,
+                    )}
+                    snsPost={snsPost}
+                    onClickCloseVideo={() => {
+                      setPostExternelEventInfo((prev) => ({
+                        ...prev,
+                        isClosePost: true,
+                      }));
+                    }}
                   />
+                )}
 
-                  {/* <div>{snsPost?.location.latitude}</div>
-  <div>{snsPost?.location.longitude}</div> */}
-                </PostContentContainer>
-              )}
+                <PostTextContent
+                  postTitle={snsPost.postTitle}
+                  postBodyText={snsPost.postBodyText}
+                  postedAt={snsPost.postedAt}
+                  tags={snsPost.tags}
+                  isExpandedBodyText={false}
+                />
+              </PostContentContainer>
             </ProfilePostWrap>
-          ) : (
+          )}
+
+          {!isErrorProfilePost && !isIntereset && (
             <>
               <PrevButtonHeaderHeader
                 titleName=""
                 HeaderLayoutStyle={PreButtonHeaderStyle}
               />
-              <NotInerestedMessageWrap>
-                <NotInerestedMessage>
-                  <div>이 게시물을 숨겼습니다.</div>
-                  <NotInerestedCancelButtonWrap>
-                    <NotInerestedCancelButton onClick={onClickPostInterest}>
-                      취소
-                    </NotInerestedCancelButton>
-                  </NotInerestedCancelButtonWrap>
-                </NotInerestedMessage>
-              </NotInerestedMessageWrap>
+              <HiddenWrap>
+                <NotInerestedMessageWrap>
+                  <NotInerestedMessage>
+                    <div>이 게시물을 숨겼습니다.</div>
+                    <NotInerestedCancelButtonWrap>
+                      <NotInerestedCancelButton onClick={onClickPostInterest}>
+                        취소
+                      </NotInerestedCancelButton>
+                    </NotInerestedCancelButtonWrap>
+                  </NotInerestedMessage>
+                </NotInerestedMessageWrap>
+              </HiddenWrap>
+            </>
+          )}
+          {isErrorProfilePost && (
+            <>
+              <PrevButtonHeaderHeader
+                titleName=""
+                HeaderLayoutStyle={PreButtonHeaderStyle}
+              />
             </>
           )}
         </div>
         <BoundaryBarStick />
         <RelatedPostContainer>
+          <RelatedTitle>연관 게시물</RelatedTitle>
           {isPopupRendered ? (
             <>
-              <RelatedTitle>연관 게시글</RelatedTitle>
               {postId && (
                 <>
                   {postRelationList &&
                     isFetchedByPostRelationList &&
-                    postRelationList?.pages.flatMap(
-                      (value) => value.snsPostRspList,
-                    ).length > 0 &&
+                    postRelationList?.pages.flatMap((value) => value).length >
+                      0 &&
                     !isLoadingByPostRelationList && (
                       <PostRelationWrap>
-                        <SnsPostMasonryLayout_
+                        <SnsPostMasonryLayout
                           snsPostList={postRelationList.pages.flatMap(
-                            (page) => page.snsPostRspList,
+                            (page) => page,
                           )}
                           isAutoPlay={!isVisible}
+                          linkPopupInfo={linkPopupInfo}
+                          fixNum={fixNum}
+                          searchType={searchType}
                         />
 
-                        <PostRelationListInfiniteScroll postId={postId} />
+                        <PostRelationListInfiniteScroll
+                          postId={postId}
+                          searchType={searchType}
+                        />
                       </PostRelationWrap>
                     )}
                 </>
@@ -535,14 +652,16 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
               {isFetchedByPostRelationList &&
                 postRelationList &&
                 profilePostList &&
-                postRelationList?.pages.flatMap((value) => value.snsPostRspList)
-                  .length <= 0 && (
+                postRelationList?.pages.flatMap((value) => value).length <=
+                  0 && (
                   <PostRelationWrap>
-                    <SnsPostMasonryLayout_
+                    <SnsPostMasonryLayout
                       snsPostList={profilePostList?.pages
                         .flatMap((value) => value.snsPostRspList)
                         .filter((value) => value.postId !== postId)}
                       isAutoPlay={!isVisible}
+                      fixNum={fixNum}
+                      linkPopupInfo={linkPopupInfo}
                     />
                     <ProfileAccountPostListInfiniteScroll
                       username={snsPost.username}
@@ -568,111 +687,9 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
             </div>
           )}
         </RelatedPostContainer>
-
-        {postId !== undefined && firstPostContent && isActiveScrapView && (
-          <ScrapViewPopup
-            isFixed={isFixedPopup}
-            postId={postId}
-            postContentUrl={firstPostContent.content}
-            postContentType={firstPostContent.postContentType}
-            snsPost={snsPost}
-            setSnsPost={setSnsPost}
-            isActiveScrapViewPopup={isActiveScrapView}
-            setIsActiveScrapViewPopup={setIsActiveScrapView}
-          />
-        )}
-
-        {isActiveProfileBlock && (
-          <BlockUserPopup
-            isFixed={isFixedPopup}
-            userInfo={postBlockedUserInfo}
-            isBlocked={isBlocked}
-            setIsBlocked={setIsBlocked}
-            setIsSettingPopup={setIsSettingActive}
-          />
-        )}
-
-        {isActivePostComplaintPopup && (
-          <PostComplaintPopup isFixed={isFixedPopup} />
-        )}
-        {activePostCommentComplaintPopup.isActive && (
-          <PostCommentComplaintPopup isFixed={isFixedPopup} />
-        )}
-        {isActivePostComplaintCompletePopup && (
-          <PostComplaintCompletePopup
-            userInfo={{ userId: snsPost.userId, username: snsPost.username }}
-            isBlocked={isBlocked}
-            setIsBlocked={setIsBlocked}
-            isFixed={isFixedPopup}
-          />
-        )}
-        {isActivePostDeletePopup && (
-          <ConfirmPopup
-            setIsPopup={setIsActivePostDeletePopup}
-            confirmPopupTitle={'포스트를 삭제하시나요? '}
-            confirmPopupSubTitle={
-              '삭제시 포스트를 복구 할 수 없습니다. \n 그래도 정말 삭제하시나요?'
-            }
-            actionFunc={() => {
-              if (!postId) return;
-              deletePost(postId)
-                .then(() => {
-                  setIsActivePostDeletePopup(false);
-                })
-                .catch(() => {
-                  setIsActivePostDeletePopup(false);
-                  alert('오류로 인해 포스트 삭제에 실패 했습니다.');
-                });
-            }}
-          />
-        )}
-        {isLoadingPopup && <LoadingPopup />}
-
-        <ToastMsgPopup />
       </ProfilePostContainer>
-      {/* 포스터 설정 팝업 */}
-      {windowWidthSize <= MEDIA_MOBILE_MAX_WIDTH_NUM &&
-        postId &&
-        isSettingActive && (
-          <ProfilePostSettingPopup
-            postId={postId}
-            myAccountSettingInfo={myAccountSettingInfo}
-            isBlocked={isBlocked}
-            userId={snsPost.userId}
-            username={snsPost.username}
-            setIsInterest={setIsInterest}
-            isFixed={isFixedPopup}
-          />
-        )}
-      {postContentZoomPopupInfo.isActive && (
-        <PostCotentZoomPopup
-          isFixed={isFixedPopup}
-          snsPost={snsPost}
-          currentIndex={currentIndex}
-          setCurrentIndex={setCurrentIndex}
-        />
-      )}
-      {/* 포스트 반응 팝업: 댓글, 리포스트, 하트 */}
-      {windowWidthSize <= MEDIA_MOBILE_MAX_WIDTH_NUM && isPostReactionPopup && (
-        <PostReactionPopup
-          postId={reactionPostId}
-          username={snsPost.username}
-          replyMsg={replyMsg}
-          setReplyMsg={setReplyMsg}
-          isFixed={isFixedPopup}
-        />
-      )}
-      {activeCommentByPostCommentThread.isActive && (
-        <PostCommentThreadPopup
-          snsPost={snsPost}
-          postCommentTextareaRef={postCommentTextareaRef}
-          replyMsg={replyMsg}
-          setReplyMsg={setReplyMsg}
-          likeIconByCommentRef={likeIconRef}
-          likeCountByCommentRef={likeCountRef}
-          commentCountByCommentRef={commentReplyCountRef}
-        />
-      )}
+
+      {postContentZoomPopupInfo.isActive && <PostCotentZoomPopup />}
     </>
   );
 };
@@ -683,12 +700,8 @@ const PostContentRadis = '30px';
 const ProfilePostContainer = styled.div``;
 
 const ProfilePostWrap = styled.div`
+  padding-top: env(safe-area-inset-top);
   position: relative;
-
-  // margin: 0 auto;
-  // @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
-  //   margin: 0 10px 0 10px;
-  // }
 
   @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
     max-width: ${({ theme }) =>
@@ -696,8 +709,12 @@ const ProfilePostWrap = styled.div`
     box-shadow: ${borderShadowStyle_prop};
     border-radius: ${ImageBorderRadius};
     margin: 10px auto 15px auto;
-    padding: 0 10px 10px 10px;
+    padding: 0px 10px 10px 10px;
   }
+`;
+
+const HiddenWrap = styled.div`
+  padding-top: env(safe-area-inset-top);
 `;
 
 const PostContentFrame = styled.div`
@@ -719,7 +736,7 @@ const PostMinHeight = 500;
 const PostImgWrap = styled(PostContentFrame)`
   @media (max-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
     max-height: ${PostMinHeight}px;
-    aspect-ratio: 1 / 1.5;
+    aspect-ratio: 1 / 1;
   }
 
   @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
@@ -745,9 +762,6 @@ const PostImgDiv = styled.div<{ src: string }>`
 
 const PostImageWrap = styled.div`
   position: relative;
-  @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
-    padding-top: 8px;
-  }
 `;
 
 const PostContentContainer = styled.div`
@@ -795,9 +809,18 @@ const FollowStyle: React.CSSProperties = {
   margin: '0',
 };
 
+const ProfilePositionWrap = styled.div`
+  width: 100%;
+`;
+
 const ProfilePosition = styled.div`
   font: ${({ theme }) => theme.fontSizes.Location2};
   color: ${({ theme }) => theme.grey.Grey6};
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  word-break: break-all;
+  width: 280px;
 `;
 
 const BoundaryBarStick = styled.div`
@@ -846,9 +869,7 @@ const NotInerestedCancelButton = styled.div`
 `;
 
 const PreButtonHeaderStyle: React.CSSProperties = {
-  backgroundColor: 'rgba(255, 255, 255, 0.5)',
-  backdropFilter: 'blur(10px)',
-  WebkitBackdropFilter: 'blur(10px)',
+  backgroundColor: 'transparent',
 };
 
 const StyledSwiper = styled(Swiper)`
@@ -864,7 +885,7 @@ const StyledSwiper = styled(Swiper)`
 `;
 
 const PostPreButtonWrap = styled.div`
-  position: absolute;
+  position: fixed;
   z-index: 1010;
 `;
 
@@ -872,6 +893,10 @@ const PostPreButton = styled.div`
   position: fixed;
   cursor: pointer;
   padding: 15px;
+
+  @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
+    padding-left: 5px;
+  }
 `;
 
 const PostRelationWrap = styled.div`

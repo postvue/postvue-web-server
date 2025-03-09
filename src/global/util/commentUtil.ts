@@ -32,9 +32,10 @@ export function getGroupComments(
   });
 
   // 최상위 댓글만 필터링 (sourceTargetId가 null인 경우)
-  const topLevelComments = Array.from(commentMap.entries())
-    .filter(([, comment]) => comment.isReplyMsg === false)
-    .sort(([idA], [idB]) => idB.localeCompare(idA)); // 내림차순으로 정렬
+  const topLevelComments = Array.from(commentMap.entries()).filter(
+    ([, comment]) => comment.isReplyMsg === false,
+  );
+  // .sort(([idA], [idB]) => idB.localeCompare(idA)); // 내림차순으로 정렬
 
   // 결과를 저장할 맵
   const sortedGroupedComments = new Map<string, PostCommentWithReplies>();

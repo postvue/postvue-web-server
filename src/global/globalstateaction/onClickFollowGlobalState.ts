@@ -5,7 +5,4 @@ export const onClickFollowGlobalState = (username: string): void => {
   queryClient.invalidateQueries({
     queryKey: [QUERY_STATE_PROFILE_FOLLOWER_LIST, username],
   });
-  queryClient.invalidateQueries({
-    queryKey: [QUERY_STATE_PROFILE_FOLLOWER_LIST, username],
-  });
 };

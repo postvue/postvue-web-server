@@ -14,7 +14,7 @@ import {
 
 export interface ProfilePostListQueryInterface {
   pages: GetProfilePostListRsp[];
-  pageParams: unknown[];
+  pageParams: string[];
 }
 
 export const QueryStateProfileAccountPostList = (

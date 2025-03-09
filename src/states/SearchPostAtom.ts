@@ -1,4 +1,7 @@
-import { SEARCH_POST_POPULAR_QUERY_PARAM } from 'const/TabConfigConst';
+import {
+  SEARCH_POST_POPULAR_QUERY_PARAM,
+  SearchPostFilterTabType,
+} from 'const/TabConfigConst';
 import { atom } from 'recoil';
 import { INIT_EMPTY_STRING_VALUE } from '../const/AttributeConst';
 import { INIT_CURSOR_ID } from '../const/PageConfigConst';
@@ -66,11 +69,6 @@ export const searchQueryAndFilterKeyAtom = atom<string>({
   default: SEARCH_POST_POPULAR_QUERY_PARAM,
 });
 
-export const preSearchQueryAndFilterKeyAtom = atom<string>({
-  key: 'preSearchQueryAndFilterKey',
-  default: SEARCH_POST_POPULAR_QUERY_PARAM,
-});
-
 export const searchPostResultInfoAtom = atom<
   Map<string, SearchPostResultInfoInterface>
 >({
@@ -81,4 +79,25 @@ export const searchPostResultInfoAtom = atom<
 export const isActiveSearchPostFilterPopupAtom = atom<boolean>({
   key: 'isActiveSearchPostFilterPopup',
   default: false,
+});
+
+export const isActiveSearchFavoritePopupAtom = atom<boolean>({
+  key: 'isActiveSearchFavoritesPopup',
+  default: false,
+});
+
+export const searchPostExploreFilterTabAtom = atom<SearchPostFilterTabType>({
+  key: 'searchPostExploreFilterTab',
+  default: SEARCH_POST_POPULAR_QUERY_PARAM,
+});
+
+export const currentPositionSearchPostAtom = atom<{
+  latitude?: number;
+  longitude?: number;
+}>({
+  key: 'currentPositionSearchPost',
+  default: {
+    latitude: undefined,
+    longitude: undefined,
+  },
 });

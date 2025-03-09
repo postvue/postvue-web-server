@@ -1,9 +1,10 @@
 import LongPressToResizeButton from 'components/common/buttton/LongPressToResizeButton';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import { MsgConversation } from '../../../global/interface/message';
-import { convertDiffrenceDateTime } from '../../../global/util/DateTimeUtil';
+import { convertDiffrenceDateTimeByString } from '../../../global/util/DateTimeUtil';
 import MyMsgConversationReactionContextPopup from '../popup/MyMsgConversationReactionContextPopup';
+import ConversationMsgitem from './ConversationMsgItem';
 
 interface MyConversationMsgProps {
   groupData: {
@@ -16,28 +17,26 @@ interface MyConversationMsgProps {
 }
 
 const MyConversationMsg: React.FC<MyConversationMsgProps> = ({ groupData }) => {
-  const [activeMsgReactionPopup, setActiveMsgReactionPopup] = useState<
-    boolean | number
-  >(false);
+  const [activeMsgReactionPopup, setActiveMsgReactionPopup] = useState<{
+    isActive: boolean;
+    msgId: number;
+  }>({ isActive: false, msgId: 0 });
 
   const onDownService = (msgIdx: number) => {
-    setActiveMsgReactionPopup(msgIdx);
+    setActiveMsgReactionPopup({ isActive: true, msgId: msgIdx });
   };
 
   const msgContentListRef = useRef<HTMLDivElement[]>([]);
-
-  useEffect(() => {
-    console.log(msgContentListRef);
-  }, [msgContentListRef]);
 
   return (
     <MsgConversationMeWrap>
       {groupData.group.map((msg, idx) => (
         <React.Fragment key={msg.msgConversation.msgId}>
+          {/* 마지막 메시지 */}
           {idx === groupData.group.length - 1 || msg.showDate === true ? (
             <MsgDateWrap key={msg.msgConversation.msgId}>
               <MsgConversationMeDate>
-                {convertDiffrenceDateTime(msg.msgConversation.sendAt)}
+                {convertDiffrenceDateTimeByString(msg.msgConversation.sendAt)}
               </MsgConversationMeDate>
               <LongPressToResizeButton
                 resize={MsgResize}
@@ -49,18 +48,21 @@ const MyConversationMsg: React.FC<MyConversationMsgProps> = ({ groupData }) => {
                     msgContentListRef.current[idx] = el;
                   }}
                 >
-                  {msg.msgConversation.msgContent}
+                  <ConversationMsgitem
+                    isMe={true}
+                    msgConversation={msg.msgConversation}
+                  />
                 </MsgConversationMeItem>
               </LongPressToResizeButton>
-              {activeMsgReactionPopup &&
-                activeMsgReactionPopup === idx &&
+              {activeMsgReactionPopup.isActive &&
+                activeMsgReactionPopup.msgId === idx &&
                 msgContentListRef.current[idx] && (
                   <MyMsgConversationReactionContextPopup
                     setActiveMsgReactionPopup={setActiveMsgReactionPopup}
                     msgConversationReactionContextRef={
                       msgContentListRef.current[idx]
                     }
-                    msgText={msg.msgConversation.msgContent}
+                    msgText={msg.msgConversation.msgTextContent}
                     msgId={msg.msgConversation.msgId}
                   />
                 )}
@@ -77,18 +79,21 @@ const MyConversationMsg: React.FC<MyConversationMsgProps> = ({ groupData }) => {
                     msgContentListRef.current[idx] = el;
                   }}
                 >
-                  {msg.msgConversation.msgContent}
+                  <ConversationMsgitem
+                    isMe={true}
+                    msgConversation={msg.msgConversation}
+                  />
                 </MsgConversationMeItem>
               </LongPressToResizeButton>
-              {activeMsgReactionPopup &&
-                activeMsgReactionPopup === idx &&
+              {activeMsgReactionPopup.isActive &&
+                activeMsgReactionPopup.msgId === idx &&
                 msgContentListRef.current[idx] && (
                   <MyMsgConversationReactionContextPopup
                     setActiveMsgReactionPopup={setActiveMsgReactionPopup}
                     msgConversationReactionContextRef={
                       msgContentListRef.current[idx]
                     }
-                    msgText={msg.msgConversation.msgContent}
+                    msgText={msg.msgConversation.msgTextContent}
                     msgId={msg.msgConversation.msgId}
                   />
                 )}
@@ -111,19 +116,7 @@ const MsgConversationMeWrap = styled.div`
   align-items: flex-end;
 `;
 
-const MsgConversationMeItem = styled.div`
-  padding: 9px 12px;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  font: ${({ theme }) => theme.fontSizes.Body4};
-  background-color: ${({ theme }) => theme.mainColor.Blue};
-  color: ${({ theme }) => theme.mainColor.White};
-  border-radius: 20px;
-  max-width: 259px;
-  word-break: break-all;
-`;
+const MsgConversationMeItem = styled.div``;
 
 const MsgDateWrap = styled.div`
   display: flex;

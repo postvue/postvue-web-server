@@ -6,6 +6,7 @@ interface PostComposeButtonProps {
   bottomNextButtonRef: React.RefObject<HTMLDivElement>;
   onClickActionFunc: () => void;
   isActive: boolean;
+  PostComposeButtonStyle?: React.CSSProperties;
 }
 
 const PostComposeButton: React.FC<PostComposeButtonProps> = ({
@@ -14,6 +15,7 @@ const PostComposeButton: React.FC<PostComposeButtonProps> = ({
   bottomNextButtonRef,
   onClickActionFunc,
   isActive,
+  PostComposeButtonStyle,
 }) => {
   return (
     <BottomNextButton
@@ -23,6 +25,7 @@ const PostComposeButton: React.FC<PostComposeButtonProps> = ({
       bottomNextButtonRef={bottomNextButtonRef}
       actionFunc={onClickActionFunc}
       isActive={isActive}
+      BottomNextButtonWrapContainerStyle={PostComposeButtonStyle}
     />
   );
 };

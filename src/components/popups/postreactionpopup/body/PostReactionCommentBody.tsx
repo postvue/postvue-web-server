@@ -7,7 +7,7 @@ import {
   PostCommentReplyMsgInfo,
   PostCommentWithReplies,
 } from '../../../../global/interface/post';
-import { getGroupComments } from '../../../../global/util/commentUtil';
+import { getGroupComments } from '../../../../global/util/CommentUtil';
 import PostCommentReplyElement from './PostCommentReplyElement';
 
 interface PostReactionCommentBodyProps {
@@ -35,19 +35,19 @@ const PostReactionCommentBody: React.FC<PostReactionCommentBodyProps> = ({
   commentReplyCountRef,
   setReplyMsg,
 }) => {
-  // const [snsPostCommentHashMap, setSnsPostCommentHashMap] = useRecoilState(
-  //   postReactionCommentHashMapAtom,
-  // );
-
-  const {
-    data: postCommentList,
-    isSuccess,
-    isFetched,
-  } = QueryStatePostCommentListInfinite(postId);
+  const { data: postCommentList, isFetched } =
+    QueryStatePostCommentListInfinite(postId);
 
   const [groupComments, setGroupComments] = useState<
     Map<string, PostCommentWithReplies>
   >(new Map());
+
+  const [init, setInit] = useState<boolean>(false);
+  useEffect(() => {
+    setTimeout(() => {
+      setInit(true);
+    }, 500);
+  }, []);
   useEffect(() => {
     if (!postCommentList) return;
 
@@ -61,43 +61,45 @@ const PostReactionCommentBody: React.FC<PostReactionCommentBodyProps> = ({
       postCommentHashMap.set(postComment.postCommentId, postComment);
     });
     setGroupComments(getGroupComments(postCommentHashMap));
-  }, [postCommentList, isSuccess, isFetched]);
+  }, [postCommentList]);
 
-  const topLevelComments = Array.from(groupComments.values())
-    .filter((comment) => comment.isReplyMsg === false)
-    .sort((a, b) => b.postCommentId.localeCompare(a.postCommentId));
+  const topLevelComments = Array.from(groupComments.values()).filter(
+    (comment) => comment.isReplyMsg === false,
+  );
+  // .sort((a, b) => b.postCommentId.localeCompare(a.postCommentId));
 
   return (
-    <>
-      <PostContentListContainer>
-        {topLevelComments.length > 0 &&
-          topLevelComments.map((comment) => (
-            <PostCommentReplyElement
-              key={comment.postCommentId}
-              postId={postId}
-              commentIdIndex={comment.postCommentId}
-              postComment={comment}
-              likeIconRef={likeIconRef}
-              likeCountRef={likeCountRef}
-              commentReplyCountRef={commentReplyCountRef}
-              postCommentTextareaRef={postCommentTextareaRef}
-              setReplyMsg={setReplyMsg}
-              neededGroupBar={comment.replies.length > 0}
-              comment={comment}
-              isReplyToReply={false}
-            />
-          ))}
-        {topLevelComments.length <= 0 && (
-          <NotPostComment>아직 댓글이 없습니다.</NotPostComment>
-        )}
+    <PostContentListContainer>
+      {isFetched &&
+        init &&
+        topLevelComments.length > 0 &&
+        topLevelComments.map((comment) => (
+          <PostCommentReplyElement
+            key={comment.postCommentId}
+            postId={postId}
+            commentIdIndex={comment.postCommentId}
+            postComment={comment}
+            likeIconRef={likeIconRef}
+            likeCountRef={likeCountRef}
+            commentReplyCountRef={commentReplyCountRef}
+            postCommentTextareaRef={postCommentTextareaRef}
+            setReplyMsg={setReplyMsg}
+            neededGroupBar={comment.replies.length > 0}
+            comment={comment}
+            isReplyToReply={false}
+          />
+        ))}
+      {topLevelComments.length <= 0 && (
+        <NotPostComment>아직 댓글이 없습니다.</NotPostComment>
+      )}
 
-        {postId && <PostCommentListInfiniteScroll postId={postId} />}
-      </PostContentListContainer>
-    </>
+      {postId && <PostCommentListInfiniteScroll postId={postId} />}
+    </PostContentListContainer>
   );
 };
 
 const PostContentListContainer = styled.div`
+  height: 100%;
   position: relative;
 `;
 
@@ -107,6 +109,7 @@ const NotPostComment = styled.div`
   left: 50%;
   transform: translate(-50%, 50%);
   font: ${({ theme }) => theme.fontSizes.Body3};
+  white-space: nowrap;
 `;
 
 export default PostReactionCommentBody;

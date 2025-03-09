@@ -3,6 +3,7 @@ import { isValidString } from 'global/util/ValidUtil';
 import React, { useEffect, useRef } from 'react';
 import { SetterOrUpdater } from 'recoil';
 import styled from 'styled-components';
+import { hoverComponentNotRoundStyle } from 'styles/commonStyles';
 
 interface TagSearchPopupBodyProps {
   tagSearchInput: string;
@@ -79,14 +80,17 @@ const TagSearchQueryItem = styled.div`
   display: flex;
   justify-content: space-between;
   padding: 0 ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding};
+  cursor: pointer;
+  ${hoverComponentNotRoundStyle};
 `;
 
 const TagSearchQueryName = styled.div`
-  font: ${({ theme }) => theme.fontSizes.Body3};
+  font: ${({ theme }) => theme.fontSizes.Body4};
+  font-size: 18px;
 `;
 
 const TagSearchQueryAdd = styled.div`
-  font: ${({ theme }) => theme.fontSizes.Body2};
+  font: ${({ theme }) => theme.fontSizes.Body4};
   color: ${({ theme }) => theme.grey.Grey7};
 `;
 

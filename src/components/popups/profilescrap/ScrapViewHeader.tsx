@@ -1,11 +1,8 @@
-import { PROFILE_NEW_SCRAP_PATH } from 'const/PathConst';
-import {
-  POST_CONTENT_TYPE,
-  POST_CONTENT_URL,
-  POST_ID,
-} from 'const/QueryParamConst';
+import useWindowSize from 'hook/customhook/useWindowSize';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSetRecoilState } from 'recoil';
+import { activeMakeScrapPopupInfoAtom } from 'states/PostAtom';
 import styled from 'styled-components';
 
 interface ScrapViewHeaderProps {
@@ -21,15 +18,36 @@ const ScrapViewHeader: React.FC<ScrapViewHeaderProps> = ({
   postContentType,
   ScrapViewHeaderContainerStyle,
 }) => {
+  const setActiveMakeScrapPopupInfo = useSetRecoilState(
+    activeMakeScrapPopupInfoAtom,
+  );
+
+  const { windowWidth } = useWindowSize();
   const navigate = useNavigate();
   const onClickCreateScrapWithPost = () => {
-    navigate(
-      `${PROFILE_NEW_SCRAP_PATH}?${POST_ID}=${postId}&${POST_CONTENT_URL}=${postContentUrl}&${POST_CONTENT_TYPE}=${postContentType}`,
-    );
+    setActiveMakeScrapPopupInfo({
+      isActive: true,
+      postId: postId,
+      postContentType: postContentType,
+      postContentUrl: postContentUrl,
+    });
+    // if (windowWidth >= MEDIA_MOBILE_MAX_WIDTH_NUM) {
+    //   setActiveMakeScrapPopupInfo({
+    //     isActive: true,
+    //     postId: postId,
+    //     postContentType: postContentType,
+    //     postContentUrl: postContentUrl,
+    //   });
+    // } else {
+    //   stackRouterPush(
+    //     navigate,
+    //     `${PROFILE_NEW_SCRAP_PATH}?${POST_ID_QUERY_PARAM}=${postId}&${POST_CONTENT_URL}=${postContentUrl}&${POST_CONTENT_TYPE}=${postContentType}`,
+    //   );
+    // }
   };
   return (
     <ScrapViewPopupTitleWrap style={ScrapViewHeaderContainerStyle}>
-      <ScrapViewPopupTitle>전체 스크랩 보기</ScrapViewPopupTitle>
+      <ScrapViewPopupTitle>스크랩</ScrapViewPopupTitle>
       {postId && postContentUrl && postContentType && (
         <ScrapViewCreateButton
           onClick={() => {

@@ -1,13 +1,9 @@
 import { AxiosError } from 'axios';
-import { ACCESS_TOKEN } from 'const/LocalStorageConst';
+import { CHANNEL_USER_ID } from 'const/LocalStorageConst';
+import { AuthTokenRsp } from 'const/ReactNativeConst';
+import { setAccessTokenToLocalStorage } from 'global/util/CookieUtil';
 import { api } from 'services';
 import { KAKAO_LOGIN_API_PATH } from 'services/appApiPath';
-
-interface postKakaoLoginRes {
-  data: string;
-  statusCode: string;
-  message: string;
-}
 
 interface postKakaoLoginReq {
   kakaoAccessToken: string;
@@ -16,7 +12,7 @@ interface postKakaoLoginReq {
 // Point 가져오기
 export const postKakaoLogin = (
   kakaoAccessToken: string,
-): Promise<postKakaoLoginRes> => {
+): Promise<AuthTokenRsp> => {
   const data: postKakaoLoginReq = {
     kakaoAccessToken: kakaoAccessToken,
   };
@@ -24,11 +20,12 @@ export const postKakaoLogin = (
   return api
     .post(KAKAO_LOGIN_API_PATH, data)
     .then((res) => {
-      const accessToken = res.data.data;
+      const authToken: AuthTokenRsp = res.data.data;
 
-      localStorage.setItem(ACCESS_TOKEN, accessToken);
+      setAccessTokenToLocalStorage(authToken.accessToken);
+      localStorage.setItem(CHANNEL_USER_ID, authToken.userId);
 
-      return res.data;
+      return authToken;
     })
     .catch((err: AxiosError) => {
       throw err;

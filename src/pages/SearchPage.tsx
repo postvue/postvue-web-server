@@ -4,10 +4,15 @@ import { useRecoilValue, useResetRecoilState } from 'recoil';
 import AppBaseTemplate from '../components/layouts/AppBaseTemplate';
 import SearchBody from '../components/search/body/SearchBody';
 
+import BottomNavBar from 'components/BottomNavBar';
+import PullToRefreshComponent from 'components/PullToRefreshComponent';
 import SearchHeader from 'components/search/header/SearchHeader';
+import { EVENT_DATA_ROUTE_PREVIOUS_TAB_TYPE } from 'const/ReactNativeConst';
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
+import useWindowSize from 'hook/customhook/useWindowSize';
+import { QueryStateRecommTagList } from 'hook/queryhook/QueryStateRecommTagList';
+import { QueryStateSearchFavoriteTermPreviewList } from 'hook/queryhook/QueryStateSearchFavoritePreviewTermList';
 import { useNavigate } from 'react-router-dom';
-import SearchSuggestBody from '../components/search/body/SearchSuggestBody';
 import { HOME_PATH, SEARCH_POST_PATH } from '../const/PathConst';
 import {
   isSearchInputActiveAtom,
@@ -43,12 +48,38 @@ const SearchPage: React.FC = () => {
     };
   }, []);
 
+  const { windowWidth } = useWindowSize();
+
+  const { refetch: refetchByFavoriteTermList } =
+    QueryStateSearchFavoriteTermPreviewList();
+
+  const { refetch: refetchByRecomMTagList } = QueryStateRecommTagList();
+
   return (
     <AppBaseTemplate>
-      <SearchHeader backToUrl={HOME_PATH} searchUrl={SEARCH_POST_PATH} />
-      {!isSearchInputActive && <SearchBody />}
-      {isSearchInputActive && <SearchSuggestBody />}
-      {/* <BottomNavBar /> */}
+      <SearchHeader
+        backToUrl={HOME_PATH}
+        searchUrl={SEARCH_POST_PATH}
+        prevNavigateType={EVENT_DATA_ROUTE_PREVIOUS_TAB_TYPE}
+      />
+      {!isSearchInputActive && (
+        <>
+          {windowWidth < MEDIA_MOBILE_MAX_WIDTH_NUM ? (
+            <PullToRefreshComponent
+              onRefresh={async () => {
+                refetchByFavoriteTermList();
+                refetchByRecomMTagList();
+              }}
+            >
+              <SearchBody />
+            </PullToRefreshComponent>
+          ) : (
+            <SearchBody />
+          )}
+        </>
+      )}
+
+      <BottomNavBar />
     </AppBaseTemplate>
   );
 };

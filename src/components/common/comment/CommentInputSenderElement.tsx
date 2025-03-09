@@ -4,14 +4,21 @@ import { ReactComponent as UploadImageDeleteButtonIcon } from 'assets/images/ico
 import { ReactComponent as PostCommentImageIcon } from 'assets/images/icon/svg/PostCommentImageIcon.svg';
 import { COMMENT_UP_ANIMATION } from 'const/PostCommentConst';
 import { QUERY_STATE_POST_COMMENT_LIST } from 'const/QueryClientConst';
-import { ProfileMyInfo } from 'global/interface/profile';
-import { animateCount } from 'global/util/commentUtil';
+import { MEDIA_MOBILE_MAX_WIDTH } from 'const/SystemAttrConst';
+import { animateCount } from 'global/util/CommentUtil';
+import {
+  isApp,
+  sendNativeImageUploadEvent,
+} from 'global/util/reactnative/nativeRouter';
 import { convertQueryTemplate } from 'global/util/TemplateUtil';
 import { QueryMutationCreatePostComment } from 'hook/queryhook/QueryMutationCreatePostComment';
 import { QueryMutationCreatePostCommentReply } from 'hook/queryhook/QueryMutationCreatePostCommentReply';
+import { QueryStateMyProfileInfo } from 'hook/queryhook/QueryStateMyProfileInfo';
 import { PostCommetListInfiniteInterface } from 'hook/queryhook/QueryStatePostCommentListInfinite';
 import React, { useEffect, useRef, useState } from 'react';
-import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilValue, useResetRecoilState, useSetRecoilState } from 'recoil';
+import { nativeUploadImgFileAtom } from 'states/NativeAtom';
+import { isFocusPostReactionInputAtom } from 'states/PostReactionAtom';
 import { activeCommentByPostCommentThreadAtom } from 'states/PostThreadAtom';
 import { isLoadingPopupAtom } from 'states/SystemConfigAtom';
 import styled from 'styled-components';
@@ -23,7 +30,6 @@ import {
   PostCommentReq,
 } from '../../../global/interface/post';
 import { uploadImgUtil } from '../../../global/util/ImageInputUtil';
-import { getMyAccountSettingInfo } from '../../../global/util/MyAccountSettingUtil';
 import { isValidString } from '../../../global/util/ValidUtil';
 
 interface CommentInputSenderElementProps {
@@ -42,7 +48,7 @@ interface CommentInputSenderElementProps {
   isThread?: boolean;
   threadCommentId?: string;
   commentCountByCommentCurrent?: HTMLDivElement | null;
-  containerBorderRadiusNum?: number;
+  commentContainerTypeId: string;
 }
 
 const CommentInputSenderElement: React.FC<CommentInputSenderElementProps> = ({
@@ -57,13 +63,17 @@ const CommentInputSenderElement: React.FC<CommentInputSenderElementProps> = ({
   threadCommentId,
   commentSenderRef,
   commentCountByCommentCurrent,
-  containerBorderRadiusNum = 0,
+  commentContainerTypeId,
 }) => {
-  const myAccountSettingInfo: ProfileMyInfo = getMyAccountSettingInfo();
+  const { data: myAccountSettingInfo } = QueryStateMyProfileInfo(true, false);
   const imgFileInputRef = useRef<HTMLInputElement | null>(null);
 
   const activeCommentByPostCommentThread = useRecoilValue(
     activeCommentByPostCommentThreadAtom,
+  );
+
+  const setIsFocusPostReactionInput = useSetRecoilState(
+    isFocusPostReactionInputAtom,
   );
 
   const setIsLoadingPopup = useSetRecoilState(isLoadingPopupAtom);
@@ -96,7 +106,10 @@ const CommentInputSenderElement: React.FC<CommentInputSenderElementProps> = ({
     }
   };
 
-  const onClickSendTextComment = () => {
+  const onClickSendComment = () => {
+    if (!isActiveUpload) {
+      return;
+    }
     const snsPostCmntCreateReq: PostCommentReq = {
       postCommentMsg: postCommentTextarea,
     };
@@ -133,11 +146,24 @@ const CommentInputSenderElement: React.FC<CommentInputSenderElementProps> = ({
           commentReplyCountRef: commentReplyCountRef,
         })
         .then(() => {
-          setIsLoadingPopup(false);
+          const commentContainer = document.getElementById(
+            commentContainerTypeId,
+          );
+
+          if (!commentContainer) return;
+
+          setTimeout(() => {
+            commentContainer.scrollTo({
+              top: commentContainer.scrollHeight,
+              behavior: 'smooth',
+            });
+          }, 200);
         })
         .catch((error: any) => {
           console.log(error);
           alert(error.response.data.message);
+        })
+        .finally(() => {
           setIsLoadingPopup(false);
         });
 
@@ -157,7 +183,7 @@ const CommentInputSenderElement: React.FC<CommentInputSenderElementProps> = ({
                 v.postCommentId === activeCommentByPostCommentThread.commentId
               ) {
                 v.commentCount += 1;
-                console.log(commentCountByCommentCurrent);
+
                 if (!commentCountByCommentCurrent) return;
                 animateCount(
                   commentCountByCommentCurrent,
@@ -186,11 +212,24 @@ const CommentInputSenderElement: React.FC<CommentInputSenderElementProps> = ({
           formData: formData,
         })
         .then(() => {
-          setIsLoadingPopup(false);
+          const commentContainer = document.getElementById(
+            commentContainerTypeId,
+          );
+
+          if (!commentContainer) return;
+
+          setTimeout(() => {
+            commentContainer.scrollTo({
+              top: commentContainer.scrollHeight,
+              behavior: 'smooth',
+            });
+          }, 200);
         })
         .catch((error: any) => {
           console.log(error);
           alert(error.response.data.message);
+        })
+        .finally(() => {
           setIsLoadingPopup(false);
         });
     }
@@ -199,6 +238,15 @@ const CommentInputSenderElement: React.FC<CommentInputSenderElementProps> = ({
   const onKeyDownPostCommentTextArea = (
     e: React.KeyboardEvent<HTMLTextAreaElement>,
   ) => {
+    if (
+      e.key === 'Enter' &&
+      !e.shiftKey &&
+      e.nativeEvent.isComposing === false
+    ) {
+      e.preventDefault();
+      onClickSendComment();
+      return;
+    }
     if (!(e.key === 'Delete' || e.key === 'Backspace')) return;
     const position = e.currentTarget.selectionStart;
 
@@ -218,13 +266,34 @@ const CommentInputSenderElement: React.FC<CommentInputSenderElementProps> = ({
     uploadCommentImgId = `${uploadCommentImgId}-${THREAD_ID}`;
   }
 
+  const postCommentTextareaParentRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     const textarea = postCommentTextareaRef.current;
+    const postCommentTextareaParent = postCommentTextareaParentRef.current;
 
     if (textarea) {
       textarea.style.height = 'auto'; // Reset height
-
       textarea.style.height = `${textarea.scrollHeight - 8}px`;
+      // if (!postCommentTextareaParent) return;
+
+      // if (postCommentTextareaParent.clientHeight + 10 < textarea.scrollHeight) {
+
+      //   setTimeout(() => {
+      //     postCommentTextareaParent.style.height = `${textarea.scrollHeight}px`;
+
+      //     if (commentSenderRef && commentSenderRef.current) {
+      //       const commentSenderRefObject = commentSenderRef.current;
+      //       commentSenderRefObject.style.animation = `scale-up-top 0.3s cubic-bezier(0.39, 0.575, 0.565, 1) both`;
+
+      //       setTimeout(() => {
+      //         commentSenderRefObject.style.animation = `none`;
+      //       }, 1000);
+      //     }
+      //   }, 2000);
+      // }
+
+      // postCommentTextareaParent.style.height = `${textarea.scrollHeight - 10}px`;
     }
   }, [postCommentTextarea]);
 
@@ -242,14 +311,32 @@ const CommentInputSenderElement: React.FC<CommentInputSenderElementProps> = ({
     }
   }, [replyMsg]);
 
+  useEffect(() => {
+    return () => {
+      setIsFocusPostReactionInput(false);
+    };
+  }, []);
+
+  const nativeUploadImgFile = useRecoilValue(nativeUploadImgFileAtom);
+  const resetNativeUploadImgFile = useResetRecoilState(nativeUploadImgFileAtom);
+  useEffect(() => {
+    if (!isApp() || nativeUploadImgFile.imgFile === null) return;
+
+    uploadImgUtil(
+      nativeUploadImgFile.imgFile,
+      setUploadCommentImgFile,
+      setUploadCommentImgUrl,
+    );
+    resetNativeUploadImgFile();
+  }, [nativeUploadImgFile]);
+
   return (
-    <PostCommentMsgComponent
-      ref={commentSenderRef}
-      $containerBorderRadiusNum={containerBorderRadiusNum}
-    >
+    <PostCommentMsgComponent ref={commentSenderRef}>
       <PostCommentMsgComponentWrap>
         <MsgMyProfileImgWrap>
-          <MsgMyProfileImg src={myAccountSettingInfo.profilePath} />
+          <MsgMyProfileImg
+            src={myAccountSettingInfo && myAccountSettingInfo.profilePath}
+          />
         </MsgMyProfileImgWrap>
         <PostCommentMsgWrap>
           <PostCommentMsgUploadWrap>
@@ -267,40 +354,52 @@ const CommentInputSenderElement: React.FC<CommentInputSenderElementProps> = ({
                   @ {replyMsg?.username}
                 </CommentReplyUserTag>
               )}
-              <PostCommentMsgTextarea
-                rows={1}
-                placeholder={
-                  replyMsg !== null ? sendPlaceHolder : defaultSendPlaceHolder
-                }
-                ref={postCommentTextareaRef}
-                value={postCommentTextarea}
-                onChange={handleChangeByPostCommentMsg}
-                onKeyDown={(e) => onKeyDownPostCommentTextArea(e)}
-              ></PostCommentMsgTextarea>
+              <PostCommentMsgTextareaParent ref={postCommentTextareaParentRef}>
+                <PostCommentMsgTextarea
+                  rows={1}
+                  placeholder={
+                    replyMsg !== null ? sendPlaceHolder : defaultSendPlaceHolder
+                  }
+                  ref={postCommentTextareaRef}
+                  value={postCommentTextarea}
+                  onChange={handleChangeByPostCommentMsg}
+                  onFocus={() => setIsFocusPostReactionInput(true)}
+                  onKeyDown={(e) => onKeyDownPostCommentTextArea(e)}
+                />
+              </PostCommentMsgTextareaParent>
             </PostCommentReplySendWrap>
             <MsgSendButtonWrap>
               <PostCommentUploadImageDiv>
                 <PostCommentUploadImage>
-                  <PostCommentUploadImgLabel htmlFor={uploadCommentImgId}>
+                  <PostCommentUploadImgLabel
+                    htmlFor={uploadCommentImgId}
+                    onClick={() => {
+                      if (!isApp) return;
+                      sendNativeImageUploadEvent();
+                    }}
+                  >
                     <PostCommentImageIcon />
                   </PostCommentUploadImgLabel>
-                  <PostCommentUploadInput
-                    id={uploadCommentImgId}
-                    ref={imgFileInputRef}
-                    accept="image/*"
-                    type="file"
-                    onChange={(e) => {
-                      uploadImgUtil(
-                        e,
-                        setUploadCommentImgFile,
-                        setUploadCommentImgUrl,
-                      );
-                    }}
-                  />
+                  {!isApp() && (
+                    <PostCommentUploadInput
+                      id={uploadCommentImgId}
+                      ref={imgFileInputRef}
+                      accept="image/jpeg, image/png, image/gif, image/bmp, image/webp, image/heic"
+                      type="file"
+                      onChange={(e) => {
+                        if (!e.target.files) return;
+                        uploadImgUtil(
+                          e.target.files[0],
+                          setUploadCommentImgFile,
+                          setUploadCommentImgUrl,
+                        );
+                      }}
+                    />
+                  )}
                 </PostCommentUploadImage>
               </PostCommentUploadImageDiv>
               {isActiveUpload && (
-                <MsgSendButton onClick={onClickSendTextComment}>
+                <MsgSendButton onClick={onClickSendComment}>
                   <CommentSendButtonIcon />
                 </MsgSendButton>
               )}
@@ -312,20 +411,21 @@ const CommentInputSenderElement: React.FC<CommentInputSenderElementProps> = ({
   );
 };
 
-const PostCommentMsgComponent = styled.div<{
-  $containerBorderRadiusNum: number;
-}>`
+const PostCommentMsgComponent = styled.div`
   width: 100%;
   bottom: 0px;
-  padding: 8px 0;
+  padding: 8px 0 calc(env(safe-area-inset-bottom) + 10px) 0;
   z-index: 100;
   background-color: white;
-  border-radius: 0 0 ${(props) => props.$containerBorderRadiusNum}px
-    ${(props) => props.$containerBorderRadiusNum}px;
+
+  @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
+    margin-bottom: 30px;
+  }
 `;
 
 const MsgMyProfileImgWrap = styled.div`
-  margin: auto 0;
+  display: flex;
+  align-items: center; /* 세로 중앙 정렬 */
 `;
 const PostCommentMsgComponentWrap = styled.div`
   display: flex;
@@ -338,12 +438,13 @@ const MsgMyProfileImg = styled.img`
   width: 35px;
   height: 35px;
   border-radius: 20px;
+  object-fit: cover;
 `;
 
 const PostCommentMsgWrap = styled.div`
   width: 100%;
   height: 100%;
-  border-radius: 20px;
+  border-radius: 30px;
   border: 1px solid ${({ theme }) => theme.grey.Grey1};
   display: flex;
 `;
@@ -389,6 +490,8 @@ const CommentReplyUserTag = styled.div`
   color: ${({ theme }) => theme.grey.Grey6};
 `;
 
+const PostCommentMsgTextareaParent = styled.div``;
+
 const PostCommentMsgTextarea = styled.textarea`
   resize: none;
   outline: none;
@@ -413,6 +516,9 @@ const PostCommentMsgTextarea = styled.textarea`
   &::-webkit-scrollbar-track {
     background-color: ${({ theme }) => theme.grey.Grey1};
   }
+  height: 100%;
+  overflow: hidden;
+  transition: height 0.2s ease-in-out;
 `;
 
 const MsgSendButtonWrap = styled.div`

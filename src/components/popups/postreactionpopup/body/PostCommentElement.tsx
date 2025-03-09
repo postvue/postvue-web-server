@@ -1,21 +1,27 @@
 import anime from 'animejs';
-import React, { useEffect } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import {
   PostComment,
   PostCommentReplyMsgInfo,
 } from '../../../../global/interface/post';
-import { convertDiffrenceDateTime } from '../../../../global/util/DateTimeUtil';
+import { convertDiffrenceDateTimeByString } from '../../../../global/util/DateTimeUtil';
 
 import { queryClient } from 'App';
 import { POST_COMMENT_MEDIA_IMAGE_TYPE } from 'const/PostCommentConst';
 import { QUERY_STATE_POST_COMMENT_REPLY_LIST } from 'const/QueryClientConst';
+import {
+  isApp,
+  sendVibrationLightEvent,
+} from 'global/util/reactnative/nativeRouter';
 import { convertQueryTemplate } from 'global/util/TemplateUtil';
 import { QueryMutationPutPostCommentLike } from 'hook/queryhook/QueryMutationPutPostCommentLike';
 import { QueryMutationPutPostCommentReplyLike } from 'hook/queryhook/QueryMutationPutPostCommentReplyLike';
 import { PostCommetReplyListInfiniteInterface } from 'hook/queryhook/QueryStatePostCommentReplyListInfinite';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { GetPostCommentsRsp } from 'services/post/getPostComments';
+import { isFocusPostReactionInputAtom } from 'states/PostReactionAtom';
+import { hoverComponentNotRoundStyle } from 'styles/commonStyles';
 import { getPostReplyReplies } from '../../../../services/post/getPostReplyReplies';
 import { activeCommentByPostCommentThreadAtom } from '../../../../states/PostThreadAtom';
 import theme from '../../../../styles/theme';
@@ -123,6 +129,7 @@ const PostCommentElement: React.FC<PostCommentElementProps> = ({
         })
         .then((value) => {
           if (value.isLike) {
+            sendVibrationLightEvent();
             anime({
               targets: likeIconRef.current[index],
               scale: [1, 1.5],
@@ -142,6 +149,7 @@ const PostCommentElement: React.FC<PostCommentElementProps> = ({
         })
         .then((value) => {
           if (value.isLike) {
+            sendVibrationLightEvent();
             anime({
               targets: likeIconRef.current[index],
               scale: [1, 1.5],
@@ -168,7 +176,6 @@ const PostCommentElement: React.FC<PostCommentElementProps> = ({
 
   const onClickGetPostReplyMore = () => {
     getPostReplyReplies(postId, commentIdIndex).then((value) => {
-      console.log(activeCommentByPostCommentThread.commentId);
       queryClient.setQueryData(
         [
           convertQueryTemplate(
@@ -204,29 +211,26 @@ const PostCommentElement: React.FC<PostCommentElementProps> = ({
     });
   };
 
-  useEffect(() => {
-    console.log('끼욧', postComment);
-  }, [postComment.isLiked]);
-
+  const isFocusPostReactionInput = useRecoilValue(isFocusPostReactionInputAtom);
   return (
     <PostContentWrap
       $isReplyToReply={isReplyToReply}
       onClick={() => {
-        if (!isReplyToReply) {
-          setReplyMsg({
-            username: postComment.username,
-            profilePath: postComment.profilePath,
-            userId: postComment.commentUserId,
-            commentId: postComment.postCommentId,
-          } as PostCommentReplyMsgInfo);
-          setActiveCommentByPostCommentThread({
-            postId: postId,
-            commentId: commentIdIndex,
-            username: postComment.username,
-            userId: postComment.commentUserId,
-            isActive: true,
-          });
-        }
+        if (isReplyToReply || isFocusPostReactionInput) return;
+
+        setReplyMsg({
+          username: postComment.username,
+          profilePath: postComment.profilePath,
+          userId: postComment.commentUserId,
+          commentId: postComment.postCommentId,
+        } as PostCommentReplyMsgInfo);
+        setActiveCommentByPostCommentThread({
+          postId: postId,
+          commentId: commentIdIndex,
+          username: postComment.username,
+          userId: postComment.commentUserId,
+          isActive: true,
+        });
       }}
     >
       <ProfileWrap>
@@ -239,7 +243,7 @@ const PostCommentElement: React.FC<PostCommentElementProps> = ({
             <ProfileUserNameDateWrap>
               <ProfileUsername>{postComment.username}</ProfileUsername>
               <PostCommentDatetime>
-                {convertDiffrenceDateTime(postComment.postedAt)}
+                {convertDiffrenceDateTimeByString(postComment.postedAt)}
               </PostCommentDatetime>
             </ProfileUserNameDateWrap>
             <PostReactionCommentSettingButton
@@ -351,6 +355,8 @@ const PROFILE_IMG_SIZE = '51px';
 const PostContentWrap = styled.div<{ $isReplyToReply: boolean }>`
   font: ${({ theme }) => theme.fontSizes.Body4};
   cursor: ${(props) => (props.$isReplyToReply ? 'auto' : 'pointer')};
+
+  ${hoverComponentNotRoundStyle}
 `;
 
 const ProfileWrap = styled.div`
@@ -371,6 +377,12 @@ const CommentGroupVerticalBar = styled.div`
   bottom: 0px;
   left: calc(50% - 1px);
   border-radius: 1px;
+
+  ${isApp() &&
+  `
+    -webkit-animation: scale-in-ver-top 0.1s
+      cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+    animation: scale-in-ver-top 0.1s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;`}
 `;
 
 const PorfileImg = styled.img`
@@ -378,11 +390,22 @@ const PorfileImg = styled.img`
   height: ${PROFILE_IMG_SIZE};
   border-radius: 30px;
   object-fit: cover;
+  ${isApp() &&
+  `
+    animation: 0.4s cubic-bezier(0.4, 0, 0, 1.5) 0s 1 normal scale-and-fadein;
+  `}
 `;
 
 const ProfileContentWrap = styled.div`
   padding-left: 12px;
   width: 100%;
+
+  ${isApp() &&
+  `
+    -webkit-animation: scale-in-ver-top 0.3s
+      cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+    animation: scale-in-ver-top 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+ `}
 `;
 
 const ProfileNameDateSettingWrap = styled.div`

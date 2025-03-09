@@ -1,0 +1,108 @@
+name: Postvue Web Server CI/CD
+
+on:
+  pull_request:
+    branches:
+      - master
+    types:
+      - closed # PR이 머지될 때 배포 실행
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      DOCKER_HUB_REPOSITORY: ${{ secrets.DOCKER_HUB_REPOSITORY }} # Docker Hub 이미지 이름
+
+    steps:
+      # 1. Node.js 버전 설정
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20.15.1 # 로컬에서 사용하는 Node.js 버전
+
+      # 2. GitHub Repository 코드 체크아웃
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+        # 3. .env 파일을 생성하고 환경 변수 설정 (GitHub Secrets에서 가져오기)
+      - name: Create .env file from secrets
+        run: |
+          echo "REACT_APP_KAKAO_CLIENT_ID=${{ secrets.REACT_APP_KAKAO_CLIENT_ID }}" >> .env
+          echo "REACT_APP_SERVER_PATH=${{ secrets.REACT_APP_SERVER_PATH }}" >> .env
+          echo "REACT_APP_SERVER_API_URL=${{ secrets.REACT_APP_SERVER_API_URL }}" >> .env
+          echo "REACT_APP_WEBSOCKET_URL=${{ secrets.REACT_APP_WEBSOCKET_URL }}" >> .env
+          echo "REACT_APP_KAKAO_SDK_KEY=${{ secrets.REACT_APP_KAKAO_SDK_KEY }}" >> .env
+          echo "REACT_APP_KAUTH_URL=${{ secrets.REACT_APP_KAUTH_URL }}" >> .env
+          echo "REACT_APP_NAVER_CLIENT_ID=${{ secrets.REACT_APP_NAVER_CLIENT_ID }}" >> .env
+          echo "REACT_APP_APPLE_MAPKIT_JS_ACCESS_TOKEN=${{ secrets.REACT_APP_APPLE_MAPKIT_JS_ACCESS_TOKEN }}" >> .env
+          echo "REACT_APP_APPLE_SOCIAL_SERVICE_CLIENT_ID=${{ secrets.REACT_APP_APPLE_SOCIAL_SERVICE_CLIENT_ID }}" >> .env
+          echo "REACT_APP_APPLE_SOCIAL_LOGIN_REDIRCT_URL=${{ secrets.REACT_APP_APPLE_SOCIAL_LOGIN_REDIRCT_URL }}" >> .env
+          echo "REACT_APP_GOOGLE_SOCIAL_OAUTH_CLIENT_ID=${{ secrets.REACT_APP_GOOGLE_SOCIAL_OAUTH_CLIENT_ID }}" >> .env
+
+      - name: Install dependencies and build
+        run: |
+          npm install --force
+          npm run build
+
+      # 3. Docker 이미지 빌드
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Build and push Docker image
+        run: |
+          docker build -t $DOCKER_HUB_REPOSITORY:latest .
+          docker push $DOCKER_HUB_REPOSITORY:latest
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up SSH
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y sshpass
+
+      - name: Deploy to server
+        env:
+          REMOTE_HOST: ${{ secrets.SERVER_HOST }}
+          REMOTE_USER: ${{ secrets.SERVER_REMOTE_USER }}
+          REMOTE_PORT: ${{ secrets.SERVER_REMOTE_PORT }}
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+          DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+          SERVICE_DIR: ${{ secrets.SERVICE_DIR }}
+
+        run: |
+          echo "Setting up SSH private key..."
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SERVER_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+          echo "Adding server to known hosts..."
+          ssh-keyscan -p ${REMOTE_PORT} ${REMOTE_HOST} >> ~/.ssh/known_hosts
+
+          echo "Connecting to remote server and deploying..."
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -p ${REMOTE_PORT} "${REMOTE_USER}@${REMOTE_HOST}" << EOF
+            sudo apt-get update -y
+
+            echo "Navigating to service directory..."
+            cd ${SERVICE_DIR}
+
+            echo "Logging into Docker Hub..."
+            echo "${DOCKER_HUB_ACCESS_TOKEN}" | docker login --username "${DOCKER_HUB_USERNAME}" --password-stdin
+
+            echo "Stopping and removing existing containers..."
+            sudo docker-compose down --volumes --remove-orphans --rmi all
+
+            echo "Pulling latest images..."
+            sudo docker compose pull
+
+            echo "Starting new containers..."
+            sudo docker-compose up -d
+          EOF

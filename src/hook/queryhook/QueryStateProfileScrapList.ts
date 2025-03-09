@@ -8,19 +8,19 @@ import { QUERY_STATE_PROFILE_SCRAP_LIST } from 'const/QueryClientConst';
 import { ProfileThumbnailScrapList } from 'global/interface/profile';
 import { getProfileScrapList } from 'services/profile/getProfileScrapList';
 
-export interface SearchPostQueryInterface {
+export interface ProfileScrapListQueryInterface {
   pages: ProfileThumbnailScrapList[][];
-  pageParams: unknown[];
+  pageParams: number[];
 }
 
 export const QueryStateProfileScrapList = (): UseInfiniteQueryResult<
-  SearchPostQueryInterface,
+  ProfileScrapListQueryInterface,
   AxiosError<unknown, any>
 > => {
   return useInfiniteQuery<
     ProfileThumbnailScrapList[],
     AxiosError,
-    SearchPostQueryInterface,
+    ProfileScrapListQueryInterface,
     [string]
   >({
     queryKey: [QUERY_STATE_PROFILE_SCRAP_LIST], // query key

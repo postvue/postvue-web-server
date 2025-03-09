@@ -1,31 +1,32 @@
+import { CHANNEL_USER_ID } from 'const/LocalStorageConst';
 import { MESSAGE_SCROLL_TO_END_ACTION } from 'const/MessageConst';
-import {
-  getLastNotificationReadAt,
-  getNotificationMsgHashMapByLocalStorage,
-  saveNotificationMsgHashMapByLocalStorage,
-} from 'global/util/NotificationUtil';
-import { QueryStateNotificationMsg } from 'hook/queryhook/QueryStateNotificationMsg';
+import { isApp } from 'global/util/reactnative/nativeRouter';
+import { useLocalStorageListener } from 'hook/customhook/useLocalStorageLister';
+import { useMessageListener } from 'hook/customhook/useMessageListener';
+import { useActiveUserSessionHookByIndexedDb } from 'hook/db/useActiveUserSessionHookByIndexedDb';
+import { useSnsNotificationHookByIndexedDb } from 'hook/db/useSnsNotifcationHookByIndexedDb';
 import React, { useEffect } from 'react';
-import { useRecoilCallback, useRecoilState } from 'recoil';
+import { useRecoilCallback } from 'recoil';
+import { postRefreshToken } from 'services/auth/postRefreshToken';
+import msgConversationWsService from 'services/websocket/message/MsgConversationWsService';
+import notificationWsService from 'services/websocket/notification/NotificationWsService';
+import notificationWsServiceByNative from 'services/websocket/notification/NotificationWsServiceByNative';
+import sessionWsService from 'services/websocket/session/SessionWsService';
+import sessionWsServiceByNative from 'services/websocket/session/SessionWsServiceByNative';
 import {
   msgConversationScrollInfoAtom,
   sendedMsgListInfoAtom,
 } from 'states/MessageAtom';
-import { notificationMsgHashMapAtom } from 'states/NotificationAtom';
-import webSocketService from '../../services/WebSocketService';
-import { sessionActiveUserInfoHashMapAtom } from '../../states/SessionAtom';
+import webSocketService from '../../services/websocket/WebSocketService';
 
 const WebSocketInitConfig: React.FC = () => {
-  const [sessionActiveUserInfoHashMap, setSessionActiveUserInfoHashMap] =
-    useRecoilState(sessionActiveUserInfoHashMapAtom);
+  const channelUserId = useLocalStorageListener(CHANNEL_USER_ID);
+  const { putNotifications } = useSnsNotificationHookByIndexedDb();
+  const { putActiveUserSessions } = useActiveUserSessionHookByIndexedDb();
 
-  const [notificationMsgHashMap, setNotificationMsgHashMap] = useRecoilState(
-    notificationMsgHashMapAtom,
-  );
-
-  const { data: lastNotificationList } = QueryStateNotificationMsg(
-    getLastNotificationReadAt(),
-  );
+  // const [notificationMsgHashMap, setNotificationMsgHashMap] = useRecoilState(
+  //   notificationMsgHashMapAtom,
+  // );
 
   const handleUnreadMsg = useRecoilCallback(({ snapshot, set }) => async () => {
     const msgConversationScrollInfo = await snapshot.getPromise(
@@ -49,30 +50,54 @@ const WebSocketInitConfig: React.FC = () => {
     }
   });
 
+  if (isApp()) {
+    const handleMsgByNotifications =
+      notificationWsServiceByNative.handleMsg(putNotifications);
+
+    const handleMsgBySessions = sessionWsServiceByNative.handleByMsg(
+      putActiveUserSessions,
+    );
+    useMessageListener((e) => {
+      handleMsgByNotifications(e);
+    });
+    useMessageListener((e) => {
+      handleMsgBySessions(e);
+    });
+  }
+
   useEffect(() => {
-    if (!webSocketService.isWebSocketInitialized()) {
-      webSocketService.initStateManage(
-        sessionActiveUserInfoHashMap,
-        setSessionActiveUserInfoHashMap,
-        notificationMsgHashMap,
-        setNotificationMsgHashMap,
-        handleUnreadMsg,
-      );
-      webSocketService.activateConnect();
+    // 앱일 경우
+    if (webSocketService !== null && !isApp()) {
+      if (!channelUserId) {
+        postRefreshToken().catch(() => {
+          ('');
+        });
+        return;
+      }
+
+      if (!webSocketService.isWebSocketInitialized()) {
+        // 웹소켓 생성
+        webSocketService.activateConnect();
+
+        // 채널 등록
+        sessionWsService.connect(channelUserId, putActiveUserSessions);
+
+        notificationWsService.connect(channelUserId, putNotifications);
+
+        msgConversationWsService.connect(channelUserId, handleUnreadMsg);
+      }
     }
 
     return () => {
+      if (webSocketService === null || isApp()) return;
       if (webSocketService.isWebSocketInitialized()) {
+        sessionWsService.disconnect();
+        notificationWsService.disconnect();
+        msgConversationWsService.disconnect();
         webSocketService.disconnect();
       }
     };
-  }, []);
-
-  useEffect(() => {
-    if (!lastNotificationList) return;
-    saveNotificationMsgHashMapByLocalStorage(lastNotificationList);
-    setNotificationMsgHashMap(getNotificationMsgHashMapByLocalStorage());
-  }, [lastNotificationList]);
+  }, [channelUserId]);
 
   return <></>;
 };

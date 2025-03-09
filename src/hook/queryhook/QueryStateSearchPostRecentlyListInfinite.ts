@@ -14,7 +14,7 @@ import { convertQueryTemplate } from 'global/util/TemplateUtil';
 import { isValidString } from 'global/util/ValidUtil';
 import { getPostSearchLive } from 'services/post/getPostSearchLive';
 
-export interface SearchPostQueryInterface {
+export interface SearchPostRecentlyQueryInterface {
   pages: GetSearchPostsRsp[];
   pageParams: unknown[];
 }
@@ -23,13 +23,13 @@ export const QueryStateSearchPostRecentlyListInfinite = (
   searchQueryAndFilterKey: string,
   isActive: boolean,
 ): UseInfiniteQueryResult<
-  SearchPostQueryInterface,
+  SearchPostRecentlyQueryInterface,
   AxiosError<unknown, any>
 > => {
   return useInfiniteQuery<
     GetSearchPostsRsp,
     AxiosError,
-    SearchPostQueryInterface,
+    SearchPostRecentlyQueryInterface,
     [string]
   >({
     queryKey: [
@@ -75,8 +75,8 @@ export const QueryStateSearchPostRecentlyListInfinite = (
 
     select: (data) => {
       return {
-        pages: [...data.pages].reverse(),
-        pageParams: [...data.pageParams].reverse(),
+        pages: [...data.pages],
+        pageParams: [...data.pageParams],
       };
     },
   });

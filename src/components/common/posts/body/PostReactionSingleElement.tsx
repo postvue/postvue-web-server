@@ -1,8 +1,13 @@
 import ClipButtonSingleFactory from 'components/common/buttton/clipbutton/ClipButtonSingleFactory';
 import HeartButtonSingleFactory from 'components/common/buttton/heartbutton/HeartButtonSingleFactory';
+import PostMapExploreButton from 'components/common/buttton/PostMapExploreButton';
+import { PROFILE_POST_LIST_PATH } from 'const/PathConst';
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
+import { PostRsp } from 'global/interface/post';
+import { isEmptyObject } from 'global/util/ObjectUtil';
 import useWindowSize from 'hook/customhook/useWindowSize';
 import React from 'react';
+import { generatePath, matchPath } from 'react-router-dom';
 import styled from 'styled-components';
 import MsgButton from '../../buttton/MsgButton';
 import ShareButton from '../../buttton/ShareButton';
@@ -11,34 +16,61 @@ interface PostReactionSingleElementProps {
   username: string;
   postId: string;
   mainImageUrl: string;
+  snsPost: PostRsp;
+  onClickCloseVideo: () => void;
 }
 
 const PostReactionSingleElement: React.FC<PostReactionSingleElementProps> = ({
   username,
   postId,
   mainImageUrl,
+  snsPost,
+  onClickCloseVideo,
 }) => {
   const { windowWidth } = useWindowSize();
   return (
     <>
       <ReactionContainer>
         <HrtMsgShrReactionContainer>
-          {postId && (
-            <>
-              <HeartButtonSingleFactory postId={postId} username={username} />
-              {windowWidth <= MEDIA_MOBILE_MAX_WIDTH_NUM && (
-                <MsgButton postId={postId} />
-              )}
-            </>
-          )}
+          <HeartButtonSingleFactory
+            postId={postId}
+            username={username}
+            onClickFunc={onClickCloseVideo}
+          />
+
+          {!(
+            windowWidth >= MEDIA_MOBILE_MAX_WIDTH_NUM &&
+            matchPath(PROFILE_POST_LIST_PATH, location.pathname)
+          ) && <MsgButton postId={postId} onClickFunc={onClickCloseVideo} />}
 
           <ShareButton
-            shareLink={`/${username}/${postId}`}
+            shareLink={
+              location.origin +
+              generatePath(PROFILE_POST_LIST_PATH, {
+                user_id: username,
+                post_id: postId,
+              })
+            }
             mainImageUrl={mainImageUrl}
+            title={snsPost.postTitle}
+            description={snsPost.postBodyText}
+            address={snsPost.location.address}
+            onClickFunc={onClickCloseVideo}
           />
+          {!isEmptyObject(snsPost.location) && (
+            <PostMapExploreButton
+              latitude={snsPost.location.latitude}
+              longitude={snsPost.location.longitude}
+              onClickFunc={onClickCloseVideo}
+            />
+          )}
         </HrtMsgShrReactionContainer>
         {postId && (
-          <ClipButtonSingleFactory username={username} postId={postId} />
+          <ClipButtonSingleFactory
+            username={username}
+            postId={postId}
+            onClickFunc={onClickCloseVideo}
+          />
         )}
       </ReactionContainer>
     </>

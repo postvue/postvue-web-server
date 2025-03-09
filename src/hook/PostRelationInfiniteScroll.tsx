@@ -1,26 +1,21 @@
 import InViewComponent from 'components/common/container/InViewComponent';
 import React, { useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
-import { GetRecommPostRelationRsp } from 'services/recomm/getRecommPostRelation';
 import styled from 'styled-components';
 import { QueryStatePostRelationListInfinite } from './queryhook/QueryStatePostRelationListInfinite';
 
 interface ProfilePostListInfiniteScrollProps {
   postId: string;
-}
-
-export interface ProfilePostRelationQueryInterface {
-  pages: GetRecommPostRelationRsp[];
-  pageParams: unknown[];
+  searchType?: string;
 }
 
 const PostRelationListInfiniteScroll: React.FC<
   ProfilePostListInfiniteScrollProps
-> = ({ postId }) => {
+> = ({ postId, searchType }) => {
   const { ref, inView } = useInView();
 
-  const { fetchNextPage, hasNextPage, isFetchingNextPage } =
-    QueryStatePostRelationListInfinite(postId);
+  const { fetchNextPage, hasNextPage, isFetchingNextPage, data } =
+    QueryStatePostRelationListInfinite(postId, searchType);
 
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
@@ -30,7 +25,11 @@ const PostRelationListInfiniteScroll: React.FC<
 
   return (
     <PostRelationWrap ref={ref}>
-      <InViewComponent />
+      <InViewComponent
+        hasLoadingIcon={
+          (data ? data?.pages[0].length > 5 : false) && hasNextPage
+        }
+      />
     </PostRelationWrap>
   );
 };

@@ -1,39 +1,20 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import { ReactComponent as PrivateProfileButtonIcon } from 'assets/images/icon/svg/setting/PrivateProfileButtonIcon.svg';
 import ToggleSwitchButton from 'components/common/buttton/ToggleSwitchButton';
 import MyAccountSettingInfoState from 'components/common/state/MyAccountSettingInfoState';
-import ConfirmPopup from 'components/popups/ConfirmPopup';
-import { QueryMutationPutMyPrivateProfileInfo } from 'hook/queryhook/QueryMutationPutMyPrivateProfileInfo';
 import { QueryStateMyProfileInfo } from 'hook/queryhook/QueryStateMyProfileInfo';
-import { useRecoilState } from 'recoil';
-import { isActivePrivateProfileConfirmPopupAtom } from 'states/ProfileAtom';
 
-const ProfileAccountSettingPrivateProfileBody: React.FC = () => {
-  const { data, isLoading } = QueryStateMyProfileInfo();
+interface ProfileAccountSettingPrivateProfileBodyProps {
+  onActivePopup: () => void;
+  isPrivateProfile: boolean;
+}
 
-  const [isPrivateProfile, setIsPrivateProfile] = useState<boolean>(false);
-  const [
-    isActivePrivateProfileConfirmPopup,
-    setIsActivePrivateProfileConfirmPopup,
-  ] = useRecoilState(isActivePrivateProfileConfirmPopupAtom);
-  const putMyPrivateProfileInfoMutation =
-    QueryMutationPutMyPrivateProfileInfo();
-
-  const confirmPrivateProfile = () => {
-    if (!data) return;
-    putMyPrivateProfileInfoMutation.mutate({
-      isPrivateProfile: !data.isPrivateProfile,
-    });
-    setIsActivePrivateProfileConfirmPopup(false);
-  };
-
-  useEffect(() => {
-    if (!data) return;
-
-    setIsPrivateProfile(data.isPrivateProfile);
-  }, [data]);
+const ProfileAccountSettingPrivateProfileBody: React.FC<
+  ProfileAccountSettingPrivateProfileBodyProps
+> = ({ isPrivateProfile, onActivePopup }) => {
+  const { isLoading } = QueryStateMyProfileInfo();
 
   return (
     <>
@@ -53,28 +34,17 @@ const ProfileAccountSettingPrivateProfileBody: React.FC = () => {
               <ToggleSwitchButtonWrap>
                 <ToggleSwitchButton
                   isActive={isPrivateProfile}
-                  actionFunc={() => setIsActivePrivateProfileConfirmPopup(true)}
+                  actionFunc={() => onActivePopup()}
                 />
               </ToggleSwitchButtonWrap>
             </ProfilePrivateProfileManageWrap>
+            <PrivatePolicyContent>
+              프로필을 비공개로 설정하면, 다른 사람들한테 계정이 비공개로
+              보여집니다. 그러나 게시물이랑 스크랩 자체는 비공개로 전환되지
+              않습니다.
+            </PrivatePolicyContent>
           </ProfileEditEmailInputWrap>
         </ProfileEditEmailContainer>
-      )}
-      {isActivePrivateProfileConfirmPopup && (
-        <ConfirmPopup
-          setIsPopup={setIsActivePrivateProfileConfirmPopup}
-          confirmPopupTitle={
-            isPrivateProfile
-              ? '공개 프로필로 전환하시나요?'
-              : '비공개 프로필로 전환하시나요?'
-          }
-          confirmPopupSubTitle={
-            isPrivateProfile
-              ? '모든 사람들이 회원님의 게시물과 스크랩을 확인할 수 있습니다.'
-              : '맞팔된 팔로워만 회원님의 게시물과 스크랩을 확인할 수 있습니다.'
-          }
-          actionFunc={confirmPrivateProfile}
-        />
       )}
     </>
   );
@@ -110,6 +80,12 @@ const ProfilePrivateProfileIconWrap = styled.div`
 const ToggleSwitchButtonWrap = styled.div`
   display: flex;
   margin: auto 0px;
+`;
+
+const PrivatePolicyContent = styled.div`
+  padding-top: 10px;
+  font: ${({ theme }) => theme.fontSizes.Body2};
+  color: ${({ theme }) => theme.grey.Grey6};
 `;
 
 export default ProfileAccountSettingPrivateProfileBody;

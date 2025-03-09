@@ -16,7 +16,7 @@ export const putMyProfilePasswordInfo = (
       return res.data.data;
     })
     .catch((error) => {
-      console.log('에러', error);
+      console.error(error);
       throw error;
     });
 };

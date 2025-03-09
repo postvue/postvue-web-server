@@ -1,9 +1,12 @@
 import { animated, config, useSpring } from '@react-spring/web';
 import { useDrag } from '@use-gesture/react';
-import { OVERFLOW_HIDDEN } from 'const/AttributeConst';
+import { OVERFLOW_HIDDEN, POSITION_FIXED } from 'const/AttributeConst';
 import { MEDIA_MOBILE_MAX_WIDTH } from 'const/SystemAttrConst';
 import React, { useEffect, useRef, useState } from 'react';
+import { useRecoilValue } from 'recoil';
+import { isFixScrollToPostDetailPopupAtom } from 'states/PostAtom';
 import styled from 'styled-components';
+import { lock, unlock } from 'tua-body-scroll-lock';
 
 interface ProfilePostDetailPopupProps {
   children: React.ReactNode;
@@ -11,11 +14,13 @@ interface ProfilePostDetailPopupProps {
   onClose: () => void;
   touchHeaderHeightNum?: number;
   isExternalCloseFunc?: boolean;
-  setIsExternalCloseFunc?: React.Dispatch<React.SetStateAction<boolean>>;
   isActiveExternalPopup: boolean;
   bottomSheetCloseOffsetThreshold?: number;
   bottomSheetCloseAccelerThreshold?: number;
   opacityForPreventFlickerThreshold?: number;
+  isProcessingSideScroll: boolean;
+  prevOnClose: () => void;
+  ScrollRef: React.RefObject<HTMLDivElement>;
 }
 
 const ProfilePostDetailPopupLayout: React.FC<ProfilePostDetailPopupProps> = ({
@@ -24,22 +29,28 @@ const ProfilePostDetailPopupLayout: React.FC<ProfilePostDetailPopupProps> = ({
   onClose,
   touchHeaderHeightNum = 50,
   isExternalCloseFunc,
-  setIsExternalCloseFunc,
   isActiveExternalPopup,
   bottomSheetCloseOffsetThreshold = 50,
   bottomSheetCloseAccelerThreshold = 1.2,
-  opacityForPreventFlickerThreshold = 0.83,
+  isProcessingSideScroll,
+  prevOnClose,
+  ScrollRef,
 }) => {
+  const isFixScrollToPostDetailPopup = useRecoilValue(
+    isFixScrollToPostDetailPopupAtom,
+  );
+
+  const BottomSheetPopupRef = useRef<HTMLDivElement>(null);
   const BottomSheetContainerRef = useRef<HTMLDivElement>(null);
   const height = window.innerHeight;
-  const [scrollY, setScrollY] = useState<number>(0);
-  const ScrollRef = useRef<HTMLDivElement>(null);
 
   const [{ y }, api] = useSpring(() => ({ y: height }));
   const [{ sheetY }] = useSpring(() => ({ sheetY: height }));
 
   const [startY, setStartY] = useState<number>(0);
   const [move, setMove] = useState<number | null>(null);
+
+  const [scrollY, setScrollY] = useState<number>(0);
 
   const [isScrollTop, setIsScrollTop] = useState<boolean>(false);
   const [bindInfo, setBindInfo] = useState<{
@@ -68,38 +79,24 @@ const ProfilePostDetailPopupLayout: React.FC<ProfilePostDetailPopupProps> = ({
     api.start({
       y: 0,
       immediate: false,
-      config: canceled
-        ? config.wobbly
-        : { tension: 300, friction: 15, mass: 5, clamp: true },
+      config: canceled ? config.wobbly : config.default,
     });
   };
 
   const close = () => {
+    if (prevOnClose) {
+      prevOnClose();
+    }
     api.start({
       y: height,
       immediate: false,
       config: { tension: 300, friction: 15, mass: 5, clamp: true },
       onRest: () => {
-        setOpacityForPreventFlicker(0);
         onClose();
       },
     });
 
-    // document.documentElement.style.overflow = '';
-    document.documentElement.style.touchAction = '';
-    document.body.style.overflow = '';
-    document.body.style.touchAction = '';
-    document.documentElement.style.overscrollBehavior = '';
-    // @REFER 문제 되면 주석 풀기
-    // document.body.style.overscrollBehavior = '';
-    document.body.style.top = '';
-    document.body.style.left = '';
-    document.body.style.right = '';
-    document.body.style.position = '';
-    window.scrollTo({ top: scrollY });
-    setTimeout(() => {
-      setOpacityForPreventFlicker(0.4);
-    }, 80);
+    funcRemoveParentFix();
   };
 
   const binds = (
@@ -111,7 +108,7 @@ const ProfilePostDetailPopupLayout: React.FC<ProfilePostDetailPopupProps> = ({
     cancel: () => void,
     canceled: boolean,
   ) => {
-    if (oy <= 0 || dy < 0 || !isScrollTop) {
+    if (oy <= 0 || dy < 0 || !isScrollTop || isFixScrollToPostDetailPopup) {
       if (last) {
         open({ canceled: canceled });
       }
@@ -130,8 +127,6 @@ const ProfilePostDetailPopupLayout: React.FC<ProfilePostDetailPopupProps> = ({
       api.start({ y: oy, immediate: true });
     }
   };
-
-  const [test, setTest] = useState<string>('');
 
   const scrollBarbind = useDrag(
     ({
@@ -180,6 +175,9 @@ const ProfilePostDetailPopupLayout: React.FC<ProfilePostDetailPopupProps> = ({
         setIsScrollTop(false);
       }
 
+      ScrollRef.current.style.overflow = 'scroll';
+      ScrollRef.current.style.overscrollBehavior = 'contain';
+
       if (isAtTop && !isExternalCloseFunc && !isActiveExternalPopup && dy > 0) {
         setIsScrollTop(isAtTop);
         setBindInfo({
@@ -189,6 +187,8 @@ const ProfilePostDetailPopupLayout: React.FC<ProfilePostDetailPopupProps> = ({
           cancel: cancel,
           canceled: !!canceled,
         });
+        ScrollRef.current.style.overflow = 'hidden';
+        ScrollRef.current.style.overscrollBehavior = 'none';
       }
     },
     {
@@ -201,70 +201,145 @@ const ProfilePostDetailPopupLayout: React.FC<ProfilePostDetailPopupProps> = ({
 
   const display = y.to((py) => (py < height ? 'contents' : 'none'));
 
-  const [opacityForPreventFlicker, setOpacityForPreventFlicker] = useState<
-    number | null
-  >(null);
-
   const bgStyle = {
-    opacity: y.to(
-      [0, height],
-      [
-        1,
-        opacityForPreventFlicker == null
-          ? opacityForPreventFlickerThreshold
-          : opacityForPreventFlicker,
-      ],
-      'clamp',
-    ),
+    background: y.to((value) => `rgba(255, 255, 255, ${1 - value / height})`),
+  };
+
+  const isRemoveFixRef = useRef<boolean>(false);
+  const funcRemoveParentFix = () => {
+    if (isRemoveFixRef.current) return;
+
+    const userAgent = navigator.userAgent;
+
+    // iPhone 또는 iOS인지 확인
+    if (!/iPhone|iPad|iPod/.test(userAgent)) {
+      document.body.style.overflow = 'auto';
+      document.body.style.position = 'static';
+      document.documentElement.style.touchAction = 'auto';
+      document.documentElement.style.overscrollBehavior = 'auto';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.style.width = '';
+      window.scrollTo({ top: scrollY });
+    } else {
+      unlock([], { useGlobalLockState: true });
+    }
+
+    // document.documentElement.style.touchAction = '';
+    // if (!isHiddenOverflow) {
+    //   document.body.style.overflow = '';
+    // }
+
+    // document.body.style.touchAction = '';
+    // document.documentElement.style.overscrollBehavior = '';
+
+    // document.body.style.overscrollBehavior = '';
+    // document.body.style.top = '';
+    // document.body.style.left = '';
+    // document.body.style.right = '';
+
+    // if (!isFixedPostion) {
+    //   document.body.style.position = '';
+    // }
+    isRemoveFixRef.current = true;
   };
 
   useEffect(() => {
     if (isOpen) {
       open({ canceled: false });
-      // document.documentElement.style.overflow = OVERFLOW_HIDDEN;
-      document.documentElement.style.touchAction = 'none';
-      document.body.style.overflow = OVERFLOW_HIDDEN;
-      document.body.style.touchAction = 'none';
-      document.documentElement.style.overscrollBehavior = 'none';
-      // @REFER 문제 되면 주석 풀기
-      // document.body.style.overscrollBehavior = 'none';
-      setScrollY(window.scrollY);
-      setOpacityForPreventFlicker(0);
-      setTimeout(() => {
-        document.body.style.top = `-${window.scrollY}px`;
+
+      if (
+        !ScrollRef.current ||
+        !BottomSheetContainerRef.current ||
+        !BottomSheetPopupRef.current
+      )
+        return;
+
+      // iPhone 또는 iOS인지 확인
+      const userAgent = navigator.userAgent;
+
+      if (!/iPhone|iPad|iPod/.test(userAgent)) {
+        const y = window.scrollY;
+
+        document.body.style.overflow = OVERFLOW_HIDDEN;
+        document.body.style.position = POSITION_FIXED;
+        document.documentElement.style.touchAction = 'none';
+        document.documentElement.style.overscrollBehavior = 'none';
+        document.body.style.width = '100%';
+        // document.body.style.top = `-${y}px`;
         document.body.style.left = '0px';
         document.body.style.right = '0px';
-        document.body.style.position = 'fixed';
-        setOpacityForPreventFlicker(null);
-      }, 400);
+
+        setScrollY(y);
+      } else {
+        lock([
+          ScrollRef.current,
+          BottomSheetContainerRef.current,
+          BottomSheetPopupRef.current,
+        ]);
+      }
+
+      // isFixedPostion = document.body.style.position === POSITION_FIXED;
+      // isHiddenOverflow = document.body.style.overflow === OVERFLOW_HIDDEN;
+
+      // document.documentElement.style.touchAction = 'none';
+      // if (!isHiddenOverflow) {
+      //   document.body.style.overflow = OVERFLOW_HIDDEN;
+      // }
+
+      // document.body.style.touchAction = 'none';
+      // document.documentElement.style.overscrollBehavior = 'none';
+
+      // document.body.style.overscrollBehavior = 'none';
+      // setScrollY(window.scrollY);
+      // setOpacityForPreventFlicker(0);
+
+      // document.body.style.top = `-${window.scrollY}px`;
+      // document.body.style.left = '0px';
+      // document.body.style.right = '0px';
+
+      // if (!isFixedPostion) {
+      //   document.body.style.position = 'fixed';
+      // }
+
+      // setOpacityForPreventFlicker(null);
     }
   }, [isOpen]);
 
   useEffect(() => {
     if (!isExternalCloseFunc) return;
     close();
-    if (setIsExternalCloseFunc) {
-      setIsExternalCloseFunc(false);
-    }
   }, [isExternalCloseFunc]);
 
+  useEffect(() => {
+    return () => {
+      funcRemoveParentFix();
+    };
+  }, []);
+
   return (
-    <BottomSheetLayoutConatiner as={animated.div} style={{ display: display }}>
+    <BottomSheetLayoutConatiner
+      ref={BottomSheetPopupRef}
+      as={animated.div}
+      style={{ display: display }}
+    >
       <OverlayBackground
         as={animated.div}
         onClick={() => close()}
-        // @REFER: 주석 처리함 잠깐 -> 테스트 목적
-        // style={bgStyle}
+        style={bgStyle}
       />
       <BottomSheetContainer
         ref={BottomSheetContainerRef}
         as={animated.div}
         style={{
-          bottom: `calc(-100lvh + ${height}px)`,
-          y: y,
+          ...{
+            bottom: `calc(-100vh + ${height}px)`,
+            y: y,
+          },
         }}
       >
-        <PopupScrollContainer
+        {/* <PopupScrollContainer
           as={animated.div}
           $bottomSheetHeightNum={touchHeaderHeightNum}
           {...scrollBarbind()}
@@ -274,8 +349,7 @@ const ProfilePostDetailPopupLayout: React.FC<ProfilePostDetailPopupProps> = ({
               <PopupScrollStickBar />
             </PopupScrollBarArea>
           </PopupScrollBar>
-          <div>{test}</div>
-        </PopupScrollContainer>
+        </PopupScrollContainer> */}
 
         <BottomSheetWrap
           ref={ScrollRef}
@@ -286,12 +360,10 @@ const ProfilePostDetailPopupLayout: React.FC<ProfilePostDetailPopupProps> = ({
             setStartY(e.touches[0].clientY);
           }}
           onTouchMove={(e) => {
-            console.log('##################');
+            if (isProcessingSideScroll) return;
+
             const currentY = e.touches[0].clientY; // 현재 위치
             const currentTime = Date.now();
-            console.log('이동', currentY - startY);
-            console.log('지금 최상단인지', isScrollTop);
-            console.log('방향', bindInfo.dy);
 
             if (prevY !== null && prevTime !== null) {
               const deltaY = currentY - prevY; // 위치 변화량
@@ -313,7 +385,6 @@ const ProfilePostDetailPopupLayout: React.FC<ProfilePostDetailPopupProps> = ({
                       updatedHistory.reduce((a, b) => a + b, 0) /
                       updatedHistory.length;
 
-                    console.log('평균 가속도:', averageAcceleration);
                     return updatedHistory;
                   });
                 }
@@ -345,17 +416,11 @@ const ProfilePostDetailPopupLayout: React.FC<ProfilePostDetailPopupProps> = ({
               }
             }
 
-            setTest(
-              `첫 위치: ${startY}    이동: ${scrollMove}     가속도: ${Math.max(...accelerationHistory)}`,
-            );
             setPrevY(currentY); // 위치 갱신
             setPrevTime(currentTime); // 시간 갱신
             setMove(scrollMove);
           }}
-          onTouchEnd={(e) => {
-            console.log('최종 이동:', move);
-            console.log('가속도', Math.max(...accelerationHistory));
-
+          onTouchEnd={() => {
             if (
               ScrollRef.current &&
               ScrollRef.current.style.overflowY === 'hidden'
@@ -396,7 +461,7 @@ const BottomSheetLayoutConatiner = styled.div`
 `;
 
 const OverlayBackground = styled.div`
-  height: 100lvh;
+  height: 100vh;
   position: fixed;
   overflow: hidden;
   z-index: 900;
@@ -404,16 +469,15 @@ const OverlayBackground = styled.div`
   left: 0;
   width: 100%;
   // height: 100%;
-  // background-color: white;
+  background-color: white;
 `;
 
 const BottomSheetContainer = styled.div`
   z-index: 990;
   position: fixed;
-  height: calc(100lvh);
+  height: calc(100vh);
   width: 100%;
 
-  background: #fff;
   will-change: auto;
   user-select: none;
   overscroll-behavior: none;
@@ -427,7 +491,6 @@ const BottomSheetWrap = styled.div<{ $heightNum: number }>`
   height: ${(props) => props.$heightNum}px;
   overflow-y: scroll;
 
-  overscroll-behavior: contain;
   user-select: none;
   -webkit-user-drag: none;
   touch-action: auto;
@@ -437,7 +500,9 @@ const PopupScrollContainer = styled.div<{ $bottomSheetHeightNum: number }>`
   position: absolute;
 
   height: ${(props) => props.$bottomSheetHeightNum}px;
-  width: 100%;
+  width: calc(100% - 100px);
+  left: 50%;
+  transform: translate(-50%, 0);
   z-index: 1000;
   display: flex;
 `;
@@ -458,6 +523,7 @@ const PopupScrollBarArea = styled.div`
 const PopupScrollStickBar = styled.div`
   background-color: ${({ theme }) => theme.grey.Grey2};
   height: 100%;
+  border-radius: 5px;
 `;
 
 const BottomSheetHeader = styled.div``;

@@ -1,51 +1,35 @@
 import loadingBarGif from 'assets/images/gif/loadingBar.gif';
-import { ReactComponent as XButtonIcon } from 'assets/images/icon/svg/XButtonIcon.svg';
-import BottomNextButton from 'components/common/buttton/BottomNextButton';
 import NoResultComponent from 'components/common/container/NoResultComponent';
 import ResultComponent from 'components/common/container/ResultComponent';
-import SearchButtonInput from 'components/common/input/SearchButtonInput';
-import HeaderLayout from 'components/layouts/HeaderLayout';
-import MasonryLayout from 'components/layouts/MasonryLayout';
-import PrevButtonHeaderHeader from 'components/layouts/PrevButtonHeaderHeader';
 import { ACTIVE_CLASS_NAME } from 'const/ClassNameConst';
 import { POST_COMPOSEUPLOAD_MAX_NUM } from 'const/PostComposeConst';
 import { POST_IMAGE_TYPE } from 'const/PostContentTypeConst';
-import { MAX_DELAY_SETTIMEOUT_TIME } from 'const/SystemAttrConst';
-import { POST_COMPOSE_LINK_INPUT_PHASE_TEXT } from 'const/SystemPhraseConst';
+import { MEDIA_MOBILE_MAX_WIDTH } from 'const/SystemAttrConst';
 import { MasonryPostRsp } from 'global/interface/post';
-import { isValidString } from 'global/util/ValidUtil';
 import { QueryStatePostResourceDocImageList } from 'hook/queryhook/QueryStatePostResourceDocImageList';
 import React, { useEffect, useRef, useState } from 'react';
-import { useRecoilState, useSetRecoilState } from 'recoil';
+import { useRecoilState } from 'recoil';
 import {
-  isActivPostComposeBySourceUrlPopupAtom,
   postComposeBySourceUrlListAtom,
   uploadResourceListAtom,
 } from 'states/PostComposeAtom';
 import styled from 'styled-components';
 import theme from 'styles/theme';
+import PostComposeBySourceUrlMasonryLayout from './PostComposeBySourceUrlMasonryLayout';
 
-interface PostCOmposeBySourceUrlPopupBodyProps {
-  bottomNextButtonActionFunc: () => void;
+interface PostComposeBySourceUrlPopupBody {
+  postComposeSearchInput: string;
+  isScroll?: boolean;
 }
 
 const PostComposeBySourceUrlPopupBody: React.FC<
-  PostCOmposeBySourceUrlPopupBodyProps
-> = ({ bottomNextButtonActionFunc }) => {
-  const searchInputRef: React.RefObject<HTMLInputElement> =
-    useRef<HTMLInputElement>(null);
-
-  const [postComposeSearchInput, setPostComposeSearchInput] =
-    useState<string>('');
-
+  PostComposeBySourceUrlPopupBody
+> = ({ postComposeSearchInput, isScroll = true }) => {
   const [isFetching, setFetching] = useState<boolean>(false);
 
   const { data, isFetched, isLoading, isError, isSuccess, error } =
     QueryStatePostResourceDocImageList(postComposeSearchInput, isFetching);
 
-  const setIsActivePostComposeBySourceUrlPopup = useSetRecoilState(
-    isActivPostComposeBySourceUrlPopupAtom,
-  );
   const [postComposeBySourceUrlList, setPostComposeBySourceUrlList] =
     useRecoilState(postComposeBySourceUrlListAtom);
 
@@ -65,7 +49,10 @@ const PostComposeBySourceUrlPopupBody: React.FC<
     const borderStyle = `${theme.mainColor.White} 0px 0px 0px 0px, ${theme.mainColor.Blue} 0px 0px 0px 3px`;
     if (isActive) {
       ref.classList.remove(ACTIVE_CLASS_NAME);
-      ref.style.boxShadow = '';
+      setTimeout(() => {
+        ref.style.boxShadow = '';
+      }, 100);
+
       setUploadResourceList((prev) =>
         prev.filter((value) => value.contentUrl !== ref.src),
       );
@@ -73,6 +60,7 @@ const PostComposeBySourceUrlPopupBody: React.FC<
       if (uploadResourceList.length >= POST_COMPOSEUPLOAD_MAX_NUM) return;
       ref.classList.add(ACTIVE_CLASS_NAME);
       ref.style.boxShadow = borderStyle;
+
       setUploadResourceList((prev) => [
         ...prev,
         {
@@ -83,6 +71,7 @@ const PostComposeBySourceUrlPopupBody: React.FC<
           isUploadedLink: false,
           filename: ref.src,
           sort: prev.length,
+          isExist: false,
         },
       ]);
     }
@@ -93,79 +82,6 @@ const PostComposeBySourceUrlPopupBody: React.FC<
       handleElementAction(ref);
     } else if (ref instanceof HTMLVideoElement) {
       handleElementAction(ref);
-    }
-  };
-
-  const onSearchInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setPostComposeSearchInput(event.target.value);
-  };
-
-  const onSearchInputDelete = () => {
-    setPostComposeSearchInput('');
-    setPostComposeBySourceUrlList([]);
-    setUploadResourceList([]);
-  };
-
-  const isImageUrl = (url: string) => {
-    const imageExtensions = [
-      'jpg',
-      'jpeg',
-      'png',
-      'gif',
-      'bmp',
-      'tiff',
-      'webp',
-      'svg',
-      'ico',
-    ];
-    const extension =
-      url.split('.').pop()?.split('?')[0].toLowerCase() || 'none';
-    return imageExtensions.includes(extension);
-  };
-
-  const isValidImageUrl = async (url: string): Promise<boolean> => {
-    try {
-      const response = await fetch(url, { method: 'HEAD' });
-
-      const contentType = response.headers.get('Content-Type');
-
-      return contentType?.startsWith('image/') || false;
-    } catch (error) {
-      console.error(error);
-      return false;
-    }
-  };
-
-  const handleKeyPress = async (
-    event: React.KeyboardEvent<HTMLInputElement>,
-  ) => {
-    if (
-      event.key === 'Enter' &&
-      event.nativeEvent.isComposing === false &&
-      isValidString(postComposeSearchInput) &&
-      !isFetching
-    ) {
-      setUploadResourceList([]);
-
-      const validImage =
-        isImageUrl(postComposeSearchInput) ||
-        (await isValidImageUrl(postComposeSearchInput));
-
-      if (validImage) {
-        setPostComposeBySourceUrlList([
-          {
-            contentType: POST_IMAGE_TYPE,
-            contentUrl: postComposeSearchInput,
-          },
-        ]);
-      } else {
-        setFetching(true);
-
-        setTimeout(() => {
-          setFetching(false);
-        }, MAX_DELAY_SETTIMEOUT_TIME);
-      }
-      searchInputRef.current?.blur();
     }
   };
 
@@ -190,53 +106,20 @@ const PostComposeBySourceUrlPopupBody: React.FC<
 
   const PostComosePopupContainerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    console.log(PostComosePopupContainerRef.current?.offsetHeight);
-  }, [PostComosePopupContainerRef]);
-
   return (
     <>
       <PostComposePopupContainer ref={PostComosePopupContainerRef}>
-        <PrevButtonHeaderHeader
-          titleName="이미지 고르기"
-          isActionFunc={true}
-          actionFunc={() => setIsActivePostComposeBySourceUrlPopup(false)}
-          preNodeByState={<XButtonIcon />}
-          HeaderLayoutStyle={{ backgroundColor: 'transparent' }}
-          RightButtonNode={
-            <PostComposeUploadNumWrap>
-              {uploadResourceList.length}/{POST_COMPOSEUPLOAD_MAX_NUM}
-            </PostComposeUploadNumWrap>
-          }
-        />
-
         <PostComposeMasonryWrap>
-          <HeaderLayout>
-            <PostComposeSearchInputWrap>
-              <SearchButtonInputWrap>
-                <SearchButtonInput
-                  searchInputRef={searchInputRef}
-                  placeholder={POST_COMPOSE_LINK_INPUT_PHASE_TEXT}
-                  onSearchInputChange={onSearchInputChange}
-                  onSearchInputKeyDown={handleKeyPress}
-                  onClickDelete={onSearchInputDelete}
-                  value={postComposeSearchInput}
-                  isActiveDeleteButton={postComposeSearchInput !== ''}
-                />
-              </SearchButtonInputWrap>
-            </PostComposeSearchInputWrap>
-          </HeaderLayout>
-
           {!isLoading ? (
             <MasonryLayoutWrap
+              $isScroll={isScroll}
               $height={PostComosePopupContainerRef.current?.offsetHeight}
               $isActive={uploadResourceList.length < POST_COMPOSEUPLOAD_MAX_NUM}
             >
               {postComposeBySourceUrlList.length > 0 ? (
-                <MasonryLayout
+                <PostComposeBySourceUrlMasonryLayout
                   MasonryContainerStyle={{ marginTop: '10px' }}
-                  longPressToResizeNum={0.9}
-                  isActiveNavToPost={false}
+                  longPressToResizeNum={0.95}
                   snsPostUrlList={postComposeBySourceUrlList.map((v) => {
                     const homePostRsp: MasonryPostRsp = {
                       postId: '',
@@ -244,8 +127,15 @@ const PostComposeBySourceUrlPopupBody: React.FC<
                       postContent: v.contentUrl,
                       postContentType: v.contentType,
                       username: '',
-                      location: { latitude: 0, longitude: 0, address: '' },
+                      location: {
+                        latitude: 0,
+                        longitude: 0,
+                        address: '',
+                        buildName: '',
+                      },
                       previewImg: '',
+                      isUploaded: false,
+                      videoDuration: 0,
                     };
 
                     return homePostRsp;
@@ -275,47 +165,39 @@ const PostComposeBySourceUrlPopupBody: React.FC<
           )}
         </PostComposeMasonryWrap>
       </PostComposePopupContainer>
-      {uploadResourceList.length >= 1 && (
-        <BottomNextButton
-          title={'다음으로'}
-          isTransparent={true}
-          actionFunc={bottomNextButtonActionFunc}
-          BottomNextButtonWrapContainerStyle={{ position: 'absolute' }}
-        />
-      )}
     </>
   );
 };
 
 const PostComposePopupContainer = styled.div`
-  display: flex;
-  flex-flow: column;
-  height: 100%;
+  height: calc(
+    100dvh -
+      ${theme.systemSize.header.heightNumber * 2 +
+        parseFloat(
+          getComputedStyle(document.documentElement).getPropertyValue(
+            '--safe-area-inset-top',
+          ),
+        ) || 0}px
+  );
 `;
 
 const PostComposeMasonryWrap = styled.div``;
 
-const PostComposeSearchInputWrap = styled.div`
-  width: 100%;
-  display: flex;
-  margin: auto 0;
-`;
-
-const SearchButtonInputWrap = styled.div`
-  padding: 0 10px;
-  width: 100%;
-`;
-
 const MasonryLayoutWrap = styled.div<{
   $isActive: boolean;
   $height: number | undefined;
+  $isScroll: boolean;
 }>`
   opacity: ${(props) => (props.$isActive ? 1 : 0.5)};
-  height: ${(props) =>
-    props.$height &&
-    props.$height - 2 * theme.systemSize.header.heightNumber}px;
-  overflow-y: scroll;
+  height: ${(props) => props.$height && props.$height}px;
+  overflow-y: ${(props) => (props.$isScroll ? 'scroll' : 'none')};
   border-radius: 0 0 20px 20px;
+
+  @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
+    height: ${(props) =>
+      props.$height &&
+      props.$height - 2 * theme.systemSize.header.heightNumber}px;
+  }
 `;
 
 const LoadingWrap = styled.div`
@@ -330,12 +212,6 @@ const LoadingBarSize = '50px';
 const LoadingGif = styled.img`
   width: ${LoadingBarSize};
   height: ${LoadingBarSize};
-`;
-
-const PostComposeUploadNumWrap = styled.div`
-  display: flex;
-  margin: auto 0px;
-  font: ${({ theme }) => theme.fontSizes.Body2};
 `;
 
 export default PostComposeBySourceUrlPopupBody;

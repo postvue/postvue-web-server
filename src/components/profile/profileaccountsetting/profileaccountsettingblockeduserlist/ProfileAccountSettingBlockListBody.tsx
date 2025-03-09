@@ -1,10 +1,9 @@
-import BlockUserPopup from 'components/popups/BlockUserPopup';
 import { ACCOUNT_NOT_PROFILE_IMG_PATH } from 'const/AccountConst';
 import ProfileBlockedUserListInfiniteScroll from 'hook/ProfileBlockedUserListInfiniteScroll';
 import { QueryStateProfileBlockedUserList } from 'hook/queryhook/QueryStateProfileBlockedUserList';
 import React, { useState } from 'react';
 import { useRecoilState } from 'recoil';
-import { isActiveProfileBlockPopupAtom } from 'states/ProfileAtom';
+import { activeProfileBlockPopupInfoAtom } from 'states/ProfileAtom';
 import styled from 'styled-components';
 import { SETTING_PFOFILE_BLOCKED_LIST_SEARCH_INPUT_PHASE_TEXT } from '../../../../const/SystemPhraseConst';
 import SearchButtonInput from '../../../common/input/SearchButtonInput';
@@ -22,13 +21,8 @@ const ProfileAccountSettingBlockListBody: React.FC = () => {
 
   const { data: profileBlockedUserList } = QueryStateProfileBlockedUserList();
 
-  const [isActiveProfileBlockPopup, setIsActiveProfileBlockPopup] =
-    useRecoilState(isActiveProfileBlockPopupAtom);
-
-  const [blckedUserInfo, setBlockedUserInfo] = useState<{
-    username: string;
-    userId: string;
-  }>({ username: '', userId: '' });
+  const [activeProfileBlockPopupInfo, setActiveProfileBlockPopupInfo] =
+    useRecoilState(activeProfileBlockPopupInfoAtom);
 
   return (
     <>
@@ -46,7 +40,7 @@ const ProfileAccountSettingBlockListBody: React.FC = () => {
           {profileBlockedUserList &&
             profileBlockedUserList.pages.flatMap((value) =>
               value.map((v, key) => {
-                if (v.blockedUserName.startsWith(blockSearchInput)) {
+                if (v.blockedUsername.startsWith(blockSearchInput)) {
                   return (
                     <ProfileSettingBlockUserWrap key={key}>
                       <ProfileSettingBlockUserInfoWrap>
@@ -56,18 +50,25 @@ const ProfileAccountSettingBlockListBody: React.FC = () => {
                             ACCOUNT_NOT_PROFILE_IMG_PATH
                           }
                         />
-                        <ProfileSettingBlockUserName>
-                          {v.blockedUserName}
-                        </ProfileSettingBlockUserName>
+                        <ProfileSettingNameWrap>
+                          <div>
+                            <ProfileSettingBlockNickname>
+                              {v.blockedNickname}
+                            </ProfileSettingBlockNickname>
+                            <ProfileSettingBlockUsername>
+                              @{v.blockedUsername}
+                            </ProfileSettingBlockUsername>
+                          </div>
+                        </ProfileSettingNameWrap>
                       </ProfileSettingBlockUserInfoWrap>
                       <ProfileSettingBlockingButtonWrap>
                         <ProfileSettingBlockingButton
                           onClick={() => {
-                            setBlockedUserInfo({
+                            setActiveProfileBlockPopupInfo({
+                              isActive: true,
                               userId: v.blockedUserId,
-                              username: v.blockedUserName,
+                              username: v.blockedUsername,
                             });
-                            setIsActiveProfileBlockPopup(true);
                           }}
                         >
                           해제
@@ -78,18 +79,17 @@ const ProfileAccountSettingBlockListBody: React.FC = () => {
                 }
               }),
             )}
+          {profileBlockedUserList &&
+            profileBlockedUserList.pages.flatMap((v) => v).length <= 0 && (
+              <NotBlockedUserListTitleWrap>
+                <NotBlockedUserListTitle>
+                  차단 유저가 없습니다.
+                </NotBlockedUserListTitle>
+              </NotBlockedUserListTitleWrap>
+            )}
         </ProfileSettingBlockUserListContainer>
         <ProfileBlockedUserListInfiniteScroll />
       </ProfileSettingBlockListBodyContainer>
-      {isActiveProfileBlockPopup && (
-        <BlockUserPopup
-          userInfo={{
-            username: blckedUserInfo.username,
-            userId: blckedUserInfo.userId,
-          }}
-          isBlocked={true}
-        />
-      )}
     </>
   );
 };
@@ -121,11 +121,23 @@ const ProfileSettingBlockUserProfileImg = styled.img`
   width: 50px;
   height: 50px;
   border-radius: 30px;
+  object-fit: cover;
 `;
 
-const ProfileSettingBlockUserName = styled.div`
+const ProfileSettingNameWrap = styled.div`
   margin: auto 0;
+`;
+
+const ProfileSettingBlockUsername = styled.div`
+  font: ${({ theme }) => theme.fontSizes.Body2};
+  color: ${({ theme }) => theme.grey.Grey6};
+`;
+
+const ProfileSettingBlockNickname = styled.div`
   font: ${({ theme }) => theme.fontSizes.Subhead2};
+
+  color: ${({ theme }) => theme.grey.Grey8};
+  font: ${({ theme }) => theme.fontSizes.Subhead3};
 `;
 
 const ProfileSettingBlockingButtonWrap = styled.div`
@@ -136,6 +148,18 @@ const ProfileSettingBlockingButton = styled.div`
   color: ${({ theme }) => theme.mainColor.Blue};
   font: ${({ theme }) => theme.fontSizes.Subhead2};
   cursor: pointer;
+`;
+
+const NotBlockedUserListTitleWrap = styled.div``;
+
+const NotBlockedUserListTitle = styled.div`
+  top: calc(50%);
+  left: 50%;
+  position: absolute;
+  transform: translate(-50%, -50%);
+
+  font: ${({ theme }) => theme.fontSizes.Body3};
+  color: ${({ theme }) => theme.grey.Grey6};
 `;
 
 export default ProfileAccountSettingBlockListBody;

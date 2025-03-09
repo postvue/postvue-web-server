@@ -1,7 +1,9 @@
 import FollowButton from 'components/common/buttton/FollowButton';
-import { PROFILE_LIST_PATH } from 'const/PathConst';
+import { PROFILE_ACCOUNT_ROUTE_PATH } from 'const/PathConst';
+import { RoutePushEventDateInterface } from 'const/ReactNativeConst';
+import { stackRouterPush } from 'global/util/reactnative/nativeRouter';
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { generatePath, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import theme from 'styles/theme';
 
@@ -25,7 +27,17 @@ const ProfileFollowComponent: React.FC<ProfileFollowComponentProps> = ({
   const navigate = useNavigate();
   return (
     <PostProfileFollowContainer
-      onClick={() => navigate(`${PROFILE_LIST_PATH}/${username}`)}
+      onClick={() => {
+        const data: RoutePushEventDateInterface = {
+          isShowInitBottomNavBar: true,
+        };
+
+        stackRouterPush(
+          navigate,
+          generatePath(PROFILE_ACCOUNT_ROUTE_PATH, { username: username }),
+          data,
+        );
+      }}
     >
       <PostProfileFollowWrap>
         <ProfileImgUsernameWrap>
@@ -42,6 +54,7 @@ const ProfileFollowComponent: React.FC<ProfileFollowComponentProps> = ({
           <FollowButton
             fontSize={theme.fontSizes.Subhead3}
             userId={userId}
+            username={username}
             isFollow={isFollowed}
           />
         )}

@@ -11,28 +11,26 @@ import styled from 'styled-components';
 
 interface TagSearchPopupHeaderProps {
   tagSearchInputRef: React.RefObject<HTMLInputElement>;
-  setIsTagSearchPopup: SetterOrUpdater<boolean>;
   tagSearchQueryHashMap: Map<string, string[]>;
   setTagSearchQueryHashMap: SetterOrUpdater<Map<string, string[]>>;
   onSearchInputDelete: () => void;
   tagSearchInput: string;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   saveTagToList: (searchQuery: string) => void;
-  setIsExternalCloseFunc?: React.Dispatch<React.SetStateAction<boolean>>;
+  onClose: () => void;
   TagTitleStyle?: React.CSSProperties;
   TagInputHeaderStyle?: React.CSSProperties;
 }
 
 const TagSearchPopupHeader: React.FC<TagSearchPopupHeaderProps> = ({
   tagSearchInputRef,
-  setIsTagSearchPopup,
   tagSearchQueryHashMap,
   setTagSearchQueryHashMap,
   onSearchInputDelete,
   tagSearchInput,
   setLoading,
   saveTagToList,
-  setIsExternalCloseFunc,
+  onClose,
   TagTitleStyle,
   TagInputHeaderStyle,
 }) => {
@@ -85,10 +83,7 @@ const TagSearchPopupHeader: React.FC<TagSearchPopupHeaderProps> = ({
         <TagPopupTitleHeaderTitle>태그</TagPopupTitleHeaderTitle>
         <TagPopupCloseButton
           onClick={() => {
-            setIsTagSearchPopup(false);
-            if (setIsExternalCloseFunc) {
-              setIsExternalCloseFunc(true);
-            }
+            onClose();
           }}
         >
           닫기
@@ -99,6 +94,7 @@ const TagSearchPopupHeader: React.FC<TagSearchPopupHeaderProps> = ({
           ...TagInputHeaderStyle,
           ...{ position: 'static' },
         }}
+        isInsetTopMatin={false}
       >
         <TagSearchInputWrap>
           <SearchButtonInputWrap>
@@ -131,12 +127,14 @@ const SearchButtonInputWrap = styled.div`
 
 const PostComposeTagTitle = styled.div`
   width: 100%;
+  position: relative;
   height: ${({ theme }) => theme.systemSize.header.height};
 `;
 
 const TagPopupTitleHeaderTitle = styled.div`
   left: 50%;
-  transform: translate(-50%, 50%);
+  top: 50%;
+  transform: translate(-50%, -50%);
   position: absolute;
 
   margin: auto;

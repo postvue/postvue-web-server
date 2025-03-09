@@ -7,13 +7,7 @@ import { useRecoilState } from 'recoil';
 import { activePostCommentComplaintPopupAtom } from 'states/PostAtom';
 import PostCommentComplaintPopupBody from './PostCommentComplaintPopupBody';
 
-interface PostCommentComplaintPopupProps {
-  isFixed?: boolean;
-}
-
-const PostCommentComplaintPopup: React.FC<PostCommentComplaintPopupProps> = ({
-  isFixed = true,
-}) => {
+const PostCommentComplaintPopup: React.FC = () => {
   const [activePostCommentComplaintPopup, setActivePostCommentComplaintPopup] =
     useRecoilState(activePostCommentComplaintPopupAtom);
 
@@ -26,22 +20,31 @@ const PostCommentComplaintPopup: React.FC<PostCommentComplaintPopupProps> = ({
     <>
       {windowWidth <= MEDIA_MOBILE_MAX_WIDTH_NUM ? (
         <BottomSheetLayout
-          isFixed={isFixed}
           isOpen={activePostCommentComplaintPopup.isActive}
           onClose={() =>
             setActivePostCommentComplaintPopup({
               isActive: false,
               postId: '',
+              userId: '',
+              username: '',
               commentId: '',
             })
           }
-          heightNum={500}
+          heightNum={
+            450 +
+              parseFloat(
+                getComputedStyle(document.documentElement).getPropertyValue(
+                  '--safe-area-inset-bottom',
+                ),
+              ) || 0
+          }
           isExternalCloseFunc={isExternalCloseFunc}
-          setIsExternalCloseFunc={setIsExternalCloseFunc}
         >
           <PostCommentComplaintPopupBody
             postId={activePostCommentComplaintPopup.postId}
             commentId={activePostCommentComplaintPopup.commentId}
+            userId={activePostCommentComplaintPopup.userId}
+            username={activePostCommentComplaintPopup.username}
             setIsExternalCloseFunc={setIsExternalCloseFunc}
           />
         </BottomSheetLayout>
@@ -53,13 +56,18 @@ const PostCommentComplaintPopup: React.FC<PostCommentComplaintPopupProps> = ({
                 setActivePostCommentComplaintPopup({
                   isActive: false,
                   postId: '',
+                  userId: '',
+                  username: '',
                   commentId: '',
                 })
               }
+              popupOverLayContainerStyle={{ zIndex: '2000' }}
               popupWrapStyle={{ height: '500px', width: '400px' }}
             >
               <PostCommentComplaintPopupBody
                 postId={activePostCommentComplaintPopup.postId}
+                userId={activePostCommentComplaintPopup.userId}
+                username={activePostCommentComplaintPopup.username}
                 commentId={activePostCommentComplaintPopup.commentId}
               />
             </RoundSquareCenterPopupLayout>

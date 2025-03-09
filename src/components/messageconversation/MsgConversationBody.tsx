@@ -3,8 +3,7 @@ import {
   MESSAGE_NONE_ACTION,
   MESSAGE_SCROLL_TO_END_ACTION,
 } from 'const/MessageConst';
-import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
-import useWindowSize from 'hook/customhook/useWindowSize';
+import { MEDIA_MOBILE_MAX_WIDTH } from 'const/SystemAttrConst';
 import MsgConversationListInfiniteScroll from 'hook/MsgConversationListInfiniteScroll';
 import { QueryStateMsgConversationListInfinite } from 'hook/queryhook/QueryStateMsgConversationListInfinite';
 import React, { useEffect, useRef, useState } from 'react';
@@ -23,10 +22,17 @@ import {
 import FollowConversationMsg from './body/FollowConversationMsg';
 import MsgConversationSendMessage from './body/MsgConversationSendMessageButton';
 import MyConversationMsg from './body/MyConversationMsg';
-import MsgConversationSettingPopup from './popup/MsgConversationSettingPopup';
+
+interface MsgConversationBodyProps {
+  MsgConversationBodyContainerStyle?: React.CSSProperties;
+  MsgConversationSendMessageStyle?: React.CSSProperties;
+}
 
 // 개인 메시지
-const MsgConversationBody: React.FC = () => {
+const MsgConversationBody: React.FC<MsgConversationBodyProps> = ({
+  MsgConversationBodyContainerStyle,
+  MsgConversationSendMessageStyle,
+}) => {
   const setMsgConversationScrollInfo = useSetRecoilState(
     msgConversationScrollInfoAtom,
   );
@@ -36,15 +42,14 @@ const MsgConversationBody: React.FC = () => {
     sendedMsgListInfoAtom,
   );
 
-  const [isSettingByMsgConversation, setIsSettingByMsgConversation] =
-    useRecoilState(isSettingByMsgConversationAtom);
+  const setIsSettingByMsgConversation = useSetRecoilState(
+    isSettingByMsgConversationAtom,
+  );
 
   const [msgConversationScrollHeight, setMsgConversationScrollHeight] =
     useState<number>(INIT_SCROLL_POSITION);
 
   const MsgConversationBodyContainerRef = useRef<HTMLDivElement>(null);
-
-  const { windowWidth } = useWindowSize();
 
   const MINUTE_MS = 60 * 1000;
   const groupMessages = (
@@ -103,16 +108,11 @@ const MsgConversationBody: React.FC = () => {
   const {
     data: msgConversationList,
     isFetched: isFetchedByMsgConversationList,
-    isFetching,
   } = QueryStateMsgConversationListInfinite(
     profileInfoByDirectMsg.targetUserId,
   );
 
   const lastMsgPostionRef = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState<boolean>(false);
-
-  const [initPage, setInitPage] = useState<boolean>(false);
-
   // useEffect(() => {
   //   if (!isFetchedByMsgConversationList) return;
   //   const msgConversationBodyContainer =
@@ -131,32 +131,43 @@ const MsgConversationBody: React.FC = () => {
   // }, [isFetchedByMsgConversationList]);
 
   useEffect(() => {
-    if (initPage) return;
-    const msgConversationBodyContainer =
-      MsgConversationBodyContainerRef.current;
-    if (msgConversationBodyContainer) {
-      msgConversationBodyContainer.scrollTo({
-        top: msgConversationBodyContainer.scrollHeight,
-      });
-    }
-    setInitPage(true);
-  }, [msgConversationList]);
-
-  useEffect(() => {
     const msgConversationBodyContainer =
       MsgConversationBodyContainerRef.current;
 
-    if (!isFetchedByMsgConversationList) return;
+    if (
+      !isFetchedByMsgConversationList ||
+      !msgConversationBodyContainer ||
+      !testRef.current
+    )
+      return;
 
-    if (!msgConversationBodyContainer) return;
+    // 크기 측정 함수
+    const measureSize = () => {
+      if (msgConversationBodyContainer && testRef.current) {
+        const height = msgConversationBodyContainer.scrollHeight;
 
-    setMsgConversationScrollHeight(msgConversationBodyContainer.scrollHeight);
+        setMsgConversationScrollHeight(height);
 
-    msgConversationBodyContainer.scrollTo({
-      top:
-        msgConversationBodyContainer.scrollHeight - msgConversationScrollHeight,
+        msgConversationBodyContainer.scrollTo({
+          top: height - msgConversationScrollHeight,
+        });
+      }
+    };
+
+    // ResizeObserver 설정
+    const observer = new ResizeObserver(() => {
+      measureSize();
     });
-  }, [isFetching]);
+
+    observer.observe(testRef.current);
+
+    // 초기 측정
+    measureSize();
+
+    return () => {
+      observer.disconnect(); // 컴포넌트 언마운트 시 관찰 해제
+    };
+  }, [isFetchedByMsgConversationList]);
 
   useEffect(() => {
     if (!MsgConversationBodyContainerRef.current) return;
@@ -207,7 +218,7 @@ const MsgConversationBody: React.FC = () => {
     return () => {
       window.removeEventListener('scroll', handleScroll);
       setIsSettingByMsgConversation(false);
-      setInitPage(false);
+      setMsgConversationScrollHeight(INIT_SCROLL_POSITION);
     };
   }, []);
 
@@ -224,11 +235,16 @@ const MsgConversationBody: React.FC = () => {
       });
     }
   }, [sendedMsgListInfo]);
+
+  const testRef = useRef<HTMLDivElement>(null);
   return (
     <>
-      <MsgConversationBodyContainer>
-        <MsgConversationListWrap ref={MsgConversationBodyContainerRef}>
-          <MsgConversationListSubWrap>
+      <MsgConversationBodyContainer
+        ref={MsgConversationBodyContainerRef}
+        style={MsgConversationBodyContainerStyle}
+      >
+        <MsgConversationListWrap>
+          <MsgConversationListSubWrap ref={testRef}>
             {profileInfoByDirectMsg.targetUserId && (
               <MsgConversationScrollWrap>
                 <MsgConversationListInfiniteScroll
@@ -242,21 +258,24 @@ const MsgConversationBody: React.FC = () => {
                   .flatMap((v) => v.msgConversationRspList)
                   .slice(0)
                   .reverse()
-                  .map(
-                    (value) =>
-                      ({
-                        msgId: value.msgId,
-                        msgRoomId: value.msgRoomId,
-                        isGroupedMsg: false,
-                        targetUserId: profileInfoByDirectMsg.targetUserId,
-                        isOtherMsg: value.isOtherMsg,
-                        msgType: value.msgType,
-                        msgContent: value.msgContent,
-                        hasMsgReaction: value.hasMsgReaction,
-                        msgReactionType: value.msgReactionType,
-                        sendAt: value.sendAt,
-                      }) as MsgConversation,
-                  ),
+                  .map((value) => {
+                    const msgConversation: MsgConversation = {
+                      msgId: value.msgId,
+                      msgRoomId: value.msgRoomId,
+                      isGroupedMsg: false,
+                      targetUserId: profileInfoByDirectMsg.targetUserId,
+                      isOtherMsg: value.isOtherMsg,
+                      msgTextContent: value.msgTextContent,
+                      hasMsgMedia: value.hasMsgMedia,
+                      msgMediaType: value.msgMediaType,
+                      msgMediaContent: value.msgMediaContent,
+                      hasMsgReaction: value.hasMsgReaction,
+                      msgLinkMetaInfo: value.msgLinkMetaInfo,
+                      msgReactionType: value.msgReactionType,
+                      sendAt: value.sendAt,
+                    };
+                    return msgConversation;
+                  }),
               ).map((groupData, index) => {
                 return (
                   <MsgConversationWrap key={index}>
@@ -297,17 +316,12 @@ const MsgConversationBody: React.FC = () => {
             </FloatingActionButtonLayout>
           </UnreadMsgNotifcationWrap>
         )}
-
-        <MsgConversationSendMessage
-          followInfo={profileInfoByDirectMsg}
-          MsgConversationBodyContainerRef={MsgConversationBodyContainerRef}
-        />
-        {windowWidth <= MEDIA_MOBILE_MAX_WIDTH_NUM && (
-          <MsgConversationSettingPopup
-            targetProfileInfo={profileInfoByDirectMsg}
-          />
-        )}
       </MsgConversationBodyContainer>
+      <MsgConversationSendMessage
+        followInfo={profileInfoByDirectMsg}
+        MsgConversationBodyContainerRef={MsgConversationBodyContainerRef}
+        MsgConversationSendMessageStyle={MsgConversationSendMessageStyle}
+      />
     </>
   );
 };
@@ -322,6 +336,9 @@ const MsgConversationBodyContainer = styled.div`
   &::-webkit-scrollbar {
     display: none;
   }
+  flex: 1;
+
+  overflow: auto;
 `;
 
 const MsgConversationScrollWrap = styled.div`
@@ -330,11 +347,11 @@ const MsgConversationScrollWrap = styled.div`
 `;
 
 const MsgConversationListWrap = styled.div`
-  position: fixed;
   width: 100%;
   max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
-  height: 100vh;
-  overflow-y: scroll;
+  @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
+    max-width: ${theme.systemSize.appDisplaySize.widthByPc};
+  }
 `;
 
 const MsgConversationListSubWrap = styled.div`

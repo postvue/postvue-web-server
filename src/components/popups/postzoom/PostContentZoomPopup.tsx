@@ -3,25 +3,13 @@ import { useRecoilValue, useResetRecoilState } from 'recoil';
 import { postContentZoomPopupInfoAtom } from 'states/PostAtom';
 
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
-import { PostRsp } from 'global/interface/post';
 import useWindowSize from 'hook/customhook/useWindowSize';
 import PostContentZoomMobilePopup from './PostContentZoomMobilePopup';
 import PostContentZoomPcPopup from './PostContentZoomPcPopup';
 import PostContentZooomSwiper from './PostContentZoomSwiper';
 
-interface PostCotentZoomPopupProps {
-  snsPost: PostRsp;
-  currentIndex: number;
-  setCurrentIndex: React.Dispatch<React.SetStateAction<number>>;
-  isFixed?: boolean;
-}
-
-const PostCotentZoomPopup: React.FC<PostCotentZoomPopupProps> = ({
-  snsPost,
-  currentIndex,
-  setCurrentIndex,
-  isFixed = true,
-}) => {
+const PostCotentZoomPopup: React.FC = () => {
+  const [currentIndex, setCurrentIndex] = useState(0);
   const resetPostContentZoomPopupInfo = useResetRecoilState(
     postContentZoomPopupInfoAtom,
   );
@@ -46,10 +34,12 @@ const PostCotentZoomPopup: React.FC<PostCotentZoomPopupProps> = ({
         <PostContentZoomPcPopup
           isActive={postContentZoomPopupInfo.isActive}
           currentIndex={currentIndex}
-          contentLength={snsPost.postContents.length}
+          setCurrentIndex={setCurrentIndex}
+          contentLength={postContentZoomPopupInfo.postContents.length}
         >
           <PostContentZooomSwiper
-            snsPost={snsPost}
+            postContents={postContentZoomPopupInfo.postContents}
+            currentIndex={currentIndex}
             setCurrentIndex={setCurrentIndex}
             initIndex={postContentZoomPopupInfo.initIndex}
             isActive={postContentZoomPopupInfo.isActive}
@@ -58,16 +48,16 @@ const PostCotentZoomPopup: React.FC<PostCotentZoomPopupProps> = ({
         </PostContentZoomPcPopup>
       ) : (
         <PostContentZoomMobilePopup
-          isFixed={isFixed}
           isOpen={postContentZoomPopupInfo.isActive}
           onClose={() => resetPostContentZoomPopupInfo()}
           currentIndex={currentIndex}
-          contentLength={snsPost.postContents.length}
+          contentLength={postContentZoomPopupInfo.postContents.length}
           isExternalCloseFunc={isExternalCloseFunc}
           setIsExternalCloseFunc={setIsExternalCloseFunc}
         >
           <PostContentZooomSwiper
-            snsPost={snsPost}
+            postContents={postContentZoomPopupInfo.postContents}
+            currentIndex={currentIndex}
             setCurrentIndex={setCurrentIndex}
             initIndex={postContentZoomPopupInfo.initIndex}
             isActive={postContentZoomPopupInfo.isActive}

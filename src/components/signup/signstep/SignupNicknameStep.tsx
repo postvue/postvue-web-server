@@ -1,8 +1,8 @@
 import { SIGNUP_NICKNAME_MAX_SIZE } from 'const/SignupConst';
 import { isValidNickname } from 'global/util/ValidUtil';
 import React, { useEffect, useState } from 'react';
-import { useRecoilState } from 'recoil';
-import { signupInfoAtom } from 'states/SignupAtom';
+import { useRecoilState, useSetRecoilState } from 'recoil';
+import { signupInfoAtom, signupStepNumAtom } from 'states/SignupAtom';
 import styled from 'styled-components';
 import SignupHeader from '../SignupHeader';
 import SignupNextButton from '../SignupNextButton';
@@ -26,6 +26,18 @@ const SignupNicknameStep: React.FC = () => {
     }
   }, [nickname]);
 
+  const setSignupStepNum = useSetRecoilState(signupStepNumAtom);
+
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (
+      event.key === 'Enter' &&
+      event.nativeEvent.isComposing === false &&
+      isActive
+    ) {
+      setSignupStepNum((prev) => prev + 1);
+    }
+  };
+
   return (
     <>
       <SignupHeader />
@@ -40,6 +52,7 @@ const SignupNicknameStep: React.FC = () => {
           placeholder="이름을 넣어주세요."
           value={nickname}
           onChange={(e) => onChangeNickname(e)}
+          onKeyDown={(e) => handleKeyPress(e)}
         />
       </SignupInputWrap>
       {nickname !== '' && !isValidNickname(nickname) && (
@@ -78,6 +91,7 @@ const SignupStepSubTitle = styled.div`
 
 const SignupInputWrap = styled.div`
   margin: 0 ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding};
+  flex: 1;
 `;
 
 const SignupNicknameInput = styled.input`

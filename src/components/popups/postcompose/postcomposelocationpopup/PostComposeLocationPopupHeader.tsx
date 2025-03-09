@@ -4,7 +4,6 @@ import { getCurrentPosition } from 'global/util/PositionUtil';
 import React from 'react';
 import { useSetRecoilState } from 'recoil';
 import { locationSearchWordAtom } from 'states/GeoLocationAtom';
-import { isActivPostComposeLocationPopupAtom } from 'states/PostComposeAtom';
 import styled from 'styled-components';
 
 interface PostComposeLocationPopupHeaderProps {
@@ -16,7 +15,7 @@ interface PostComposeLocationPopupHeaderProps {
     }>
   >;
   setLoadingByAddressGeo: React.Dispatch<React.SetStateAction<boolean>>;
-  setIsExternalCloseFunc?: React.Dispatch<React.SetStateAction<boolean>>;
+  onClose: () => void;
   PostComposeLocationTitleStyle?: React.CSSProperties;
   LocatoinSearchInputContainerStyle?: React.CSSProperties;
 }
@@ -26,19 +25,17 @@ const PostComposeLocationPopupHeader: React.FC<
 > = ({
   setCurPositionInfo,
   setLoadingByAddressGeo,
-  setIsExternalCloseFunc,
+  onClose,
   PostComposeLocationTitleStyle,
   LocatoinSearchInputContainerStyle,
 }) => {
   const setLocationSearchWord = useSetRecoilState(locationSearchWordAtom);
-  const setIsActivPostComposeLocationPopup = useSetRecoilState(
-    isActivPostComposeLocationPopupAtom,
-  );
+
   const onClickGeoCurrentButton = async () => {
     setLoadingByAddressGeo(true);
 
-    getCurrentPosition(
-      (position) => {
+    getCurrentPosition({
+      actionFunc: (position) => {
         setCurPositionInfo({
           latitude: position.latitude,
           longitude: position.longitude,
@@ -47,10 +44,10 @@ const PostComposeLocationPopupHeader: React.FC<
         setLocationSearchWord('');
         setLoadingByAddressGeo(false);
       },
-      () => {
+      onClose: () => {
         setLoadingByAddressGeo(false);
       },
-    );
+    });
   };
   return (
     <>
@@ -61,10 +58,7 @@ const PostComposeLocationPopupHeader: React.FC<
         <PostComposeLocationHeaderTitle>위치</PostComposeLocationHeaderTitle>
         <PostComposeLocationCloseButton
           onClick={() => {
-            setIsActivPostComposeLocationPopup(false);
-            if (setIsExternalCloseFunc) {
-              setIsExternalCloseFunc(true);
-            }
+            onClose();
           }}
         >
           닫기

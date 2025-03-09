@@ -1,5 +1,6 @@
 import { ReactComponent as DeleteSearchInputIcon } from 'assets/images/icon/svg/DeleteSearchInputIcon.svg';
-import React from 'react';
+import useAutoBlur from 'hook/customhook/useAutoBlur';
+import React, { useRef } from 'react';
 import styled from 'styled-components';
 import SearchButtonInputLayout from '../../layouts/SearchButtonInputLayout';
 
@@ -10,7 +11,6 @@ interface SearchButtonInputProps {
   value?: string | number | readonly string[] | undefined;
   onClickDelete?: () => void;
   onSearchInputOnFocus?: (event: React.FocusEvent<HTMLInputElement>) => void;
-  onSearchInputOnBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
   deleteButtonRef?: React.RefObject<HTMLDivElement>;
   searchInputRef?: React.RefObject<HTMLInputElement>;
   isActiveDeleteButton: boolean;
@@ -26,7 +26,6 @@ const SearchButtonInput: React.FC<SearchButtonInputProps> = ({
   value,
   onClickDelete,
   onSearchInputOnFocus,
-  onSearchInputOnBlur,
   deleteButtonRef,
   searchInputRef,
   isActiveDeleteButton,
@@ -34,6 +33,12 @@ const SearchButtonInput: React.FC<SearchButtonInputProps> = ({
   addElement,
   SearchButtonInputLayoutStyle,
 }) => {
+  const searchInputProcessRef = searchInputRef
+    ? searchInputRef
+    : useRef<HTMLInputElement>(null);
+  // useScrollToBlur();
+  useAutoBlur([searchInputProcessRef]);
+
   return (
     <SearchButtonInputLayout
       SearchButtonInputLayoutStyle={SearchButtonInputLayoutStyle}
@@ -44,8 +49,7 @@ const SearchButtonInput: React.FC<SearchButtonInputProps> = ({
         onKeyDown={onSearchInputKeyDown}
         value={value}
         onFocus={onSearchInputOnFocus}
-        onBlur={onSearchInputOnBlur}
-        ref={searchInputRef}
+        ref={searchInputProcessRef}
       />
       {onClickDelete !== undefined && (
         <>

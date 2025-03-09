@@ -12,7 +12,6 @@ const SearchFilterButton: React.FC = () => {
   return (
     <SearchFilterButtonWrap
       onClick={() => {
-        console.log('헤잇');
         setIsActiveSearchPostFilterPopup(true);
       }}
     >

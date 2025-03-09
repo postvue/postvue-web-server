@@ -2,6 +2,7 @@ import { Location } from './post';
 
 export interface ProfileInfoByDirectMsg {
   targetUserId: string;
+  nickname: string;
   username: string;
   profilePath: string;
 }
@@ -29,6 +30,8 @@ export interface ProfileInfo {
   isMe: boolean;
   isFollowed: boolean;
   isBlocked: boolean;
+  isBlockerUser: boolean;
+  isPrivate: boolean;
   followerNum: number;
   followingNum: number;
 }
@@ -57,16 +60,16 @@ export interface MyProfileClip {
   postedAt: string;
 }
 
-export interface ProfileScrap {
-  postId: string;
-  location: Location;
-  postThumbnailContent: string;
-  postThumbnailContentType: string;
-  postThumbnailPreviewImg: string;
-  userId: string;
-  username: string;
-  postedAt: string;
-}
+// export interface ProfileScrap {
+//   postId: string;
+//   location: Location;
+//   postThumbnailContent: string;
+//   postThumbnailContentType: string;
+//   postThumbnailPreviewImg: string;
+//   userId: string;
+//   username: string;
+//   postedAt: string;
+// }
 
 export interface TargetAudienceInterface {
   displayPhrase: string;
@@ -100,7 +103,8 @@ export interface ProfileAccessToken {
 
 export interface ProfileBlockedUserRsp {
   blockedUserId: string;
-  blockedUserName: string;
+  blockedNickname: string;
+  blockedUsername: string;
   blockedUserProfilePath: string;
 }
 
@@ -110,4 +114,9 @@ export interface ProfileUsername {
   nickname: string;
   profilePath: string;
   isFollowed: boolean;
+}
+
+export interface CreateProfileReportReq {
+  userReportReason: string | null;
+  userReportReasonType: string;
 }

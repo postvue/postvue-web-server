@@ -1,14 +1,16 @@
-export const handleShareUtil = async (props: {
+export interface ShareInfo {
   url: string;
   text?: string;
   title?: string;
-}): Promise<void> => {
+}
+
+export const handleShareUtil = async (props: ShareInfo): Promise<void> => {
   if (navigator.share) {
     try {
       await navigator.share({
-        title: props.url,
+        title: props.title,
         text: props.text,
-        url: props.title,
+        url: props.url,
       });
     } catch (error) {
       console.error('Error sharing', error);

@@ -5,10 +5,11 @@ import {
 import { getSearchQueryByDebounce } from 'global/util/SearchUtil';
 import { isValidUsername } from 'global/util/ValidUtil';
 import React, { useEffect, useState } from 'react';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 import { getProfileExistenceByUsername } from 'services/profile/getProfileExistenceByUsername';
 import {
   signupInfoAtom,
+  signupStepNumAtom,
   signupUsernameExistenceHashMapAtom,
 } from 'states/SignupAtom';
 import styled from 'styled-components';
@@ -25,6 +26,8 @@ const SignupUsernameStep: React.FC = () => {
   const [isActive, setIsActive] = useState<boolean>(false);
 
   const [username, setUsername] = useState<string>(signupInfo.username);
+
+  const setSignupStepNum = useSetRecoilState(signupStepNumAtom);
 
   const debouncedGetSearchQuery = getSearchQueryByDebounce(
     (word: string) => {
@@ -75,6 +78,16 @@ const SignupUsernameStep: React.FC = () => {
     }
   }, [username, loading]);
 
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (
+      event.key === 'Enter' &&
+      event.nativeEvent.isComposing === false &&
+      isActive
+    ) {
+      setSignupStepNum((prev) => prev + 1);
+    }
+  };
+
   return (
     <>
       <SignupHeader />
@@ -87,50 +100,54 @@ const SignupUsernameStep: React.FC = () => {
           placeholder="아이디를 넣어주세요."
           value={username}
           onChange={(e) => onSearchInputChange(e)}
+          onKeyDown={handleKeyPress}
         />
       </SignupDateWrap>
 
-      {!loading && username !== '' && !isValidUsername(username) && (
-        <UsernameExistenceWrap>
-          {username.length < SIGNUP_USERNAME_MIN_SIZE && (
-            <UsernameIsExistedExistence>
-              사용자 아이디는 {SIGNUP_USERNAME_MIN_SIZE}자 이상이어야 합니다.
-            </UsernameIsExistedExistence>
-          )}
-          {username.length >= SIGNUP_USERNAME_MIN_SIZE && (
-            <>
-              {username.length < SIGNUP_USERNAME_MAX_SIZE && (
-                <UsernameIsExistedExistence>
-                  아이디는 공백없이 첫 글자는 영어, 나머지는 알파벳, 숫자,
-                  밑줄(_) 만 허용됩니다.
-                </UsernameIsExistedExistence>
-              )}
-              {username.length > SIGNUP_USERNAME_MAX_SIZE && (
-                <UsernameIsExistedExistence>
-                  사용자 아이디는 {SIGNUP_USERNAME_MAX_SIZE}자 이하여야 합니다.
-                </UsernameIsExistedExistence>
-              )}
-            </>
-          )}
-        </UsernameExistenceWrap>
-      )}
-      {!loading &&
-        isValidUsername(username) &&
-        signupUsernameExistenceHashMap.has(username) && (
+      <div style={{ flex: 1 }}>
+        {!loading && username !== '' && !isValidUsername(username) && (
           <UsernameExistenceWrap>
-            {signupUsernameExistenceHashMap.get(username) ? (
-              // 존재함
+            {username.length < SIGNUP_USERNAME_MIN_SIZE && (
               <UsernameIsExistedExistence>
-                이미 존재하는 아이디입니다.
+                사용자 아이디는 {SIGNUP_USERNAME_MIN_SIZE}자 이상이어야 합니다.
               </UsernameIsExistedExistence>
-            ) : (
-              // 존재하지 않음
-              <UsernameIsNotExistedExistence>
-                사용가능한 아이디입니다.
-              </UsernameIsNotExistedExistence>
+            )}
+            {username.length >= SIGNUP_USERNAME_MIN_SIZE && (
+              <>
+                {username.length < SIGNUP_USERNAME_MAX_SIZE && (
+                  <UsernameIsExistedExistence>
+                    아이디는 공백없이 첫 글자는 영어, 나머지는 알파벳, 숫자,
+                    밑줄(_) 만 허용됩니다.
+                  </UsernameIsExistedExistence>
+                )}
+                {username.length > SIGNUP_USERNAME_MAX_SIZE && (
+                  <UsernameIsExistedExistence>
+                    사용자 아이디는 {SIGNUP_USERNAME_MAX_SIZE}자 이하여야
+                    합니다.
+                  </UsernameIsExistedExistence>
+                )}
+              </>
             )}
           </UsernameExistenceWrap>
         )}
+        {!loading &&
+          isValidUsername(username) &&
+          signupUsernameExistenceHashMap.has(username) && (
+            <UsernameExistenceWrap>
+              {signupUsernameExistenceHashMap.get(username) ? (
+                // 존재함
+                <UsernameIsExistedExistence>
+                  이미 존재하는 아이디입니다.
+                </UsernameIsExistedExistence>
+              ) : (
+                // 존재하지 않음
+                <UsernameIsNotExistedExistence>
+                  사용가능한 아이디입니다.
+                </UsernameIsNotExistedExistence>
+              )}
+            </UsernameExistenceWrap>
+          )}
+      </div>
       <SignupNextButton isActive={isActive} />
     </>
   );

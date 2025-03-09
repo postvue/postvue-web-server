@@ -1,21 +1,35 @@
+import { ReactComponent as MsgConversationSernPhotoButtonIcon } from 'assets/images/icon/svg/msg/MsgConversationSernPhotoButtonIcon.svg';
+import { ReactComponent as UploadImageDeleteButtonIcon } from 'assets/images/icon/svg/post/reaction/comment/UploadImageDeleteButtonIcon.svg';
+import { MEDIA_MOBILE_MAX_WIDTH } from 'const/SystemAttrConst';
+import { DirectMsgReq } from 'global/interface/message';
+import { uploadImgUtil } from 'global/util/ImageInputUtil';
+import {
+  isApp,
+  sendNativeImageUploadEvent,
+} from 'global/util/reactnative/nativeRouter';
+import useResizeObserver from 'hook/customhook/useResizeObserver';
 import React, { useEffect, useRef, useState } from 'react';
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useResetRecoilState, useSetRecoilState } from 'recoil';
+import { createDirectMsgConversation } from 'services/message/createDirectMsgConversation';
 import { msgConversationScrollInfoAtom } from 'states/MessageAtom';
+import { nativeUploadImgFileAtom } from 'states/NativeAtom';
+import { isLoadingPopupAtom } from 'states/SystemConfigAtom';
 import styled from 'styled-components';
+import theme from 'styles/theme';
 import { INIT_EMPTY_STRING_VALUE } from '../../../const/AttributeConst';
-import { MSG_CONTENT_TEXT_TYPE } from '../../../const/MsgContentTypeConst';
 import { ProfileInfoByDirectMsg } from '../../../global/interface/profile';
 import { isValidString } from '../../../global/util/ValidUtil';
-import msgConversationWsService from '../../../services/message/MsgConversationWsService';
 
 interface MsgConversationSendMessageProps {
   followInfo: ProfileInfoByDirectMsg;
   MsgConversationBodyContainerRef: React.RefObject<HTMLDivElement>;
+  MsgConversationSendMessageStyle?: React.CSSProperties;
 }
 
 const MsgConversationSendMessage: React.FC<MsgConversationSendMessageProps> = ({
   followInfo,
   MsgConversationBodyContainerRef,
+  MsgConversationSendMessageStyle,
 }) => {
   const msgConversationTextareaRef = useRef<HTMLTextAreaElement | null>(null);
 
@@ -46,13 +60,13 @@ const MsgConversationSendMessage: React.FC<MsgConversationSendMessageProps> = ({
   };
 
   const onClickSendMsg = (): void => {
-    if (isValidString(msgConversationTextarea)) {
-      msgConversationWsService.sendMessage(followInfo.targetUserId, {
-        msgType: MSG_CONTENT_TEXT_TYPE,
-        msgContent: msgConversationTextarea,
-      });
+    if (isValidString(msgConversationTextarea) || uploadMsgImgFile !== null) {
+      // msgConversationWsService.sendMessage(followInfo.targetUserId, {
+      //   msgType: MSG_CONTENT_TEXT_TYPE,
+      //   msgContent: msgConversationTextarea,
+      // });
 
-      setMsgConversationTextarea('');
+      sendMsg(followInfo.targetUserId);
 
       onHandleMoveEnd();
     }
@@ -71,54 +85,178 @@ const MsgConversationSendMessage: React.FC<MsgConversationSendMessageProps> = ({
     }
   };
 
+  const uploadMsgImgId = 'msg-send-id';
+
+  const imgFileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadMsgImgFile, setUploadMsgImgFile] = useState<Blob | null>(null);
+  const [uploadMsgImgUrl, setUploadMsgImgUrl] = useState<string>(
+    INIT_EMPTY_STRING_VALUE,
+  );
+
+  const [isActiveUpload, setIsActiveUpload] = useState<boolean>(false);
+
+  const setIsLoadingPopup = useSetRecoilState(isLoadingPopupAtom);
+
+  const sendMsg = (targetUserId: string) => {
+    if (!isActiveUpload) {
+      return;
+    }
+    const directMsgReq: DirectMsgReq = {
+      msgTextContent: msgConversationTextarea,
+    };
+
+    const formData = new FormData();
+
+    const directMsgReqBlob = new Blob([JSON.stringify(directMsgReq)], {
+      type: 'application/json',
+    });
+
+    formData.append('directMsgReq', directMsgReqBlob);
+    if (uploadMsgImgFile) {
+      formData.append('file', uploadMsgImgFile);
+    }
+
+    setIsLoadingPopup(true);
+    createDirectMsgConversation(targetUserId, formData)
+      .then(() => {
+        setMsgConversationTextarea('');
+        setUploadMsgImgFile(null);
+        setUploadMsgImgUrl(INIT_EMPTY_STRING_VALUE);
+      })
+      .catch((error: any) => {
+        console.log(error);
+        alert(error.response.data.message);
+      })
+      .finally(() => {
+        setIsLoadingPopup(false);
+      });
+  };
+
+  const onClickDeleteUploadCommentImg = () => {
+    if (uploadMsgImgUrl) {
+      URL.revokeObjectURL(uploadMsgImgUrl);
+    }
+    setUploadMsgImgFile(null);
+    setUploadMsgImgUrl(INIT_EMPTY_STRING_VALUE);
+    if (imgFileInputRef.current) {
+      imgFileInputRef.current.value = '';
+    }
+
+    if (!msgTextfieldAndImContainergRef.current) return;
+    msgTextfieldAndImContainergRef.current.style.display = 'block';
+  };
+
+  const { ref: msgTextfieldAndImContainergRef, height } = useResizeObserver();
+
+  useEffect(() => {
+    if (!msgTextfieldAndImContainergRef.current) return;
+
+    if (
+      window.innerHeight <=
+      height + 2 * theme.systemSize.header.heightNumber
+    ) {
+      msgTextfieldAndImContainergRef.current.style.display = 'flex';
+    }
+  }, [height]);
+
+  useEffect(() => {
+    if (isValidString(msgConversationTextarea) || uploadMsgImgFile) {
+      setIsActiveUpload(true);
+    } else {
+      setIsActiveUpload(false);
+    }
+  }, [msgConversationTextarea, uploadMsgImgFile]);
+
+  const nativeUploadImgFile = useRecoilValue(nativeUploadImgFileAtom);
+  const resetNativeUploadImgFile = useResetRecoilState(nativeUploadImgFileAtom);
+  useEffect(() => {
+    if (!isApp() || nativeUploadImgFile.imgFile === null) return;
+
+    uploadImgUtil(
+      nativeUploadImgFile.imgFile,
+      setUploadMsgImgFile,
+      setUploadMsgImgUrl,
+    );
+    resetNativeUploadImgFile();
+  }, [nativeUploadImgFile]);
+
   return (
-    <MsgConversationSendMessageContainer>
+    <MsgConversationSendMessageContainer
+      style={MsgConversationSendMessageStyle}
+    >
       <MsgConversationSendContainerWrap>
         <MsgConversationSendMessageWrap>
-          <MsgSendPhotoButtonWrap>
-            <MsgConversationSendPhotoButton>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="18"
-                height="18"
-                viewBox="0 0 18 18"
-                fill="none"
-              >
-                <path
-                  fillRule="evenodd"
-                  clipRule="evenodd"
-                  d="M0 14V4.82353C0 3.71896 0.895431 2.82353 2 2.82353H4.5V2C4.5 0.89543 5.39543 0 6.5 0H11.5C12.6046 0 13.5 0.895431 13.5 2V2.82353H16C17.1046 2.82353 18 3.71896 18 4.82353V14C18 15.1046 17.1046 16 16 16H2C0.89543 16 0 15.1046 0 14ZM11.5 9C11.5 10.3807 10.3807 11.5 9 11.5C7.61929 11.5 6.5 10.3807 6.5 9C6.5 7.61929 7.61929 6.5 9 6.5C10.3807 6.5 11.5 7.61929 11.5 9ZM13 9C13 11.2091 11.2091 13 9 13C6.79086 13 5 11.2091 5 9C5 6.79086 6.79086 5 9 5C11.2091 5 13 6.79086 13 9Z"
-                  fill="white"
-                />
-              </svg>
-            </MsgConversationSendPhotoButton>
-          </MsgSendPhotoButtonWrap>
-          <MsgConversationSendTextFieldWrap>
-            <MsgConversationSendTextField
-              rows={1}
-              placeholder="메시지 보내기"
-              ref={msgConversationTextareaRef}
-              value={msgConversationTextarea}
-              onChange={(e) => setMsgConversationTextarea(e.target.value)}
-              onKeyDown={(e) => {
-                e.stopPropagation();
-                handleKeyPress(e);
-              }}
-            />
-          </MsgConversationSendTextFieldWrap>
-          <MsgSendButtonWrap>
-            {isValidString(msgConversationTextarea) && (
-              <MsgSendButton
-                onClick={(e) => {
-                  e.stopPropagation();
-
-                  onClickSendMsg();
+          <MsgConversationSendMessageSubWrap>
+            <MsgSendPhotoButtonWrap>
+              <MsgConversationSendPhotoButton
+                htmlFor={uploadMsgImgId}
+                onClick={() => {
+                  if (!isApp()) return;
+                  sendNativeImageUploadEvent();
                 }}
               >
-                게시
-              </MsgSendButton>
-            )}
-          </MsgSendButtonWrap>
+                <MsgConversationSernPhotoButtonIcon />
+              </MsgConversationSendPhotoButton>
+              {!isApp() && (
+                <MsgUploadInput
+                  id={uploadMsgImgId}
+                  ref={imgFileInputRef}
+                  accept="image/jpeg, image/png, image/gif, image/bmp, image/webp"
+                  type="file"
+                  onChange={(e) => {
+                    if (!e.target.files) return;
+                    uploadImgUtil(
+                      e.target.files[0],
+                      setUploadMsgImgFile,
+                      setUploadMsgImgUrl,
+                    );
+                  }}
+                />
+              )}
+            </MsgSendPhotoButtonWrap>
+            <MsgConversationSendTextFieldWrap
+              ref={msgTextfieldAndImContainergRef}
+            >
+              {uploadMsgImgUrl && (
+                <PostCommentImageImgWrap>
+                  <PostCommentImageImg src={uploadMsgImgUrl} />
+                  <DeleteUploadImageDiv onClick={onClickDeleteUploadCommentImg}>
+                    <UploadImageDeleteButtonIcon />
+                  </DeleteUploadImageDiv>
+                </PostCommentImageImgWrap>
+              )}
+              <MsgConversationSendTextFielSubdWrap>
+                <MsgConversationSendTextField
+                  rows={1}
+                  placeholder="메시지 보내기"
+                  ref={msgConversationTextareaRef}
+                  value={msgConversationTextarea}
+                  onChange={(e) => {
+                    setMsgConversationTextarea(e.target.value);
+                  }}
+                  onKeyDown={(e) => {
+                    e.stopPropagation();
+                    handleKeyPress(e);
+                  }}
+                />
+              </MsgConversationSendTextFielSubdWrap>
+            </MsgConversationSendTextFieldWrap>
+            <MsgSendButtonWrap>
+              {(isValidString(msgConversationTextarea) ||
+                (isValidString(uploadMsgImgUrl) &&
+                  uploadMsgImgFile !== null)) && (
+                <MsgSendButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+
+                    onClickSendMsg();
+                  }}
+                >
+                  게시
+                </MsgSendButton>
+              )}
+            </MsgSendButtonWrap>
+          </MsgConversationSendMessageSubWrap>
         </MsgConversationSendMessageWrap>
       </MsgConversationSendContainerWrap>
     </MsgConversationSendMessageContainer>
@@ -127,12 +265,16 @@ const MsgConversationSendMessage: React.FC<MsgConversationSendMessageProps> = ({
 
 const MsgConversationSendMessageContainer = styled.div`
   position: fixed;
+  flex-shrink: 0;
   width: 100%;
   max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
+  @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
+    max-width: ${theme.systemSize.appDisplaySize.widthByPc};
+  }
   bottom: 0px;
   background-color: ${({ theme }) => theme.mainColor.White};
 
-  padding: 15px 0 20px 0;
+  padding: 15px 0 calc(10px + env(safe-area-inset-bottom)) 0;
 `;
 
 const MsgConversationSendContainerWrap = styled.div`
@@ -141,18 +283,25 @@ const MsgConversationSendContainerWrap = styled.div`
 `;
 
 const MsgConversationSendMessageWrap = styled.div`
+  width: 100%;
+  background-color: white;
+  border-radius: 26px;
+  border: 1px solid ${({ theme }) => theme.grey.Grey2};
+  padding: 5px;
+`;
+
+const MsgConversationSendMessageSubWrap = styled.div`
   display: flex;
   width: 100%;
-  background-color: ${({ theme }) => theme.grey.Grey1};
+  background-color: white;
   border-radius: 26px;
-  padding: 5px;
 `;
 
 const MsgSendPhotoButtonWrap = styled.div`
   margin: auto 0 0 0;
 `;
 
-const MsgConversationSendPhotoButton = styled.div`
+const MsgConversationSendPhotoButton = styled.label`
   background-color: ${({ theme }) => theme.mainColor.Blue};
   display: flex;
   padding: 10px;
@@ -160,19 +309,38 @@ const MsgConversationSendPhotoButton = styled.div`
 `;
 
 const MsgConversationSendTextFieldWrap = styled.div`
-  display: flex;
   width: 100%;
 `;
-const MsgConversationSendTextField = styled.textarea`
-  padding: 4px 10px 4px 10px;
+
+const MsgConversationSendTextFielSubdWrap = styled.div`
   width: 100%;
-  font: ${({ theme }) => theme.fontSizes.Body4};
+  margin: auto 0;
+  display: flex;
+`;
+const MsgConversationSendTextField = styled.textarea`
+  padding: 4px 0px 4px 10px;
+  margin-right: 10px;
+  width: 100%;
+  font: ${({ theme }) => theme.fontSizes.Body3};
   outline: none;
   border: 0px;
   resize: none;
-  overflow: hidden;
-  background-color: ${({ theme }) => theme.grey.Grey1};
+  background-color: white;
   line-height: 1.7;
+
+  max-height: 140px;
+  &::-webkit-scrollbar {
+    display: block;
+    width: 5px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: ${({ theme }) => theme.grey.Grey5};
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background-color: ${({ theme }) => theme.grey.Grey1};
+  }
 `;
 
 const MsgSendButtonWrap = styled.div`
@@ -192,6 +360,30 @@ const MsgSendButton = styled.div`
 
   color: ${({ theme }) => theme.mainColor.White};
   font: ${({ theme }) => theme.fontSizes.Body4};
+  cursor: pointer;
+`;
+
+const MsgUploadInput = styled.input`
+  display: none;
+`;
+
+const PostCommentImageImgWrap = styled.div`
+  position: relative;
+  width: 90%;
+  margin: auto 0;
+  padding: 5px 0 5px 10px;
+`;
+
+const PostCommentImageImg = styled.img`
+  border-radius: 16px;
+  width: 100%;
+  vertical-align: bottom;
+`;
+const DeleteUploadImageDiv = styled.div`
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  padding: 10px 10px 0 0;
   cursor: pointer;
 `;
 

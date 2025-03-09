@@ -40,6 +40,7 @@ export const QueryStateProfileFollowingListInfinite = (
     },
 
     initialPageParam: PAGE_NUM,
+    refetchOnMount: 'always',
     enabled: isValidString(username),
   });
 };

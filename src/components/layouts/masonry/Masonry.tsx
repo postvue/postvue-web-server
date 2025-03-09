@@ -1,7 +1,10 @@
 import MasonryUtil from 'global/util/MasonryUtil';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useRecoilState } from 'recoil';
-import { masonryColumnCountAtom } from 'states/MasonryAtom';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import {
+  masonryColumnCountAtom,
+  masonryUpdateCountAtom,
+} from 'states/MasonryAtom';
 import MasonryBrick from './MasonryBrick';
 import MasonryBrickWrap from './MasonryBrickWrap';
 import MasonryContainer from './MasonryContainer';
@@ -16,6 +19,7 @@ type MasonryProps = {
   rowGap: number;
   breakPointOption: breakPointColumns;
   loadMoreRef: React.RefObject<HTMLDivElement>;
+  fixNum?: number;
 };
 
 const Masonry: React.FC<MasonryProps> = ({
@@ -24,10 +28,12 @@ const Masonry: React.FC<MasonryProps> = ({
   rowGap,
   breakPointOption,
   loadMoreRef,
+  fixNum,
 }) => {
   const [columnCount, setColumnCount] = useRecoilState(masonryColumnCountAtom);
   const [columnWidth, setColumnWidth] = useState(2);
   const [reload, setReload] = useState(0);
+  const masonryUpdateCount = useRecoilValue(masonryUpdateCountAtom);
 
   const masonryRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -41,7 +47,9 @@ const Masonry: React.FC<MasonryProps> = ({
     const resizeHandler = () => {
       // 윈도우 너비
       const wWidth = window.innerWidth;
-      setColumnCount(utils.caculateColumnCount(wWidth, breakPointOption));
+      setColumnCount(
+        utils.caculateColumnCount(wWidth, breakPointOption, fixNum),
+      );
     };
 
     resizeHandler();
@@ -51,8 +59,8 @@ const Masonry: React.FC<MasonryProps> = ({
 
   // 반응형 너비
   useEffect(() => {
-    console.log('킹콩권', columnCount);
     if (!columnCount) return;
+
     const resizeHandler = () => {
       if (masonryRef.current) {
         const scrollBarWidth = 0; // 스크롤바 너비
@@ -104,7 +112,8 @@ const Masonry: React.FC<MasonryProps> = ({
             setReload((prev) => prev + 1);
           });
         }
-        //@REFER: 잠깐 로드 제거
+
+        //@REFER: 비디오 자동 실행 구현 완료시
         // if (videoEl) {
         //   videoEl.addEventListener('loadedmetadata', () => {
         //     applyBrickStyles(brickEl, wrapEl, cellWidth);
@@ -116,7 +125,14 @@ const Masonry: React.FC<MasonryProps> = ({
         applyBrickStyles(brickEl, wrapEl, cellWidth);
       }
     });
-  }, [brickRefs, wrapRefs, columnWidth, columnGap, children]);
+  }, [
+    brickRefs,
+    wrapRefs,
+    columnWidth,
+    columnGap,
+    children,
+    masonryUpdateCount,
+  ]);
 
   // 스타일 적용 함수
   const applyBrickStyles = (
@@ -134,7 +150,6 @@ const Masonry: React.FC<MasonryProps> = ({
   // Container 컴포넌트 설정
   useEffect(() => {
     const containerEl = containerRef.current;
-    console.log('헤ㅎ헤ㅔ헤');
 
     if (containerEl) {
       containerEl.style.position = 'relative';
@@ -183,6 +198,7 @@ const Masonry: React.FC<MasonryProps> = ({
     columnGap,
     children,
     reload,
+    masonryUpdateCount,
   ]);
 
   return (

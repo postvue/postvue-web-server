@@ -1,14 +1,21 @@
-import React, { useState } from 'react';
-import { useRecoilState } from 'recoil';
+import { ReactComponent as ProfileTabNotActiveIcon } from 'assets/images/icon/svg/navbar/ProfileTabNotActiveIcon.svg';
+import { AxiosError } from 'axios';
+import { notify } from 'components/popups/ToastMsgPopup';
+import { STATUS_FORBIDDEN_CODE } from 'const/HttpStatusConst';
+import { fetchProfilePost } from 'global/util/channel/static/fetchProfilePost';
+import { sendVibrationLightEvent } from 'global/util/reactnative/nativeRouter';
+import { QueryStateProfileInfo } from 'hook/queryhook/QueryStateProfileInfo';
+import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import theme from 'styles/theme';
 import { deleteProfilFollow } from '../../../services/profile/deleteProfileFollow';
 import { postProfilFollow } from '../../../services/profile/postProfileFollow';
-import { systemPostRspHashMapAtom } from '../../../states/SystemConfigAtom';
 
 interface FollowButtonProps {
   fontSize?: string;
   userId: string;
+  username: string;
+  postId?: string;
   style?: React.CSSProperties;
   isFollow: boolean;
   FollowButton?: React.ReactNode;
@@ -20,6 +27,8 @@ interface FollowButtonProps {
 const FollowButton: React.FC<FollowButtonProps> = ({
   fontSize = theme.fontSizes.Subhead2,
   userId,
+  username,
+  postId,
   style,
   isFollow,
   FollowButton,
@@ -27,52 +36,83 @@ const FollowButton: React.FC<FollowButtonProps> = ({
   FollowButtonContainerStyle,
   hasFollowCancelButton = false,
 }) => {
-  const [snsSystemPostHashMap, setSnsSystemPostHashMap] = useRecoilState(
-    systemPostRspHashMapAtom,
+  const clickRef = useRef(false);
+  const { refetch: refetchByProfileInfo } = QueryStateProfileInfo(
+    username,
+    clickRef.current,
   );
 
-  const [isFollowed, setIsFollowed] = useState<boolean>(isFollow);
-
-  const updateSystemPostByFollowed = (isFollowed: boolean) => {
-    const newSnsPostHashMap = new Map(snsSystemPostHashMap);
-    newSnsPostHashMap.forEach((snsPost, key) => {
-      if (snsPost.userId === userId) {
-        const snsPostTemp = newSnsPostHashMap.get(key);
-        if (snsPostTemp !== undefined) {
-          newSnsPostHashMap.set(key, {
-            ...snsPostTemp,
-            isFollowed: isFollowed,
-          });
-        }
-      }
-    });
-
-    setSnsSystemPostHashMap(newSnsPostHashMap);
-  };
-
+  const [followState, setFollowState] = useState<boolean | null>(null);
   const onCreateFollow = () => {
-    postProfilFollow(userId).then((value) => {
-      setIsFollowed(value);
+    postProfilFollow(userId)
+      .then((value) => {
+        if (value) {
+          sendVibrationLightEvent();
+        }
+        setFollowState(value);
+        clickRef.current = true;
 
-      updateSystemPostByFollowed(value);
-    });
+        refetchByProfileInfo();
+        if (!postId) return;
+        fetchProfilePost(postId);
+
+        notify({
+          msgIcon: <ProfileTabNotActiveIcon />,
+          msgTitle: username + '님을 팔로우 했습니다.',
+          // rightNode: (
+          //   <PostScrapNotificationGoButton
+          //     onClick={() => {
+          //       stackRouterPush(navigate, SEARCH_FAVORITE_LIST_PATH);
+          //     }}
+          //   >
+          //     보기
+          //   </PostScrapNotificationGoButton>
+          // ),
+          autoClose: 1000,
+        });
+      })
+      .catch((error: AxiosError) => {
+        if (error.status === STATUS_FORBIDDEN_CODE) {
+          if (!postId) return;
+          fetchProfilePost(postId);
+        }
+
+        const data: any = error.response?.data;
+        alert(data.message);
+      })
+      .finally(() => {
+        clickRef.current = false;
+      });
   };
 
   const onDeleteFollow = () => {
-    deleteProfilFollow(userId).then((value) => {
-      setIsFollowed(value);
-      updateSystemPostByFollowed(value);
-    });
+    deleteProfilFollow(userId)
+      .then(() => {
+        refetchByProfileInfo();
+        if (!postId) return;
+        fetchProfilePost(postId);
+      })
+      .catch((error: AxiosError) => {
+        if (error.status === STATUS_FORBIDDEN_CODE) {
+          if (!postId) return;
+          fetchProfilePost(postId);
+        }
+
+        const data: any = error.response?.data;
+        alert(data.message);
+      });
   };
   return (
     <ProfileFollowButtonContainer
       onClick={(e) => {
         e.stopPropagation();
-        isFollowed ? onDeleteFollow() : onCreateFollow();
+        (followState != null ? followState : isFollow)
+          ? onDeleteFollow()
+          : onCreateFollow();
       }}
       style={FollowButtonContainerStyle}
     >
-      {isFollowed ? (
+      {(followState != null ? followState : isFollow) ? (
         <>
           {hasFollowCancelButton && (
             <>

@@ -15,7 +15,7 @@ export const getProfileSearchUsers = (
 ): Promise<GetProfileSearchUsersRsp> => {
   return privateApi
     .get(
-      `${PROFILE_SEARCH_USERS_API_PATH}/${username}?${CURSOR_PARAM}=${cursorId}&${HAS_FOLLOW_INFO_PARAM}=${hasFollowInfo}`,
+      `${PROFILE_SEARCH_USERS_API_PATH}/${encodeURIComponent(username)}?${CURSOR_PARAM}=${cursorId}&${HAS_FOLLOW_INFO_PARAM}=${hasFollowInfo}`,
     )
     .then((res) => {
       console.log(res.data);

@@ -2,19 +2,17 @@ import NoResultComponent from 'components/common/container/NoResultComponent';
 import LocationPositionElement from 'components/location/LocationPostionElement';
 import { MapAddressRelation } from 'global/interface/map';
 import { isValidString } from 'global/util/ValidUtil';
+import useAppleMapSearchWithCache from 'hook/customhook/useAppleMapSearchWithCache';
 import MapAddressRelationListInfiniteScroll from 'hook/MapAddressRelationRelationInfiniteScroll';
 import { QueryStateMapAddressListByGeo } from 'hook/queryhook/QueryStateMapAddressListByGeo';
 import { QueryStateMapAddressRelationInfinite } from 'hook/queryhook/QueryStateMapAddressRelationInfinite';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { SetterOrUpdater, useRecoilState, useRecoilValue } from 'recoil';
 import {
-  SetterOrUpdater,
-  useRecoilState,
-  useRecoilValue,
-  useSetRecoilState,
-} from 'recoil';
-import { locationSearchWordAtom } from 'states/GeoLocationAtom';
+  currentGisInfoAtom,
+  locationSearchWordAtom,
+} from 'states/GeoLocationAtom';
 import { isMapSLocationLoadingAtom } from 'states/MapExploreAtom';
-import { isActivPostComposeLocationPopupAtom } from 'states/PostComposeAtom';
 import styled from 'styled-components';
 
 interface PostComposeLocationPopupBodyProps {
@@ -25,7 +23,7 @@ interface PostComposeLocationPopupBodyProps {
     isActive: boolean;
   };
   PostComposeLocationPopupBodyContainerStyle?: React.CSSProperties;
-  setIsExternalCloseFunc?: React.Dispatch<React.SetStateAction<boolean>>;
+  onClose: () => void;
 }
 
 const PostComposeLocationPopupBody: React.FC<
@@ -34,21 +32,23 @@ const PostComposeLocationPopupBody: React.FC<
   setAddress,
   curPositionInfo,
   PostComposeLocationPopupBodyContainerStyle,
-  setIsExternalCloseFunc,
+  onClose,
 }) => {
-  const setIsActivPostComposeLocationPopup = useSetRecoilState(
-    isActivPostComposeLocationPopupAtom,
-  );
-
   const [locationSearchWord, setLocationSearchWord] = useRecoilState(
     locationSearchWordAtom,
   );
   const loadingByAddressBySearch = useRecoilValue(isMapSLocationLoadingAtom);
 
+  const currentGisInfo = useRecoilValue(currentGisInfoAtom);
+
   const {
     data: relationAddressListBySearchWord,
     isFetched: isFetchedRelatedAddressList,
-  } = QueryStateMapAddressRelationInfinite(locationSearchWord);
+  } = QueryStateMapAddressRelationInfinite(
+    locationSearchWord,
+    currentGisInfo.latitude,
+    currentGisInfo.longitude,
+  );
 
   const { data: addressListByGeo, isFetched: isFetchedByAddresListByGeo } =
     QueryStateMapAddressListByGeo(
@@ -68,68 +68,123 @@ const PostComposeLocationPopupBody: React.FC<
   };
 
   const PostComposeLocationContainerRef = useRef<HTMLDivElement>(null);
+
+  const [isActiveMapApple, setIsActiveMapApple] = useState<boolean>(false);
+
+  const {
+    mapAppleSearchList,
+    isFetched: isFetchedByMapAppleSearchList,
+    isVisible: isVisibleByMapAppleSearch,
+  } = useAppleMapSearchWithCache({
+    mapSearchWord: locationSearchWord,
+    // geoPos: geoPos,
+    isActive: isActiveMapApple,
+    onDeactive: () => {
+      setIsActiveMapApple(false);
+    },
+  });
+
   return (
     <PostComposeLocationContainer
       ref={PostComposeLocationContainerRef}
       style={PostComposeLocationPopupBodyContainerStyle}
     >
-      {isValidString(locationSearchWord) &&
-        relationAddressListBySearchWord &&
-        !loadingByAddressBySearch &&
-        relationAddressListBySearchWord.pages.flatMap((v) => v).length > 0 && (
-          <PostComposeLocationBodyContainer>
-            {relationAddressListBySearchWord.pages.flatMap((v) =>
-              v.map((value, key) => {
+      {(isFetchedRelatedAddressList || isFetchedByAddresListByGeo) &&
+        isValidString(locationSearchWord) &&
+        !isVisibleByMapAppleSearch && (
+          <SearchOverseasButtonWrap>
+            <SearchOverseasButton
+              onClick={() => {
+                setIsActiveMapApple(true);
+              }}
+            >
+              해외 검색하기
+            </SearchOverseasButton>
+          </SearchOverseasButtonWrap>
+        )}
+
+      {isVisibleByMapAppleSearch ? (
+        <>
+          {isFetchedByMapAppleSearchList && mapAppleSearchList && (
+            <PostComposeLocationBodyContainer>
+              {mapAppleSearchList.map((value, key) => {
                 return (
                   <LocationPositionElement
                     key={key}
-                    buildName={value.buildName}
+                    buildName={value.placeName}
                     roadAddr={value.roadAddr}
                     onClickAddress={() => {
-                      setIsActivPostComposeLocationPopup(false);
-                      if (setIsExternalCloseFunc) {
-                        console.log('zzz');
-                        setIsExternalCloseFunc(true);
-                      }
-                      onClickAddress(value);
-                    }}
-                  />
-                );
-              }),
-            )}
-            <MapAddressRelationListInfiniteScroll
-              srchQry={locationSearchWord}
-            />
-          </PostComposeLocationBodyContainer>
-        )}
-      <>
-        {locationSearchWord === '' &&
-          addressListByGeo &&
-          !loadingByAddressBySearch && (
-            <PostComposeLocationBodyContainer>
-              {addressListByGeo.map((value, key) => {
-                return (
-                  <LocationPositionElement
-                    key={key}
-                    buildName={value.buildName}
-                    roadAddr={value.address}
-                    onClickAddress={() => {
-                      setIsActivPostComposeLocationPopup(false);
-                      if (setIsExternalCloseFunc) {
-                        console.log('zzzaaa');
-                        setIsExternalCloseFunc(true);
-                      }
                       onClickAddress({
-                        roadAddr: value.address,
-                        buildName: value.buildName,
+                        roadAddr: value.roadAddr,
+                        buildName: value.placeName,
+                        latitude: value.latitude,
+                        longitude: value.longitude,
                       });
+                      onClose();
                     }}
                   />
                 );
               })}
             </PostComposeLocationBodyContainer>
           )}
-      </>
+        </>
+      ) : (
+        <>
+          {isValidString(locationSearchWord) &&
+            relationAddressListBySearchWord &&
+            !loadingByAddressBySearch &&
+            relationAddressListBySearchWord.pages.flatMap((v) => v).length >
+              0 && (
+              <PostComposeLocationBodyContainer>
+                {relationAddressListBySearchWord.pages.flatMap((v) =>
+                  v.map((value, key) => {
+                    return (
+                      <LocationPositionElement
+                        key={key}
+                        buildName={value.buildName}
+                        roadAddr={value.roadAddr}
+                        onClickAddress={() => {
+                          onClickAddress(value);
+                          onClose();
+                        }}
+                      />
+                    );
+                  }),
+                )}
+                <MapAddressRelationListInfiniteScroll
+                  srchQry={locationSearchWord}
+                  latitude={currentGisInfo.latitude}
+                  longitude={currentGisInfo.longitude}
+                />
+              </PostComposeLocationBodyContainer>
+            )}
+
+          {locationSearchWord === '' &&
+            addressListByGeo &&
+            !loadingByAddressBySearch && (
+              <PostComposeLocationBodyContainer>
+                {addressListByGeo.map((value, key) => {
+                  return (
+                    <LocationPositionElement
+                      key={key}
+                      buildName={value.buildName}
+                      roadAddr={value.address}
+                      onClickAddress={() => {
+                        onClickAddress({
+                          roadAddr: value.address,
+                          buildName: value.buildName,
+                          latitude: value.latitude,
+                          longitude: value.longitude,
+                        });
+                        onClose();
+                      }}
+                    />
+                  );
+                })}
+              </PostComposeLocationBodyContainer>
+            )}
+        </>
+      )}
 
       {(((!relationAddressListBySearchWord ||
         (relationAddressListBySearchWord &&
@@ -141,7 +196,13 @@ const PostComposeLocationPopupBody: React.FC<
           addressListByGeo &&
           isFetchedByAddresListByGeo &&
           addressListByGeo?.length <= 0)) &&
-        !loadingByAddressBySearch && <NoResultComponent />}
+        !loadingByAddressBySearch &&
+        !isVisibleByMapAppleSearch && <NoResultComponent />}
+
+      {isFetchedByMapAppleSearchList &&
+        isVisibleByMapAppleSearch &&
+        mapAppleSearchList &&
+        mapAppleSearchList.length <= 0 && <NoResultComponent />}
     </PostComposeLocationContainer>
   );
 };
@@ -155,9 +216,25 @@ const PostComposeLocationBodyContainer = styled.div`
 
   display: flex;
   flex-flow: column;
-  gap: 20px;
-  width: 100%;
+
   padding: 0 ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding};
+`;
+
+const SearchOverseasButtonWrap = styled.div`
+  display: flex;
+  padding-top: 5px;
+`;
+
+const SearchOverseasButton = styled.div`
+  display: flex;
+  margin: 0 auto;
+  border-radius: 22px;
+  padding: 8px 13px;
+  box-shadow: 0px 1px 6px 0px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  background-color: rgba(255, 255, 255, 1);
+  display: flex;
+  font: ${({ theme }) => theme.fontSizes.Body1};
 `;
 
 export default PostComposeLocationPopupBody;

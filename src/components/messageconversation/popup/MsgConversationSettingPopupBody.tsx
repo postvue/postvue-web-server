@@ -7,9 +7,11 @@ import {
 import { QUERY_STATE_MSG_INBOX_LIST } from 'const/QueryClientConst';
 import { ProfileInfoByDirectMsg } from 'global/interface/profile';
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { useSetRecoilState } from 'recoil';
 import { putBlockingUser } from 'services/message/putBlockingUser';
 import { putHiddenUser } from 'services/message/putHiddenUser';
+import { isSettingByMsgConversationAtom } from 'states/MessageAtom';
 import styled from 'styled-components';
 
 interface MsgConversationSettingPopupBodyProps {
@@ -20,6 +22,10 @@ const MsgConversationSettingPopupBody: React.FC<
   MsgConversationSettingPopupBodyProps
 > = ({ targetProfileInfo, MsgSettingContainerStyle }) => {
   const navigate = useNavigate();
+
+  const setIsSettingByMsgConversation = useSetRecoilState(
+    isSettingByMsgConversationAtom,
+  );
 
   const onClickHidingUser = (targetUserId: string) => {
     putHiddenUser(targetUserId).then(() => {
@@ -44,9 +50,15 @@ const MsgConversationSettingPopupBody: React.FC<
         <AlarmManage>알림 끄기</AlarmManage>
       </AlarmManageWrap>
       <ProfileShowWrap>
-        <Link to={`${PROFILE_LIST_PATH}/${targetProfileInfo.username}`}>
+        <div
+          onClick={() => {
+            setIsSettingByMsgConversation(false);
+
+            navigate(`${PROFILE_LIST_PATH}/${targetProfileInfo.username}`);
+          }}
+        >
           <ProfileShow>프로필 보기</ProfileShow>
-        </Link>
+        </div>
       </ProfileShowWrap>
       <ProfileHiddenWrap>
         <ProfileHidden

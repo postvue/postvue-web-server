@@ -1,120 +1,164 @@
-import SnsAnotherSharePoupElement from 'components/popups/snsshare/SnsAnotherSharePoupElement';
+import { queryClient } from 'App';
+import SearchButtonInput from 'components/common/input/SearchButtonInput';
+import PullToRefreshComponent from 'components/PullToRefreshComponent';
+import { PAGE_NUM } from 'const/PageConfigConst';
+import { QUERY_STATE_MSG_INBOX_LIST } from 'const/QueryClientConst';
+import { stackRouterPush } from 'global/util/reactnative/nativeRouter';
+import { useActiveUserSessionHookByIndexedDb } from 'hook/db/useActiveUserSessionHookByIndexedDb';
 import MsgInboxListInfiniteScroll from 'hook/MsgInboxListInfiniteScroll';
-import { QueryStateMsgInboxListInfinite } from 'hook/queryhook/QueryStateMsgInboxListInfinite';
-import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { useRecoilValue } from 'recoil';
+import {
+  MsgInboxListInterface,
+  QueryStateMsgInboxListInfinite,
+} from 'hook/queryhook/QueryStateMsgInboxListInfinite';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { getMsgInboxMessages } from 'services/message/getMsgInboxMessages';
 import styled from 'styled-components';
-import { MSG_CONTENT_TEXT_TYPE } from '../../../const/MsgContentTypeConst';
+import { MSG_CONTENT_IMAGE_TYPE } from '../../../const/MsgContentTypeConst';
 import { CONVERSTAION_PATH, MESSAGE_PATH } from '../../../const/PathConst';
 import { MESSAGE_SEARCH_INPUT_PHARSE_TEXT } from '../../../const/SystemPhraseConst';
-import { convertDiffrenceDateTime } from '../../../global/util/DateTimeUtil';
-import { sessionActiveUserInfoHashMapAtom } from '../../../states/SessionAtom';
+import { convertDiffrenceDateTimeByString } from '../../../global/util/DateTimeUtil';
 import theme from '../../../styles/theme';
 
 const MessageInboxBody: React.FC = () => {
-  const sessionActiveUserInfoHashMap = useRecoilValue(
-    sessionActiveUserInfoHashMapAtom,
-  );
+  const { activeUserSessions } = useActiveUserSessionHookByIndexedDb();
+
+  const navigate = useNavigate();
 
   const { data: msgInboxMessageList } = QueryStateMsgInboxListInfinite();
 
-  useEffect(() => {
-    console.log(msgInboxMessageList);
-  }, [msgInboxMessageList]);
+  const onSearchInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setMsgInboxSearchInput(event.target.value);
+  };
+
+  const onSearchInputDelete = () => {
+    setMsgInboxSearchInput('');
+  };
+
+  const [msgInboxSearchInput, setMsgInboxSearchInput] = useState<string>('');
 
   return (
-    <MessageInboxBodyContainer>
-      <MessageSearchContainer>
-        <MessageSearchWrap>
-          <MessageSearchButton>
-            <SearchIcon
-              xmlns="http://www.w3.org/2000/svg"
-              width="15"
-              height="19"
-              viewBox="0 0 15 19"
-              fill="none"
-            >
-              <path
-                fillRule="evenodd"
-                clipRule="evenodd"
-                d="M11.243 14.48C8.12495 16.2708 4.13578 15.3744 2.04394 12.2942C-0.189465 9.00541 0.585712 4.47256 3.77535 2.16975C6.96499 -0.133055 11.3612 0.666209 13.5946 3.95496C15.6871 7.03617 15.1387 11.2094 12.4381 13.6176L14.8338 17.1454C15.0624 17.4821 14.9803 17.9481 14.6503 18.1864C14.3204 18.4246 13.8675 18.3448 13.6389 18.0081L11.243 14.48ZM10.9518 12.9002C8.42859 14.6609 4.99281 14.014 3.23888 11.4313C1.46756 8.82296 2.08235 5.22794 4.61207 3.40157C7.14178 1.57521 10.6285 2.20911 12.3998 4.81742C14.1537 7.40014 13.5681 10.9503 11.1005 12.7928L10.9518 12.9002Z"
-                fill="#535B63"
+    <>
+      <PullToRefreshComponent
+        onRefresh={async () => {
+          const fetchData = await getMsgInboxMessages(PAGE_NUM);
+
+          const data: MsgInboxListInterface = {
+            pageParams: [PAGE_NUM],
+            pages: [{ ...fetchData }],
+          };
+
+          queryClient.setQueryData([QUERY_STATE_MSG_INBOX_LIST], data);
+        }}
+      >
+        <MessageInboxBodyContainer>
+          <MessageSearchContainer>
+            <MessageSearchWrap>
+              <SearchButtonInput
+                placeholder={MESSAGE_SEARCH_INPUT_PHARSE_TEXT}
+                onSearchInputChange={onSearchInputChange}
+                onClickDelete={onSearchInputDelete}
+                value={msgInboxSearchInput}
+                isActiveDeleteButton={msgInboxSearchInput !== ''}
               />
-            </SearchIcon>
-          </MessageSearchButton>
-          <MsgSearchWrap>
-            <MsgSearchDiv>{MESSAGE_SEARCH_INPUT_PHARSE_TEXT}</MsgSearchDiv>
-          </MsgSearchWrap>
-        </MessageSearchWrap>
-      </MessageSearchContainer>
-      <FollowProfileMsgListContainer>
-        {msgInboxMessageList && (
-          <>
-            {msgInboxMessageList?.pages
-              .flatMap((v) => v)
-              .map((value, index) => (
-                <FollowProfileWrap key={index}>
-                  <FollowProfileImgNameWrapWrap>
-                    <FollowProfileActiveWrap>
-                      <FollowProfileImg src={value.profilePath} />
-                      <FollowActiveState
-                        $sessionState={
-                          sessionActiveUserInfoHashMap.get(value.targetUserId)
-                            ?.sessionState || false
-                        }
-                      />
-                    </FollowProfileActiveWrap>
-                    <FollowNameMsgWrap>
-                      <Link
-                        to={`${MESSAGE_PATH}/${value.username}${CONVERSTAION_PATH}`}
-                      >
-                        <FollowUsername>{value.username}</FollowUsername>
-                        <FollowRecentWrap>
-                          {value.msgType === MSG_CONTENT_TEXT_TYPE ? (
-                            <FollowRecentMsg>
-                              {value.msgContent}
-                            </FollowRecentMsg>
-                          ) : (
-                            <FollowRecentMsg>텍스트 아님</FollowRecentMsg>
-                          )}
-                        </FollowRecentWrap>
-                      </Link>
-                    </FollowNameMsgWrap>
-                  </FollowProfileImgNameWrapWrap>
-                  <MsgSubWrap>
-                    {value.unreadCount > 0 && (
-                      <FollowUnreadWrap>
-                        <FollowUnreadMsgCount>
-                          {value.unreadCount}
-                        </FollowUnreadMsgCount>
-                      </FollowUnreadWrap>
-                    )}
-                    <FollowRecentSendTime>
-                      {convertDiffrenceDateTime(value.sendAt)}
-                    </FollowRecentSendTime>
-                  </MsgSubWrap>
-                </FollowProfileWrap>
-              ))}
-          </>
-        )}
-        {msgInboxMessageList && msgInboxMessageList.pages.flatMap((v) => v) && (
-          <>
-            <NotMsgTargetWrap>
-              <NotMsgTargetTitle>
-                친구들을 팔로우해 대화 해 보세요.
-              </NotMsgTargetTitle>
-              <SnsAnotherSharePoupElement />
-            </NotMsgTargetWrap>
-          </>
-        )}
-      </FollowProfileMsgListContainer>
-      <MsgInboxListInfiniteScroll />
-    </MessageInboxBodyContainer>
+            </MessageSearchWrap>
+          </MessageSearchContainer>
+          <MsgInboxProfileMsgListContainer>
+            {msgInboxMessageList && (
+              <>
+                {msgInboxMessageList?.pages
+                  .flatMap((v) => v)
+                  .map((value, index) => {
+                    if (value.username.startsWith(msgInboxSearchInput)) {
+                      return (
+                        <MsgInboxProfileWrap key={index}>
+                          <MsgInboxProfileImgNameWrapWrap>
+                            <MsgInboxProfileActiveWrap>
+                              <MsgInboxProfileImg src={value.profilePath} />
+                              <MsgInboxActiveState
+                                $sessionState={
+                                  activeUserSessions.find(
+                                    (v) => v.id === value.targetUserId,
+                                  )?.sessionState || false
+                                }
+                              />
+                            </MsgInboxProfileActiveWrap>
+                            <MsgInboxNameMsgWrap>
+                              <div
+                                onClick={() =>
+                                  stackRouterPush(
+                                    navigate,
+                                    `${MESSAGE_PATH}/${value.username}${CONVERSTAION_PATH}`,
+                                  )
+                                }
+                              >
+                                <MsgInboxNameWrap>
+                                  <MsgInboxNickname>
+                                    {value.nickname}.
+                                  </MsgInboxNickname>
+                                  <MsgInboxUsername>
+                                    @{value.username}
+                                  </MsgInboxUsername>
+                                </MsgInboxNameWrap>
+
+                                <MsgInboxRecentWrap>
+                                  {value.hasMsgMedia ? (
+                                    <MsgInboxRecentMsg>
+                                      {value.msgMediaType ===
+                                      MSG_CONTENT_IMAGE_TYPE
+                                        ? '사진을 보냈습니다.'
+                                        : '영상을 보냈습니다.'}
+                                    </MsgInboxRecentMsg>
+                                  ) : (
+                                    <MsgInboxRecentMsg>
+                                      {value.msgTextContent}
+                                    </MsgInboxRecentMsg>
+                                  )}
+                                </MsgInboxRecentWrap>
+                              </div>
+                            </MsgInboxNameMsgWrap>
+                          </MsgInboxProfileImgNameWrapWrap>
+                          <MsgSubWrap>
+                            {value.unreadCount > 0 && (
+                              <MsgInboxUnreadWrap>
+                                <MsgInboxUnreadMsgCount>
+                                  {value.unreadCount}
+                                </MsgInboxUnreadMsgCount>
+                              </MsgInboxUnreadWrap>
+                            )}
+                            <MsgInboxRecentSendTime>
+                              {convertDiffrenceDateTimeByString(value.sendAt)}
+                            </MsgInboxRecentSendTime>
+                          </MsgSubWrap>
+                        </MsgInboxProfileWrap>
+                      );
+                    }
+                  })}
+              </>
+            )}
+            {msgInboxMessageList &&
+              msgInboxMessageList.pages.flatMap((v) => v).length <= 0 && (
+                <>
+                  <NotMsgTargetWrap>
+                    <NotMsgTargetTitle>
+                      친구들을 팔로우해 대화 해 보세요.
+                    </NotMsgTargetTitle>
+                    {/* <SnsAnotherSharePoupElement /> */}
+                  </NotMsgTargetWrap>
+                </>
+              )}
+          </MsgInboxProfileMsgListContainer>
+          <MsgInboxListInfiniteScroll />
+        </MessageInboxBodyContainer>
+      </PullToRefreshComponent>
+    </>
   );
 };
 
-const MessageInboxBodyContainer = styled.div``;
+const MessageInboxBodyContainer = styled.div`
+  height: 100%;
+  min-height: calc(100dvh - ${theme.systemSize.header.height});
+`;
 
 const MessageSearchContainer = styled.div`
   padding: 16px 15px 16px 15px;
@@ -149,32 +193,26 @@ const MsgSearchDiv = styled.div`
   color: ${({ theme }) => theme.grey.Grey6};
 `;
 
-const MessageSearchButton = styled.div``;
-
-const SearchIcon = styled.svg`
-  padding-left: 10px;
-`;
-
-const FollowProfileMsgListContainer = styled.div`
+const MsgInboxProfileMsgListContainer = styled.div`
   padding: 16px 20px 0 20px;
 `;
-const FollowProfileWrap = styled.div`
+const MsgInboxProfileWrap = styled.div`
   display: flex;
   margin-bottom: 16px;
   justify-content: space-between;
 `;
 
-const FollowProfileImgNameWrapWrap = styled.div`
+const MsgInboxProfileImgNameWrapWrap = styled.div`
   display: flex;
   gap: 13px;
   width: 90%;
 `;
 
-const FollowProfileActiveWrap = styled.div`
+const MsgInboxProfileActiveWrap = styled.div`
   position: relative;
 `;
 
-const FollowProfileImg = styled.img`
+const MsgInboxProfileImg = styled.img`
   width: 59px;
   height: 59px;
   border-radius: 30px;
@@ -182,7 +220,7 @@ const FollowProfileImg = styled.img`
   object-fit: cover;
 `;
 
-const FollowActiveState = styled.div<{ $sessionState: boolean }>`
+const MsgInboxActiveState = styled.div<{ $sessionState: boolean }>`
   background: ${(props) =>
     props.$sessionState ? theme.successColor.Green : theme.grey.Grey2};
   width: 15px;
@@ -195,22 +233,33 @@ const FollowActiveState = styled.div<{ $sessionState: boolean }>`
   right: 0px;
 `;
 
-const FollowNameMsgWrap = styled.div`
+const MsgInboxNameMsgWrap = styled.div`
   width: calc(100% - 60px);
   cursor: pointer;
 `;
 
-const FollowUsername = styled.div`
+const MsgInboxNameWrap = styled.div`
+  display: flex;
+  gap: 5px;
+`;
+
+const MsgInboxUsername = styled.div`
+  font: ${({ theme }) => theme.fontSizes.Body1};
+  color: ${({ theme }) => theme.grey.Grey5};
+  line-height: 2;
+`;
+
+const MsgInboxNickname = styled.div`
   font: ${({ theme }) => theme.fontSizes.Headline1};
 `;
 
-const FollowRecentWrap = styled.div`
+const MsgInboxRecentWrap = styled.div`
   gap: 5px;
   display: flex;
   justify-content: space-between;
   padding-right: 10px;
 `;
-const FollowRecentMsg = styled.div`
+const MsgInboxRecentMsg = styled.div`
   font: ${({ theme }) => theme.fontSizes.Body3};
   color: ${({ theme }) => theme.grey.Grey6};
   width: 70%;
@@ -221,18 +270,18 @@ const FollowRecentMsg = styled.div`
   word-break: break-all;
   width: 100%;
 `;
-const FollowRecentSendTime = styled.div`
+const MsgInboxRecentSendTime = styled.div`
   font: ${({ theme }) => theme.fontSizes.Body3};
   color: ${({ theme }) => theme.grey.Grey7};
   white-space: nowrap;
 `;
 
-const FollowUnreadWrap = styled.div`
+const MsgInboxUnreadWrap = styled.div`
   display: flex;
   justify-content: end;
 `;
 
-const FollowUnreadMsgCount = styled.div`
+const MsgInboxUnreadMsgCount = styled.div`
   font: ${({ theme }) => theme.fontSizes.Display1};
   color: ${({ theme }) => theme.mainColor.White};
   font-size: 12px;
@@ -260,6 +309,7 @@ const NotMsgTargetTitle = styled.div`
   font: ${({ theme }) => theme.fontSizes.Body5};
   text-align: center;
   padding-bottom: 15px;
+  white-space: nowrap;
 `;
 
 export default MessageInboxBody;

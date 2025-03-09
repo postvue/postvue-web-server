@@ -2,16 +2,19 @@ import BottomSheetLayout from 'components/layouts/BottomSheetLayout';
 import ProfileOtherAccountPopupBody from 'components/profile/profileaccount/ProfileOtherAccountPopupBody';
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
 import useWindowSize from 'hook/customhook/useWindowSize';
-import React from 'react';
+import React, { useState } from 'react';
 import { useRecoilState } from 'recoil';
-import { isActiveProfileAccountPopupAtom } from 'states/ProfileAtom';
+import { activeProfileAccountPopupInfoAtom } from 'states/ProfileAtom';
 import styled from 'styled-components';
 
 const ProfileOtherAccountPopup: React.FC = () => {
-  const [isActiveProfileAccountPopup, setIsActiveProfileAccountPopup] =
-    useRecoilState(isActiveProfileAccountPopupAtom);
+  const [activeProfileAccountPopupInfo, setActiveProfileAccountPopupInfo] =
+    useRecoilState(activeProfileAccountPopupInfoAtom);
 
   const { windowWidth } = useWindowSize();
+
+  const [isExternalCloseFunc, setIsExternalCloseFunc] =
+    useState<boolean>(false);
 
   return (
     <>
@@ -29,16 +32,34 @@ const ProfileOtherAccountPopup: React.FC = () => {
         //   </SettingPopupWrap>
         // </PopupLayout>
         <BottomSheetLayout
-          isOpen={isActiveProfileAccountPopup}
-          onClose={() => setIsActiveProfileAccountPopup(false)}
-          heightNum={300}
+          isOpen={activeProfileAccountPopupInfo.isActive}
+          isExternalCloseFunc={isExternalCloseFunc}
+          onClose={() =>
+            setActiveProfileAccountPopupInfo({
+              isActive: false,
+              userId: '',
+              username: '',
+            })
+          }
+          heightNum={
+            290 +
+              parseFloat(
+                getComputedStyle(document.documentElement).getPropertyValue(
+                  '--safe-area-inset-bottom',
+                ),
+              ) || 0
+          }
         >
           <SettingPopupWrap
             onClick={(e) => {
               e.stopPropagation();
             }}
           >
-            <ProfileOtherAccountPopupBody />
+            <ProfileOtherAccountPopupBody
+              userId={activeProfileAccountPopupInfo.userId}
+              username={activeProfileAccountPopupInfo.username}
+              onClose={() => setIsExternalCloseFunc(true)}
+            />
           </SettingPopupWrap>
         </BottomSheetLayout>
       )}

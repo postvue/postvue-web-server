@@ -1,6 +1,5 @@
 import { ReactComponent as ScrapComposeTargetAudTabIcon } from 'assets/images/icon/svg/CategoryCheckIcon.svg';
 import { ReactComponent as ScrapComposeTargetAudNotActiveTabIcon } from 'assets/images/icon/svg/CategoryNotCheckIcon.svg';
-import MyAccountSettingInfoState from 'components/common/state/MyAccountSettingInfoState';
 import {
   SEARCH_POST_PATH,
   SEARCH_PROFILE_PATH,
@@ -16,16 +15,18 @@ interface PostSearchFilterPopupBodyProps {
   searchWord: string;
   FilterPopupContainrStyle?: React.CSSProperties;
   FilterPopupTitleStyle?: React.CSSProperties;
+  FilterTargetNameStyle?: React.CSSProperties;
 }
 
 const PostSearchFilterPopupBody: React.FC<PostSearchFilterPopupBodyProps> = ({
   searchWord,
   FilterPopupContainrStyle,
   FilterPopupTitleStyle,
+  FilterTargetNameStyle,
 }) => {
   const navigate = useNavigate();
   const filterInfoList = [
-    { name: '게시글', url: SEARCH_POST_PATH },
+    { name: '게시물', url: SEARCH_POST_PATH },
     { name: '스크랩', url: SEARCH_SCRAP_PATH },
     { name: '프로필', url: SEARCH_PROFILE_PATH },
   ];
@@ -55,7 +56,7 @@ const PostSearchFilterPopupBody: React.FC<PostSearchFilterPopupBodyProps> = ({
                 navigate(`${value.url}/${searchWord}`);
               }}
             >
-              <ProfileScrapTargetAudienceTab>
+              <ProfileScrapTargetAudienceTab style={FilterTargetNameStyle}>
                 {value.name}
               </ProfileScrapTargetAudienceTab>
 
@@ -70,7 +71,6 @@ const PostSearchFilterPopupBody: React.FC<PostSearchFilterPopupBodyProps> = ({
           );
         })}
       </PostSearchFilterPopupWrap>
-      <MyAccountSettingInfoState />
     </PostSearchFilterPopupContainer>
   );
 };
@@ -89,8 +89,9 @@ const PostSearchFilterPopupWrap = styled.div`
 
 const PostSearchFilterTitle = styled.div`
   font: ${({ theme }) => theme.fontSizes.Subhead3};
+  font-size: 18px;
   text-align: center;
-  padding: 0 0 px 0;
+  margin-bottom: 5px;
 `;
 
 const ProfileScrapTargetWrap = styled.div`
@@ -101,7 +102,7 @@ const ProfileScrapTargetWrap = styled.div`
 `;
 
 const ProfileScrapTargetAudienceTab = styled.div`
-  font: ${({ theme }) => theme.fontSizes.Body4};
+  font: ${({ theme }) => theme.fontSizes.Body5};
 `;
 
 const ProfileScrapTargetAudTabWrap = styled.div`

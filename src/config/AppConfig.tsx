@@ -1,14 +1,18 @@
 import React from 'react';
 import DynamicStyleConfig from './appconfig/DynamicStyleConfig';
-import KakaoInitConfig from './appconfig/KakaoInitConfig';
+import NativeMsgBridgeConfig from './appconfig/NativeMsgBrigeConfig';
+import NotificationChannelConfig from './appconfig/NotificationChannelConfig';
+import ServiceUsageTimerConfig from './appconfig/ServiceUsageTimerConfig';
 import WebSocketInitConfig from './appconfig/WebSocketInitConfig';
 
 const AppConfig: React.FC = () => {
   return (
     <>
       <WebSocketInitConfig />
-      <KakaoInitConfig />
+      <NotificationChannelConfig />
       <DynamicStyleConfig />
+      <NativeMsgBridgeConfig />
+      <ServiceUsageTimerConfig />
     </>
   );
 };

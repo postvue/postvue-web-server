@@ -2,10 +2,7 @@ import { ReactComponent as LightScrollXmoveButtonIcon } from 'assets/images/icon
 import { ReactComponent as RightScrollXmoveButtonIcon } from 'assets/images/icon/svg/scrollx/RightScrollXMoveButtonIcon.svg';
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import {
-  MAX_DELAY_SETTIMEOUT_TIME,
-  MEDIA_MOBILE_MAX_WIDTH,
-} from '../../../const/SystemAttrConst';
+import { MEDIA_MOBILE_MAX_WIDTH } from '../../../const/SystemAttrConst';
 
 interface ScrollXMoveButtonProps {
   scrollContainerRef: React.RefObject<HTMLDivElement>;
@@ -29,7 +26,7 @@ const ScrollXMoveButtonContainer: React.FC<ScrollXMoveButtonProps> = ({
   ScrollRightIcon,
 }) => {
   const [showLeftButton, setShowLeftButton] = useState(false);
-  const [showRightButton, setShowRightButton] = useState(true);
+  const [showRightButton, setShowRightButton] = useState(false);
 
   // 스크롤 상태를 확인하여 버튼 상태를 업데이트하는 함수
   const updateButtonVisibility = () => {
@@ -71,7 +68,8 @@ const ScrollXMoveButtonContainer: React.FC<ScrollXMoveButtonProps> = ({
     if (container) {
       setTimeout(() => {
         updateButtonVisibility();
-      }, MAX_DELAY_SETTIMEOUT_TIME);
+      }, 0);
+
       if (scrollContainerRef.current) {
         scrollContainerRef.current.addEventListener(
           'scroll',

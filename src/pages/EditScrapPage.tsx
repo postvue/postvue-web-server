@@ -1,20 +1,23 @@
-import { queryClient } from 'App';
+import { ReactComponent as PostScrapButtonWhiteIcon } from 'assets/images/icon/svg/post/PostClipButton20x20WhiteIcon.svg';
 import PrevButtonHeaderHeader from 'components/layouts/PrevButtonHeaderHeader';
 import ConfirmPopup from 'components/popups/ConfirmPopup';
 import LoadingPopup from 'components/popups/LoadingPopup';
+import { notify } from 'components/popups/ToastMsgPopup';
 import ProfileEditScrapBody from 'components/profile/ProfileEditScrapBody';
 import { PROFILE_SCRAP_LIST_PATH } from 'const/PathConst';
-import {
-  QUERY_STATE_POST_SCRAP_PREVIEW_LIST,
-  QUERY_STATE_PROFILE_SCRAP_INFO,
-  QUERY_STATE_PROFILE_SCRAP_LIST,
-} from 'const/QueryClientConst';
+import { SCRAP_PAGE_NAME } from 'const/ReactNativeConst';
+import { DELETE_SCRAP } from 'const/SystemPhraseConst';
+import { fetchProfileClipListInfinite } from 'global/util/channel/static/fetchProfileClipListInfinite';
+import { fetchProfileScrapListInfinite } from 'global/util/channel/static/fetchProfileScrapListInfinite';
+import { fetchScrapPreviewList } from 'global/util/channel/static/fetchScrapPreviewList';
+import { refetchProfileScrap } from 'global/util/channel/static/refetchProfileScrap';
+import { isApp, navigateToMainTab } from 'global/util/reactnative/nativeRouter';
 import { isValidString } from 'global/util/ValidUtil';
+import useBodyAdaptProps from 'hook/customhook/useBodyAdaptProps';
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { deleteProfileScrap } from 'services/profile/deleteProfileScrap';
 import styled from 'styled-components';
-import BodyFixScrollElement from '../components/BodyFixScrollElement';
 import AppBaseTemplate from '../components/layouts/AppBaseTemplate';
 const EditScrapPage: React.FC = () => {
   const navigate = useNavigate();
@@ -28,23 +31,38 @@ const EditScrapPage: React.FC = () => {
     setIsLodingPopup(true);
     deleteProfileScrap(scrapId).then(() => {
       setIsDeleteScrapPopup(false);
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_STATE_PROFILE_SCRAP_LIST],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_STATE_PROFILE_SCRAP_INFO],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_STATE_POST_SCRAP_PREVIEW_LIST],
-      });
+
+      fetchProfileScrapListInfinite();
+
+      refetchProfileScrap(scrapId);
+      fetchScrapPreviewList(scrapId);
+      fetchProfileClipListInfinite();
 
       setIsLodingPopup(false);
-      navigate(PROFILE_SCRAP_LIST_PATH, { replace: true });
+      if (isApp()) {
+        navigateToMainTab(navigate, SCRAP_PAGE_NAME, PROFILE_SCRAP_LIST_PATH);
+      } else {
+        setTimeout(() => {
+          navigate(PROFILE_SCRAP_LIST_PATH, { replace: true });
+        }, 100);
+
+        setTimeout(() => {
+          notify({
+            msgIcon: <PostScrapButtonWhiteIcon />,
+            msgTitle: DELETE_SCRAP,
+          });
+        }, 200);
+      }
     });
   };
+
+  useBodyAdaptProps([
+    { key: 'overscroll-behavior', value: 'none' },
+    { key: 'overflow', value: 'hidden' },
+  ]);
+
   return (
-    <AppBaseTemplate>
-      <BodyFixScrollElement />
+    <AppBaseTemplate isAppInsetTopMargin={false}>
       <PrevButtonHeaderHeader
         titleName={'스크랩 수정'}
         RightButtonNode={
@@ -60,7 +78,7 @@ const EditScrapPage: React.FC = () => {
           confirmPopupSubTitle={
             '삭제시 스크랩은 복구 되지 않습니다.\n그래도 삭제하시겠습니까?'
           }
-          setIsPopup={setIsDeleteScrapPopup}
+          onClose={() => setIsDeleteScrapPopup(false)}
           actionFunc={onClickDeleteScrap}
         />
       )}

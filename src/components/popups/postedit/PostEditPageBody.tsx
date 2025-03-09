@@ -1,23 +1,23 @@
-import PoseComposeBody from 'components/posecompose/PoseComposeBody';
-import PoseComposeHeader from 'components/posecompose/PoseComposeHeader';
+import PostComposeBody from 'components/posecompose/PostComposeBody';
+import PostComposeHeader from 'components/posecompose/PostComposeHeader';
 import {
   UPLOAD_IMG_MAX_HEIGHT,
   UPLOAD_IMG_MAX_WIDTH,
 } from 'const/SystemAttrConst';
 import { POST_COMPOSE_TARGET_AUD_PUBLIC_TAB_ID } from 'const/TabConfigConst';
 import {
-  PostContentInterface,
-  SnsPostComposeCreateReqInterface,
+  PostUploadContent,
+  SnsPostComposeUpdateReqInterface,
 } from 'global/interface/post';
+import { fetchProfileAccountListInfinite } from 'global/util/channel/static/fetchProfileAccountListInfinite';
+import { fetchProfilePost } from 'global/util/channel/static/fetchProfilePost';
 import { resizeImage } from 'global/util/ImageInputUtil';
 import { QueryStatePostInfo } from 'hook/queryhook/QueryStateProfilePostInfo';
 import React, { useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
 import { editPostCompose } from 'services/post/editPostCompose copy';
-import {
-  postComposeAddressRelationAtom,
-  uploadResourceListAtom,
-} from 'states/PostComposeAtom';
+import { postComposeAddressRelationAtom } from 'states/PostComposeAtom';
+import { selectScrapByComposePopupInfoAtom } from 'states/ProfileAtom';
 
 interface PostEditPageBodyProps {
   postId: string;
@@ -36,12 +36,12 @@ const PostEditPageBody: React.FC<PostEditPageBodyProps> = ({
     ('');
   },
 }) => {
-  const { data: profilePost, isError: isErrorByProfilePost } =
+  const { data: profilePostInfo, isError: isErrorByProfilePost } =
     QueryStatePostInfo(postId);
 
-  const [uploadResourceList, setUploadResourceList] = useRecoilState(
-    uploadResourceListAtom,
-  );
+  const [uploadContentList, setUploadContentList] = useState<
+    PostUploadContent[]
+  >([]);
   const [postTitle, setPostTitle] = useState<string>('');
   const [postBodyText, setPostBodyText] = useState<string>('');
   const [postTagList, setPostTagList] = useState<string[]>([]);
@@ -53,40 +53,49 @@ const PostEditPageBody: React.FC<PostEditPageBodyProps> = ({
   const [postComposeAddressRelation, setPostComposeAddressRelation] =
     useRecoilState(postComposeAddressRelationAtom);
 
+  const [selectScrapByComposePopupInfo, setSelectScrapByComposePopupInfo] =
+    useRecoilState(selectScrapByComposePopupInfoAtom);
+
   const [isLoadingPopup, setIsLoadingPopup] = useState<boolean>(false);
 
   const onClickUploadButton = async () => {
     if (!postId) {
-      alert('오류로 인해 업로드에 실패 했습니다.');
+      alert('오류로 인해 수정에 실패 했습니다.');
       return;
     }
     const formData = new FormData();
-    const snsPostComposeCreateReq: SnsPostComposeCreateReqInterface = {
+    // @REFER: 수정 바람
+    // @ANSWER: 기능 상 수정 된걸로 알고 있음
+    const snsPostComposeUpdateReq: SnsPostComposeUpdateReqInterface = {
       address: postComposeAddressRelation.roadAddr,
+      buildName: postComposeAddressRelation.buildName,
+      latitude: postComposeAddressRelation.latitude,
+      longitude: postComposeAddressRelation.longitude,
       tagList: postTagList,
       title: postTitle,
       bodyText: postBodyText,
-      postContentLinkList: uploadResourceList
-        .filter((value) => value.isLink === true)
-        .map((v, key) => {
-          return {
-            postContentType: v.contentType,
-            content: v.contentUrl,
-            ascSortNum: key,
-          } as PostContentInterface;
+      existPostContentList: uploadContentList
+        .filter((value) => value.isExist === true)
+        .map((v) => {
+          return v.contentUrl;
         }),
+      externalImgLinkList: [],
+      scrapIdList: selectScrapByComposePopupInfo.scrapInfoList.map(
+        (v) => v.scrapId,
+      ),
       targetAudienceValue: targetAudienceId,
     };
-    const snsPostComposeCreateBlob = new Blob(
-      [JSON.stringify(snsPostComposeCreateReq)],
+
+    const snsPostComposeUpdateBlob = new Blob(
+      [JSON.stringify(snsPostComposeUpdateReq)],
       {
         type: 'application/json',
       },
     );
-    formData.append('snsPostComposeCreateReq', snsPostComposeCreateBlob);
+    formData.append('snsPostComposeUpdateReq', snsPostComposeUpdateBlob);
 
-    for (const uploadFile of uploadResourceList.filter(
-      (value) => value.isLink === false,
+    for (const uploadFile of uploadContentList.filter(
+      (value) => value.isExist === false,
     )) {
       if (!uploadFile.fileBlob || !uploadFile.filename) return;
 
@@ -102,7 +111,6 @@ const PostEditPageBody: React.FC<PostEditPageBodyProps> = ({
           UPLOAD_IMG_MAX_WIDTH,
           UPLOAD_IMG_MAX_HEIGHT,
         ).then((value) => {
-          console.log(value);
           formData.append('files', value);
         });
       }
@@ -117,27 +125,31 @@ const PostEditPageBody: React.FC<PostEditPageBodyProps> = ({
       .then(() => {
         setIsLoadingPopup(false);
         actionFuncByCompose();
+        fetchProfilePost(postId);
+
+        if (!profilePostInfo) return;
+        fetchProfileAccountListInfinite(profilePostInfo.username);
       })
       .catch((error: any) => {
-        console.log(error.response?.status);
-        console.log(error.response?.data);
         alert(error.response?.data?.message);
         setIsLoadingPopup(false);
       });
   };
 
   useEffect(() => {
-    if (!profilePost) return;
-    setPostTitle(profilePost.postTitle);
-    setPostBodyText(profilePost.postBodyText);
-    setPostTagList(profilePost.tags);
-    setTargetAudienceId(profilePost.targetAudTypeId);
+    if (!profilePostInfo) return;
+    setPostTitle(profilePostInfo.postTitle);
+    setPostBodyText(profilePostInfo.postBodyText);
+    setPostTagList(profilePostInfo.tags);
+    setTargetAudienceId(profilePostInfo.targetAudTypeId);
     setPostComposeAddressRelation({
-      roadAddr: profilePost.location.address,
-      buildName: '',
+      roadAddr: profilePostInfo.location.address,
+      buildName: profilePostInfo.location.buildName,
+      latitude: profilePostInfo.location.latitude,
+      longitude: profilePostInfo.location.longitude,
     });
-    setUploadResourceList(
-      profilePost.postContents.map((v, i) => {
+    setUploadContentList(
+      profilePostInfo.postContents.map((v, i) => {
         return {
           contentUrl: v.content,
           contentType: v.postContentType,
@@ -146,11 +158,16 @@ const PostEditPageBody: React.FC<PostEditPageBodyProps> = ({
           fileBlob: null,
           filename: v.content,
           sort: i,
+          isExist: true,
         };
       }),
     );
-    setTargetAudienceId(profilePost.targetAudTypeId);
-  }, [profilePost]);
+    setTargetAudienceId(profilePostInfo.targetAudTypeId);
+    setSelectScrapByComposePopupInfo((prev) => ({
+      ...prev,
+      scrapInfoList: profilePostInfo.scrapBoardIdList,
+    }));
+  }, [profilePostInfo]);
 
   useEffect(() => {
     if (!isErrorByProfilePost) return;
@@ -159,20 +176,20 @@ const PostEditPageBody: React.FC<PostEditPageBodyProps> = ({
 
   return (
     <>
-      <PoseComposeHeader
+      <PostComposeHeader
         titleName={'게시물'}
         hasPrevButton={hasPrevButton}
         actionFunc={onClose}
       />
-      <PoseComposeBody
+      <PostComposeBody
         postTitle={postTitle}
         setPostTitle={setPostTitle}
         postBodyText={postBodyText}
         setPostBodyText={setPostBodyText}
         postTagList={postTagList}
         setPostTagList={setPostTagList}
-        postUploadContentList={uploadResourceList}
-        setPostUploadContentList={setUploadResourceList}
+        postUploadContentList={uploadContentList}
+        setPostUploadContentList={setUploadContentList}
         targetAudienceId={targetAudienceId}
         setTargetAudienceId={setTargetAudienceId}
         isLoadingPopup={isLoadingPopup}

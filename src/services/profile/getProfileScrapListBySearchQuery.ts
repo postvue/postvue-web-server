@@ -10,7 +10,7 @@ export const getProfileScrapListBySearchQuery = (
 ): Promise<ProfileThumbnailScrapList[]> => {
   return privateApi
     .get(
-      `${PROFILE_LIST_PATH}${SEARCH_PATH}${SCRAP_LIST_PATH}/${searchQuery}?${PAGE_PARAM}=${page}`,
+      `${PROFILE_LIST_PATH}${SEARCH_PATH}${SCRAP_LIST_PATH}/${encodeURIComponent(searchQuery)}?${PAGE_PARAM}=${page}`,
     )
     .then((res) => {
       console.log(res.data);

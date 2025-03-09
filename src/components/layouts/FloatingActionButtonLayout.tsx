@@ -12,6 +12,7 @@ interface FloatingActionButtonLayoutProps {
   bottomGap?: number;
   bottomByMinSize?: number;
   bottomByMaxSize?: number;
+  FloatingActionButtonLayoutStyle?: React.CSSProperties;
 }
 
 const FloatingActionButtonLayout: React.FC<FloatingActionButtonLayoutProps> = ({
@@ -23,6 +24,7 @@ const FloatingActionButtonLayout: React.FC<FloatingActionButtonLayoutProps> = ({
   bottomByMaxSize = 0,
   bottomByMinSize = theme.systemSize.bottomNavBar.heightNum,
   bottomGap = 0,
+  FloatingActionButtonLayoutStyle,
 }) => {
   const prevScrollTopRef = useRef(0);
   const [scrollOpacity, setScrollOpacity] = useState(1);
@@ -86,6 +88,7 @@ const FloatingActionButtonLayout: React.FC<FloatingActionButtonLayoutProps> = ({
 
   return (
     <FloatingActionWrap
+      style={FloatingActionButtonLayoutStyle}
       $bottomByMaxSize={bottomByMaxSize}
       $bottomByMinSize={bottomByMinSize}
       $bottomGap={bottomGap}
@@ -107,7 +110,7 @@ const FloatingActionWrap = styled.div<{
   $bottomGap: number;
 }>`
   z-index: 1000;
-  position: absolute;
+  position: fixed;
   transform: translate(-50%, 50%);
   left: 50%;
 

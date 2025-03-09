@@ -8,7 +8,6 @@ import {
 } from 'const/QueryClientConst';
 import { SETTING_EDIT_COMPLETE_PHASE_TEXT } from 'const/SystemPhraseConst';
 import { ProfileMyInfo } from 'global/interface/profile';
-import { initMyAccountSettingInfo } from 'global/util/MyAccountSettingUtil';
 import {
   putMyProfileEmailInfo,
   PutMyProfileEmailInfoReq,
@@ -28,8 +27,8 @@ export const QueryMutationPutMyProfileEmailInfo = (): UseMutationResult<
         queryKey: [QUERY_STATE_MY_PROFILE_INFO],
       });
 
-      initMyAccountSettingInfo(data);
-      notify(SETTING_EDIT_COMPLETE_PHASE_TEXT);
+      // initMyAccountSettingInfo(data);
+      notify({ msgTitle: SETTING_EDIT_COMPLETE_PHASE_TEXT });
     },
   });
 };

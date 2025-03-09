@@ -1,0 +1,122 @@
+import { IMessage } from '@stomp/stompjs';
+
+import {
+  WEBSOCKET_BROADCAST_MESSAGE_TYPES,
+  websocketBroadcastChannel,
+  WebsocketBroadcastMessage,
+} from 'config/appconfig/WebSocketBroadcastChannelConfig';
+import {
+  BRIDGE_EVENT_WEBSOCKET_CHANNEL_TYPE,
+  BridgeMsgInterface,
+  EVENT_WEBSOCKET_CHANNEL_NOTIFICATION_TYPE,
+  EventDateInterface,
+} from 'const/ReactNativeConst';
+import { NotificationMsgWsSub } from 'global/interface/notification';
+import { saveNotificationMsgHashMapByLocalStorage } from 'global/util/NotificationUtil';
+import { isApp } from 'global/util/reactnative/nativeRouter';
+import { useMessageListener } from 'hook/customhook/useMessageListener';
+import { SetterOrUpdater } from 'recoil';
+import webSocketService from '../WebSocketService';
+import { NOTIFICATIONS_BROKER_PATH } from '../websocketServicePath';
+
+export class NotificationWsService {
+  private desination: string | null = null;
+  private notificationMsgHashMap: Map<string, NotificationMsgWsSub> | null =
+    null;
+  private setNotificationMsgHashMap: SetterOrUpdater<
+    Map<string, NotificationMsgWsSub>
+  > | null = null;
+
+  connect(
+    channelUserId: string,
+    notificationMsgHashMap: Map<string, NotificationMsgWsSub>,
+    setNotificationMsgHashMap: SetterOrUpdater<
+      Map<string, NotificationMsgWsSub>
+    >,
+  ): void {
+    this.notificationMsgHashMap = notificationMsgHashMap;
+    this.setNotificationMsgHashMap = setNotificationMsgHashMap;
+
+    if (webSocketService === null || isApp()) {
+      const handleMessage = (event: MessageEvent) => {
+        try {
+          const nativeEvent: BridgeMsgInterface = JSON.parse(event.data);
+
+          if (nativeEvent.type === BRIDGE_EVENT_WEBSOCKET_CHANNEL_TYPE) {
+            const eventData: EventDateInterface = nativeEvent.data;
+            const desination = eventData.path;
+            const data = eventData.data;
+
+            if (
+              eventData.eventType === EVENT_WEBSOCKET_CHANNEL_NOTIFICATION_TYPE
+            ) {
+              const notificationMsgWsSub: NotificationMsgWsSub = JSON.parse(
+                data,
+              ) as NotificationMsgWsSub;
+
+              this.saveNotificationWsAndBroadCast(notificationMsgWsSub);
+            }
+          }
+        } catch (error) {
+          console.error('Failed to parse message:', event.data);
+        }
+      };
+
+      useMessageListener(handleMessage);
+    } else {
+      webSocketService.addOnInitializedCallback(() => {
+        if (webSocketService === null || isApp()) return;
+
+        this.desination = `${NOTIFICATIONS_BROKER_PATH}/${channelUserId}`;
+        webSocketService.setSubscribe(this.desination, (message: IMessage) => {
+          const notificationMsgWsSub: NotificationMsgWsSub = JSON.parse(
+            message.body,
+          ) as NotificationMsgWsSub;
+
+          this.saveNotificationWsAndBroadCast(notificationMsgWsSub);
+        });
+      });
+    }
+  }
+
+  disconnect(): void {
+    if (webSocketService === null || isApp()) return;
+    if (this.desination === null) return;
+
+    if (webSocketService.isWebSocketInitialized()) {
+      webSocketService.deleteSubscribe(this.desination);
+    }
+  }
+
+  private saveNotificationWsAndBroadCast = (
+    notificationMsgWsSub: NotificationMsgWsSub,
+  ) => {
+    this.saveNotificationWs(notificationMsgWsSub);
+    websocketBroadcastChannel.postMessage({
+      type: WEBSOCKET_BROADCAST_MESSAGE_TYPES.WEBSOCKET_CHANNEL_NOTIFICATION_TYPE,
+      data: notificationMsgWsSub,
+    } as WebsocketBroadcastMessage);
+  };
+
+  public saveNotificationWs = (
+    notificationMsgWsSub: NotificationMsgWsSub,
+  ): void => {
+    if (
+      this.notificationMsgHashMap === null ||
+      this.setNotificationMsgHashMap === null
+    )
+      return;
+    const tempNotificationMsgHashMap = new Map(this.notificationMsgHashMap);
+
+    tempNotificationMsgHashMap.set(
+      notificationMsgWsSub.notificationId,
+      notificationMsgWsSub,
+    );
+
+    this.setNotificationMsgHashMap(tempNotificationMsgHashMap);
+    saveNotificationMsgHashMapByLocalStorage([notificationMsgWsSub]);
+  };
+}
+
+const notificationWsService = new NotificationWsService();
+export default notificationWsService;

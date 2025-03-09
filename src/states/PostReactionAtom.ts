@@ -1,7 +1,6 @@
 import { POST_REACTION_COMMENT_ID } from 'const/TabConfigConst';
 import { atom } from 'recoil';
 import { INIT_CURSOR_ID } from '../const/PageConfigConst';
-import { PostProfileInfoRsp } from '../global/interface/post';
 
 export const reactionPostIdAtom = atom<string>({
   key: 'reactionPostId',
@@ -16,30 +15,6 @@ export const isPostReactionAtom = atom<boolean>({
 //   key: 'postReactionCommentHashMap',
 //   default: new Map(),
 // });
-
-export const cursorIdAtomByPostReactionComment = atom<string>({
-  key: 'cursorIdByPostReactionComment',
-  default: INIT_CURSOR_ID,
-});
-
-export const postReactionRepostHashMapAtom = atom<
-  Map<string, PostProfileInfoRsp>
->({
-  key: 'postReactionRepostHashMap',
-  default: new Map(),
-});
-
-export const cursorIdAtomByPostReactionRepost = atom<string>({
-  key: 'cursorIdByPostReactionRepost',
-  default: INIT_CURSOR_ID,
-});
-
-export const postReactionLikeHashMapAtom = atom<
-  Map<string, PostProfileInfoRsp>
->({
-  key: 'postReactionLikeHashMap',
-  default: new Map(),
-});
 
 export const cursorIdAtomByPostReactionLike = atom<string>({
   key: 'cursorIdByPostReactionLike',
@@ -75,4 +50,9 @@ export const postCommentTextareaRefAtom = atom<HTMLTextAreaElement | null>({
 export const postReactionTabIdAtom = atom<number>({
   key: 'postReactionTabId',
   default: POST_REACTION_COMMENT_ID,
+});
+
+export const isFocusPostReactionInputAtom = atom<boolean>({
+  key: 'isFocusPostReactionInput',
+  default: false,
 });

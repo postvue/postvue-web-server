@@ -1,67 +1,215 @@
-import { ReactComponent as FeelogMobileLogo } from 'assets/images/icon/svg/logo/FeelogLogo.svg';
-import { ACCESS_TOKEN } from 'const/LocalStorageConst';
+import { ReactComponent as FeelogMobileLogo } from 'assets/images/icon/svg/logo/FeelogVeryLargeLogo.svg';
 import { HOME_PATH } from 'const/PathConst';
-import { CALLBACK_URL } from 'const/QueryParamConst';
-import { LOGIN_TITLE_PHASE_TEXT } from 'const/SystemPhraseConst';
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import {
+  CALLBACK_URL,
+  IS_WITHDRAW_QUERY_PARAM,
+  TRUE_PARAM,
+} from 'const/QueryParamConst';
+import React, { useEffect, useState } from 'react';
 import { postRefreshToken } from 'services/auth/postRefreshToken';
 import styled from 'styled-components';
 
+import { queryClient } from 'App';
 import { ReactComponent as LoginCancelButtonIcon } from 'assets/images/icon/svg/login/LoginCancelButtonIcon.svg';
+import BottomNextButton from 'components/common/buttton/BottomNextButton';
+import AppleLoginButton from 'components/common/buttton/login/AppleLoginButton';
+import GoogleLoginButton from 'components/common/buttton/login/GoogleLoginButton';
 import KakaoLoginButton from 'components/common/buttton/login/KakaoLoginButton';
 import NaverLoginButton from 'components/common/buttton/login/NaverLoginButton';
+import PageHelmentInfoElement from 'components/PageHelmetInfoElement';
+import LoginEmailPopup from 'components/popups/signup/LoginEmailPopup';
+import SignupEmailPopup from 'components/popups/signup/SignupEmailPopup';
+import SignupSendedEmailPopup from 'components/popups/signup/SignupSendedEmailPopup';
+import { APP_SERVICE_NAME } from 'const/AppInfoConst';
+import { QUERY_STATE_NOTIFICATION_MSG } from 'const/QueryClientConst';
+import { MAX_DELETED_USER_RETENTION_DAY } from 'const/SignupConst';
+import { SETTING_AFTER_DELETE_ACCOUNT_MAIN_MOVE_PHASE_TEXT } from 'const/SystemPhraseConst';
+import { isApp } from 'global/util/reactnative/nativeRouter';
+import { useSnsNotificationHookByIndexedDb } from 'hook/db/useSnsNotifcationHookByIndexedDb';
+import { useNavigate } from 'react-router-dom';
+import { hoverComponentStyle } from 'styles/commonStyles';
+import theme from 'styles/theme';
 
 const LoginPage: React.FC = () => {
   const callbackUrl = new URL(window.location.href).searchParams.get(
     CALLBACK_URL,
   );
-  const navigate = useNavigate();
+
+  const { resetNotifications } = useSnsNotificationHookByIndexedDb();
+
+  const [isView, setIsView] = useState<boolean>(false);
 
   if (callbackUrl !== null) {
     sessionStorage.setItem(CALLBACK_URL, callbackUrl);
   }
 
+  const [isWithdraw, setIsWithdraw] = useState<boolean | null>(null);
   useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+
+    if (searchParams.has(IS_WITHDRAW_QUERY_PARAM)) {
+      setIsWithdraw(
+        searchParams.get(IS_WITHDRAW_QUERY_PARAM)
+          ? searchParams.get(IS_WITHDRAW_QUERY_PARAM) === TRUE_PARAM
+            ? true
+            : false
+          : null,
+      );
+    }
+
     postRefreshToken()
       .then((res) => {
-        localStorage.setItem(ACCESS_TOKEN, res.accessToken);
-        if (callbackUrl !== null) {
-          window.location.href = callbackUrl;
-        } else {
-          window.location.href = HOME_PATH;
+        queryClient.invalidateQueries({
+          queryKey: [QUERY_STATE_NOTIFICATION_MSG],
+        });
+        const url = callbackUrl ? callbackUrl : HOME_PATH;
+
+        if (!isApp()) {
+          window.location.href = url;
         }
       })
       .catch(() => {
-        //@REFER: 출력값 필요하면 넣으삼
+        resetNotifications();
+        setIsView(true);
       });
+
+    return () => {
+      setIsActiveSignupEmailPopup(false);
+    };
   }, []);
 
+  const navigate = useNavigate();
   const clickDeleteBtn = () => {
     navigate(HOME_PATH);
   };
 
+  const [isActiveSignupEmailPopup, setIsActiveSignupEmailPopup] =
+    useState<boolean>(false);
+
+  const [isActiveLoginEmailPopup, setIsActiveLoginEmailPopup] =
+    useState<boolean>(false);
+
+  const [isActiveSignupSenedEmailPopup, setIsActiveSignupSenedEmailPopup] =
+    useState<boolean>(false);
+  const onClickLoginEmail = () => {
+    setIsActiveLoginEmailPopup(true);
+  };
+
+  const onClose = () => {
+    setIsActiveSignupEmailPopup(false);
+  };
+
   return (
-    <LoginPageContainer>
-      <LoginCancelButtonIconWrap onClick={clickDeleteBtn}>
-        <LoginCancelButtonIcon />
-      </LoginCancelButtonIconWrap>
-      <LoginPageLogoWrap>
-        <LoginPageLogoIconWrap>
-          <LoginPageLogoIconSubWrap>
-            <FeelogMobileLogo />
-          </LoginPageLogoIconSubWrap>
-        </LoginPageLogoIconWrap>
-        <LoginPageLogoTitleWrap>
-          <LoginPageLogoTitle>{LOGIN_TITLE_PHASE_TEXT}</LoginPageLogoTitle>
-        </LoginPageLogoTitleWrap>
-      </LoginPageLogoWrap>
-      <LoginPageBodyContainer>
-        <KakaoLoginButton />
-        <NaverLoginButton />
-        <EmailLoginButtonWrap>이메일로 시작하기</EmailLoginButtonWrap>
-      </LoginPageBodyContainer>
-    </LoginPageContainer>
+    <>
+      <PageHelmentInfoElement
+        title={`로그인`}
+        ogTitle={`로그인`}
+        ogUrl={window.location.href}
+        ogDescription={`로그인`}
+      />
+      {isWithdraw ? (
+        <>
+          <ProfileAccountDeleteContainer>
+            <AccountDeleteCheckTitleWrap>
+              {/* <AccountDeleteCheckTitle>
+                ㅠㅠ 너무 아쉬워요..
+              </AccountDeleteCheckTitle> */}
+              <LoginPageLogoWrap>
+                <LoginPageLogoIconWrap>
+                  <LoginPageLogoIconSubWrap>
+                    <FeelogMobileLogo />
+                  </LoginPageLogoIconSubWrap>
+                </LoginPageLogoIconWrap>
+                <LoginPageLogoTitleWrap>
+                  <LoginPageLogoTitle>
+                    {/* {LOGIN_TITLE_PHASE_TEXT} */}
+                    Feelog
+                  </LoginPageLogoTitle>
+                </LoginPageLogoTitleWrap>
+                <AccountDeleteCheckSubTitle>
+                  회원님의 계정은 {MAX_DELETED_USER_RETENTION_DAY}일 후에
+                  삭제되며 삭제 시 회원님의 {APP_SERVICE_NAME} 계정 데이터가
+                  삭제됩니다. {MAX_DELETED_USER_RETENTION_DAY}일이 지나면 해당
+                  계정으로는 다시 가입할 수 없습니다. 복구를 원하시면 회원
+                  계정으로 다시 로그인해주세요.
+                </AccountDeleteCheckSubTitle>
+              </LoginPageLogoWrap>
+            </AccountDeleteCheckTitleWrap>
+
+            <BottomNextButton
+              title={SETTING_AFTER_DELETE_ACCOUNT_MAIN_MOVE_PHASE_TEXT}
+              actionFunc={() => {
+                setIsWithdraw(null);
+              }}
+            />
+          </ProfileAccountDeleteContainer>
+        </>
+      ) : (
+        <>
+          {isView && (
+            <>
+              <LoginPageContainer>
+                {!isApp() && (
+                  <LoginCancelButtonIconWrap onClick={clickDeleteBtn}>
+                    <LoginCancelButtonIcon />
+                  </LoginCancelButtonIconWrap>
+                )}
+                <LoginPageLogoWrap>
+                  <LoginPageLogoIconWrap>
+                    <LoginPageLogoIconSubWrap>
+                      <FeelogMobileLogo />
+                    </LoginPageLogoIconSubWrap>
+                  </LoginPageLogoIconWrap>
+                  <LoginPageLogoTitleWrap>
+                    <LoginPageLogoTitle>
+                      {/* {LOGIN_TITLE_PHASE_TEXT} */}
+                      Feelog
+                    </LoginPageLogoTitle>
+                  </LoginPageLogoTitleWrap>
+                </LoginPageLogoWrap>
+                <LoginPageBodyContainer>
+                  <KakaoLoginButton />
+                  <NaverLoginButton />
+
+                  <GoogleLoginButton />
+
+                  <AppleLoginButton />
+                  <EmailLoginButtonWrap onClick={onClickLoginEmail}>
+                    이메일로 로그인
+                  </EmailLoginButtonWrap>
+                </LoginPageBodyContainer>
+              </LoginPageContainer>
+              {isActiveLoginEmailPopup && (
+                <LoginEmailPopup
+                  isOpen={isActiveLoginEmailPopup}
+                  onClose={() => setIsActiveLoginEmailPopup(false)}
+                  onOpen={() => {
+                    setIsActiveSignupEmailPopup(true);
+                  }}
+                />
+              )}
+              {isActiveSignupEmailPopup && (
+                <SignupEmailPopup
+                  onClose={onClose}
+                  isOpen={isActiveSignupEmailPopup}
+                  onOpen={() => {
+                    setIsActiveSignupEmailPopup(false);
+                    setIsActiveSignupSenedEmailPopup(true);
+                  }}
+                />
+              )}
+              {isActiveSignupSenedEmailPopup && (
+                <SignupSendedEmailPopup
+                  onClose={() => {
+                    setIsActiveSignupSenedEmailPopup(false);
+                  }}
+                />
+              )}
+            </>
+          )}
+        </>
+      )}
+    </>
   );
 };
 
@@ -75,10 +223,12 @@ const LoginPageContainer = styled.div`
 `;
 
 const LoginPageLogoWrap = styled.div`
+  padding-top: env(safe-area-inset-top);
   position: fixed;
   left: 50%;
   top: 40%;
   transform: translate(-50%, -50%);
+  width: 100%;
 `;
 
 const LoginPageLogoIconWrap = styled.div`
@@ -92,7 +242,9 @@ const LoginPageLogoIconSubWrap = styled.div`
 const LoginPageLogoTitleWrap = styled.div``;
 
 const LoginPageLogoTitle = styled.div`
-  font: ${({ theme }) => theme.fontSizes.Body4};
+  font: ${({ theme }) => theme.fontSizes.Subhead3};
+  font-size: 18px;
+  text-align: center;
 `;
 
 const LoginPageBodyContainer = styled.div`
@@ -103,9 +255,10 @@ const LoginPageBodyContainer = styled.div`
   position: fixed;
   width: 100%;
   bottom: 0px;
-  padding: 30px 0px 52px 0px;
+  padding: 30px 0px 20px 0px;
   left: 50%;
   transform: translate(-50%, 0px);
+  margin-bottom: env(safe-area-inset-bottom);
 
   max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
 `;
@@ -113,19 +266,42 @@ const LoginPageBodyContainer = styled.div`
 const EmailLoginButtonWrap = styled.div`
   text-align: center;
   padding: 14px 0;
-  font: ${({ theme }) => theme.fontSizes.Subhead2};
-  color: ${({ theme }) => theme.mainColor.White};
+  border-radius: 16px;
+  margin: 0 ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding};
+  font: ${({ theme }) => theme.fontSizes.Body3};
+  color: ${({ theme }) => theme.grey.Grey4};
+  cursor: pointer;
+
+  transition: background 0.2s ease-in-out;
+  ${hoverComponentStyle};
 `;
 
 const LoginCancelButtonIconWrap = styled.div`
   position: fixed;
   top: 0;
-  right: 0;
-  margin: 10px 10px 0 0;
+  left: 0;
   z-index: 100;
   cursor: pointer;
 
-  margin: 20px 20px 0 0;
+  margin: 20px 0 0 20px;
+`;
+
+const ProfileAccountDeleteContainer = styled.div`
+  left: 50%;
+  transform: translate(-50%, 0px);
+  max-width: ${theme.systemSize.appDisplaySize.maxWidth};
+  width: 100%;
+  height: 100dvh;
+  position: fixed;
+`;
+
+const AccountDeleteCheckTitleWrap = styled.div``;
+
+const AccountDeleteCheckSubTitle = styled.div`
+  font: ${({ theme }) => theme.fontSizes.Body2};
+  text-align: center;
+  padding: 0 ${theme.systemSize.appDisplaySize.bothSidePadding};
+  margin-top: 20px;
 `;
 
 export default LoginPage;

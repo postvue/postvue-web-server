@@ -1,143 +1,226 @@
 import { ReactComponent as ProfileLinkIcon } from 'assets/images/icon/svg/ProfileLinkIcon.svg';
 import FollowButton from 'components/common/buttton/FollowButton';
 import {
-  CONVERSTAION_PATH,
   FOLLOW_LIST_PATH,
-  MESSAGE_PATH,
+  PROFILE_ACCOUNT_ROUTE_PATH,
   PROFILE_EDIT_PATH,
   PROFILE_LIST_PATH,
 } from 'const/PathConst';
-import { TAB_QUERY_PARAM } from 'const/QueryParamConst';
-import { PROFILE_FOLLOWER_TAB_PARAM } from 'const/TabConfigConst';
+import { POST_ID_QUERY_PARAM, TAB_QUERY_PARAM } from 'const/QueryParamConst';
+import {
+  ACCOUNT_SETTING_PROFILE_EDIT_TAB_NAME,
+  PROFILE_FOLLOWER_TAB_PARAM,
+} from 'const/TabConfigConst';
+import {
+  isApp,
+  sendBasicShareEvent,
+  stackRouterPush,
+} from 'global/util/reactnative/nativeRouter';
+import { handleShareUtil, ShareInfo } from 'global/util/ShareUtil';
+import { getOriginFromUrl } from 'global/util/UrlUtil';
 import { QueryStateProfileInfo } from 'hook/queryhook/QueryStateProfileInfo';
 import React, { useRef } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { generatePath, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSetRecoilState } from 'recoil';
-import { isActiveProfileBlockPopupAtom } from 'states/ProfileAtom';
+import { activeProfileBlockPopupInfoAtom } from 'states/ProfileAtom';
 import { sharePopupInfoAtom } from 'states/ShareAtom';
 import styled from 'styled-components';
 
-const ProfileAccountInfo: React.FC = () => {
+interface ProfileAccountInfoProps {
+  username: string;
+}
+
+const ProfileAccountInfo: React.FC<ProfileAccountInfoProps> = ({
+  username,
+}) => {
   const navigate = useNavigate();
 
-  const param = useParams();
-  const username = param.username || '';
-  const { data, isLoading } = QueryStateProfileInfo(username);
+  const location = useLocation();
+
+  // URLSearchParams 객체 생성
+  const queryParams = new URLSearchParams(location.search);
+  const postId = queryParams.get(POST_ID_QUERY_PARAM);
+
+  const { data: profileInfo, isFetched: isFetchedByProfileInfo } =
+    QueryStateProfileInfo(username);
 
   const ProfileAccountInfoRef = useRef<HTMLDivElement>(null);
 
-  const setIsActiveProfileBlockPopup = useSetRecoilState(
-    isActiveProfileBlockPopupAtom,
+  const setActiveProfileBlockPopupInfo = useSetRecoilState(
+    activeProfileBlockPopupInfoAtom,
   );
 
   const setSharePopupInfo = useSetRecoilState(sharePopupInfoAtom);
 
   const onClickUnblocking = () => {
-    setIsActiveProfileBlockPopup(true);
+    if (!profileInfo) return;
+    setActiveProfileBlockPopupInfo({
+      isActive: true,
+      userId: profileInfo.userId,
+      username: profileInfo.username,
+    });
   };
 
   return (
     <>
-      {data && !isLoading && username !== '' && (
+      {profileInfo && isFetchedByProfileInfo && username !== '' && (
         <ProfileAccountInfoContainer ref={ProfileAccountInfoRef}>
           <ProfileLayout1Wrap>
-            <ProfileImg src={data.profilePath} />
+            <ProfileImg src={profileInfo.profilePath} />
             <ProfileLayout1SubWrap>
-              <ProfileUserNicknameWrap>{data.nickname}</ProfileUserNicknameWrap>
-              <ProfileUserIdWrap>@{data.username}</ProfileUserIdWrap>
+              <ProfileUserNicknameWrap>
+                {profileInfo.nickname}
+              </ProfileUserNicknameWrap>
+              <ProfileUserIdWrap>@{profileInfo.username}</ProfileUserIdWrap>
               <ProfileFollowWrap>
-                <Link
-                  to={`${PROFILE_LIST_PATH}/${username}${FOLLOW_LIST_PATH}?${TAB_QUERY_PARAM}=${PROFILE_FOLLOWER_TAB_PARAM}`}
+                <div
+                  onClick={() => {
+                    stackRouterPush(
+                      navigate,
+                      `${PROFILE_LIST_PATH}/${username}${FOLLOW_LIST_PATH}?${TAB_QUERY_PARAM}=${PROFILE_FOLLOWER_TAB_PARAM}`,
+                    );
+                  }}
                 >
                   <ProfileFollowerWrap>
                     <ProfileFollowerTitle>팔로워</ProfileFollowerTitle>
-                    <ProfileFollowerNum>{data.followerNum}</ProfileFollowerNum>
+                    <ProfileFollowerNum>
+                      {profileInfo.followerNum}
+                    </ProfileFollowerNum>
                   </ProfileFollowerWrap>
-                </Link>
-                <Link
-                  to={`${PROFILE_LIST_PATH}/${username}${FOLLOW_LIST_PATH}`}
+                </div>
+
+                <div
+                  onClick={() =>
+                    stackRouterPush(
+                      navigate,
+                      `${PROFILE_LIST_PATH}/${username}${FOLLOW_LIST_PATH}`,
+                    )
+                  }
                 >
                   <ProfileFollowingWrap>
                     <ProfileFollowingTitle>팔로잉</ProfileFollowingTitle>
                     <ProfileFollowingNum>
-                      {data.followingNum}
+                      {profileInfo.followingNum}
                     </ProfileFollowingNum>
                   </ProfileFollowingWrap>
-                </Link>
+                </div>
               </ProfileFollowWrap>
             </ProfileLayout1SubWrap>
           </ProfileLayout1Wrap>
-          {data.introduce && (
-            <ProfileIntroduceContent>{data.introduce}</ProfileIntroduceContent>
+          {profileInfo.introduce && (
+            <ProfileIntroduceContent>
+              {profileInfo.introduce}
+            </ProfileIntroduceContent>
           )}
-          {data.website && (
-            <Link to={data.website} target="_blank">
+          {profileInfo.website && (
+            <Link to={profileInfo.website} target="_blank">
               <ProfileWebsiteIconContentWrap>
                 <ProfileWebsiteIconWrap>
                   <ProfileLinkIcon />
                 </ProfileWebsiteIconWrap>
-                <ProfileWebsiteContent>{data.website}</ProfileWebsiteContent>
+                <ProfileWebsiteContent>
+                  {profileInfo.website}
+                </ProfileWebsiteContent>
               </ProfileWebsiteIconContentWrap>
             </Link>
           )}
-          {data.isMe ? (
+          {profileInfo.isMe ? (
             <ProfileLayout2Wrap>
               <ProfileEditButton
                 onClick={() => {
-                  navigate(PROFILE_EDIT_PATH);
+                  stackRouterPush(navigate, PROFILE_EDIT_PATH);
                 }}
               >
-                프로필 수정
+                {ACCOUNT_SETTING_PROFILE_EDIT_TAB_NAME}
               </ProfileEditButton>
 
               <ProfileShareButton
-                onClick={() =>
-                  setSharePopupInfo({
-                    isActive: true,
-                    shareLink: window.location.href,
-                    mainImageUrl: data.profilePath,
-                  })
-                }
+                onClick={() => {
+                  // setSharePopupInfo({
+                  //   isActive: true,
+                  //   shareLink: window.location.href,
+                  //   mainImageUrl: profileInfo.profilePath,
+                  // });
+
+                  const shareInfo: ShareInfo = {
+                    text: '특별한 순간을 함께 눈으로 확인해 보실래요? ❤️',
+                    url:
+                      getOriginFromUrl(window.location.href) +
+                      generatePath(PROFILE_ACCOUNT_ROUTE_PATH, {
+                        username: profileInfo.username,
+                      }),
+                  };
+
+                  if (isApp()) {
+                    sendBasicShareEvent(shareInfo);
+                  } else {
+                    handleShareUtil(shareInfo);
+                  }
+                }}
               >
                 프로필 공유
               </ProfileShareButton>
             </ProfileLayout2Wrap>
           ) : (
-            <ProfileLayout2Wrap>
-              {data.isBlocked && (
-                <ProfileUnblockingButton onClick={onClickUnblocking}>
-                  차단 해제
-                </ProfileUnblockingButton>
-              )}
-              {!data.isBlocked && (
-                <>
-                  <FollowButton
-                    userId={data.userId}
-                    isFollow={data.isFollowed}
-                    FollowButtonContainerStyle={{ width: '100%' }}
-                    FollowButton={
-                      <ProfileFollowButton>팔로우</ProfileFollowButton>
-                    }
-                    FollowCancelButton={
-                      <ProfileAlreedyFollowButton>
-                        팔로잉
-                      </ProfileAlreedyFollowButton>
-                    }
-                    hasFollowCancelButton={true}
-                  />
-                </>
-              )}
+            <>
+              {profileInfo && !profileInfo.isBlockerUser && (
+                <ProfileLayout2Wrap>
+                  {profileInfo.isBlocked && (
+                    <ProfileUnblockingButton onClick={onClickUnblocking}>
+                      차단 해제
+                    </ProfileUnblockingButton>
+                  )}
+                  {!profileInfo.isBlocked && (
+                    <>
+                      <FollowButton
+                        userId={profileInfo.userId}
+                        username={profileInfo.username}
+                        isFollow={profileInfo.isFollowed}
+                        postId={postId || ''}
+                        FollowButtonContainerStyle={{ width: '100%' }}
+                        FollowButton={
+                          <ProfileFollowButton>팔로우</ProfileFollowButton>
+                        }
+                        FollowCancelButton={
+                          <ProfileAlreedyFollowButton>
+                            팔로잉
+                          </ProfileAlreedyFollowButton>
+                        }
+                        hasFollowCancelButton={true}
+                      />
+                    </>
+                  )}
 
-              <ProfileMsgSendButton
-                onClick={() => {
-                  navigate(
-                    `${MESSAGE_PATH}/${data.username}${CONVERSTAION_PATH}`,
-                  );
-                }}
-              >
-                메시지 보내기
-              </ProfileMsgSendButton>
-            </ProfileLayout2Wrap>
+                  {!profileInfo.isBlocked && (
+                    <ProfileMsgSendButton
+                      onClick={() => {
+                        // 나중에 수정바람
+                        // stackRouterPush(
+                        //   navigate,
+                        //   `${MESSAGE_PATH}/${profileInfo.username}${CONVERSTAION_PATH}`,
+                        // );
+
+                        const shareInfo: ShareInfo = {
+                          text: '특별한 순간을 함께 눈으로 확인해 보실래요? ❤️',
+                          url:
+                            getOriginFromUrl(window.location.href) +
+                            generatePath(PROFILE_ACCOUNT_ROUTE_PATH, {
+                              username: profileInfo.username,
+                            }),
+                        };
+                        if (isApp()) {
+                          sendBasicShareEvent(shareInfo);
+                        } else {
+                          handleShareUtil(shareInfo);
+                        }
+                      }}
+                    >
+                      프로필 공유
+                    </ProfileMsgSendButton>
+                  )}
+                </ProfileLayout2Wrap>
+              )}
+            </>
           )}
         </ProfileAccountInfoContainer>
       )}
@@ -151,7 +234,7 @@ const ProfileAccountInfoContainer = styled.div`
   position: -webkit-sticky;
   position: sticky;
   background-color: ${({ theme }) => theme.mainColor.White};
-  padding: 0 20px 10px 20px;
+  padding: 0 20px 20px 20px;
 `;
 
 const ProfileLayout1Wrap = styled.div`

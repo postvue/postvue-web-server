@@ -7,7 +7,7 @@ import { QueryStateMsgInboxListInfinite } from './queryhook/QueryStateMsgInboxLi
 const MsgInboxListInfiniteScroll: React.FC = () => {
   const { ref, inView } = useInView();
 
-  const { fetchNextPage, hasNextPage, isFetchingNextPage } =
+  const { fetchNextPage, hasNextPage, isFetchingNextPage, data } =
     QueryStateMsgInboxListInfinite();
 
   useEffect(() => {
@@ -18,7 +18,11 @@ const MsgInboxListInfiniteScroll: React.FC = () => {
 
   return (
     <ScrollBottomContainer ref={ref}>
-      <InViewComponent />
+      <InViewComponent
+        hasLoadingIcon={
+          (data ? data?.pages[0].length > 5 : false) && hasNextPage
+        }
+      />
     </ScrollBottomContainer>
   );
 };
