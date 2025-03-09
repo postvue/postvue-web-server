@@ -1,13 +1,11 @@
 name: Postvue Web Server CI/CD
 
 on:
-  push:
-    branches:
-      - master # main 브랜치에 push 시 실행
-
   pull_request:
     branches:
       - master
+    types:
+      - closed # PR이 머지될 때 배포 실행
 
 jobs:
   build:
