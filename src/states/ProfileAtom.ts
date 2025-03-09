@@ -45,9 +45,17 @@ export const cursorIdByProfilePostListAtom = atom<string>({
   default: INIT_CURSOR_ID,
 });
 
-export const isActiveProfileBlockPopupAtom = atom<boolean>({
-  key: 'isActiveProfileBlockPopup',
-  default: false,
+export const activeProfileBlockPopupInfoAtom = atom<{
+  isActive: boolean;
+  username: string;
+  userId: string;
+}>({
+  key: 'activeProfileBlockPopupInfo',
+  default: {
+    isActive: false,
+    userId: '',
+    username: '',
+  },
 });
 
 export const myProfileFollowingHashMapAtom = atom<

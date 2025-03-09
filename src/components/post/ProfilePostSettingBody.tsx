@@ -15,13 +15,13 @@ import { postPostNotInterested } from 'services/post/postPostNotInterested';
 import {
   activePostComplaintPopupAtom,
   isActivePostDeletePopupAtom,
-  postBlockedUserInfoAtom,
 } from 'states/PostAtom';
 import {
   postEditActiveInfoPopupAtom,
   PostEditType,
 } from 'states/PostComposeAtom';
-import { isActiveProfileBlockPopupAtom } from 'states/ProfileAtom';
+import { activeProfileBlockPopupInfoAtom } from 'states/ProfileAtom';
+
 import styled from 'styled-components';
 
 interface ProfilePostSettingBodyProps {
@@ -46,8 +46,8 @@ const ProfilePostSettingBody: React.FC<ProfilePostSettingBodyProps> = ({
 
   const { windowWidth } = useWindowSize();
 
-  const setIsActiveProfileBlock = useSetRecoilState(
-    isActiveProfileBlockPopupAtom,
+  const setActiveProfileBlockPopupInfo = useSetRecoilState(
+    activeProfileBlockPopupInfoAtom,
   );
   const setActivePostComplaintPopup = useSetRecoilState(
     activePostComplaintPopupAtom,
@@ -69,12 +69,6 @@ const ProfilePostSettingBody: React.FC<ProfilePostSettingBodyProps> = ({
         onClose();
       });
     }
-  };
-
-  const setPostBlockedUserInfo = useSetRecoilState(postBlockedUserInfoAtom);
-
-  const onClickActiveBlockUserPopup = () => {
-    setIsActiveProfileBlock(true);
   };
 
   const { data: profileInfo, isFetched: isFetchedByProfileInfo } =
@@ -130,11 +124,11 @@ const ProfilePostSettingBody: React.FC<ProfilePostSettingBodyProps> = ({
                   <SettingPopupContent
                     onClick={() => {
                       onClose();
-                      setPostBlockedUserInfo({
+                      setActiveProfileBlockPopupInfo({
+                        isActive: true,
                         userId: userId,
                         username: username,
                       });
-                      onClickActiveBlockUserPopup();
                     }}
                   >
                     {profileInfo.isBlocked ? '차단 해제' : '사용자 차단'}

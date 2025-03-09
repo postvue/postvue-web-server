@@ -1,5 +1,4 @@
 import PostImagePreviewElement from 'components/common/posts/element/PostImagePreviewElement';
-import PostVideoPreviewElement from 'components/common/posts/element/PostVideoPreviewElement';
 import { POST_IMAGE_TYPE, POST_VIDEO_TYPE } from 'const/PostContentTypeConst';
 
 import { PROFILE_POST_LIST_PATH } from 'const/PathConst';
@@ -18,6 +17,7 @@ import { generatePath, useNavigate } from 'react-router-dom';
 import { useSetRecoilState } from 'recoil';
 import { postRspAtom } from 'states/PostAtom';
 
+import PostVideoPreviewElement from 'components/common/posts/element/PostVideoPreviewElement';
 import { POST_RELATION_SEARCH_TYPE } from 'const/PostConst';
 import { SEARCH_TYPE_PARAM } from 'services/appApiQueryParam';
 import styled from 'styled-components';

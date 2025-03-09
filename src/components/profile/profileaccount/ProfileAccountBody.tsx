@@ -7,10 +7,8 @@ import { POST_IMAGE_TYPE } from '../../../const/PostContentTypeConst';
 import {
   activeProfileAccountPopupInfoAtom,
   activeScrapViewPopupInfoAtom,
-  isActiveProfileBlockPopupAtom,
 } from '../../../states/ProfileAtom';
 
-import BlockUserPopup from 'components/popups/BlockUserPopup';
 import PostCommentThreadPopup from 'components/popups/postcommentthreadpopup/PostCommentThreadPopup';
 import ProfileOtherAccountPopup from 'components/popups/profileaccount/ProfileOtherAccountPopup';
 import {
@@ -78,10 +76,6 @@ const ProfileAccountBody: React.FC<ProfileAccountBodyProps> = ({
   );
 
   const isPostDetailInfoPopup = useRecoilValue(isPostDetailInfoPopupAtom);
-
-  const isActiveProfileBlockPopup = useRecoilValue(
-    isActiveProfileBlockPopupAtom,
-  );
 
   // Ref 관련 변수
   const likeIconRef = useRef<{ [key: string]: SVGSVGElement | null }>({});
@@ -392,14 +386,6 @@ const ProfileAccountBody: React.FC<ProfileAccountBodyProps> = ({
 
           {activeProfileAccountPopupInfo.isActive && (
             <ProfileOtherAccountPopup />
-          )}
-          {isActiveProfileBlockPopup && profileInfo && (
-            <BlockUserPopup
-              userInfo={{
-                username: profileInfo.username,
-                userId: profileInfo.userId,
-              }}
-            />
           )}
         </>
       )}

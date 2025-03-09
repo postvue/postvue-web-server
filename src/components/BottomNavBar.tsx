@@ -165,7 +165,7 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({
             </TabSubWrap>
           </TabWrap>
         </StyleActiveTab>
-        {/* @REFER: 메시지 버그 수정 시, */}
+        {/* @REFER: 메시지 개발 수정 시, */}
         {/* <StyleActiveTab
           onClick={() => {
             sendVibrationLightEvent();

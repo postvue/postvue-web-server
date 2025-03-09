@@ -59,8 +59,6 @@ export const useMap = (defaultOptions: MapOptions = {}) => {
   // useEffect(() => {
   //   return () => {
   //     if (map) {
-  //       console.info('clena map client');
-  //       console.log(map.annotations);
   //       // map.removeAnnotations(map.annotations);
   //       // map.destroy();
   //     }

@@ -21,6 +21,7 @@ import { useNavigate } from 'react-router-dom';
 import { postKakaoAuthToken } from 'services/auth/kakao/postKakaoAuthToken';
 import { postKakaoLogin } from 'services/auth/kakao/postKakaoLogin';
 import styled from 'styled-components';
+import { filterBrigntnessStyle } from 'styles/commonStyles';
 
 const KakaoLoginButton: React.FC = () => {
   const navigate = useNavigate();
@@ -35,9 +36,7 @@ const KakaoLoginButton: React.FC = () => {
 
   // const handleLogin = () => {
   //   // const link = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_SDK_KEY}&redirect_uri=${KAKAO_REDIRECT_URI}&response_type=code`;
-  //   // console.log(link);
   //   // window.location.href = link;
-  //   console.log(window.Kakao.Auth.authorize);
   //   window.Kakao.Auth.login({
   //     success: async function (data: any) {
   //     },
@@ -118,9 +117,7 @@ const LoginElementWrap = styled.div`
   justify-content: center;
 
   transition: filter 0.2s ease-in-out;
-  &:hover {
-    filter: brightness(0.8);
-  }
+  ${filterBrigntnessStyle};
 `;
 
 const LoginElementLogoWrap = styled.div`

@@ -12,6 +12,6 @@ export async function onClickClipBoardCopyButton(
 
     notify({ msgIcon: msgIcon, msgTitle: PROFILE_URL_CLIP_BOARD_TEXT });
   } catch (e) {
-    alert(e);
+    console.error(e);
   }
 }

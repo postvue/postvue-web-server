@@ -158,8 +158,9 @@ const SearchSubPostBody: React.FC = () => {
 };
 
 const SearchPostBodyContinaer = styled.div`
-  height: 100%;
-  min-height: 100dvh;
+  // height: 100%;
+  // min-height: 100dvh;
+  min-height: calc(100dvh - 50px);
 `;
 
 const SearchFilterContainer = styled.div`

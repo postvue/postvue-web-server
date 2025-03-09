@@ -6,9 +6,6 @@ import { INFO_PATH, SEARCH_PATH, TERM_LIST_PATH } from '../appApiPath';
 export const getSearchTermInfo = (
   searchTerm: string,
 ): Promise<GetSearchTermRsp> => {
-  console.log(
-    `${SEARCH_PATH}${TERM_LIST_PATH}/${encodeURIComponent(searchTerm)}${INFO_PATH}`,
-  );
   return optAuthApi
     .get(
       `${SEARCH_PATH}${TERM_LIST_PATH}/${encodeURIComponent(searchTerm)}${INFO_PATH}`,

@@ -18,7 +18,7 @@ interface ProfilePostDetailPopupProps {
   bottomSheetCloseOffsetThreshold?: number;
   bottomSheetCloseAccelerThreshold?: number;
   opacityForPreventFlickerThreshold?: number;
-  isScrollVideoProcessBar: boolean;
+  isProcessingSideScroll: boolean;
   prevOnClose: () => void;
   ScrollRef: React.RefObject<HTMLDivElement>;
 }
@@ -32,7 +32,7 @@ const ProfilePostDetailPopupLayout: React.FC<ProfilePostDetailPopupProps> = ({
   isActiveExternalPopup,
   bottomSheetCloseOffsetThreshold = 50,
   bottomSheetCloseAccelerThreshold = 1.2,
-  isScrollVideoProcessBar,
+  isProcessingSideScroll,
   prevOnClose,
   ScrollRef,
 }) => {
@@ -327,7 +327,6 @@ const ProfilePostDetailPopupLayout: React.FC<ProfilePostDetailPopupProps> = ({
       <OverlayBackground
         as={animated.div}
         onClick={() => close()}
-        // @REFER: 주석 처리함 잠깐 -> 테스트 목적
         style={bgStyle}
       />
       <BottomSheetContainer
@@ -361,7 +360,7 @@ const ProfilePostDetailPopupLayout: React.FC<ProfilePostDetailPopupProps> = ({
             setStartY(e.touches[0].clientY);
           }}
           onTouchMove={(e) => {
-            if (isScrollVideoProcessBar) return;
+            if (isProcessingSideScroll) return;
 
             const currentY = e.touches[0].clientY; // 현재 위치
             const currentTime = Date.now();

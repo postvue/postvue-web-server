@@ -97,11 +97,13 @@ const ProfileAccountPasswordEditBody: React.FC = () => {
             password={password}
             onChangePassword={onChangePassword}
             placeholder={SETTING_EDIT_PASSWORD_PHASE_TEXT}
+            isNewPassword={true}
           />
           <PasswordVisibleInputElement
             password={checkPassword}
             onChangePassword={onChangeCheckPassword}
             placeholder={SETTING_EDIT_CHECK_PASSWORD_PHASE_TEXT}
+            isNewPassword={true}
           />
         </ProfileEditPasswordSubContainer>
 

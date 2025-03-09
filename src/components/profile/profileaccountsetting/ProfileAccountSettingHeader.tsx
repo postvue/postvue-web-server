@@ -9,6 +9,7 @@ const ProfileAccountSettingHeader: React.FC = () => {
     <PrevButtonHeaderHeader
       titleName="환경설정"
       isActionFunc={windowWidth >= MEDIA_MIDDLE_WIDTH_NUM}
+      preNodeByState={windowWidth >= MEDIA_MIDDLE_WIDTH_NUM && <></>}
     />
   );
 };

@@ -73,14 +73,7 @@ const MapExplorePopup: React.FC<MapExplorePopupProps> = ({
 
       const deltaY = currentY - startY;
       moveDifferNumRef.current = deltaY;
-      console.log(
-        '이동 차이:',
-        deltaY,
-        '고정 위치:',
-        startY,
-        '움직임 위치:',
-        currentY,
-      );
+
       document.body.style.overscrollBehavior = 'none';
 
       if (animationFrameRef.current) {
@@ -261,8 +254,7 @@ const MapExplorePopup: React.FC<MapExplorePopupProps> = ({
           </PopupContentWrap>
         </PopupWrap>
       </PopupContainer>
-      {/* @REFER: 현재 주석 처리 했으나 나중에 문제 발생할 수 있으닌 참고 바람 */}
-      {/* {hasFixedActive && <BodyFixScrollElement />} */}
+  
     </PopupLayoutOverlay>
   );
 };

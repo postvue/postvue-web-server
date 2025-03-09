@@ -139,7 +139,7 @@ const SearchSuggestBody: React.FC<SearchSuggestBodyProps> = ({
                             key={i}
                             searchQueryWord={v.name}
                             SearchWordContainerStyle={{
-                              padding: '10px 21px',
+                              padding: '0px 21px',
                             }}
                             onClickSearchQueryItem={() => {
                               onNavigate(v.name);
@@ -171,7 +171,7 @@ const SearchSuggestBody: React.FC<SearchSuggestBodyProps> = ({
                         onNavigate(value);
                       }}
                       SearchWordContainerStyle={{
-                        padding: '10px 21px',
+                        padding: '0px 21px',
                       }}
                     />
                   </React.Fragment>
@@ -185,7 +185,7 @@ const SearchSuggestBody: React.FC<SearchSuggestBodyProps> = ({
                       onNavigate(searchTempWord);
                     }}
                     SearchWordContainerStyle={{
-                      padding: '10px 21px',
+                      padding: '0px 21px',
                     }}
                   />
                 )}
@@ -246,7 +246,7 @@ const RecentDeleteButtonWrap = styled.div`
 `;
 
 const NotSuggestTitle = styled.div`
-  padding: 10px 0;
+  padding: 10px 21px;
   font: ${({ theme }) => theme.fontSizes.Body2};
   font-size: 15px;
   color: ${({ theme }) => theme.grey.Grey8};

@@ -34,7 +34,6 @@ const ProfileAccountDeleteAccountBody: React.FC = () => {
     if (signupType === SINGUP_APPLE_LOGIN_JOIN_TYPE) {
       const response = await window.AppleID.auth.signIn();
 
-      console.log('Apple 로그인 성공:', response.authorization);
       appleAuthorizationCode = response.authorization.code;
     }
     postAuthDeleteAccount({ appleAuthorizationCode: appleAuthorizationCode })

@@ -10,8 +10,6 @@ import SnsAnotherSharePoupElement from './snsshare/SnsAnotherSharePoupElement';
 import SnsSharePopupBody from './snsshare/SnsSharePopupBody';
 import SnsSharePopupHeader from './snsshare/SnsSharePopupHeader';
 
-//@REFER: 태그 관련 상태관리 삭제 하삼
-
 const SnsSharePopup: React.FC = () => {
   const [sharePopupInfo, setSharePopupInfo] =
     useRecoilState(sharePopupInfoAtom);

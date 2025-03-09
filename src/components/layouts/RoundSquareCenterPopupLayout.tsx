@@ -38,7 +38,6 @@ const RoundSquareCenterPopupLayout: React.FC<RoundSquarePopupLayoutProps> = ({
 
   const [isDragging, setIsDragging] = useState(false);
 
-  // @REFER: 무슨 기능?
   const handleOverlayClick = () => {
     if (!isDragging) {
       onClose();

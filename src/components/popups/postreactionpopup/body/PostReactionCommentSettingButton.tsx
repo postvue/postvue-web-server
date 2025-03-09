@@ -1,4 +1,8 @@
+import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
+import useWindowSize from 'hook/customhook/useWindowSize';
 import React, { useRef, useState } from 'react';
+import { useRecoilState } from 'recoil';
+import { commentSettingPopupInfoAtom } from 'states/PostAtom';
 import styled from 'styled-components';
 import PostReactionCommentSettingContextPopup from './PostReactionCommentSettingContextPopup';
 
@@ -14,10 +18,27 @@ const PostReactionCommentSettingButton: React.FC<
 > = ({ postId, userId, commentId, username }) => {
   const postCommentSettingRef = useRef<HTMLDivElement>(null);
 
+  const { windowWidth } = useWindowSize();
+
   const [isCommentSettingContextMenu, setIsCommentSettingContextMenu] =
     useState<boolean | string>(false);
+
+  const [commentSettingPopupInfo, setCommentSettingPopupInfo] = useRecoilState(
+    commentSettingPopupInfoAtom,
+  );
+
   const onClickSettingContextMenu = (postIdIndex: string) => {
-    setIsCommentSettingContextMenu(postIdIndex);
+    if (windowWidth >= MEDIA_MOBILE_MAX_WIDTH_NUM) {
+      setIsCommentSettingContextMenu(postIdIndex);
+    } else {
+      setCommentSettingPopupInfo({
+        isActive: true,
+        postId: postId,
+        userId: userId,
+        username: username,
+        commentId: commentId,
+      });
+    }
   };
 
   return (

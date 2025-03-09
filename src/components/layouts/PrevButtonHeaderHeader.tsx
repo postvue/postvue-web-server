@@ -1,3 +1,4 @@
+import { ReactComponent as PrevButtonIcon } from 'assets/images/icon/svg/PrevButtonIcon.svg';
 import React, { ReactNode } from 'react';
 import styled from 'styled-components';
 import PrevButton from '../PrevButton';
@@ -31,7 +32,9 @@ const PrevButtonHeaderHeader: React.FC<PrevButtonHeaderProps> = ({
           <PrevButtonWrap>
             {isActionFunc ? (
               <>
-                <div onClick={actionFunc}>{preNodeByState}</div>
+                <div onClick={actionFunc}>
+                  {preNodeByState ? preNodeByState : <PrevButtonIcon />}
+                </div>
               </>
             ) : (
               <PrevButton />

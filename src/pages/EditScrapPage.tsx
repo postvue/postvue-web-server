@@ -42,12 +42,16 @@ const EditScrapPage: React.FC = () => {
       if (isApp()) {
         navigateToMainTab(navigate, SCRAP_PAGE_NAME, PROFILE_SCRAP_LIST_PATH);
       } else {
-        navigate(PROFILE_SCRAP_LIST_PATH, { replace: true });
+        setTimeout(() => {
+          navigate(PROFILE_SCRAP_LIST_PATH, { replace: true });
+        }, 100);
 
-        notify({
-          msgIcon: <PostScrapButtonWhiteIcon />,
-          msgTitle: DELETE_SCRAP,
-        });
+        setTimeout(() => {
+          notify({
+            msgIcon: <PostScrapButtonWhiteIcon />,
+            msgTitle: DELETE_SCRAP,
+          });
+        }, 200);
       }
     });
   };

@@ -65,7 +65,7 @@ const CommentInputSenderElement: React.FC<CommentInputSenderElementProps> = ({
   commentCountByCommentCurrent,
   commentContainerTypeId,
 }) => {
-  const { data: myAccountSettingInfo } = QueryStateMyProfileInfo();
+  const { data: myAccountSettingInfo } = QueryStateMyProfileInfo(true, false);
   const imgFileInputRef = useRef<HTMLInputElement | null>(null);
 
   const activeCommentByPostCommentThread = useRecoilValue(
@@ -267,6 +267,7 @@ const CommentInputSenderElement: React.FC<CommentInputSenderElementProps> = ({
   }
 
   const postCommentTextareaParentRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     const textarea = postCommentTextareaRef.current;
     const postCommentTextareaParent = postCommentTextareaParentRef.current;

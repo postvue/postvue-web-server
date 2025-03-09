@@ -1,10 +1,9 @@
-import BlockUserPopup from 'components/popups/BlockUserPopup';
 import { ACCOUNT_NOT_PROFILE_IMG_PATH } from 'const/AccountConst';
 import ProfileBlockedUserListInfiniteScroll from 'hook/ProfileBlockedUserListInfiniteScroll';
 import { QueryStateProfileBlockedUserList } from 'hook/queryhook/QueryStateProfileBlockedUserList';
 import React, { useState } from 'react';
 import { useRecoilState } from 'recoil';
-import { isActiveProfileBlockPopupAtom } from 'states/ProfileAtom';
+import { activeProfileBlockPopupInfoAtom } from 'states/ProfileAtom';
 import styled from 'styled-components';
 import { SETTING_PFOFILE_BLOCKED_LIST_SEARCH_INPUT_PHASE_TEXT } from '../../../../const/SystemPhraseConst';
 import SearchButtonInput from '../../../common/input/SearchButtonInput';
@@ -22,13 +21,8 @@ const ProfileAccountSettingBlockListBody: React.FC = () => {
 
   const { data: profileBlockedUserList } = QueryStateProfileBlockedUserList();
 
-  const [isActiveProfileBlockPopup, setIsActiveProfileBlockPopup] =
-    useRecoilState(isActiveProfileBlockPopupAtom);
-
-  const [blckedUserInfo, setBlockedUserInfo] = useState<{
-    username: string;
-    userId: string;
-  }>({ username: '', userId: '' });
+  const [activeProfileBlockPopupInfo, setActiveProfileBlockPopupInfo] =
+    useRecoilState(activeProfileBlockPopupInfoAtom);
 
   return (
     <>
@@ -70,11 +64,11 @@ const ProfileAccountSettingBlockListBody: React.FC = () => {
                       <ProfileSettingBlockingButtonWrap>
                         <ProfileSettingBlockingButton
                           onClick={() => {
-                            setBlockedUserInfo({
+                            setActiveProfileBlockPopupInfo({
+                              isActive: true,
                               userId: v.blockedUserId,
                               username: v.blockedUsername,
                             });
-                            setIsActiveProfileBlockPopup(true);
                           }}
                         >
                           해제
@@ -96,14 +90,6 @@ const ProfileAccountSettingBlockListBody: React.FC = () => {
         </ProfileSettingBlockUserListContainer>
         <ProfileBlockedUserListInfiniteScroll />
       </ProfileSettingBlockListBodyContainer>
-      {isActiveProfileBlockPopup && (
-        <BlockUserPopup
-          userInfo={{
-            username: blckedUserInfo.username,
-            userId: blckedUserInfo.userId,
-          }}
-        />
-      )}
     </>
   );
 };

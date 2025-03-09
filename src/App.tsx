@@ -1,6 +1,8 @@
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MapkitProvider } from 'components/lib/mapkitjs/MapkitProvider';
-import { APP_CONTACT_EMAIL, APP_SERVICE_NAME } from 'const/AppInfoConst';
+import { APP_SERVICE_HIDDEN_CONSOLE_LOG } from 'const/AppInfoConst';
+import { GOOGLE_OAUTH_CLIENT_ID } from 'const/login/GoogleConst';
 import { APPLE_MAP_ACCESS_TOKEN } from 'const/MapExploreConst';
 import { QUERY_CACHE_TIME, QUERY_STALE_TIME } from 'const/QueryClientConst';
 import React from 'react';
@@ -24,30 +26,20 @@ const queryClient = new QueryClient({
 });
 
 const App: React.FC = () => {
-  const banner = `
-  ______           _
-  |  ___|         | |
-  | |_  ___   ___ | |  ___    __ _
-  |  _|/ _ \\ / _ \\| | / _ \\  / _\` |
-  | | |  __/|  __/| || (_) || (_| |
-  \\_|  \\___| \\___||_| \\___/  \\__, |
-                              __/ |
-                             |___/
-      `;
-
-  console.info(`${banner}\n안녕하세요, 개발자 여러분! ${APP_SERVICE_NAME}에 오신 걸 환영해요! 🦄 \n저희 팀과 함께할 개발자를 찾고 있어요. 관심 있으시면 언제든지 연락주세요! \n${APP_CONTACT_EMAIL}
-        `);
+  console.info(APP_SERVICE_HIDDEN_CONSOLE_LOG);
 
   return (
     <QueryClientProvider client={queryClient}>
       <HelmetProvider>
         <MapkitProvider tokenOrCallback={APPLE_MAP_ACCESS_TOKEN || ''}>
           <RecoilRoot>
-            <ThemeProvider theme={theme}>
-              <Reset />
-              <AppRouter />
-              <AppConfig />
-            </ThemeProvider>
+            <GoogleOAuthProvider clientId={GOOGLE_OAUTH_CLIENT_ID}>
+              <ThemeProvider theme={theme}>
+                <Reset />
+                <AppRouter />
+                <AppConfig />
+              </ThemeProvider>
+            </GoogleOAuthProvider>
           </RecoilRoot>
         </MapkitProvider>
       </HelmetProvider>

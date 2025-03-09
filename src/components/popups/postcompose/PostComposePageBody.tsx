@@ -15,8 +15,8 @@ import { fetchProfileScrapListInfinite } from 'global/util/channel/static/fetchP
 import { refetchProfileScrapInfo } from 'global/util/channel/static/refetchProfileScrapListInfo';
 import { resizeImage } from 'global/util/ImageInputUtil';
 import { QueryStateMyProfileInfo } from 'hook/queryhook/QueryStateMyProfileInfo';
-import React, { useState } from 'react';
-import { useRecoilState, useRecoilValue } from 'recoil';
+import React, { useEffect, useState } from 'react';
+import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil';
 import { createPostCompose } from 'services/post/createPostCompose';
 import {
   postComposeAddressRelationAtom,
@@ -46,6 +46,10 @@ const PostComposePageBody: React.FC<PostComposePageBodyProps> = ({
   );
 
   const selectScrapByComposePopupInfo = useRecoilValue(
+    selectScrapByComposePopupInfoAtom,
+  );
+
+  const resetSelectScrapByComposePopupInfo = useResetRecoilState(
     selectScrapByComposePopupInfoAtom,
   );
 
@@ -136,6 +140,12 @@ const PostComposePageBody: React.FC<PostComposePageBodyProps> = ({
         setIsLoadingPopup(false);
       });
   };
+
+  useEffect(() => {
+    return () => {
+      resetSelectScrapByComposePopupInfo();
+    };
+  }, []);
 
   return (
     <PostComposePageBodyContainer>

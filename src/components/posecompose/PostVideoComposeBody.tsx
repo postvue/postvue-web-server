@@ -14,7 +14,6 @@ import {
 } from 'states/PostComposeAtom';
 import styled from 'styled-components';
 
-import { ReactComponent as PostComposeDeleteButtonIcon } from 'assets/images/icon/svg/PostComposeDeleteButtonIcon.svg';
 import LoadingPopup from 'components/popups/LoadingPopup';
 import TagSearchPopup from 'components/popups/tagsearchpopup/TagSearchPopup';
 import {
@@ -46,6 +45,7 @@ import { selectScrapByComposePopupInfoAtom } from 'states/ProfileAtom';
 import PostComposeBodyBottomContent from './PostComposeBodyBottomContent';
 import PostComposeBodyDesc from './PostComposeBodyDesc';
 import PostComposeButton from './PostComposeButton';
+import PostComposeDeleteButton from './PostComposeDeleteButton';
 import PostComposeTitle from './PostComposeTitle';
 import PostUploadVideoElement from './PostUploadVideoElement';
 
@@ -257,13 +257,9 @@ const PostVideoComposeBody: React.FC<PostVideoComposeBodyProps> = ({
                     <>
                       <PostUploadImg src={postUploadContentList[0].contentUrl}>
                         {isDeletePost && (
-                          <PostComposeDeleteButtonWrap
-                            onClick={() => {
-                              setPostUploadContentList([]);
-                            }}
-                          >
-                            <PostComposeDeleteButtonIcon />
-                          </PostComposeDeleteButtonWrap>
+                          <PostComposeDeleteButton
+                            actionFunc={() => setPostUploadContentList([])}
+                          />
                         )}
                       </PostUploadImg>
                     </>
@@ -273,13 +269,9 @@ const PostVideoComposeBody: React.FC<PostVideoComposeBodyProps> = ({
                         videoUrl={postUploadContentList[0].contentUrl}
                       />
                       {isDeletePost && (
-                        <PostComposeDeleteButtonWrap
-                          onClick={() => {
-                            setPostUploadContentList([]);
-                          }}
-                        >
-                          <PostComposeDeleteButtonIcon />
-                        </PostComposeDeleteButtonWrap>
+                        <PostComposeDeleteButton
+                          actionFunc={() => setPostUploadContentList([])}
+                        />
                       )}
                     </>
                   )}
@@ -439,14 +431,6 @@ const PostUploadImg = styled(PostSubImgWrap)<{ src: string }>`
   background: url(${(props) => props.src}) center center / cover;
   vertical-align: bottom;
   position: relative;
-`;
-
-const PostComposeDeleteButtonWrap = styled.div`
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  margin: 8px;
-  cursor: pointer;
 `;
 
 const PostUploadButton = styled.div`

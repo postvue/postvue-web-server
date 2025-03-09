@@ -79,6 +79,7 @@ const SelectScrapByComposePopup: React.FC = () => {
               height: '100%',
               minHeight: 'auto',
             }}
+            isInitTimout={true}
           />
         </BottomSnapSheetLayout>
       ) : (
@@ -98,6 +99,7 @@ const SelectScrapByComposePopup: React.FC = () => {
                 overflow: 'auto',
                 minHeight: 'auto',
               }}
+              isInitTimout={false}
             />
             <SelectScrapByComposeButton
               onClose={onClose}

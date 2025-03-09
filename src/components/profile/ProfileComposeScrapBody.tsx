@@ -1,6 +1,6 @@
 import BottomNextButton from 'components/common/buttton/BottomNextButton';
 import BoundaryStickBar from 'components/common/container/BoundaryStickBar';
-import ProfileScrapTargetAudiencePopup from 'components/popups/ProfileScrapTargetAudiencePopup';
+import MyAccountSettingInfoState from 'components/common/state/MyAccountSettingInfoState';
 import React, { useEffect } from 'react';
 import { useRecoilState, useResetRecoilState } from 'recoil';
 import styled from 'styled-components';
@@ -20,6 +20,9 @@ interface ProfileComposeScrapBodyProps {
   postContentType?: string;
   scrapName: string;
   setScrapName: React.Dispatch<React.SetStateAction<string>>;
+  ProfileMakeScrapBodyContainerStyle?: React.CSSProperties;
+  BottomNextButtonWrapContainerStyle?: React.CSSProperties;
+  isInsetTop?: boolean;
 }
 
 const ProfileComposeScrapBody: React.FC<ProfileComposeScrapBodyProps> = ({
@@ -31,6 +34,9 @@ const ProfileComposeScrapBody: React.FC<ProfileComposeScrapBodyProps> = ({
   postContentType,
   scrapName,
   setScrapName,
+  ProfileMakeScrapBodyContainerStyle,
+  BottomNextButtonWrapContainerStyle,
+  isInsetTop = true,
 }) => {
   const [scrapTargetAudience, setScrapTargetAudience] = useRecoilState(
     scrapTargetAudienceAtom,
@@ -55,8 +61,10 @@ const ProfileComposeScrapBody: React.FC<ProfileComposeScrapBodyProps> = ({
 
   return (
     <>
-      <ProfileMakeScrapBodyContainer>
-        <div style={{ paddingTop: `env(safe-area-inset-top)` }} />
+      <ProfileMakeScrapBodyContainer style={ProfileMakeScrapBodyContainerStyle}>
+        {isInsetTop && (
+          <div style={{ paddingTop: `env(safe-area-inset-top)` }} />
+        )}
         {postId && postContentUrl && (
           <TogetherPostWrap>
             <TogetherPostImg src={postContentUrl} />
@@ -103,15 +111,14 @@ const ProfileComposeScrapBody: React.FC<ProfileComposeScrapBodyProps> = ({
           actionFunc={actionFunc}
           title={buttonTitle}
           notActiveTitle={buttonTitle}
+          isTransparent={true}
+          BottomNextButtonWrapContainerStyle={
+            BottomNextButtonWrapContainerStyle
+          }
         />
       </ProfileMakeScrapBodyContainer>
 
-      {isActiveProfileScarpTargetAudPopup && (
-        <ProfileScrapTargetAudiencePopup
-          targetAudValue={scrapTargetAudience}
-          setTargetAudValue={setScrapTargetAudience}
-        />
-      )}
+      <MyAccountSettingInfoState />
     </>
   );
 };

@@ -133,9 +133,10 @@ const MapDateRangePickerPopup: React.FC<DateRangePickerProps> = ({
 const StyledDatePickerWrap = styled.div`
   border-radius: 30px;
   box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 20px 0px;
-  margin: 20px 10px 20px 10px;
+  margin: 0;
+  width: 100%;
   z-index: 2000;
-  position: relative;
+  position: absolute;
   background-color: white;
   animation: ${animationStyle.fadeIn} 0.15s ease-in-out;
 `;
@@ -279,6 +280,13 @@ const StyledDatePicker = styled.div`
     background-color: ${theme.mainColor.Blue};
     transition: all 0.3s ease-in-out;
   }
+  .react-datepicker__current-month {
+    font: ${({ theme }) => theme.fontSizes.Subhead2};
+  }
+  .react-datepicker__day {
+  font: ${({ theme }) => theme.fontSizes.Body3};
+  }
+
   .react-datepicker__day.react-datepicker__day--keyboard-selected.react-datepicker__day--range-end.react-datepicker__day--in-range.react-datepicker__day--outside-month::before {
     border-radius: 0px;
     bottom: 0;
@@ -385,7 +393,7 @@ const DatePickerWrap = styled.div`
   display: flex;
   flex-direction: column;
   height: 80dvh;
-  max-height: 550px;
+  max-height: 600px;
 `;
 
 const HeaderWrap = styled.div`

@@ -86,8 +86,6 @@ export const useSnsNotificationHookByIndexedDb = (): {
       // 최신 알림 감지 및 표시
       const newNotifications = msgs.filter((v) => !v.isRead);
 
-      console.log('Unread Notifications:', newNotifications);
-
       if (newNotifications.length > 0) {
         setHasUnreadNotifications(true);
       } else {
@@ -148,7 +146,7 @@ export const useSnsNotificationHookByIndexedDb = (): {
 
       return newNotifications;
     } catch (error) {
-      console.error('Failed to load notifications:', error);
+      console.log('Failed to load notifications:', error);
     } finally {
       setIsLoading(false);
     }
@@ -180,7 +178,7 @@ export const useSnsNotificationHookByIndexedDb = (): {
       await db.snsNotification.bulkPut(messages); // ✅ 기존 데이터가 있으면 업데이트됨
       setNotifications(await db.snsNotification.toArray());
     } catch (error) {
-      console.error('Failed to add notifications:', error);
+      console.log('Failed to add notifications:', error);
     }
   };
 

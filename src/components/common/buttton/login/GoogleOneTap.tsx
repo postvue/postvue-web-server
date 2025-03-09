@@ -21,7 +21,7 @@ const GoogleOneTap: React.FC<GoogleOneTapProps> = ({
           callback: (response: any) => {
             onLoginSuccess(response.credential);
           },
-          auto_select: true, // 자동 로그인 (사용자가 이전에 승인한 경우)
+          auto_select: false,
           cancel_on_tap_outside: false, // 사용자가 창을 클릭하면 닫히지 않음
         });
 

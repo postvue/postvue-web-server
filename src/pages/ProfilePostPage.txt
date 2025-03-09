@@ -490,7 +490,6 @@ const ProfilePostPage: React.FC = () => {
                       <ProfilePosition>
                         {snsPost.location.address}
                       </ProfilePosition>
-                      {/**@REFER: 수정 */}
                     </ProfileUserNameFollowWrap>
                   </ProfileLinkDiv>
                 </ProfileWrap>

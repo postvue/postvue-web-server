@@ -133,7 +133,7 @@ const ProfileScrapThumbnailListView: React.FC<
 };
 
 const ProfileScrapWrap = styled.div`
-  padding: 0 20px 22px 20px;
+  padding: 20px 20px 0px 20px;
 `;
 
 const ProfileScrapViewName = styled.div`

@@ -34,7 +34,7 @@ interface SearchResult {
   isFetchedByMapAppleSearchList: boolean;
 }
 
-export const useAppleMapSearchWithCache = (
+export const useAppleMapSearchWithCacheV1 = (
   searchProps: SearchProps,
 ): SearchResult => {
   const { mapkit } = useMapV1();
@@ -189,4 +189,4 @@ export const useAppleMapSearchWithCache = (
   };
 };
 
-export default useAppleMapSearchWithCache;
+export default useAppleMapSearchWithCacheV1;

@@ -1,7 +1,8 @@
 import { ReactComponent as SearchIcon } from 'assets/images/icon/svg/search/SearchIcon.svg';
+import { MEDIA_MOBILE_MAX_WIDTH } from 'const/SystemAttrConst';
 import React from 'react';
 import styled from 'styled-components';
-import { hoverComponentStyle } from 'styles/commonStyles';
+import { hoverComponentNotRoundStyle } from 'styles/commonStyles';
 
 interface SearchQueryElementProps {
   children?: React.ReactNode;
@@ -44,6 +45,8 @@ const SearchQueryItemWrap = styled.div`
   gap: 6px;
   cursor: pointer;
   width: calc(100% - 30px);
+  ${hoverComponentNotRoundStyle}
+  padding: 10px 0;
 `;
 
 const SearchQueryItem = styled.div`
@@ -53,9 +56,6 @@ const SearchQueryItem = styled.div`
 
 const SearchWordQueryItemWrap = styled.div`
   background: #fff;
-  padding: 10px 0;
-
-  ${hoverComponentStyle}
 `;
 
 const RecenSearchWordItemDeletedWrap = styled.div`
@@ -67,6 +67,9 @@ const RecenSearchWordItemDeletedWrap = styled.div`
 const SearchWordQueryItem = styled.div`
   font: ${({ theme }) => theme.fontSizes.Body4};
   font-size: 18px;
+  @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
+    font-size: 16px;
+  }
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;

@@ -27,9 +27,9 @@ class WebSocketService {
       connectHeaders: {
         Authorization: this.authorization,
       },
-      // debug: (str) => {
-      //   console.log(str); //@REFER: 나중에 지우도록
-      // },
+      debug: (str) => {
+        console.log(str);
+      },
       reconnectDelay: WEBSOCKET_RECONNECT_DELAY_TIME,
       heartbeatIncoming: WEBSOCKET_HEARTBEAT_INCOMING_TIME,
       heartbeatOutgoing: WEBSOCKET_HEARTBEAT_OUTGOING_TIME,

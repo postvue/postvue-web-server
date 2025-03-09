@@ -33,6 +33,7 @@ const PostReactionCommentSendElement: React.FC<
     <CommentInputSenderElement
       postId={postId}
       //@REFER: snsPostCommentHashMap 잔재 제거 필요
+      // @ANSWER: 나중 기록을 위해 삭제 하지 마시오
       // snsPostCommentHashMap={snsPostCommentHashMap}
       // setSnsPostCommentHashMap={setSnsPostCommentHashMap}
       commentSenderRef={commentSenderRef}

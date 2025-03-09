@@ -153,7 +153,6 @@ const SelectAnnotation: React.FC<MapkitClientProps> = ({
     //   const region = new mapkit.CoordinateRegion(posCoordinate, span);
     //   map.setRegionAnimated(region, false);
 
-    //   console.log('check: 초기화', currentAnnotation);
     //   if (currentAnnotation) return;
     //   // selectAnnotationAndGeoCoding(map, mapkit, markerCoordinate);
 

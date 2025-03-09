@@ -5,14 +5,14 @@ const { GenerateSW } = require('workbox-webpack-plugin');
 const isProduction = process.env.NODE_ENV === 'production';
 
 module.exports = {
-  // babel: {
-  //   plugins: isProduction
-  //     ? [
-  //         // production 모드일 때만 console.log 제거 (console.error, console.warn은 유지)
-  //         ['transform-remove-console', { exclude: ['error', 'warn'] }],
-  //       ]
-  //     : [],
-  // },
+  babel: {
+    plugins: isProduction
+      ? [
+          // production 모드일 때만 console.log 제거 (console.error, console.warn은 유지)
+          ['transform-remove-console', { exclude: ['error', 'warn'] }],
+        ]
+      : [],
+  },
   webpack: {
     plugins: [
       new GenerateSW({

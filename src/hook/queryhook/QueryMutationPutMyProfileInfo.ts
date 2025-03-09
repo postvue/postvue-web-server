@@ -4,7 +4,6 @@ import { QUERY_STATE_MY_PROFILE_INFO } from 'const/QueryClientConst';
 import { ProfileMyInfo } from 'global/interface/profile';
 import { fetchMyProfileInfo } from 'global/util/channel/static/fetchMyProfileInfo';
 import { fetchProfileAccountInfo } from 'global/util/channel/static/fetchProfileAccountInfo';
-import { initMyAccountSettingInfo } from 'global/util/MyAccountSettingUtil';
 import { putMyProfileInfo } from 'services/profile/putMyProfileInfo';
 
 export const QueryMutationPutMyProfileInfo = (): UseMutationResult<
@@ -19,7 +18,7 @@ export const QueryMutationPutMyProfileInfo = (): UseMutationResult<
       fetchMyProfileInfo();
       fetchProfileAccountInfo(data.username);
 
-      initMyAccountSettingInfo(data);
+      // initMyAccountSettingInfo(data);
     },
   });
 };

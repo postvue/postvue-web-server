@@ -9,21 +9,17 @@ import { QueryStateProfileBlockedUserList } from 'hook/queryhook/QueryStateProfi
 import { QueryStateProfileInfo } from 'hook/queryhook/QueryStateProfileInfo';
 import React, { useState } from 'react';
 import { useRecoilState } from 'recoil';
-import { isActiveProfileBlockPopupAtom } from '../../states/ProfileAtom';
+import { activeProfileBlockPopupInfoAtom } from 'states/ProfileAtom';
 import ConfirmCheckPopup from './ConfirmCheckPopup';
 
-interface BlockUserPopupProps {
-  userInfo: { username: string; userId: string };
-}
-const BlockUserPopup: React.FC<BlockUserPopupProps> = ({ userInfo }) => {
-  const [isActiveProfileBlock, setIsActiveProfileBlock] = useRecoilState(
-    isActiveProfileBlockPopupAtom,
-  );
+const BlockUserPopup: React.FC = () => {
+  const [activeProfileBlockPopupInfo, setActiveProfileBlockPopupInfo] =
+    useRecoilState(activeProfileBlockPopupInfoAtom);
 
   const { windowWidth } = useWindowSize();
 
   const { data: profileInfo, isFetched: isFetchedByProfileInfo } =
-    QueryStateProfileInfo(userInfo.username);
+    QueryStateProfileInfo(activeProfileBlockPopupInfo.username);
 
   const [isExternalCloseFunc, setIsExternalCloseFunc] =
     useState<boolean>(false);
@@ -32,10 +28,10 @@ const BlockUserPopup: React.FC<BlockUserPopupProps> = ({ userInfo }) => {
     QueryStateProfileBlockedUserList();
 
   const { refetch: refetchByProfileAccountPostList } =
-    QueryStateProfileAccountPostList(userInfo.username);
+    QueryStateProfileAccountPostList(activeProfileBlockPopupInfo.username);
 
   const { refetch: refetchByProfileInfo } = QueryStateProfileInfo(
-    userInfo.username,
+    activeProfileBlockPopupInfo.username,
   );
 
   const [isActiveBlockComplete, setIsActiveBlockComplete] =
@@ -48,8 +44,14 @@ const BlockUserPopup: React.FC<BlockUserPopupProps> = ({ userInfo }) => {
             {windowWidth <= MEDIA_MOBILE_MAX_WIDTH_NUM ? (
               <>
                 <BottomSheetLayout
-                  isOpen={isActiveProfileBlock}
-                  onClose={() => setIsActiveProfileBlock(false)}
+                  isOpen={activeProfileBlockPopupInfo.isActive}
+                  onClose={() =>
+                    setActiveProfileBlockPopupInfo({
+                      isActive: false,
+                      userId: '',
+                      username: '',
+                    })
+                  }
                   isExternalCloseFunc={isExternalCloseFunc}
                   heightNum={
                     (profileInfo.isBlocked ? 250 : 320) +
@@ -62,16 +64,25 @@ const BlockUserPopup: React.FC<BlockUserPopupProps> = ({ userInfo }) => {
                 >
                   <BlockUserPopupBody
                     profileInfo={profileInfo}
-                    userInfo={userInfo}
+                    userInfo={{
+                      userId: activeProfileBlockPopupInfo.userId,
+                      username: activeProfileBlockPopupInfo.username,
+                    }}
                     onOpenCheck={() => setIsActiveBlockComplete(true)}
                   />
                 </BottomSheetLayout>
               </>
             ) : (
               <>
-                {isActiveProfileBlock && (
+                {activeProfileBlockPopupInfo.isActive && (
                   <RoundSquareCenterPopupLayout
-                    onClose={() => setIsActiveProfileBlock(false)}
+                    onClose={() =>
+                      setActiveProfileBlockPopupInfo({
+                        isActive: false,
+                        userId: '',
+                        username: '',
+                      })
+                    }
                     popupWrapStyle={
                       profileInfo.isBlocked
                         ? { height: '280px', width: '400px' }
@@ -81,7 +92,10 @@ const BlockUserPopup: React.FC<BlockUserPopupProps> = ({ userInfo }) => {
                   >
                     <BlockUserPopupBody
                       profileInfo={profileInfo}
-                      userInfo={userInfo}
+                      userInfo={{
+                        userId: activeProfileBlockPopupInfo.userId,
+                        username: activeProfileBlockPopupInfo.username,
+                      }}
                       onOpenCheck={() => {
                         setIsActiveBlockComplete(true);
                       }}
@@ -90,7 +104,9 @@ const BlockUserPopup: React.FC<BlockUserPopupProps> = ({ userInfo }) => {
                 )}
               </>
             )}
-            {isActiveProfileBlock && <MyAccountSettingInfoState />}
+            {activeProfileBlockPopupInfo.isActive && (
+              <MyAccountSettingInfoState />
+            )}
             {isActiveBlockComplete && (
               <ConfirmCheckPopup
                 confirmPopupTitle={
@@ -100,8 +116,8 @@ const BlockUserPopup: React.FC<BlockUserPopupProps> = ({ userInfo }) => {
                 }
                 confirmPopupSubTitle={
                   !profileInfo.isBlocked
-                    ? `${userInfo.username}님은 회원님의 게시물에 메시지, 댓글 등과 같은 반응은 할 수 없습니다.`
-                    : `${userInfo.username}님은 나를 팔로우하여 내 게시물을 볼 수 있습니다.`
+                    ? `${activeProfileBlockPopupInfo.username}님은 회원님의 게시물에 메시지, 댓글 등과 같은 반응은 할 수 없습니다.`
+                    : `${activeProfileBlockPopupInfo.username}님은 나를 팔로우하여 내 게시물을 볼 수 있습니다.`
                 }
                 onClose={() => {
                   setIsActiveBlockComplete(false);
@@ -111,7 +127,11 @@ const BlockUserPopup: React.FC<BlockUserPopupProps> = ({ userInfo }) => {
                   if (windowWidth <= MEDIA_MOBILE_MAX_WIDTH_NUM) {
                     setIsExternalCloseFunc(true);
                   } else {
-                    setIsActiveProfileBlock(false);
+                    setActiveProfileBlockPopupInfo({
+                      isActive: false,
+                      userId: '',
+                      username: '',
+                    });
                   }
                 }}
               />

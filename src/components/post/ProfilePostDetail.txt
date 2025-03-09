@@ -290,7 +290,6 @@
 //                     <ProfilePosition>
 //                       {snsPost.location.address}
 //                     </ProfilePosition>
-//                     {/**@REFER: 수정 */}
 //                   </ProfileUserNameFollowWrap>
 //                 </ProfileLinkDiv>
 //               </Link>

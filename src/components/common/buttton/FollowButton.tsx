@@ -1,4 +1,6 @@
+import { ReactComponent as ProfileTabNotActiveIcon } from 'assets/images/icon/svg/navbar/ProfileTabNotActiveIcon.svg';
 import { AxiosError } from 'axios';
+import { notify } from 'components/popups/ToastMsgPopup';
 import { STATUS_FORBIDDEN_CODE } from 'const/HttpStatusConst';
 import { fetchProfilePost } from 'global/util/channel/static/fetchProfilePost';
 import { sendVibrationLightEvent } from 'global/util/reactnative/nativeRouter';
@@ -53,6 +55,21 @@ const FollowButton: React.FC<FollowButtonProps> = ({
         refetchByProfileInfo();
         if (!postId) return;
         fetchProfilePost(postId);
+
+        notify({
+          msgIcon: <ProfileTabNotActiveIcon />,
+          msgTitle: username + '님을 팔로우 했습니다.',
+          // rightNode: (
+          //   <PostScrapNotificationGoButton
+          //     onClick={() => {
+          //       stackRouterPush(navigate, SEARCH_FAVORITE_LIST_PATH);
+          //     }}
+          //   >
+          //     보기
+          //   </PostScrapNotificationGoButton>
+          // ),
+          autoClose: 1000,
+        });
       })
       .catch((error: AxiosError) => {
         if (error.status === STATUS_FORBIDDEN_CODE) {

@@ -20,6 +20,7 @@ const ProfileAccountHelpInfoPage: React.FC = () => {
         windowWidth >= MEDIA_MOBILE_MAX_WIDTH_NUM ? 500 : undefined
       }
       sideWidth={windowWidth >= MEDIA_MOBILE_MAX_WIDTH_NUM ? 500 : undefined}
+      SlideBarNodeStyle={{ borderRadius: 0 }}
       slideBarNode={
         <>
           <PrevButtonHeaderHeader

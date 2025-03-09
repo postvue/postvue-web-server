@@ -22,7 +22,7 @@ import { QueryStateProfileInfo } from 'hook/queryhook/QueryStateProfileInfo';
 import React, { useRef } from 'react';
 import { generatePath, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSetRecoilState } from 'recoil';
-import { isActiveProfileBlockPopupAtom } from 'states/ProfileAtom';
+import { activeProfileBlockPopupInfoAtom } from 'states/ProfileAtom';
 import { sharePopupInfoAtom } from 'states/ShareAtom';
 import styled from 'styled-components';
 
@@ -46,14 +46,19 @@ const ProfileAccountInfo: React.FC<ProfileAccountInfoProps> = ({
 
   const ProfileAccountInfoRef = useRef<HTMLDivElement>(null);
 
-  const setIsActiveProfileBlockPopup = useSetRecoilState(
-    isActiveProfileBlockPopupAtom,
+  const setActiveProfileBlockPopupInfo = useSetRecoilState(
+    activeProfileBlockPopupInfoAtom,
   );
 
   const setSharePopupInfo = useSetRecoilState(sharePopupInfoAtom);
 
   const onClickUnblocking = () => {
-    setIsActiveProfileBlockPopup(true);
+    if (!profileInfo) return;
+    setActiveProfileBlockPopupInfo({
+      isActive: true,
+      userId: profileInfo.userId,
+      username: profileInfo.username,
+    });
   };
 
   return (

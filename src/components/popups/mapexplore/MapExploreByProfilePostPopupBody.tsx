@@ -14,12 +14,10 @@ import { isLoadingPopupAtom } from 'states/SystemConfigAtom';
 
 import { ReactComponent as MapExplorePopupCloseButtonIcon } from 'assets/images/icon/svg/explore/MapExplorePopupCloseButtonIcon.svg';
 import AppleMapElement from 'components/mapexplore/body/AppleMapElement';
-import GeoPositionRefreshButton from 'components/mapexplore/GeoPositionRefreshButton';
 import MapExploreBody from 'components/mapexplore/MapExploreBody';
 import { PostRsp } from 'global/interface/post';
 import { isEmptyObject } from 'global/util/ObjectUtil';
 import { QueryStateMapExploreList } from 'hook/queryhook/QueryStateMapExploreList';
-import { CSSTransition } from 'react-transition-group';
 import MapExplorePostPopup from './MapExplorePostPopup';
 
 interface MapExploreByProfilePostPopupBodyProps {
@@ -122,41 +120,34 @@ const MapExploreByProfilePostPopupBody: React.FC<
                   />
                 </GeoCurrentPositionButtonWrap> */}
 
-                <GeoPositionRefreshButton
+                {/* <GeoPositionRefreshButton
                   GeoPositionRefreshButtonStyle={{
                     position: 'absolute',
                     left: '50%',
                     transform: 'translate(-50%, 0)',
                     bottom: `${GeoButtonMargin}px`,
                   }}
-                />
+                /> */}
               </>
             )}
 
-            <CSSTransition
-              in={init}
-              classNames={'fase'}
-              timeout={500}
-              unmountOnExit
-            >
-              {init && (
-                <AppleMapElement
-                  mapPost={postMapLocation}
-                  // isRefresh={
-                  //   postMapLocation ? postMapLocation?.pages.length <= 0 : false
-                  // }
-                  // onSetMapMoveLocation={(moveLocation: MoveLocationType) =>
-                  //   setMapMoveLoation((prev) => ({
-                  //     ...prev,
-                  //     isMoved: moveLocation.isMoved,
-                  //     latitude: moveLocation.latitude,
-                  //     longitude: moveLocation.longitude,
-                  //   }))
-                  // }
-                  // scrollEndEventFunc={scrollEndEventFunc}
-                />
-              )}
-            </CSSTransition>
+            {init && (
+              <AppleMapElement
+                mapPost={postMapLocation}
+                // isRefresh={
+                //   postMapLocation ? postMapLocation?.pages.length <= 0 : false
+                // }
+                // onSetMapMoveLocation={(moveLocation: MoveLocationType) =>
+                //   setMapMoveLoation((prev) => ({
+                //     ...prev,
+                //     isMoved: moveLocation.isMoved,
+                //     latitude: moveLocation.latitude,
+                //     longitude: moveLocation.longitude,
+                //   }))
+                // }
+                // scrollEndEventFunc={scrollEndEventFunc}
+              />
+            )}
           </MapExploreSubWrap>
         </MapExploreWrap>
 
@@ -215,7 +206,6 @@ const MapExploreHeaderWrap = styled.div`
 
   @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
     margin-top: ${MapFullMargin}px;
-    // position: absolute; //@REFER: 왜 이렇게 한 거지?
   }
 
   @media (max-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
