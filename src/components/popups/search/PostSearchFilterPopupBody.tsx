@@ -1,6 +1,5 @@
 import { ReactComponent as ScrapComposeTargetAudTabIcon } from 'assets/images/icon/svg/CategoryCheckIcon.svg';
 import { ReactComponent as ScrapComposeTargetAudNotActiveTabIcon } from 'assets/images/icon/svg/CategoryNotCheckIcon.svg';
-import MyAccountSettingInfoState from 'components/common/state/MyAccountSettingInfoState';
 import {
   SEARCH_POST_PATH,
   SEARCH_PROFILE_PATH,
@@ -72,7 +71,6 @@ const PostSearchFilterPopupBody: React.FC<PostSearchFilterPopupBodyProps> = ({
           );
         })}
       </PostSearchFilterPopupWrap>
-      <MyAccountSettingInfoState />
     </PostSearchFilterPopupContainer>
   );
 };

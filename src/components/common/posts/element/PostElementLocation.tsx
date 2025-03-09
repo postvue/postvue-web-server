@@ -32,19 +32,9 @@ const PostAddressWrap = styled.div<{ $ContentBorderRadius: number }>`
   bottom: 0px;
   width: 100%;
   z-index: 110;
-
-  &::after {
-    z-index: -1;
-    content: '';
-    height: 100%;
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.4), transparent);
-    border-radius: 0 0 ${(props) => props.$ContentBorderRadius}px
-      ${(props) => props.$ContentBorderRadius}px;
-  }
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.4), transparent);
+  border-radius: 0 0 ${(props) => props.$ContentBorderRadius}px
+    ${(props) => props.$ContentBorderRadius}px;
 `;
 
 const PostAddressSubWrap = styled.div`

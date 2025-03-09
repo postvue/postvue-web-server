@@ -14,7 +14,6 @@ import ProfileScrapBody from 'components/profile/ProfileScrapBody';
 import { isEmptyObject } from 'global/util/ObjectUtil';
 import { PostMapPostInfiniteInterface } from 'hook/queryhook/QueryStatePostMapPostInfinite';
 import { QueryStateProfileScrap } from 'hook/queryhook/QueryStateProfileScrap';
-import { CSSTransition } from 'react-transition-group';
 import MapExplorePostByScrapBottomSheet from './MapExplorePostByScrapBottomSheet';
 
 interface MapExploreByScrapPopupBodyProps {
@@ -69,12 +68,7 @@ const MapExploreByScrapPopupBody: React.FC<MapExploreByScrapPopupBodyProps> = ({
               </>
             )}
 
-            <CSSTransition
-              in={init}
-              classNames={'fase'}
-              timeout={300}
-              unmountOnExit
-            >
+            {init && (
               <AppleMapElement
                 mapPost={
                   profileScrap
@@ -101,7 +95,7 @@ const MapExploreByScrapPopupBody: React.FC<MapExploreByScrapPopupBodyProps> = ({
                 // }
                 coordinateSpan={1}
               />
-            </CSSTransition>
+            )}
           </MapExploreSubWrap>
         </MapExploreWrap>
 
@@ -152,7 +146,6 @@ const MapExploreHeaderWrap = styled.div`
 
   @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
     margin-top: ${MapFullMargin}px;
-    // position: absolute; //@REFER: 왜 이렇게 한 거지?
   }
 
   @media (max-width: ${MEDIA_MOBILE_MAX_WIDTH}) {

@@ -181,7 +181,6 @@ const MapExploreHeaderWrap = styled.div`
 
   @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
     margin-top: ${MapFullMargin}px;
-    // position: absolute; //@REFER: 왜 이렇게 한 거지?
   }
 
   @media (max-width: ${MEDIA_MOBILE_MAX_WIDTH}) {

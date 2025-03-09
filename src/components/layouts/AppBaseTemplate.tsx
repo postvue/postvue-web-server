@@ -2,18 +2,22 @@ import SideNavBar from 'components/SideNavBar';
 import React, { ReactNode, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
+import BlockUserPopup from 'components/popups/BlockUserPopup';
 import ConfirmCheckPopup from 'components/popups/ConfirmCheckPopup';
+import MakeScrapPopup from 'components/popups/makescrap/MakeScrapPopup';
 import MapExploreByScrapPopup from 'components/popups/mapexplore/MapExploreByScrapPopup';
 import PostComposePopup from 'components/popups/postcompose/PostComposePopup';
 import PostComposeSelectPopup from 'components/popups/postcompose/PostComposeSelectPopup';
 import PostComposeBySourceUrlPopup from 'components/popups/postcompose/postcomposesourceurlpopup/PostComposeBySourceUrlPopup';
 import PostComposeVideoPopup from 'components/popups/postcompose/PostComposeVideoPopup';
 import PostEditPopup from 'components/popups/postedit/PostEditPopup';
+import PostReactionCommentSettingPopup from 'components/popups/postreactionpopup/PostReactionCommentSettingPopup';
 import ProfileAccountComplaintPopup from 'components/popups/profileaccount/ProfileAccountComplaintPopup';
 import ComplaintCompletePopup from 'components/popups/profilepost/ComplaintCompletePopup';
 import PostSettingPopup from 'components/popups/profilepost/PostSettingPopup';
 import ProfilePostDetailPopup from 'components/popups/ProfilePostDetailPopup';
 import ScrapViewPopup from 'components/popups/profilescrap/ScrapViewPopup';
+import ProfileScrapTargetAudiencePopup from 'components/popups/ProfileScrapTargetAudiencePopup';
 import SearchFavoriteTermEditPopup from 'components/popups/search/SearchFavoriteTermEditPopup';
 import ServiceUsageTimerPopup from 'components/popups/service/usagetimer/ServiceUsageTimerPopup';
 import SnsSharePopup from 'components/popups/SnsSharePopup';
@@ -29,8 +33,10 @@ import useObjectScrollY from 'hook/customhook/useWindowScrollY';
 import useWindowSize from 'hook/customhook/useWindowSize';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import {
+  activeMakeScrapPopupInfoAtom,
   activePostComplaintCompletePopupAtom,
   activePostDotSettingInfoAtom,
+  commentSettingPopupInfoAtom,
   isPostDetailInfoPopupAtom,
   postDetailInfoPopupAtom,
 } from 'states/PostAtom';
@@ -45,7 +51,9 @@ import {
 import {
   activeMapScrapPopupAtom,
   activeProfileAccountComplaintPopupAtom,
+  activeProfileBlockPopupInfoAtom,
   activeScrapViewPopupInfoAtom,
+  isActiveProfileScarpTargetAudPopupAtom,
 } from 'states/ProfileAtom';
 import { isActiveSearchFavoritePopupAtom } from 'states/SearchPostAtom';
 import { sharePopupInfoAtom } from 'states/ShareAtom';
@@ -78,6 +86,9 @@ interface AppBaseTemplate {
   isScrollByAppContainer?: boolean;
   isScrollSave?: boolean;
   fixedScrollPos?: number;
+  AppBaseStlye?: React.CSSProperties;
+  AppHeaderNode?: React.ReactNode;
+  AppBottomNode?: React.ReactNode;
 }
 
 const AppBaseTemplate: React.FC<AppBaseTemplate> = ({
@@ -102,6 +113,9 @@ const AppBaseTemplate: React.FC<AppBaseTemplate> = ({
   isScrollByAppContainer = true,
   isScrollSave = true,
   fixedScrollPos,
+  AppBaseStlye,
+  AppHeaderNode,
+  AppBottomNode,
 }) => {
   const { windowWidth } = useWindowSize();
 
@@ -138,6 +152,17 @@ const AppBaseTemplate: React.FC<AppBaseTemplate> = ({
   const activeProfileAccountComplaintPopup = useRecoilValue(
     activeProfileAccountComplaintPopupAtom,
   );
+
+  const isActiveProfileScarpTargetAudPopup = useRecoilValue(
+    isActiveProfileScarpTargetAudPopupAtom,
+  );
+  const commentSettingPopupInfo = useRecoilValue(commentSettingPopupInfoAtom);
+
+  const activeProfileBlockInfo = useRecoilValue(
+    activeProfileBlockPopupInfoAtom,
+  );
+
+  const activeMakeScrapPopupInfo = useRecoilValue(activeMakeScrapPopupInfoAtom);
 
   const [
     activePostComplaintCompletePopup,
@@ -190,15 +215,19 @@ const AppBaseTemplate: React.FC<AppBaseTemplate> = ({
         <Main id="main" $isAppInsetTopMargin={isAppInsetTopMargin}>
           <MainContainer>
             <MainWrap>
-              <AppContainer
-                style={AppContainerStyle}
-                $isAppContainerTopMargin={isAppContainerTopMargin}
-                $appContainerSize={appContainerWidth}
-                $isScrollByAppContainer={isScrollByAppContainer}
-                ref={appContainerRef}
-              >
-                {children}
-              </AppContainer>
+              <AppBase style={AppBaseStlye}>
+                {AppHeaderNode}
+                <AppContainer
+                  style={AppContainerStyle}
+                  $isAppContainerTopMargin={isAppContainerTopMargin}
+                  $appContainerSize={appContainerWidth}
+                  $isScrollByAppContainer={isScrollByAppContainer}
+                  ref={appContainerRef}
+                >
+                  {children}
+                </AppContainer>
+                {AppBottomNode}
+              </AppBase>
 
               {windowWidth > MEDIA_MOBILE_MAX_WIDTH_NUM && (
                 <AppBaseTemplateSideBar
@@ -273,6 +302,14 @@ const AppBaseTemplate: React.FC<AppBaseTemplate> = ({
             }}
           />
         )}
+        {activeProfileBlockInfo.isActive && <BlockUserPopup />}
+        {activeMakeScrapPopupInfo.isActive && <MakeScrapPopup />}
+        {isActiveProfileScarpTargetAudPopup && (
+          <ProfileScrapTargetAudiencePopup />
+        )}
+        {commentSettingPopupInfo.isActive && (
+          <PostReactionCommentSettingPopup />
+        )}
       </Container>
       <ToastPopup />
     </>
@@ -321,6 +358,10 @@ const MainWrap = styled.div`
     max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
     margin: auto;
   }
+`;
+
+const AppBase = styled.div`
+  width: 100%;
 `;
 
 const AppContainer = styled.div<{

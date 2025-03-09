@@ -24,7 +24,6 @@ import theme from 'styles/theme';
 const POS_CONTROL_GAP_NUM = 0.01;
 const MAP_COORINATE_SPAN = 0.06;
 
-// @REFER: 수정 필요
 const offset = new DOMPoint(5, -80);
 
 const selectedSize = 70;

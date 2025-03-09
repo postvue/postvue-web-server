@@ -289,7 +289,6 @@ const NotificationContentWrap = styled.div`
 `;
 
 const NotificationContentImg = styled.img`
-  // @REFER: 51px 따로 스타일로 관리
   width: ${ProfileImgSize}px;
   height: ${ProfileImgSize}px;
   border-radius: 30px;

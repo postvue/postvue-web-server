@@ -3,8 +3,10 @@ import PostSettingDotButton from 'components/common/buttton/PostSettingDotButton
 import { Location, PostRsp } from 'global/interface/post';
 import { formatToMinutesAndSeconds } from 'global/util/DateTimeUtil';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useSetRecoilState } from 'recoil';
+import { masonryUpdateCountAtom } from 'states/MasonryAtom';
 import styled from 'styled-components';
-import { filterBrigntnessStyle } from 'styles/commonStyles';
+import { hoverFilterBrigntnessStyle } from 'styles/commonStyles';
 import theme from 'styles/theme';
 import PostElementLocation from './PostElementLocation';
 
@@ -96,7 +98,7 @@ const PostVideoPreviewElement: React.FC<PostVideoPreviewELementProps> = ({
     return () => observer.disconnect();
   }, [visibilityThreshold, activeVideoId]);
 
-  // @REFER: 잠깐 주석 처리
+  // @REFER: 비디오 자동 실행 구현 완료시
   // useEffect(() => {
   //   if (isVisibilityDetection) {
   //     const cleanup = handleVisibility(); // visibility detection 핸들러 실행
@@ -105,6 +107,8 @@ const PostVideoPreviewElement: React.FC<PostVideoPreviewELementProps> = ({
   // }, [isVisibilityDetection, handleVisibility]); // 의존성 배열로 최적화
 
   const [isError, setIsError] = useState(false);
+
+  const setMasonryUpdateCount = useSetRecoilState(masonryUpdateCountAtom);
 
   return (
     <>
@@ -126,13 +130,15 @@ const PostVideoPreviewElement: React.FC<PostVideoPreviewELementProps> = ({
             </VideoDurationWrap>
             {!isError && (
               <>
-                <PostVideoPreviewMockImg
-                  style={{
-                    opacity: onload ? 0 : 1,
-                    transition: 'opacity 0.3s ease-in-out',
-                    height: ((Math.random() + 1) / 2) * 100 + 30, // 랜덤 높이 유지
-                  }}
-                />
+                {!onload && (
+                  <PostVideoPreviewMockImg
+                    style={{
+                      opacity: onload ? 0 : 1,
+                      position: onload ? 'absolute' : 'relative',
+                      transition: 'opacity 0.3s ease-in-out',
+                    }}
+                  />
+                )}
                 <PostVideoPreviewImg
                   src={posterImg}
                   style={{
@@ -142,7 +148,12 @@ const PostVideoPreviewElement: React.FC<PostVideoPreviewELementProps> = ({
                   onError={() => {
                     setIsError(true);
                   }}
-                  onLoad={() => setOnload(true)}
+                  onLoad={() => {
+                    setOnload(true);
+                    setTimeout(() => {
+                      setMasonryUpdateCount((prev) => prev + 1);
+                    }, 50);
+                  }}
                 />
               </>
             )}
@@ -192,7 +203,7 @@ const PostVideoAddressWrap = styled.div`
   cursor: pointer;
   height: 100%;
 
-  ${filterBrigntnessStyle}
+  ${hoverFilterBrigntnessStyle}
 `;
 
 const PostContentVideoWrap = styled.div`
@@ -227,7 +238,6 @@ const PostVideoPreviewMockImg = styled.div`
   z-index: 0;
   transition: opacity 0.3s ease-in-out;
   background-color: ${theme.grey.Grey1};
-  position: absolute;
   top: 0;
   bottom: 0;
   left: 0;
@@ -235,6 +245,7 @@ const PostVideoPreviewMockImg = styled.div`
   width: 100%;
   border-radius: 20px;
   opacity: 0.5;
+  aspect-ratio: 3 / 4;
 `;
 
 const VideoDurationWrap = styled.div`

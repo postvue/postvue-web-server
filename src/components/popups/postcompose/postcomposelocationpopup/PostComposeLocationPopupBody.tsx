@@ -216,7 +216,7 @@ const PostComposeLocationBodyContainer = styled.div`
 
   display: flex;
   flex-flow: column;
-  gap: 20px;
+
   padding: 0 ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding};
 `;
 

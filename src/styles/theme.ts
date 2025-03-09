@@ -111,8 +111,6 @@ const systemSize = {
     height: '50px',
     heightNumber: 50,
     paddingLeftRightMargin: '15px',
-    //@REFER: 22px 또는 21px로 할 지 결정
-    //paddingLeftRightMargin: '22px',
   },
 
   popupTopBodyBottomScrollArea: {

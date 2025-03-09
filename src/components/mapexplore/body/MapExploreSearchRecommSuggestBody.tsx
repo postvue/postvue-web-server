@@ -183,7 +183,7 @@ const MapExploreSearchRecommSuggestBody: React.FC<
 const SearchWordContainer = styled.div`
   display: flex;
   flex-flow: column;
-  gap: 18px;
+  gap: 3px;
 `;
 
 const MapPostSearchQueryWrap = styled.div``;

@@ -251,7 +251,6 @@ const MapExploreHeaderContainer = styled.div<{ $MapFullMargin: number }>`
 
   @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
     margin-top: ${(props) => props.$MapFullMargin}px;
-    // position: absolute; //@REFER: 왜 이렇게 한 거지?
   }
 
   @media (max-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
@@ -391,7 +390,6 @@ const MapExploreHeaderWrap = styled.div<{ $MapFullMargin: number }>`
 
   @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
     margin-top: ${(props) => props.$MapFullMargin}px;
-    // position: absolute; //@REFER: 왜 이렇게 한 거지?
   }
 
   @media (max-width: ${MEDIA_MOBILE_MAX_WIDTH}) {

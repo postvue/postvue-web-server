@@ -5,7 +5,7 @@ import { useRecoilState, useResetRecoilState, useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 import 'swiper/css';
 import { FreeMode, Navigation, Pagination, Thumbs } from 'swiper/modules';
-import { Swiper, SwiperSlide } from 'swiper/react';
+import { Swiper, SwiperClass, SwiperSlide } from 'swiper/react';
 import FollowButton from '../../../components/common/buttton/FollowButton';
 import PostReactionSingleElement from '../../../components/common/posts/body/PostReactionSingleElement';
 import PostTextContent from '../../../components/common/posts/body/PostTextContent';
@@ -22,12 +22,12 @@ import {
   activePostComplaintPopupAtom,
   isSettingPopupAtom,
   postContentZoomPopupInfoAtom,
-  postVideoProcessInfoAtom,
+  postExternelEventInfoAtom,
 } from '../../../states/PostAtom';
 import { isPostReactionAtom } from '../../../states/PostReactionAtom';
 import {
+  activeProfileBlockPopupInfoAtom,
   activeScrapViewPopupInfoAtom,
-  isActiveProfileBlockPopupAtom,
 } from '../../../states/ProfileAtom';
 import theme from '../../../styles/theme';
 
@@ -103,8 +103,8 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
   const resetActiveScrapViewPopupInfo = useResetRecoilState(
     activeScrapViewPopupInfoAtom,
   );
-  const setIsActiveProfileBlock = useSetRecoilState(
-    isActiveProfileBlockPopupAtom,
+  const setActiveProfileBlockInfo = useSetRecoilState(
+    activeProfileBlockPopupInfoAtom,
   );
 
   const resetActivePostComplaintPopup = useResetRecoilState(
@@ -130,7 +130,7 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
     return () => {
       setIsPostReactionPopup(false);
       resetActiveScrapViewPopupInfo();
-      setIsActiveProfileBlock(false);
+      setActiveProfileBlockInfo({ isActive: false, userId: '', username: '' });
       resetActivePostComplaintPopup();
       resetActivePostComplaintCompletePopup();
     };
@@ -212,16 +212,94 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
 
     return () => {
       setIsPopupRendered(false);
-      resetPostVideoProcessInfo();
+      resetPostExternelEventInfo();
     };
   }, [postId]);
 
-  const [postVideoProcessInfo, setPostVideoProcessInfo] = useRecoilState(
-    postVideoProcessInfoAtom,
+  const [postExternelEventInfo, setPostExternelEventInfo] = useRecoilState(
+    postExternelEventInfoAtom,
   );
-  const resetPostVideoProcessInfo = useResetRecoilState(
-    postVideoProcessInfoAtom,
+  const resetPostExternelEventInfo = useResetRecoilState(
+    postExternelEventInfoAtom,
   );
+
+  const [swiperScrollInfo, setSwiperScrollInfo] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
+
+  const [scrollDirection, setScrollDirection] = useState<
+    'horizontal' | 'vertical' | null
+  >(null);
+  const SCROLL_THRESHOLD = 10; // 최소 이동 거리 기준
+
+  const handleTouchStart = (
+    swiper: SwiperClass,
+    event: TouchEvent | MouseEvent | PointerEvent,
+  ) => {
+    console.log(event);
+    if ('touches' in event && event.touches.length > 0) {
+      setSwiperScrollInfo({
+        x: event.touches[0].clientX,
+        y: event.touches[0].clientY,
+      });
+    } else if ('clientX' in event) {
+      setSwiperScrollInfo({ x: event.clientX, y: event.clientY });
+    }
+  };
+
+  const handleTouchMove = (
+    swiper: SwiperClass,
+    event: TouchEvent | MouseEvent | PointerEvent,
+  ) => {
+    if (!swiperScrollInfo) return;
+
+    let moveX = 0;
+    let moveY = 0;
+
+    if ('touches' in event && event.touches.length > 0) {
+      moveX = event.touches[0].clientX;
+      moveY = event.touches[0].clientY;
+    } else if ('clientX' in event) {
+      moveX = event.clientX;
+      moveY = event.clientY;
+    }
+
+    const deltaX = moveX - swiperScrollInfo.x;
+    const deltaY = moveY - swiperScrollInfo.y;
+
+    let gradient = Math.abs(deltaY) / Math.abs(deltaX);
+    gradient = gradient === Infinity ? 1000 : gradient;
+    console.log('x', deltaX, 'y', deltaY, '기울기:', gradient);
+
+    // 스크롤 방향 판별 (기울기 비교)
+    if (
+      gradient <= 7 / 6 ||
+      Math.abs(deltaX) > deltaY ||
+      Math.abs(deltaX) >= SCROLL_THRESHOLD ||
+      deltaY < -SCROLL_THRESHOLD
+    ) {
+      setScrollDirection('horizontal');
+      setPostExternelEventInfo((prev) => ({
+        ...prev,
+        isActiveSideScroll: true,
+      }));
+    } else {
+      setScrollDirection('vertical');
+      setPostExternelEventInfo((prev) => ({
+        ...prev,
+        isActiveSideScroll: false,
+      }));
+    }
+  };
+  const handleTouchEnd = () => {
+    setSwiperScrollInfo(null);
+    setScrollDirection(null);
+    setPostExternelEventInfo((prev) => ({
+      ...prev,
+      isActiveSideScroll: false,
+    }));
+  };
 
   return (
     <>
@@ -278,6 +356,9 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
                   spaceBetween={20}
                   // slidesPerView={1}
                   pagination={true}
+                  onTouchStart={handleTouchStart}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
                   loop={snsPost.postContents.length > 1}
                   modules={[
                     Pagination,
@@ -346,7 +427,6 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
                         />
                       )}
 
-                      {/* @REFER: 주석 제거 */}
                       {snsPost?.postContents[0].postContentType ===
                         POST_VIDEO_TYPE && (
                         <PostVideoContentElementV3
@@ -354,17 +434,17 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
                           videoSrc={snsPost?.postContents[0].content}
                           posterImg={snsPost?.postContents[0].previewImg}
                           isUploaded={snsPost?.postContents[0].isUploaded}
-                          isClose={postVideoProcessInfo.isClosePost}
+                          isClose={postExternelEventInfo.isClosePost}
                           onClose={() => {
-                            setPostVideoProcessInfo((prev) => ({
+                            setPostExternelEventInfo((prev) => ({
                               ...prev,
                               isClosePost: false,
                             }));
                           }}
                           actionPopupTopScrollByMoveSeekBar={(isActive) => {
-                            setPostVideoProcessInfo((prev) => ({
+                            setPostExternelEventInfo((prev) => ({
                               ...prev,
-                              isActiveScrollVideoProcess: isActive,
+                              isActiveSideScroll: isActive,
                             }));
                           }}
                           PostVideoStyle={
@@ -432,7 +512,7 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
                 <ProfileWrap>
                   <ProfileLinkDiv
                     onClick={() => {
-                      setPostVideoProcessInfo((prev) => ({
+                      setPostExternelEventInfo((prev) => ({
                         ...prev,
                         isClosePost: true,
                       }));
@@ -474,7 +554,6 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
                           {snsPost.location.address}
                         </ProfilePosition>
                       </ProfilePositionWrap>
-                      {/**@REFER: 수정 */}
                     </ProfileUserNameFollowWrap>
                   </ProfileLinkDiv>
                 </ProfileWrap>
@@ -491,7 +570,7 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
                     )}
                     snsPost={snsPost}
                     onClickCloseVideo={() => {
-                      setPostVideoProcessInfo((prev) => ({
+                      setPostExternelEventInfo((prev) => ({
                         ...prev,
                         isClosePost: true,
                       }));
@@ -511,22 +590,24 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
           )}
 
           {!isErrorProfilePost && !isIntereset && (
-            <HiddenWrap>
+            <>
               <PrevButtonHeaderHeader
                 titleName=""
                 HeaderLayoutStyle={PreButtonHeaderStyle}
               />
-              <NotInerestedMessageWrap>
-                <NotInerestedMessage>
-                  <div>이 게시물을 숨겼습니다.</div>
-                  <NotInerestedCancelButtonWrap>
-                    <NotInerestedCancelButton onClick={onClickPostInterest}>
-                      취소
-                    </NotInerestedCancelButton>
-                  </NotInerestedCancelButtonWrap>
-                </NotInerestedMessage>
-              </NotInerestedMessageWrap>
-            </HiddenWrap>
+              <HiddenWrap>
+                <NotInerestedMessageWrap>
+                  <NotInerestedMessage>
+                    <div>이 게시물을 숨겼습니다.</div>
+                    <NotInerestedCancelButtonWrap>
+                      <NotInerestedCancelButton onClick={onClickPostInterest}>
+                        취소
+                      </NotInerestedCancelButton>
+                    </NotInerestedCancelButtonWrap>
+                  </NotInerestedMessage>
+                </NotInerestedMessageWrap>
+              </HiddenWrap>
+            </>
           )}
           {isErrorProfilePost && (
             <>
@@ -634,7 +715,6 @@ const ProfilePostWrap = styled.div`
 
 const HiddenWrap = styled.div`
   padding-top: env(safe-area-inset-top);
-  margin-top: ${theme.systemSize.header.height};
 `;
 
 const PostContentFrame = styled.div`

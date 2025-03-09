@@ -67,7 +67,7 @@ const MapExplorePostContentBody: React.FC<MapExploreBodyProps> = ({
     <>
       {isFetchedByPostMapPost && init && (
         <>
-          {postMapPost && postMapPost?.pages.flatMap((v) => v).length >= 0 ? (
+          {postMapPost && postMapPost?.pages.flatMap((v) => v).length > 0 ? (
             <>
               <SnsPostMasonryLayout
                 SnsPostMasonryLayoutStyle={MapSnsPostLayoutStyle}

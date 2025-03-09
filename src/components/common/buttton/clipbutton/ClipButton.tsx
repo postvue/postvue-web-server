@@ -64,10 +64,6 @@ const ClipButton: React.FC<ClipButtonProps> = ({
     isFetched,
   } = QueryStatePostScrapPreviewList(postId, isScrapBoardActive);
 
-  // @REFER: 왜 넣은 거야??????
-  // const { data: clipList } = QueryStateProfileClipListInfinite();
-  // const { data: scrapList } = QueryStateProfileScrapList();
-
   const setReactionPostId = useSetRecoilState(reactionPostIdAtom);
   const navigate = useNavigate();
 

@@ -8,6 +8,7 @@ import BottomFullScreenSheetLayout from 'components/layouts/BottomFullScreenShee
 import RoundSquareCenterPopupLayout from 'components/layouts/RoundSquareCenterPopupLayout';
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
 import { PostRsp } from 'global/interface/post';
+import theme from 'styles/theme';
 import MapExploreByProfilePostPopupBody from './MapExploreByProfilePostPopupBody';
 
 interface MapExploreByProfilePostPpoup {
@@ -38,6 +39,9 @@ const MapExploreByProfilePostPopup: React.FC<MapExploreByProfilePostPpoup> = ({
         <RoundSquareCenterPopupLayout
           popupContentWrapStyle={{ paddingTop: 0 }}
           onClose={() => ''}
+          popupWrapStyle={{
+            maxWidth: theme.systemSize.appDisplaySize.widthByPc,
+          }}
         >
           <MapExploreByProfilePostPopupBody
             snsPost={snsPost}

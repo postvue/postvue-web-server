@@ -15,6 +15,7 @@ interface BottomSheetLayoutProps {
   onClose: () => void;
   isExternalCloseFunc?: boolean;
   isAvaliScroll?: boolean;
+  OverlaySheetStyle?: React.CSSProperties;
   BottomSheetContainerStyle?: React.CSSProperties;
   isScrollBar?: boolean;
 }
@@ -27,6 +28,7 @@ const BottomSheetLayout: React.FC<BottomSheetLayoutProps> = ({
   onClose,
   isExternalCloseFunc,
   isAvaliScroll = true,
+  OverlaySheetStyle,
   BottomSheetContainerStyle,
   isScrollBar = true,
 }) => {
@@ -37,6 +39,7 @@ const BottomSheetLayout: React.FC<BottomSheetLayoutProps> = ({
     isFixScrollToPostDetailPopupAtom,
   );
 
+  const BottomSnapSheetLayoutRef = useRef<HTMLDivElement>(null);
   const BottomSheetContainerRef = useRef<HTMLDivElement>(null);
 
   const BottomSheetScrollRef = useRef<HTMLDivElement>(null);
@@ -55,7 +58,7 @@ const BottomSheetLayout: React.FC<BottomSheetLayoutProps> = ({
 
   const isFixBody = () => {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    lock([BottomSheetScrollRef.current!]);
+    lock([BottomSnapSheetLayoutRef.current!, BottomSheetScrollRef.current!]);
 
     sendPopupEvent(true);
   };
@@ -158,11 +161,15 @@ const BottomSheetLayout: React.FC<BottomSheetLayoutProps> = ({
   }, []);
 
   return (
-    <BottomSheetLayoutConatiner as={animated.div} style={{ display: display }}>
+    <BottomSheetLayoutConatiner
+      as={animated.div}
+      style={{ display: display }}
+      ref={BottomSnapSheetLayoutRef}
+    >
       <OverlayBackground
         as={animated.div}
         onClick={() => close()}
-        style={bgStyle}
+        style={{ ...bgStyle, ...OverlaySheetStyle }}
       />
       <BottomSheetContainer
         ref={BottomSheetContainerRef}
@@ -173,8 +180,13 @@ const BottomSheetLayout: React.FC<BottomSheetLayoutProps> = ({
           ...BottomSheetContainerStyle,
         }}
       >
-        {isScrollBar ? <PopupScrollBar /> : <PopupScrollNotBar />}
-        <BottomSheetWrap ref={BottomSheetScrollRef} $heightNum={height}>
+        <PopupScrollWrap>
+          {isScrollBar ? <PopupScrollBar /> : <PopupScrollNotBar />}
+        </PopupScrollWrap>
+        <BottomSheetWrap
+          ref={BottomSheetScrollRef}
+          $heightNum={height - ScrollBarHeight}
+        >
           {children}
         </BottomSheetWrap>
       </BottomSheetContainer>
@@ -220,12 +232,19 @@ const BottomSheetContainer = styled.div`
 const BottomSheetWrap = styled.div<{ $heightNum: number }>`
   height: ${(props) => props.$heightNum}px;
 
-  overflow-y: scroll;
+  // overflow-y: hidden;
   overscroll-behavior: none;
   touch-action: pan-y;
   transform: none;
   user-select: none;
   will-change: auto;
+`;
+
+const ScrollBarHeight = 30;
+
+const PopupScrollWrap = styled.div`
+  height: ${ScrollBarHeight}px;
+  display: flex;
 `;
 
 const PopupScrollNotBar = styled.div`
@@ -234,7 +253,7 @@ const PopupScrollNotBar = styled.div`
   z-index: 1000;
   border-radius: 3px;
   display: flex;
-  margin: 7px auto 20px auto;
+  margin: auto;
 `;
 
 const PopupScrollBar = styled(PopupScrollNotBar)`

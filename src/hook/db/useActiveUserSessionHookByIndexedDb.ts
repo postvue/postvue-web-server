@@ -43,9 +43,13 @@ export const useActiveUserSessionHookByIndexedDb = (): {
   // Fetch all messages
   useEffect(() => {
     const fetchMessages = async () => {
-      const query = db.activeUserSession.orderBy('id').reverse();
-      const msgs = await query.toArray();
-      setActiveUserSessions(msgs);
+      try {
+        const query = db.activeUserSession.orderBy('id').reverse();
+        const msgs = await query.toArray();
+        setActiveUserSessions(msgs);
+      } catch (e) {
+        console.log(e);
+      }
     };
 
     fetchMessages();
@@ -77,7 +81,7 @@ export const useActiveUserSessionHookByIndexedDb = (): {
       await db.activeUserSession.bulkPut(messages); // ✅ 기존 데이터가 있으면 업데이트됨
       setActiveUserSessions(await db.activeUserSession.toArray());
     } catch (error) {
-      console.error('Failed to add active user session:', error);
+      console.log('Failed to add active user session:', error);
     }
   };
 

@@ -27,8 +27,6 @@ import { PostUploadContent } from 'global/interface/post';
 import { isTagSearchPopupAtom } from 'states/TagAtom';
 import theme from 'styles/theme';
 
-import { ReactComponent as PostComposeDeleteButtonIcon } from 'assets/images/icon/svg/PostComposeDeleteButtonIcon.svg';
-
 import { ReactComponent as PostComposeButtonIcon } from 'assets/images/icon/svg/post/PostComposeButtonIcon.svg';
 import { ReactComponent as PostImageCropButtonIcon } from 'assets/images/icon/svg/post/PostImageCropButtonIcon.svg';
 import PostComposeCropPopup from 'components/popups/postcompose/postcomposecropppopup/PostComposeCropPopup';
@@ -49,6 +47,7 @@ import { selectScrapByComposePopupInfoAtom } from 'states/ProfileAtom';
 import PostComposeBodyBottomContent from './PostComposeBodyBottomContent';
 import PostComposeBodyDesc from './PostComposeBodyDesc';
 import PostComposeButton from './PostComposeButton';
+import PostComposeDeleteButton from './PostComposeDeleteButton';
 import PostComposeTitle from './PostComposeTitle';
 
 interface PostComposeBodyProps {
@@ -224,25 +223,26 @@ const PostComposeBody: React.FC<PostComposeBodyProps> = ({
                     <PostImgCropButton
                       onClick={() => handleShowCropper(value.contentUrl)}
                     >
-                      <PostImageCropButtonIcon />
+                      <PostComposeDeleteButtonWrap>
+                        <PostComposeDeleteIconButton>
+                          <PostComposeDeleteSubButton>
+                            <PostImageCropButtonIcon />
+                          </PostComposeDeleteSubButton>
+                        </PostComposeDeleteIconButton>
+                      </PostComposeDeleteButtonWrap>
                     </PostImgCropButton>
                   )}
               </>
 
-              {postUploadContentList.length > 1 && (
-                <PostComposeDeleteButtonWrap
-                  onClick={() => {
-                    setPostUploadContentList((prev) =>
-                      prev.filter(
-                        (prevValue) =>
-                          prevValue.contentUrl !== value.contentUrl,
-                      ),
-                    );
-                  }}
-                >
-                  <PostComposeDeleteButtonIcon />
-                </PostComposeDeleteButtonWrap>
-              )}
+              <PostComposeDeleteButton
+                actionFunc={() => {
+                  setPostUploadContentList((prev) =>
+                    prev.filter(
+                      (prevValue) => prevValue.contentUrl !== value.contentUrl,
+                    ),
+                  );
+                }}
+              />
             </PostImgWrap>
           ))}
           {Array.from(
@@ -421,17 +421,8 @@ const PostUploadImg = styled(PostSubImgWrap)<{ src: string }>`
 const PostImgCropButton = styled.div`
   position: absolute;
   bottom: 0px;
-  right: 0px;
+  left: 0;
   vertical-align: bottom;
-  margin: 0 5px 5px 0;
-  cursor: pointer;
-`;
-
-const PostComposeDeleteButtonWrap = styled.div`
-  position: absolute;
-  top: 0;
-  right: 0;
-  margin: 5px 5px 0 0;
   cursor: pointer;
 `;
 
@@ -453,6 +444,25 @@ const PostUploadDraggableTitle = styled.div`
   @media (max-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
     display: none;
   }
+`;
+
+const PostComposeDeleteButtonWrap = styled.div`
+  position: absolute;
+  bottom: 0;
+  margin: 8px;
+  cursor: pointer;
+`;
+const PostComposeDeleteIconButton = styled.div`
+  background-color: black;
+  display: flex;
+  border-radius: 50%;
+  height: 25px;
+  width: 25px;
+`;
+
+const PostComposeDeleteSubButton = styled.div`
+  display: flex;
+  margin: auto;
 `;
 
 export default PostComposeBody;

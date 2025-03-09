@@ -9,7 +9,7 @@ import React from 'react';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import {
   activeProfileAccountComplaintPopupAtom,
-  isActiveProfileBlockPopupAtom,
+  activeProfileBlockPopupInfoAtom,
 } from 'states/ProfileAtom';
 import { sharePopupInfoAtom } from 'states/ShareAtom';
 import styled from 'styled-components';
@@ -23,8 +23,8 @@ interface ProfileOtherAccountPopupBodyProps {
 const ProfileOtherAccountPopupBody: React.FC<
   ProfileOtherAccountPopupBodyProps
 > = ({ userId, username, onClose }) => {
-  const setIsActiveProfileBlockPopup = useSetRecoilState(
-    isActiveProfileBlockPopupAtom,
+  const setActiveProfileBlockPopupInfo = useSetRecoilState(
+    activeProfileBlockPopupInfoAtom,
   );
   const [shareSharePopupInfo, setSharePopupInfo] =
     useRecoilState(sharePopupInfoAtom);
@@ -67,7 +67,11 @@ const ProfileOtherAccountPopupBody: React.FC<
       <SettingPopupContent
         onClick={() => {
           onClose();
-          setIsActiveProfileBlockPopup(true);
+          setActiveProfileBlockPopupInfo({
+            isActive: true,
+            userId: userId,
+            username: username,
+          });
         }}
       >
         사용자 차단

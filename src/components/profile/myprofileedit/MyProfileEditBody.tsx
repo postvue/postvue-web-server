@@ -80,7 +80,6 @@ const MyProfileEditBody: React.FC = () => {
       })
       .catch((error: AxiosError) => {
         const data: any = error.response?.data;
-        console.log(error);
         alert(data.message);
       })
       .finally(() => {

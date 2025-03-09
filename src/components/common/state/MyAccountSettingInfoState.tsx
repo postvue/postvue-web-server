@@ -1,10 +1,6 @@
 import { ProfileMyInfo } from 'global/interface/profile';
 import { QueryStateMyProfileInfo } from 'hook/queryhook/QueryStateMyProfileInfo';
-import React, { useEffect } from 'react';
-import {
-  getMyAccountSettingInfo,
-  initMyAccountSettingInfo,
-} from '../../../global/util/MyAccountSettingUtil';
+import React from 'react';
 
 const MyAccountSettingInfoState: React.FC = () => {
   const { data } = QueryStateMyProfileInfo();
@@ -24,14 +20,14 @@ const MyAccountSettingInfoState: React.FC = () => {
     return true;
   }
 
-  useEffect(() => {
-    const sessionMyAccountSettingInfo: ProfileMyInfo =
-      getMyAccountSettingInfo();
+  // useEffect(() => {
+  //   const sessionMyAccountSettingInfo: ProfileMyInfo =
+  //     getMyAccountSettingInfo();
 
-    if (data && !areObjectsEqual(sessionMyAccountSettingInfo, data)) {
-      initMyAccountSettingInfo(data);
-    }
-  }, [data]);
+  //   if (data && !areObjectsEqual(sessionMyAccountSettingInfo, data)) {
+  //     initMyAccountSettingInfo(data);
+  //   }
+  // }, [data]);
   return <></>;
 };
 

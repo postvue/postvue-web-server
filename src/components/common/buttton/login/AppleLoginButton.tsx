@@ -14,6 +14,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { postAppleLogin } from 'services/auth/apple/postAppleLogin';
 import styled from 'styled-components';
+import { filterBrigntnessStyle } from 'styles/commonStyles';
 import AppleAuthLoginProvider from './AppleAuthLoginProvider';
 
 const AppleLoginButton: React.FC = () => {
@@ -105,9 +106,7 @@ const ButtonWrapper = styled.div`
   cursor: pointer;
 
   transition: filter 0.2s ease-in-out;
-  &:hover {
-    filter: brightness(0.8);
-  }
+  ${filterBrigntnessStyle};
 `;
 
 const LoginElementLogoWrap = styled.div`

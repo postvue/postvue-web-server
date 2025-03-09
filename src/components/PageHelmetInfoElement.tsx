@@ -36,7 +36,7 @@ const PageHelmentInfoElement: React.FC<PageHelmentInfoElementProps> = ({
           content={ogDescription}
           data-react-helmet="true"
         />
-        <meta property="og:image" content={ogImage} data-react-helmet="true" />
+        {/* <meta property="og:image" content={ogImage} data-react-helmet="true" /> */}
         <meta property="og:url" content={ogUrl} data-react-helmet="true" />
         <meta property="og:type" content="article" data-react-helmet="true" />
         <meta name="robots" content="index, follow" data-react-helmet="true" />

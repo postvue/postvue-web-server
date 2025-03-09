@@ -1,5 +1,6 @@
 import { ReactComponent as SignupTermOfServiceCheckIcon } from 'assets/images/icon/svg/signup/SignupCheckIcon.svg';
 import { ReactComponent as SignupTermOfServiceNotCheckIcon } from 'assets/images/icon/svg/signup/SignupNotCheckIcon.svg';
+import LoadingComponent from 'components/common/container/LoadingComponent';
 import { ACCESS_TOKEN } from 'const/LocalStorageConst';
 import { HOME_PATH } from 'const/PathConst';
 import { SIGNUP_MIN_AGE } from 'const/SignupConst';
@@ -18,6 +19,7 @@ import SignupHeader from '../SignupHeader';
 
 const SignupTermOfServiceStep: React.FC = () => {
   const [signupInfo, setSignupInfo] = useRecoilState(signupInfoAtom);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const onClickSignup = () => {
     postAuthSignup(signupInfo).then((value) => {
@@ -220,7 +222,7 @@ const SignupTermOfServiceStep: React.FC = () => {
             (필수) 위치정보 이용약관에 동의합니다.
           </SingupTermOsServiceChecTiele>
         </SingupTermOsServiceCheckWrap>
-        <SingupTermOsServiceCheckWrap
+        {/* <SingupTermOsServiceCheckWrap
           onClick={() => {
             setSignupInfo((prev) => ({
               ...prev,
@@ -242,7 +244,7 @@ const SignupTermOfServiceStep: React.FC = () => {
           <SingupTermOsServiceChecTiele>
             (선택) 마케팅 정보 수신에 동의합니다.
           </SingupTermOsServiceChecTiele>
-        </SingupTermOsServiceCheckWrap>
+        </SingupTermOsServiceCheckWrap> */}
       </SingupTermOsServiceContainer>
 
       <SignupCompleteButton
@@ -257,6 +259,7 @@ const SignupTermOfServiceStep: React.FC = () => {
           onClickSignup();
         }}
       />
+      {isLoading && <LoadingComponent LoadingComponentStyle={{ top: '0px' }} />}
     </>
   );
 };

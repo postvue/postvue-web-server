@@ -1,4 +1,3 @@
-import BlockUserPopup from 'components/popups/BlockUserPopup';
 import ErrorMsgPopup from 'components/popups/ErrorMsgPopup';
 import LoadingPopup from 'components/popups/LoadingPopup';
 import MapExploreByProfilePostPopup from 'components/popups/mapexplore/MapExploreByProfilePostPopup';
@@ -18,14 +17,12 @@ import {
   activePostComplaintPopupAtom,
   isActivePostDeletePopupAtom,
   isSettingPopupAtom,
-  postBlockedUserInfoAtom,
 } from 'states/PostAtom';
 import {
   isPostReactionAtom,
   reactionPostIdAtom,
 } from 'states/PostReactionAtom';
 import { activeCommentByPostCommentThreadAtom } from 'states/PostThreadAtom';
-import { isActiveProfileBlockPopupAtom } from 'states/ProfileAtom';
 import { isLoadingPopupAtom } from 'states/SystemConfigAtom';
 import ProfilePostDeleteConfirmPopup from './ProfilePostDeleteConfirmPopup';
 
@@ -73,12 +70,9 @@ const ProfilePostDetailPopupManager: React.FC<
   isError,
   errorMsg,
 }) => {
-  const isActiveProfileBlock = useRecoilValue(isActiveProfileBlockPopupAtom);
   const activeCommentByPostCommentThread = useRecoilValue(
     activeCommentByPostCommentThreadAtom,
   );
-
-  const postBlockedUserInfo = useRecoilValue(postBlockedUserInfoAtom);
 
   const isSettingActive = useRecoilValue(isSettingPopupAtom);
 
@@ -130,10 +124,6 @@ const ProfilePostDetailPopupManager: React.FC<
           userInfo={{ userId: snsPost.userId, username: snsPost.username }}
         />
       )} */}
-
-      {isActiveProfileBlock && (
-        <BlockUserPopup userInfo={postBlockedUserInfo} />
-      )}
 
       {/* 포스트 반응 팝업: 댓글, 리포스트, 하트 */}
       {windowWidthSize <= MEDIA_MOBILE_MAX_WIDTH_NUM && isPostReactionPopup && (

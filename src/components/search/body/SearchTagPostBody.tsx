@@ -185,9 +185,6 @@ const SearchFilterContainer = styled.div`
 
 const SearchPostContainer = styled.div`
   margin-top: ${({ theme }) => theme.systemSize.header.heightNumber}px;
-  @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
-    margin-top: 10px;
-  }
 `;
 
 export default SearchTagPostBody;

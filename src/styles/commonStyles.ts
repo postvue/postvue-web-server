@@ -1,8 +1,22 @@
 import { css } from 'styled-components';
 
-export const filterBrigntnessStyle = css`
-  @media (hover: hover) and (pointer: fine) {
+export const hoverFilterBrigntnessStyle = css`
+  @media (hover: hover) {
     &:hover {
+      filter: brightness(0.7);
+    }
+  }
+`;
+
+export const filterBrigntnessStyle = css`
+  @media (hover: hover) {
+    &:hover {
+      filter: brightness(0.7);
+    }
+  }
+
+  @media (hover: none) {
+    &:active {
       filter: brightness(0.7);
     }
   }
@@ -29,6 +43,7 @@ export const hoverComponentStyle = css`
 
 export const hoverComponentNotRoundStyle = css`
   cursor: pointer;
+  border-radius: 5px;
 
   transition: background 0.2s ease-in-out;
   @media (hover: hover) {

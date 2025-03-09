@@ -8,12 +8,14 @@ interface ScrapViewPopupBodyProps {
     React.SetStateAction<ScrapThumnailInfo[]>
   >;
   ScrapViewPopupBodyStyle?: React.CSSProperties;
+  isInitTimout: boolean;
 }
 
 const ScrapViewPopupBody: React.FC<ScrapViewPopupBodyProps> = ({
   selectedScrapList,
   setSelectedScrapList,
   ScrapViewPopupBodyStyle,
+  isInitTimout,
 }) => {
   const onSelectScraps = (scrapThumnailInfo: ScrapThumnailInfo) => {
     if (
@@ -35,7 +37,7 @@ const ScrapViewPopupBody: React.FC<ScrapViewPopupBodyProps> = ({
       onButtonEvent={onSelectScraps}
       scrapIdList={selectedScrapList.map((v) => v.scrapId)}
       mainContainerStyle={ScrapViewPopupBodyStyle}
-      isInitTimout={true}
+      isInitTimout={isInitTimout}
     />
   );
 };

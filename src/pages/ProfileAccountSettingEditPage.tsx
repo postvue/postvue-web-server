@@ -21,7 +21,7 @@ const ProfileAccountSettingEditPage: React.FC = () => {
       sideWidth={windowWidth >= MEDIA_MOBILE_MAX_WIDTH_NUM ? 500 : undefined}
       slideBarNode={
         <>
-          <MyProfileEditHeader />
+          <MyProfileEditHeader isPrevButton={false} />
           <MyProfileEditBody />
         </>
       }

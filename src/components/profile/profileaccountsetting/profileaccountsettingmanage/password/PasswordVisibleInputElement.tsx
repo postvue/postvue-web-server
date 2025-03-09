@@ -8,11 +8,18 @@ interface PasswordVisibleInputElementProps {
   placeholder: string;
   onChangePassword: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  isNewPassword?: boolean;
 }
 
 const PasswordVisibleInputElement: React.FC<
   PasswordVisibleInputElementProps
-> = ({ password, placeholder, onChangePassword, onKeyDown }) => {
+> = ({
+  password,
+  placeholder,
+  onChangePassword,
+  onKeyDown,
+  isNewPassword = false,
+}) => {
   const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
   return (
     <ProfileEditPasswordWrap>
@@ -26,6 +33,7 @@ const PasswordVisibleInputElement: React.FC<
             if (!onKeyDown) return;
             onKeyDown(e);
           }}
+          autoComplete={isNewPassword ? 'new-password' : 'current-password'}
         />
         <PasswordVisibleWrap
           onClick={() => {

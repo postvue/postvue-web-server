@@ -1,7 +1,10 @@
 import MasonryUtil from 'global/util/MasonryUtil';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useRecoilState } from 'recoil';
-import { masonryColumnCountAtom } from 'states/MasonryAtom';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import {
+  masonryColumnCountAtom,
+  masonryUpdateCountAtom,
+} from 'states/MasonryAtom';
 import MasonryBrick from './MasonryBrick';
 import MasonryBrickWrap from './MasonryBrickWrap';
 import MasonryContainer from './MasonryContainer';
@@ -30,6 +33,7 @@ const Masonry: React.FC<MasonryProps> = ({
   const [columnCount, setColumnCount] = useRecoilState(masonryColumnCountAtom);
   const [columnWidth, setColumnWidth] = useState(2);
   const [reload, setReload] = useState(0);
+  const masonryUpdateCount = useRecoilValue(masonryUpdateCountAtom);
 
   const masonryRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -40,7 +44,6 @@ const Masonry: React.FC<MasonryProps> = ({
 
   // 칼럼 개수 설정
   useEffect(() => {
-    console.log('오잉');
     const resizeHandler = () => {
       // 윈도우 너비
       const wWidth = window.innerWidth;
@@ -57,7 +60,7 @@ const Masonry: React.FC<MasonryProps> = ({
   // 반응형 너비
   useEffect(() => {
     if (!columnCount) return;
-    console.log('오잉스');
+
     const resizeHandler = () => {
       if (masonryRef.current) {
         const scrollBarWidth = 0; // 스크롤바 너비
@@ -80,7 +83,6 @@ const Masonry: React.FC<MasonryProps> = ({
   // Wrap 컴포넌트 설정
   useEffect(() => {
     wrapRefs.forEach((el) => {
-      console.log('오잉킹');
       const wrapEl = el.current;
 
       if (wrapEl) {
@@ -101,7 +103,6 @@ const Masonry: React.FC<MasonryProps> = ({
       // 이미지가 있다면 이미지 로딩 후, reload를 업데이트함으로써 Brick 컴포넌트 설정 및 배치
       if (brickEl && wrapEl) {
         const imgEl = wrapEl.querySelector('img');
-        console.log('잉');
 
         // const videoEl = wrapEl.querySelector('video');
 
@@ -111,7 +112,8 @@ const Masonry: React.FC<MasonryProps> = ({
             setReload((prev) => prev + 1);
           });
         }
-        //@REFER: 잠깐 로드 제거
+
+        //@REFER: 비디오 자동 실행 구현 완료시
         // if (videoEl) {
         //   videoEl.addEventListener('loadedmetadata', () => {
         //     applyBrickStyles(brickEl, wrapEl, cellWidth);
@@ -123,7 +125,14 @@ const Masonry: React.FC<MasonryProps> = ({
         applyBrickStyles(brickEl, wrapEl, cellWidth);
       }
     });
-  }, [brickRefs, wrapRefs, columnWidth, columnGap, children]);
+  }, [
+    brickRefs,
+    wrapRefs,
+    columnWidth,
+    columnGap,
+    children,
+    masonryUpdateCount,
+  ]);
 
   // 스타일 적용 함수
   const applyBrickStyles = (
@@ -156,7 +165,6 @@ const Masonry: React.FC<MasonryProps> = ({
 
     // Brick 컴포넌트 배치하기
     brickRefs.forEach((el) => {
-      console.log('바뀜');
       const brickEl = el.current;
       const minIndex = columnPos.findIndex(
         (v) => v === Math.min.apply(null, columnPos),
@@ -190,6 +198,7 @@ const Masonry: React.FC<MasonryProps> = ({
     columnGap,
     children,
     reload,
+    masonryUpdateCount,
   ]);
 
   return (

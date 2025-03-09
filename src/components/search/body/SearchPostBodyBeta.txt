@@ -108,7 +108,6 @@ const SearchPostBodyBeta: React.FC<SearchPostBodyProps> = ({
         <MasonryLayout
           snsPostUrlList={Array.from(searchPostHashMap.entries()).map(
             ([, v]) => {
-              // @REFER: 나중에 잘못 될 수 있으니 참고
               // let imageContent = v.postContents.find(
               //   (postContent) =>
               //     postContent.postContentType !== POST_TEXTFIELD_TYPE,

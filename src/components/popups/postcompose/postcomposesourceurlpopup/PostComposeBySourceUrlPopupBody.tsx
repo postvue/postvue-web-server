@@ -19,11 +19,12 @@ import PostComposeBySourceUrlMasonryLayout from './PostComposeBySourceUrlMasonry
 
 interface PostComposeBySourceUrlPopupBody {
   postComposeSearchInput: string;
+  isScroll?: boolean;
 }
 
 const PostComposeBySourceUrlPopupBody: React.FC<
   PostComposeBySourceUrlPopupBody
-> = ({ postComposeSearchInput }) => {
+> = ({ postComposeSearchInput, isScroll = true }) => {
   const [isFetching, setFetching] = useState<boolean>(false);
 
   const { data, isFetched, isLoading, isError, isSuccess, error } =
@@ -111,13 +112,14 @@ const PostComposeBySourceUrlPopupBody: React.FC<
         <PostComposeMasonryWrap>
           {!isLoading ? (
             <MasonryLayoutWrap
+              $isScroll={isScroll}
               $height={PostComosePopupContainerRef.current?.offsetHeight}
               $isActive={uploadResourceList.length < POST_COMPOSEUPLOAD_MAX_NUM}
             >
               {postComposeBySourceUrlList.length > 0 ? (
                 <PostComposeBySourceUrlMasonryLayout
                   MasonryContainerStyle={{ marginTop: '10px' }}
-                  longPressToResizeNum={0.9}
+                  longPressToResizeNum={0.95}
                   snsPostUrlList={postComposeBySourceUrlList.map((v) => {
                     const homePostRsp: MasonryPostRsp = {
                       postId: '',
@@ -184,10 +186,11 @@ const PostComposeMasonryWrap = styled.div``;
 const MasonryLayoutWrap = styled.div<{
   $isActive: boolean;
   $height: number | undefined;
+  $isScroll: boolean;
 }>`
   opacity: ${(props) => (props.$isActive ? 1 : 0.5)};
   height: ${(props) => props.$height && props.$height}px;
-  overflow-y: scroll;
+  overflow-y: ${(props) => (props.$isScroll ? 'scroll' : 'none')};
   border-radius: 0 0 20px 20px;
 
   @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {

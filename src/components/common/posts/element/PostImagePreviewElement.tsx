@@ -2,8 +2,10 @@ import LongPressToResizeButton from 'components/common/buttton/LongPressToResize
 import PostSettingDotButton from 'components/common/buttton/PostSettingDotButton';
 import { Location, PostRsp } from 'global/interface/post';
 import React, { useRef, useState } from 'react';
+import { useSetRecoilState } from 'recoil';
+import { masonryUpdateCountAtom } from 'states/MasonryAtom';
 import styled from 'styled-components';
-import { filterBrigntnessStyle } from 'styles/commonStyles';
+import { hoverFilterBrigntnessStyle } from 'styles/commonStyles';
 import theme from 'styles/theme';
 import PostElementLocation from './PostElementLocation';
 
@@ -37,24 +39,31 @@ const PostImagePreviewElement: React.FC<PostImagePreviewELementProps> = ({
 
   const [onload, setOnload] = useState<boolean>(false);
 
+  const setMasonryUpdateCount = useSetRecoilState(masonryUpdateCountAtom);
+
   return (
     <>
       <PostImgAddressWrap>
         <LongPressToResizeButton resize={longPressToResizeNum || 0.98}>
           <PostContentImgWrap>
-            <PostContentMockImg
-              style={{
-                ...PostImageStyle,
-                opacity: onload ? 0 : 1,
-                transition: 'opacity 0.3s ease-in-out',
-                height: 100,
-              }}
-            />
+            {!onload && (
+              <PostContentMockImg
+                style={{
+                  ...PostImageStyle,
+                  opacity: onload ? 0 : 1,
+                  position: onload ? 'absolute' : 'relative',
+                  transition: 'opacity 0.3s ease-in-out',
+                }}
+              />
+            )}
 
             <PostContentImg
               src={imageSrc}
               onLoad={() => {
                 setOnload(true);
+                setTimeout(() => {
+                  setMasonryUpdateCount((prev) => prev + 1);
+                }, 50);
               }}
               ref={previewImageRef}
               style={{
@@ -71,6 +80,7 @@ const PostImagePreviewElement: React.FC<PostImagePreviewELementProps> = ({
               }}
               loading="lazy"
             />
+
             {onload && location.address && (
               <PostElementLocation
                 location={location}
@@ -102,7 +112,7 @@ const PostImgAddressWrap = styled.div`
   cursor: pointer;
   height: 100%;
 
-  ${filterBrigntnessStyle}
+  ${hoverFilterBrigntnessStyle}
 `;
 
 const PostContentImgWrap = styled.div`
@@ -117,9 +127,9 @@ const PostContentMockImg = styled.div`
   border-radius: 10px;
   background-color: ${theme.grey.Grey1};
   vertical-align: bottom;
-  position: absolute;
   z-index: 10; /* 이미지보다 위에 위치 */
   transition: opacity 0.3s ease-in-out;
+  aspect-ratio: 3 / 4;
 `;
 
 const PostContentImg = styled.img`

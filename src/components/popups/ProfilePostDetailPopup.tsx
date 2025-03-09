@@ -17,8 +17,8 @@ import {
   isPostDetailInfoPopupAtom,
   postContentZoomPopupInfoAtom,
   postDetailInfoPopupAtom,
+  postExternelEventInfoAtom,
   postRspAtom,
-  postVideoProcessInfoAtom,
 } from 'states/PostAtom';
 import { isPostReactionAtom } from 'states/PostReactionAtom';
 import theme from 'styles/theme';
@@ -142,11 +142,9 @@ const ProfilePostDetailPopup: React.FC = () => {
 
   const windowWidthSize = theme.systemSize.appDisplaySize.maxWidthNum;
 
-  const [postVideoProcessInfo, setPostVideoProcessInfo] = useRecoilState(
-    postVideoProcessInfoAtom,
-  );
-  const resetPostVideoProcessInfo = useResetRecoilState(
-    postVideoProcessInfoAtom,
+  const postExternelEventInfo = useRecoilValue(postExternelEventInfoAtom);
+  const resetPostExternelEventInfo = useResetRecoilState(
+    postExternelEventInfoAtom,
   );
 
   const ScrollRef = useRef<HTMLDivElement>(null);
@@ -229,11 +227,9 @@ const ProfilePostDetailPopup: React.FC = () => {
             postContentZoomPopupInfo.isActive || isPopupActive
           }
           isExternalCloseFunc={isExternalClosePostDetailPopup}
-          isScrollVideoProcessBar={
-            postVideoProcessInfo.isActiveScrollVideoProcess
-          }
+          isProcessingSideScroll={postExternelEventInfo.isActiveSideScroll}
           prevOnClose={() => {
-            resetPostVideoProcessInfo();
+            resetPostExternelEventInfo();
           }}
         >
           <ProfilePostDetailBody

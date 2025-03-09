@@ -45,7 +45,23 @@ const PostUploadVideoElement: React.FC<PostUploadVideoElementProps> = ({
         }}
       />
       <PostUploadVideoPlayButtonWrap onClick={() => handlePlayPauseVideo()}>
-        {playing ? <PostVideoPauseButtonIcon /> : <PostVideoPlayButtonIcon />}
+        {playing ? (
+          <PostComposeDeleteButtonWrap>
+            <PostComposeDeleteIconButton>
+              <PostComposeDeleteSubButton>
+                <PostVideoPauseButtonIcon />
+              </PostComposeDeleteSubButton>
+            </PostComposeDeleteIconButton>
+          </PostComposeDeleteButtonWrap>
+        ) : (
+          <PostComposeDeleteButtonWrap>
+            <PostComposeDeleteIconButton>
+              <PostComposeDeleteSubButton>
+                <PostVideoPlayButtonIcon />
+              </PostComposeDeleteSubButton>
+            </PostComposeDeleteIconButton>
+          </PostComposeDeleteButtonWrap>
+        )}
       </PostUploadVideoPlayButtonWrap>
     </>
   );
@@ -55,8 +71,27 @@ const PostUploadVideoPlayButtonWrap = styled.div`
   position: absolute;
   bottom: 0;
   left: 0;
-  margin: 0 0 5px 5px;
+  margin: 0 5px 5px 0;
   cursor: pointer;
+`;
+
+const PostComposeDeleteButtonWrap = styled.div`
+  position: absolute;
+  bottom: 0;
+  margin: 8px;
+  cursor: pointer;
+`;
+const PostComposeDeleteIconButton = styled.div`
+  background-color: black;
+  display: flex;
+  border-radius: 50%;
+  height: 25px;
+  width: 25px;
+`;
+
+const PostComposeDeleteSubButton = styled.div`
+  display: flex;
+  margin: auto;
 `;
 
 export default PostUploadVideoElement;

@@ -31,6 +31,8 @@ export const LOGIN_FAIL_ERROR_ALARM_PHARE_TEXT =
 export const SETTING_EDIT_BUTTON_PHASE_TEXT = '수정';
 export const SETTING_EDIT_COMPLETE_PHASE_TEXT = '수정되었습니다.';
 export const SETTING_EDIT_CURRENT_PASSWORD_PHASE_TEXT = '현재 비밀번호';
+
+export const LOING_PASSWORD_PHASE_TEXT = '비밀번호';
 export const SETTING_EDIT_PASSWORD_PHASE_TEXT = '새 비밀번호';
 export const SETTING_EDIT_CHECK_PASSWORD_PHASE_TEXT = '새 비밀번호 확인';
 

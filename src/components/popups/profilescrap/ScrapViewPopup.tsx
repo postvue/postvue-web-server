@@ -79,6 +79,7 @@ const ScrapViewPopup: React.FC<ScrapViewPopupProps> = ({ snsPost }) => {
               height: '100%',
               minHeight: 'auto',
             }}
+            isInitTimout={true}
           />
         </BottomSnapSheetLayout>
       ) : (
@@ -105,6 +106,7 @@ const ScrapViewPopup: React.FC<ScrapViewPopupProps> = ({ snsPost }) => {
                 overflow: 'auto',
                 minHeight: 'auto',
               }}
+              isInitTimout={false}
             />
             <ScrapViewAddScrapButton
               postId={snsPost.postId}

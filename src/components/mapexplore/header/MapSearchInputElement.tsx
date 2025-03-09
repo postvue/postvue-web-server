@@ -3,6 +3,7 @@ import React from 'react';
 import { ReactComponent as DeleteSearchInputIcon } from 'assets/images/icon/svg/DeleteSearchInputIcon.svg';
 import { ReactComponent as SearchIcon } from 'assets/images/icon/svg/search/SearchIcon.svg';
 import { returnMapPeriodDate } from 'global/util/DateTimeUtil';
+import useAutoBlur from 'hook/customhook/useAutoBlur';
 import { DebouncedFunc } from 'lodash';
 import { SetterOrUpdater, useRecoilValue } from 'recoil';
 import { mapDatePickerPopupInfoAtom } from 'states/MapExploreAtom';
@@ -82,6 +83,8 @@ const MapSearchInputElement: React.FC<MapSearchInputElementProps> = ({
   };
 
   const mapDatePickerPopupInfo = useRecoilValue(mapDatePickerPopupInfoAtom);
+
+  useAutoBlur(searchInputRef ? [searchInputRef] : []);
 
   return (
     <MapSearchINputTemplateWrap>

@@ -163,7 +163,7 @@ const MapExploreSearchLocationSuggestBody: React.FC<
 const SearchWordContainer = styled.div`
   display: flex;
   flex-flow: column;
-  gap: 18px;
+  gap: 3px;
 `;
 
 const SearchOverseasButtonWrap = styled.div`

@@ -117,13 +117,13 @@ export const isActivePostDeletePopupAtom = atom<boolean>({
   default: false,
 });
 
-export const postBlockedUserInfoAtom = atom<{
-  userId: string;
-  username: string;
-}>({
-  key: 'blockedUserInfo',
-  default: { userId: '', username: '' },
-});
+// export const postBlockedUserInfoAtom = atom<{
+//   userId: string;
+//   username: string;
+// }>({
+//   key: 'blockedUserInfo',
+//   default: { userId: '', username: '' },
+// });
 
 export const isSettingPopupAtom = atom<boolean>({
   key: 'isSettingPopup',
@@ -148,13 +148,45 @@ export const isActiveDeleteClipByScrapPopupAtom = atom<boolean>({
   default: false,
 });
 
-export const postVideoProcessInfoAtom = atom<{
-  isActiveScrollVideoProcess: boolean;
+export const postExternelEventInfoAtom = atom<{
+  isActiveSideScroll: boolean;
   isClosePost: boolean;
 }>({
   key: 'postVideoProcessInfo',
   default: {
-    isActiveScrollVideoProcess: false,
+    isActiveSideScroll: false,
     isClosePost: false,
+  },
+});
+
+export const activeMakeScrapPopupInfoAtom = atom<{
+  isActive: boolean;
+  postId: string;
+  postContentUrl: string;
+  postContentType: string;
+}>({
+  key: 'activeMakeScrapPopupInfo',
+  default: {
+    isActive: false,
+    postId: '',
+    postContentType: '',
+    postContentUrl: '',
+  },
+});
+
+export const commentSettingPopupInfoAtom = atom<{
+  isActive: boolean;
+  postId: string;
+  userId: string;
+  username: string;
+  commentId: string;
+}>({
+  key: 'commentSettingPopupInfo',
+  default: {
+    isActive: false,
+    postId: '',
+    userId: '',
+    username: '',
+    commentId: '',
   },
 });

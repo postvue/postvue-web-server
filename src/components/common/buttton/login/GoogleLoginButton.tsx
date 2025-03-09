@@ -6,6 +6,7 @@ import {
 import { queryClient } from 'App';
 import { ReactComponent as GoogleLoginButtonIcon } from 'assets/images/icon/svg/login/GoogleLoginIcon.svg';
 import { STATUS_UNAUTHORIZED_CODE } from 'const/HttpStatusConst';
+import { GOOGLE_OAUTH_CLIENT_ID } from 'const/login/GoogleConst';
 import { HOME_PATH, SIGNUP_PATH } from 'const/PathConst';
 import { QUERY_STATE_NOTIFICATION_MSG } from 'const/QueryClientConst';
 import { CALLBACK_URL } from 'const/QueryParamConst';
@@ -18,12 +19,11 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { postGoogleLogin } from 'services/auth/google/postGoogleLogin';
 import styled from 'styled-components';
+import { filterBrigntnessStyle } from 'styles/commonStyles';
 import theme from 'styles/theme';
-import GoogleOneTap from './GoogleOneTap';
 
 const GoogleLoginButton: React.FC = () => {
-  const clientId =
-    '989621368762-8cvdj4sk5u38mbqu6jbgg49ra3j7k34b.apps.googleusercontent.com';
+  const clientId = GOOGLE_OAUTH_CLIENT_ID;
 
   const navigate = useNavigate();
 
@@ -62,7 +62,6 @@ const GoogleLoginButton: React.FC = () => {
   const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse: TokenResponse) => {
       try {
-        console.log('고라니', tokenResponse);
         const value = await postGoogleLogin(tokenResponse.access_token);
         const callbackUrl = sessionStorage.getItem(CALLBACK_URL) || HOME_PATH;
 
@@ -100,7 +99,7 @@ const GoogleLoginButton: React.FC = () => {
     //   <LoginElementTitle>{GOOGLE_LOGIN_TITLE_NAME}</LoginElementTitle>
     // </LoginElementWrap>
     <>
-      <GoogleOneTap clientId={clientId} onLoginSuccess={googleLoginOnSuccess} />
+      {/* <GoogleOneTap clientId={clientId} onLoginSuccess={googleLoginOnSuccess} /> */}
 
       {/* <LoginElementWrap>
           <GoogleLogin
@@ -123,23 +122,6 @@ const GoogleLoginButton: React.FC = () => {
     </>
   );
 };
-const LoginButtonWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  border: none;
-  border-radius: 8px;
-  background-color: white;
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
-  // transition: background 0.2s ease-in-out;
-
-  &:hover {
-    background-color: #357ae8;
-  }
-`;
 
 const GoogleLogo = styled.img`
   width: 20px;
@@ -166,9 +148,7 @@ const LoginElementWrap = styled.div`
   display: flex;
   justify-content: center;
   transition: filter 0.2s ease-in-out;
-  &:hover {
-    filter: brightness(0.8);
-  }
+  ${filterBrigntnessStyle}
 `;
 
 const LoginElementLogoWrap = styled.div`

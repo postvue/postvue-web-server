@@ -83,6 +83,7 @@ const SearchFavoriteTermEditBody: React.FC<SearchFavoriteTermEditBodyProps> = ({
                       }}
                     >
                       {/* @REFER: 콘텐츠 타입에 따라 다르게 보이도록 */}
+                      {/* @ANSWER: 현재 비디오의 경우도 이미지로 보이게 함 */}
                       <TagElementWrap $tagBkgdPath={v.favoriteTermContent}>
                         <TagNameDiv>{v.favoriteTermName}</TagNameDiv>
                         <SearchFavoriteTermButton

@@ -60,6 +60,7 @@ const PostVideoEditPageBody: React.FC<PostVideoEditPageBodyProps> = ({
     }
     const formData = new FormData();
     // @REFER: 수정 바람
+    // @ANSWER: 기능 상 수정 된걸로 알고 있음
     const snsPostComposeUpdateReq: SnsPostComposeUpdateReqInterface = {
       address: postComposeAddressRelation.roadAddr,
       buildName: postComposeAddressRelation.buildName,

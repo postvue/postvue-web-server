@@ -6,7 +6,7 @@ import { INIT_EMPTY_STRING_VALUE } from 'const/AttributeConst';
 import { HOME_PATH } from 'const/PathConst';
 import { QUERY_STATE_NOTIFICATION_MSG } from 'const/QueryClientConst';
 import { CALLBACK_URL } from 'const/QueryParamConst';
-import { SETTING_EDIT_PASSWORD_PHASE_TEXT } from 'const/SystemPhraseConst';
+import { LOING_PASSWORD_PHASE_TEXT } from 'const/SystemPhraseConst';
 import {
   isApp,
   stackRouterLoginSuccess,
@@ -99,9 +99,10 @@ const LoginEmailPopupBody: React.FC<LoginEmailPopupBodyProps> = ({
           <PasswordVisibleInputElement
             password={password}
             onChangePassword={onChangePassword}
-            placeholder={SETTING_EDIT_PASSWORD_PHASE_TEXT}
+            placeholder={LOING_PASSWORD_PHASE_TEXT}
             onKeyDown={handleKeyPress}
           />
+
           {!isVerifedEmail && (
             <LoginMinAgeWrap>
               <LoginMinAgeCheck>비밀번호가 틀립니다.</LoginMinAgeCheck>
@@ -111,7 +112,9 @@ const LoginEmailPopupBody: React.FC<LoginEmailPopupBodyProps> = ({
       </LoginEmailInputWrap>
 
       <LoginWrap $height={height}>
-        <LoginButton onClick={onOpen}>이메일로 가입하기</LoginButton>
+        {!isApp() && (
+          <LoginButton onClick={onOpen}>이메일로 가입하기</LoginButton>
+        )}
         <BottomNextButton
           title="로그인"
           notActiveTitle="로그인"

@@ -1,0 +1,2 @@
+export const GOOGLE_OAUTH_CLIENT_ID =
+  process.env.REACT_APP_GOOGLE_SOCIAL_OAUTH_CLIENT_ID || '';

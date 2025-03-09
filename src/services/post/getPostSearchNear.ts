@@ -13,9 +13,6 @@ export const getPostSearchNear = (
   longitude: number,
   page: number,
 ): Promise<GetSearchPostsRsp> => {
-  console.log(
-    `${POST_LIST_PATH}${SEARCH_PATH}${NEAR_PATH}?${PAGE_PARAM}=${page}&srch_qry=${searchWord}`,
-  );
   return optAuthApi
     .get(
       `${POST_LIST_PATH}${SEARCH_PATH}${NEAR_PATH}?${LATITUDE_PARAM}=${latitude}&${LONGITUDE_PARAM}=${longitude}&${PAGE_PARAM}=${page}`,

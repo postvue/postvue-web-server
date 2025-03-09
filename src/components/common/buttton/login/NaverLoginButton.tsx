@@ -23,6 +23,7 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { postNaverLogin } from 'services/auth/naver/postNaverLogin';
 import styled from 'styled-components';
+import { filterBrigntnessStyle } from 'styles/commonStyles';
 
 const naverLoginSrc =
   'https://static.nid.naver.com/js/naveridlogin_js_sdk_2.0.2.js';
@@ -177,9 +178,7 @@ const LoginElementWrap = styled.div`
   justify-content: center;
 
   transition: filter 0.2s ease-in-out;
-  &:hover {
-    filter: brightness(0.8);
-  }
+  ${filterBrigntnessStyle};
 `;
 
 const LoginElementLogoWrap = styled.div`

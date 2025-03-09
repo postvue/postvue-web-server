@@ -187,7 +187,6 @@ const SnsPostMasonryLayout: React.FC<SnsPostMasonryLayoutProps> = ({
                         if (!isActiveNavToPost) return;
 
                         // navigate(`/${v.username}/${v.postId}`);
-                        //@REFER: 일단 url로 이동하는 걸로
                         if (window.innerWidth > MEDIA_MOBILE_MAX_WIDTH_NUM) {
                           // 데스크탑 크기
                           // url로 이동

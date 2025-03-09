@@ -1,3 +1,7 @@
+import {
+  APPLE_SOCIAL_CLIENT_ID,
+  APPLE_SOCIAL_LOGIN_REDIRECT_URL,
+} from 'const/login/AppleConst';
 import React, { useEffect } from 'react';
 
 const appleLoginSrc =
@@ -11,7 +15,6 @@ const AppleAuthLoginProvider: React.FC = () => {
 
     if (!script) {
       // Apple SDK 로드
-      console.log('초기화');
       script = document.createElement('script');
       script.src = appleLoginSrc;
       script.type = 'text/javascript';
@@ -23,9 +26,9 @@ const AppleAuthLoginProvider: React.FC = () => {
     script.onload = () => {
       if (window.AppleID) {
         window.AppleID.auth.init({
-          clientId: 'com.feelog.social', // Apple Developer에서 등록한 서비스 ID
+          clientId: APPLE_SOCIAL_CLIENT_ID, // Apple Developer에서 등록한 서비스 ID
           scope: 'email name',
-          redirectURI: 'https://0284-218-155-114-215.ngrok-free.app/login',
+          redirectURI: APPLE_SOCIAL_LOGIN_REDIRECT_URL,
           state: 'random_state_string',
           usePopup: true, // 팝업 방식으로 로그인 실행
         });

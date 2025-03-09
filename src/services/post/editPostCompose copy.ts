@@ -5,7 +5,6 @@ import {
 } from 'services/appApiPath';
 import { formApi } from '..';
 
-//@REFER: 해당 게시글 링크로만 저장 할 지 아니면 url로 저장 할 지 고민 필요
 export const editPostCompose = (
   postId: string,
   formData: FormData,

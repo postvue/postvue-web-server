@@ -46,15 +46,15 @@ const HlsPlayer: React.FC<HlsPlayerProps> = ({
         if (data.fatal) {
           switch (data.type) {
             case Hls.ErrorTypes.NETWORK_ERROR:
-              console.error('네트워크 에러 발생');
+              console.error(data.type);
               hls?.startLoad();
               break;
             case Hls.ErrorTypes.MEDIA_ERROR:
-              console.error('미디어 에러 발생, 복구 시도');
+              console.error(data.type);
               hls?.recoverMediaError();
               break;
             default:
-              console.error('치명적인 에러 발생, HLS 파괴');
+              console.error(data.type);
               hls?.destroy();
           }
         }

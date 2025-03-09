@@ -1,30 +1,33 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useRecoilState } from 'recoil';
 
 import BottomSheetLayout from 'components/layouts/BottomSheetLayout';
 import RoundSquareCenterPopupLayout from 'components/layouts/RoundSquareCenterPopupLayout';
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
-import { TargetAudienceInterface } from 'global/interface/profile';
 import useWindowSize from 'hook/customhook/useWindowSize';
-import { isActiveProfileScarpTargetAudPopupAtom } from 'states/ProfileAtom';
+import {
+  isActiveProfileScarpTargetAudPopupAtom,
+  scrapTargetAudienceAtom,
+} from 'states/ProfileAtom';
 import ProfileScrapTargetAudiencePopupBody from './ProfileScrapTargetAudiencePopupBody';
 
-interface ProfileScrapTargetAudiencePopupProps {
-  targetAudValue: TargetAudienceInterface;
-  setTargetAudValue: React.Dispatch<
-    React.SetStateAction<TargetAudienceInterface>
-  >;
-}
-
-const ProfileScrapTargetAudiencePopup: React.FC<
-  ProfileScrapTargetAudiencePopupProps
-> = ({ targetAudValue, setTargetAudValue }) => {
+const ProfileScrapTargetAudiencePopup: React.FC = () => {
   const [
     isActiveProfileScarpTargetAudPopup,
     setIsActiveProfileScarpTargetAudPopup,
   ] = useRecoilState(isActiveProfileScarpTargetAudPopupAtom);
 
+  const [scrapTargetAudience, setScrapTargetAudience] = useRecoilState(
+    scrapTargetAudienceAtom,
+  );
+
   const { windowWidth } = useWindowSize();
+
+  useEffect(() => {
+    return () => {
+      setIsActiveProfileScarpTargetAudPopup(false);
+    };
+  }, []);
 
   return (
     <>
@@ -51,10 +54,12 @@ const ProfileScrapTargetAudiencePopup: React.FC<
                 ),
               ) || 0
           }
+          OverlaySheetStyle={{ zIndex: 2000 }}
+          BottomSheetContainerStyle={{ zIndex: 2010 }}
         >
           <ProfileScrapTargetAudiencePopupBody
-            targetAudValue={targetAudValue}
-            setTargetAudValue={setTargetAudValue}
+            targetAudValue={scrapTargetAudience}
+            setTargetAudValue={setScrapTargetAudience}
           />
         </BottomSheetLayout>
       ) : (
@@ -65,8 +70,8 @@ const ProfileScrapTargetAudiencePopup: React.FC<
               popupWrapStyle={{ height: '280px', width: '400px' }}
             >
               <ProfileScrapTargetAudiencePopupBody
-                targetAudValue={targetAudValue}
-                setTargetAudValue={setTargetAudValue}
+                targetAudValue={scrapTargetAudience}
+                setTargetAudValue={setScrapTargetAudience}
               />
             </RoundSquareCenterPopupLayout>
           )}

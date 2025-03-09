@@ -61,6 +61,7 @@ const PostComposeBySourceUrlPopup: React.FC = () => {
           }
         >
           <PostComposeBySourceUrlPopupBody
+            isScroll={false}
             postComposeSearchInput={postComposeSearchInput}
           />
         </BottomFullScreenSheetLayout>

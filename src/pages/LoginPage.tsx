@@ -9,7 +9,6 @@ import React, { useEffect, useState } from 'react';
 import { postRefreshToken } from 'services/auth/postRefreshToken';
 import styled from 'styled-components';
 
-import { GoogleOAuthProvider } from '@react-oauth/google';
 import { queryClient } from 'App';
 import { ReactComponent as LoginCancelButtonIcon } from 'assets/images/icon/svg/login/LoginCancelButtonIcon.svg';
 import BottomNextButton from 'components/common/buttton/BottomNextButton';
@@ -28,6 +27,7 @@ import { SETTING_AFTER_DELETE_ACCOUNT_MAIN_MOVE_PHASE_TEXT } from 'const/SystemP
 import { isApp } from 'global/util/reactnative/nativeRouter';
 import { useSnsNotificationHookByIndexedDb } from 'hook/db/useSnsNotifcationHookByIndexedDb';
 import { useNavigate } from 'react-router-dom';
+import { hoverComponentStyle } from 'styles/commonStyles';
 import theme from 'styles/theme';
 
 const LoginPage: React.FC = () => {
@@ -69,7 +69,6 @@ const LoginPage: React.FC = () => {
         }
       })
       .catch(() => {
-        //@REFER: 출력값 필요하면 넣으삼
         resetNotifications();
         setIsView(true);
       });
@@ -171,13 +170,9 @@ const LoginPage: React.FC = () => {
                 <LoginPageBodyContainer>
                   <KakaoLoginButton />
                   <NaverLoginButton />
-                  <GoogleOAuthProvider
-                    clientId={
-                      '989621368762-8cvdj4sk5u38mbqu6jbgg49ra3j7k34b.apps.googleusercontent.com'
-                    }
-                  >
-                    <GoogleLoginButton />
-                  </GoogleOAuthProvider>
+
+                  <GoogleLoginButton />
+
                   <AppleLoginButton />
                   <EmailLoginButtonWrap onClick={onClickLoginEmail}>
                     이메일로 로그인
@@ -263,6 +258,7 @@ const LoginPageBodyContainer = styled.div`
   padding: 30px 0px 20px 0px;
   left: 50%;
   transform: translate(-50%, 0px);
+  margin-bottom: env(safe-area-inset-bottom);
 
   max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
 `;
@@ -277,21 +273,17 @@ const EmailLoginButtonWrap = styled.div`
   cursor: pointer;
 
   transition: background 0.2s ease-in-out;
-  &:hover {
-    background: rgba(0, 0, 0, 0.1);
-    color: white;
-  }
+  ${hoverComponentStyle};
 `;
 
 const LoginCancelButtonIconWrap = styled.div`
   position: fixed;
   top: 0;
-  right: 0;
-  margin: 10px 10px 0 0;
+  left: 0;
   z-index: 100;
   cursor: pointer;
 
-  margin: 20px 20px 0 0;
+  margin: 20px 0 0 20px;
 `;
 
 const ProfileAccountDeleteContainer = styled.div`

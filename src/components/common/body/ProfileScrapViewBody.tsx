@@ -2,6 +2,8 @@ import { ReactComponent as EmptyScrapIcon } from 'assets/images/icon/svg/empty/E
 import ProfileScrapListInfiniteScroll from 'hook/ProfileScrapListInfiniteScroll';
 import { QueryStateProfileScrapList } from 'hook/queryhook/QueryStateProfileScrapList';
 import React, { useEffect, useState } from 'react';
+import { useRecoilState } from 'recoil';
+import { activeMakeScrapPopupInfoAtom } from 'states/PostAtom';
 import styled from 'styled-components';
 import theme from '../../../styles/theme';
 import ProfileScrapThumbnailListView, {
@@ -39,6 +41,9 @@ const ProfileScrapViewBody: React.FC<ProfileScrapListBodyProps> = ({
     }
   }, []);
 
+  const [activeMakeScrapPopupInfo, setActiveMakeScrapPopupInfo] =
+    useRecoilState(activeMakeScrapPopupInfoAtom);
+
   return (
     <ProfileShowProfileScrapViewBodyContainer
       ref={profileScrapViewRef}
@@ -62,6 +67,28 @@ const ProfileScrapViewBody: React.FC<ProfileScrapListBodyProps> = ({
                 등록된 스크랩 없음 <br /> 나만의 취향을 반영한 스크랩을
                 만들어보세요.
               </NotScrapTitle>
+              <MakeScrapButton
+                onClick={() => {
+                  setActiveMakeScrapPopupInfo({
+                    isActive: true,
+                    postId: '',
+                    postContentType: '',
+                    postContentUrl: '',
+                  });
+                  // if (windowWidth >= MEDIA_MOBILE_MAX_WIDTH_NUM) {
+                  //   setActiveMakeScrapPopupInfo({
+                  //     isActive: true,
+                  //     postId: '',
+                  //     postContentType: '',
+                  //     postContentUrl: '',
+                  //   });
+                  // } else {
+                  //   stackRouterPush(navigate, PROFILE_NEW_SCRAP_PATH);
+                  // }
+                }}
+              >
+                스크랩 추가
+              </MakeScrapButton>
             </NotScrapWrap>
           )}
         </>
@@ -73,7 +100,16 @@ const ProfileScrapViewBody: React.FC<ProfileScrapListBodyProps> = ({
 };
 
 const ProfileShowProfileScrapViewBodyContainer = styled.div`
-  min-height: calc(100dvh - ${theme.systemSize.bottomNavBar.height});
+  min-height: calc(
+    100dvh -
+      ${theme.systemSize.bottomNavBar.heightNum +
+        theme.systemSize.bottomNavBar.heightNum +
+        parseFloat(
+          getComputedStyle(document.documentElement).getPropertyValue(
+            '--safe-area-inset-top',
+          ),
+        ) || 0}px
+  );
   & {
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -85,7 +121,7 @@ const ProfileShowProfileScrapViewBodyContainer = styled.div`
 
 const NotScrapWrap = styled.div`
   position: absolute;
-  top: calc(50% - 50px);
+  top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   display: flex;
@@ -100,6 +136,17 @@ const NotScrapTitle = styled.div`
   font: ${({ theme }) => theme.fontSizes.Body5};
   white-space: nowrap;
   text-align: center;
+`;
+
+const MakeScrapButton = styled.div`
+  font: ${({ theme }) => theme.fontSizes.Body3};
+  font-size: 13px;
+  margin: 10px auto 0px auto;
+  background-color: ${theme.mainColor.Black};
+  color: white;
+  padding: 10px;
+  border-radius: 25px;
+  cursor: pointer;
 `;
 
 export default ProfileScrapViewBody;

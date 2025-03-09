@@ -120,11 +120,13 @@ const SignupEmailPopupBody: React.FC<SignupEmailPOpupBodyProps> = ({
             password={password}
             onChangePassword={onChangePassword}
             placeholder={SETTING_EDIT_PASSWORD_PHASE_TEXT}
+            isNewPassword={true}
           />
           <PasswordVisibleInputElement
             password={checkPassword}
             onChangePassword={onChangeCheckPassword}
             placeholder={SETTING_EDIT_CHECK_PASSWORD_PHASE_TEXT}
+            isNewPassword={true}
           />
           <ProfileVerifyPasswordBody
             password={password}

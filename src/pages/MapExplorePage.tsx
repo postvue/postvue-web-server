@@ -333,6 +333,19 @@ const MapExplorePage: React.FC = () => {
             />
           </>
         }
+        AppBaseStlye={{ position: 'relative' }}
+        AppHeaderNode={
+          isMapDateRangePickerPopup && (
+            <MapDateRangePickerPopup
+              onClose={() => {
+                setIsMapDateRangePickerPopup(false);
+              }}
+              DateRangePickerContainerStyle={{
+                marginTop: `${theme.systemSize.header.heightNumber + 20}px`,
+              }}
+            />
+          )
+        }
       >
         <MapExplorePageContainer>
           <MapExploreHeader
@@ -409,16 +422,6 @@ const MapExplorePage: React.FC = () => {
         <BottomNavBar />
 
         {isMapDatePickerPopup && <MapDatePickerPopup />}
-        {isMapDateRangePickerPopup && (
-          <MapDateRangePickerPopup
-            onClose={() => {
-              setIsMapDateRangePickerPopup(false);
-            }}
-            DateRangePickerContainerStyle={{
-              marginTop: `${theme.systemSize.header.heightNumber + 10}px`,
-            }}
-          />
-        )}
 
         {isLoadingPopup && (
           <LoadingPopup LoadingPopupStyle={{ background: 'transparent' }} />

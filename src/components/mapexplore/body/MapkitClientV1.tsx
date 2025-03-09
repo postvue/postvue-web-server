@@ -28,7 +28,6 @@ let geocoder: mapkit.Geocoder | null = null;
 let init = false;
 const MAP_COORINATE_SPAN = 0.06;
 
-// @REFER: 수정 필요
 const offset = new DOMPoint(5, -80);
 
 const selectedSize = 70;
@@ -49,7 +48,7 @@ interface MapkitClientProps {
   coordinateSpan?: number;
 }
 
-const MapkitClient: React.FC<MapkitClientProps> = ({
+const MapkitClientV1: React.FC<MapkitClientProps> = ({
   mapPost,
   mapLocation,
   onSetMapMoveLocation,
@@ -318,4 +317,4 @@ const MapkitClient: React.FC<MapkitClientProps> = ({
   );
 };
 
-export default MapkitClient;
+export default MapkitClientV1;

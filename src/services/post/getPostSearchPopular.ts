@@ -7,9 +7,6 @@ export const getPostSearchPopular = (
   searchWord: string,
   page: number,
 ): Promise<GetSearchPostsRsp> => {
-  console.log(
-    `${POST_LIST_PATH}${SEARCH_PATH}${POPULAR_PATH}?${PAGE_PARAM}=${page}&srch_qry=${searchWord}`,
-  );
   return optAuthApi
     .get(
       `${POST_LIST_PATH}${SEARCH_PATH}${POPULAR_PATH}?${PAGE_PARAM}=${page}`,

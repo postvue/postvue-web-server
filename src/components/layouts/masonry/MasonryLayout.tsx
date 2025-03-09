@@ -46,7 +46,6 @@ const MasonryLayout: React.FC<MasonryLayoutProps> = ({
 
   // infinity scrolling
   useEffect(() => {
-    console.log('쿵');
     if (!fetchMoreOption) return;
 
     const scrollHandler = () => {
