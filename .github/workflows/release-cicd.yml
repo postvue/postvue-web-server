@@ -1,11 +1,16 @@
 name: Postvue Web Server CI/CD
 
 on:
+  create:
+    branches:
+      - release-*
+      - release/**
   pull_request:
     branches:
-      - master
+      - release-*
+      - release/**
     types:
-      - closed # PR이 머지될 때 배포 실행
+      - closed
 
 jobs:
   build:
