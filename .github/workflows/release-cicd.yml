@@ -86,7 +86,7 @@ jobs:
         run: |
           echo "Setting up SSH private key..."
           mkdir -p ~/.ssh
-          echo "${{ secrets.SERVER_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.SERVER_RELEASE_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
           echo "Adding server to known hosts..."
