@@ -18,6 +18,11 @@ import { postRefreshToken } from './auth/postRefreshToken';
 
 export const api = axios.create({
   baseURL: SERVER_API_PATH,
+  headers: {
+    'Content-Type': 'application/json; charset=UTF-8',
+    Accept: 'application/json',
+  },
+  withCredentials: true,
   paramsSerializer: (params) => {
     return QueryString.stringify(params, { encode: true });
   },
