@@ -1,17 +1,22 @@
 name: Postvue Web Server CI/CD
 
 on:
+  create:
+    branches:
+      - release-*
+      - release/**
   pull_request:
     branches:
-      - master
+      - release-*
+      - release/**
     types:
-      - closed # PR이 머지될 때 배포 실행
+      - closed
 
 jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      DOCKER_HUB_REPOSITORY: ${{ secrets.DOCKER_HUB_REPOSITORY }} # Docker Hub 이미지 이름
+      DOCKER_HUB_REPOSITORY: ${{ secrets.DOCKER_HUB_RELEASE_REPOSITORY }} # Docker Hub 이미지 이름
 
     steps:
       # 1. Node.js 버전 설정
@@ -48,8 +53,8 @@ jobs:
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+          username: ${{ secrets.DOCKER_HUB_RELEASE_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_RELEASE_ACCESS_TOKEN }}
 
       - name: Build and push Docker image
         run: |
@@ -71,17 +76,17 @@ jobs:
 
       - name: Deploy to server
         env:
-          REMOTE_HOST: ${{ secrets.SERVER_HOST }}
-          REMOTE_USER: ${{ secrets.SERVER_REMOTE_USER }}
-          REMOTE_PORT: ${{ secrets.SERVER_REMOTE_PORT }}
-          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-          DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+          REMOTE_HOST: ${{ secrets.SERVER_RELEASE_HOST }}
+          REMOTE_USER: ${{ secrets.SERVER_RELEASE_REMOTE_USER }}
+          REMOTE_PORT: ${{ secrets.SERVER_RELEASE_REMOTE_PORT }}
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_RELEASE_USERNAME }}
+          DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_RELEASE_ACCESS_TOKEN }}
           SERVICE_DIR: ${{ secrets.SERVICE_DIR }}
 
         run: |
           echo "Setting up SSH private key..."
           mkdir -p ~/.ssh
-          echo "${{ secrets.SERVER_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.SERVER_RELEASE_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
           echo "Adding server to known hosts..."
@@ -89,7 +94,8 @@ jobs:
 
           echo "Connecting to remote server and deploying..."
           ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no -p ${REMOTE_PORT} "${REMOTE_USER}@${REMOTE_HOST}" << EOF
-            sudo apt-get update -y
+            sudo -s
+            apt-get update -y
 
             echo "Navigating to service directory..."
             cd ${SERVICE_DIR}
@@ -98,11 +104,11 @@ jobs:
             echo "${DOCKER_HUB_ACCESS_TOKEN}" | docker login --username "${DOCKER_HUB_USERNAME}" --password-stdin
 
             echo "Stopping and removing existing containers..."
-            sudo docker compose down --volumes --remove-orphans --rmi all
+            docker compose down --volumes --remove-orphans --rmi all
 
             echo "Pulling latest images..."
-            sudo docker compose pull
+            docker compose pull
 
             echo "Starting new containers..."
-            sudo docker compose up -d
+            docker compose up -d
           EOF
