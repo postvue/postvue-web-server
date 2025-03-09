@@ -32,9 +32,14 @@ jobs:
           echo "REACT_APP_KAKAO_CLIENT_ID=${{ secrets.REACT_APP_KAKAO_CLIENT_ID }}" >> .env
           echo "REACT_APP_SERVER_PATH=${{ secrets.REACT_APP_SERVER_PATH }}" >> .env
           echo "REACT_APP_SERVER_API_URL=${{ secrets.REACT_APP_SERVER_API_URL }}" >> .env
+          echo "REACT_APP_WEBSOCKET_URL=${{ secrets.REACT_APP_WEBSOCKET_URL }}" >> .env
           echo "REACT_APP_KAKAO_SDK_KEY=${{ secrets.REACT_APP_KAKAO_SDK_KEY }}" >> .env
           echo "REACT_APP_KAUTH_URL=${{ secrets.REACT_APP_KAUTH_URL }}" >> .env
           echo "REACT_APP_NAVER_CLIENT_ID=${{ secrets.REACT_APP_NAVER_CLIENT_ID }}" >> .env
+          echo "REACT_APP_APPLE_MAPKIT_JS_ACCESS_TOKEN=${{ secrets.REACT_APP_APPLE_MAPKIT_JS_ACCESS_TOKEN }}" >> .env
+          echo "REACT_APP_APPLE_SOCIAL_SERVICE_CLIENT_ID=${{ secrets.REACT_APP_APPLE_SOCIAL_SERVICE_CLIENT_ID }}" >> .env
+          echo "REACT_APP_APPLE_SOCIAL_LOGIN_REDIRCT_URL=${{ secrets.REACT_APP_APPLE_SOCIAL_LOGIN_REDIRCT_URL }}" >> .env
+          echo "REACT_APP_GOOGLE_SOCIAL_OAUTH_CLIENT_ID=${{ secrets.REACT_APP_GOOGLE_SOCIAL_OAUTH_CLIENT_ID }}" >> .env
 
       - name: Install dependencies and build
         run: |
