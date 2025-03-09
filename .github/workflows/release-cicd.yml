@@ -16,7 +16,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      DOCKER_HUB_REPOSITORY: ${{ secrets.DOCKER_HUB_REPOSITORY }} # Docker Hub 이미지 이름
+      DOCKER_HUB_REPOSITORY: ${{ secrets.DOCKER_HUB_RELEASE_REPOSITORY }} # Docker Hub 이미지 이름
 
     steps:
       # 1. Node.js 버전 설정
