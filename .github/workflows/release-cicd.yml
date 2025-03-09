@@ -97,7 +97,7 @@ jobs:
             sudo apt-get update -y
 
             echo "Navigating to service directory..."
-            cd ${SERVICE_DIR}
+            sudo cd ${SERVICE_DIR}
 
             echo "Logging into Docker Hub..."
             echo "${DOCKER_HUB_ACCESS_TOKEN}" | docker login --username "${DOCKER_HUB_USERNAME}" --password-stdin
