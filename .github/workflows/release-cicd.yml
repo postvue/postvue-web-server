@@ -32,6 +32,7 @@ jobs:
         # 3. .env 파일을 생성하고 환경 변수 설정 (GitHub Secrets에서 가져오기)
       - name: Create .env file from secrets
         run: |
+          echo "GENERATE_SOURCEMAP=false" >> .env
           echo "REACT_APP_KAKAO_CLIENT_ID=${{ secrets.REACT_APP_KAKAO_CLIENT_ID }}" >> .env
           echo "REACT_APP_SERVER_PATH=${{ secrets.REACT_APP_SERVER_PATH }}" >> .env
           echo "REACT_APP_SERVER_API_URL=${{ secrets.REACT_APP_SERVER_API_URL }}" >> .env
