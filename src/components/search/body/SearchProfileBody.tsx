@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { useRecoilValue } from 'recoil';
 import { searchWordAtom } from 'states/SearchPostAtom';
 
-import NoResultComponent from 'components/common/container/NoResultComponent';
+import NoResultComponentInfinite from 'components/common/container/NoResultComponentInfitie';
 import ProfileFollowComponent from 'components/profile/followlist/ProfileFollowComponent';
 import {
   MEDIA_MOBILE_MAX_WIDTH,
@@ -53,7 +53,7 @@ const SearchProfileBody: React.FC = () => {
         {isFetched &&
           data &&
           data?.pages.flatMap((value) => value.getProfileUserByUsernameList)
-            .length <= 0 && <NoResultComponent />}
+            .length <= 0 && <NoResultComponentInfinite />}
         <SearchProfileWithFollowListInfiniteScroll username={searchWord} />
       </SearchPostContainer>
     </SearchPostBodyContinaer>
