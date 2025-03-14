@@ -67,6 +67,7 @@ const ProfileScrapTargetAudiencePopup: React.FC = () => {
           {isActiveProfileScarpTargetAudPopup && (
             <RoundSquareCenterPopupLayout
               onClose={() => setIsActiveProfileScarpTargetAudPopup(false)}
+              popupOverLayContainerStyle={{ zIndex: 2050 }}
               popupWrapStyle={{ height: '280px', width: '400px' }}
             >
               <ProfileScrapTargetAudiencePopupBody
