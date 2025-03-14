@@ -19,6 +19,9 @@ const SearchFavoriteTermEditPopup: React.FC = () => {
           overflow: 'scroll',
           marginBottom: '20px',
         }}
+        onClose={() => {
+          setIsActiveSearchFavoritePopup(false);
+        }}
       />
     </RoundSquareCenterPopupLayout>
   );
