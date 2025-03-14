@@ -177,7 +177,7 @@ const SearchTagRecommContainer = styled.div`
 
 const SearchBodyContainer = styled.div`
   height: 100%;
-  min-height: calc(100dvh - ${theme.systemSize.header.height});
+  min-height: calc(100dvh - ${theme.systemSize.header.heightNumber + 10}px);
 `;
 
 const SearchRelatedTitle = styled.div`
