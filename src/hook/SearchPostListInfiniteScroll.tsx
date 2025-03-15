@@ -35,6 +35,7 @@ const SearchPostListInfiniteScroll: React.FC<
           (data ? data?.pages[0].snsPostRspList.length > 5 : false) &&
           hasNextPage
         }
+        hasTermComponent={true}
       />
     </ScrollBottomContainer>
   );

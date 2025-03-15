@@ -1,5 +1,5 @@
 import ProfileScrapThumbnailListView from 'components/common/body/ProfileScrapThumbnailListView';
-import NoResultComponent from 'components/common/container/NoResultComponent';
+import NoResultComponentInfinite from 'components/common/container/NoResultComponentInfitie';
 import { PROFILE_SCRAP_LIST_PATH } from 'const/PathConst';
 import { RoutePushEventDateInterface } from 'const/ReactNativeConst';
 import {
@@ -57,7 +57,7 @@ const SearchScrapBody: React.FC = () => {
         {isFetched &&
           data &&
           data?.pages.flatMap((value) => value).length <= 0 && (
-            <NoResultComponent />
+            <NoResultComponentInfinite />
           )}
 
         <SearchScrapListInfiniteScroll searchQuery={searchWord} />

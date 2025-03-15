@@ -14,7 +14,7 @@ import {
   SEARCH_POST_POPULAR_QUERY_PARAM,
 } from '../../../const/TabConfigConst';
 
-import NoResultComponent from 'components/common/container/NoResultComponent';
+import NoResultComponentInfinite from 'components/common/container/NoResultComponentInfitie';
 import SnsPostMasonryLayout from 'components/layouts/SnsPostMasonryLayout';
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
 import useWindowSize from 'hook/customhook/useWindowSize';
@@ -89,7 +89,7 @@ const SearchSubPostBody: React.FC = () => {
                       searchType={'recomm'}
                     />
                   ) : (
-                    <NoResultComponent />
+                    <NoResultComponentInfinite />
                   )}
                 </>
               )}
@@ -113,7 +113,7 @@ const SearchSubPostBody: React.FC = () => {
                       searchType={'live'}
                     />
                   ) : (
-                    <NoResultComponent />
+                    <NoResultComponentInfinite />
                   )}
                 </>
               )}
@@ -137,7 +137,7 @@ const SearchSubPostBody: React.FC = () => {
                       searchType={'distance'}
                     />
                   ) : (
-                    <NoResultComponent />
+                    <NoResultComponentInfinite />
                   )}
                 </>
               )}

@@ -14,7 +14,9 @@ import {
 import { isValidString } from 'global/util/ValidUtil';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useResetRecoilState } from 'recoil';
 import { postEmailLogin } from 'services/auth/email/postEmailLogin';
+import { serviceUsageTimerStateAtom } from 'states/SystemConfigAtom';
 import styled from 'styled-components';
 
 interface LoginEmailPopupBodyProps {
@@ -29,6 +31,10 @@ const LoginEmailPopupBody: React.FC<LoginEmailPopupBodyProps> = ({
   const [email, setEmail] = useState<string>(INIT_EMPTY_STRING_VALUE);
 
   const [password, setPassword] = useState<string>(INIT_EMPTY_STRING_VALUE);
+
+  const resetServiceUsageTimerState = useResetRecoilState(
+    serviceUsageTimerStateAtom,
+  );
 
   const onChangeEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
@@ -54,6 +60,8 @@ const LoginEmailPopupBody: React.FC<LoginEmailPopupBodyProps> = ({
         queryClient.invalidateQueries({
           queryKey: [QUERY_STATE_NOTIFICATION_MSG],
         });
+
+        resetServiceUsageTimerState();
 
         if (isApp()) {
           stackRouterLoginSuccess(value);

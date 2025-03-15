@@ -14,7 +14,7 @@ import {
   SEARCH_POST_POPULAR_QUERY_PARAM,
 } from '../../../const/TabConfigConst';
 
-import NoResultComponent from 'components/common/container/NoResultComponent';
+import NoResultComponentInfinite from 'components/common/container/NoResultComponentInfitie';
 import SnsPostMasonryLayout from 'components/layouts/SnsPostMasonryLayout';
 import {
   MEDIA_MOBILE_MAX_WIDTH,
@@ -95,7 +95,7 @@ const SearchTagPostBody: React.FC = () => {
                         )}
                       />
                     ) : (
-                      <NoResultComponent />
+                      <NoResultComponentInfinite />
                     )}
                   </>
                 )}
@@ -118,7 +118,7 @@ const SearchTagPostBody: React.FC = () => {
                         )}
                       />
                     ) : (
-                      <NoResultComponent />
+                      <NoResultComponentInfinite />
                     )}
                   </>
                 )}
@@ -141,7 +141,7 @@ const SearchTagPostBody: React.FC = () => {
                         )}
                       />
                     ) : (
-                      <NoResultComponent />
+                      <NoResultComponentInfinite />
                     )}
                   </>
                 )}

@@ -17,7 +17,9 @@ import {
 } from 'global/util/reactnative/nativeRouter';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useResetRecoilState } from 'recoil';
 import { postGoogleLogin } from 'services/auth/google/postGoogleLogin';
+import { serviceUsageTimerStateAtom } from 'states/SystemConfigAtom';
 import styled from 'styled-components';
 import { filterBrigntnessStyle } from 'styles/commonStyles';
 import theme from 'styles/theme';
@@ -59,6 +61,9 @@ const GoogleLoginButton: React.FC = () => {
       });
   };
 
+  const resetServiceUsageTimerState = useResetRecoilState(
+    serviceUsageTimerStateAtom,
+  );
   const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse: TokenResponse) => {
       try {
@@ -69,6 +74,7 @@ const GoogleLoginButton: React.FC = () => {
           queryKey: [QUERY_STATE_NOTIFICATION_MSG],
         });
 
+        resetServiceUsageTimerState();
         if (isApp()) {
           stackRouterLoginSuccess(value);
         } else {

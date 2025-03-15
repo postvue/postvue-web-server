@@ -18,7 +18,7 @@ const TasteForMeListInfiniteScroll: React.FC = () => {
 
   return (
     <PostRelationWrap ref={ref}>
-      <InViewComponent hasLoadingIcon={hasNextPage} />
+      <InViewComponent hasLoadingIcon={hasNextPage} hasTermComponent={true} />
     </PostRelationWrap>
   );
 };
