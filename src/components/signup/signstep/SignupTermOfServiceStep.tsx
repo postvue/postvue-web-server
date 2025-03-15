@@ -22,10 +22,17 @@ const SignupTermOfServiceStep: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const onClickSignup = () => {
-    postAuthSignup(signupInfo).then((value) => {
-      localStorage.setItem(ACCESS_TOKEN, value);
-      window.location.href = HOME_PATH;
-    });
+    postAuthSignup(signupInfo)
+      .then((value) => {
+        localStorage.setItem(ACCESS_TOKEN, value);
+        window.location.href = HOME_PATH;
+      })
+      .catch((e) => {
+        console.error(e);
+        alert(
+          '죄송합니다. 오류로 인해 가입에 실패 했습니다. 고객센터에 문의해주세요.',
+        );
+      });
   };
 
   const [isFullAgreement, setIsFullAgreement] = useState<boolean>(false);
