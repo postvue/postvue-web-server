@@ -48,7 +48,7 @@ const SearchPostNearListInfiniteScroll: React.FC<
 
   return (
     <ScrollBottomContainer ref={ref}>
-      <InViewComponent hasLoadingIcon={hasNextPage} />
+      <InViewComponent hasLoadingIcon={hasNextPage} hasTermComponent={true} />
     </ScrollBottomContainer>
   );
 };

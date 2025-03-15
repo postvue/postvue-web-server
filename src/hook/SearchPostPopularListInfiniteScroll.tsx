@@ -44,6 +44,7 @@ const SearchPostPopularListInfiniteScroll: React.FC<
     <ScrollBottomContainer ref={ref}>
       <InViewComponent
         hasLoadingIcon={hasNextPage && !inView && !isFetchingNextPage}
+        hasTermComponent={true}
       />
     </ScrollBottomContainer>
   );
