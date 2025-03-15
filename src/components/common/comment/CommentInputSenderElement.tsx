@@ -371,30 +371,36 @@ const CommentInputSenderElement: React.FC<CommentInputSenderElementProps> = ({
             <MsgSendButtonWrap>
               <PostCommentUploadImageDiv>
                 <PostCommentUploadImage>
-                  <PostCommentUploadImgLabel
-                    htmlFor={uploadCommentImgId}
-                    onClick={() => {
-                      if (!isApp) return;
-                      sendNativeImageUploadEvent();
-                    }}
-                  >
-                    <PostCommentImageIcon />
-                  </PostCommentUploadImgLabel>
-                  {!isApp() && (
-                    <PostCommentUploadInput
-                      id={uploadCommentImgId}
-                      ref={imgFileInputRef}
-                      accept="image/jpeg, image/png, image/gif, image/bmp, image/webp, image/heic"
-                      type="file"
-                      onChange={(e) => {
-                        if (!e.target.files) return;
-                        uploadImgUtil(
-                          e.target.files[0],
-                          setUploadCommentImgFile,
-                          setUploadCommentImgUrl,
-                        );
-                      }}
-                    />
+                  {isApp() ? (
+                    <>
+                      <PostCommentUploadImgLabel
+                        onClick={() => {
+                          sendNativeImageUploadEvent();
+                        }}
+                      >
+                        <PostCommentImageIcon />
+                      </PostCommentUploadImgLabel>
+                    </>
+                  ) : (
+                    <>
+                      <PostCommentUploadImgLabel htmlFor={uploadCommentImgId}>
+                        <PostCommentImageIcon />
+                      </PostCommentUploadImgLabel>
+                      <PostCommentUploadInput
+                        id={uploadCommentImgId}
+                        ref={imgFileInputRef}
+                        accept="image/jpeg, image/png, image/gif, image/bmp, image/webp, image/heic"
+                        type="file"
+                        onChange={(e) => {
+                          if (!e.target.files) return;
+                          uploadImgUtil(
+                            e.target.files[0],
+                            setUploadCommentImgFile,
+                            setUploadCommentImgUrl,
+                          );
+                        }}
+                      />
+                    </>
                   )}
                 </PostCommentUploadImage>
               </PostCommentUploadImageDiv>

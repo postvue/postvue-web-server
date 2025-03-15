@@ -18,13 +18,19 @@ import {
 } from 'global/util/reactnative/nativeRouter';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useResetRecoilState } from 'recoil';
 import { postKakaoAuthToken } from 'services/auth/kakao/postKakaoAuthToken';
 import { postKakaoLogin } from 'services/auth/kakao/postKakaoLogin';
+import { serviceUsageTimerStateAtom } from 'states/SystemConfigAtom';
 import styled from 'styled-components';
 import { filterBrigntnessStyle } from 'styles/commonStyles';
 
 const KakaoLoginButton: React.FC = () => {
   const navigate = useNavigate();
+
+  const resetServiceUsageTimerState = useResetRecoilState(
+    serviceUsageTimerStateAtom,
+  );
 
   const handleLogin = () => {
     if (!window.Kakao) return;
@@ -57,6 +63,8 @@ const KakaoLoginButton: React.FC = () => {
         queryClient.invalidateQueries({
           queryKey: [QUERY_STATE_NOTIFICATION_MSG],
         });
+
+        resetServiceUsageTimerState();
         if (isApp()) {
           stackRouterLoginSuccess(res);
         } else {

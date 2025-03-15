@@ -48,7 +48,7 @@ const FollowForMeInfiniteScroll: React.FC = () => {
 
   return (
     <ScrollBottomContainer ref={ref}>
-      <InViewComponent />
+      <InViewComponent hasTermComponent={true} />
     </ScrollBottomContainer>
   );
 };

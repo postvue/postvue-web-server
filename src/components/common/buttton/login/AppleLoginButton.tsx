@@ -12,7 +12,9 @@ import {
 } from 'global/util/reactnative/nativeRouter';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useResetRecoilState } from 'recoil';
 import { postAppleLogin } from 'services/auth/apple/postAppleLogin';
+import { serviceUsageTimerStateAtom } from 'states/SystemConfigAtom';
 import styled from 'styled-components';
 import { filterBrigntnessStyle } from 'styles/commonStyles';
 import AppleAuthLoginProvider from './AppleAuthLoginProvider';
@@ -34,6 +36,10 @@ const AppleLoginButton: React.FC = () => {
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  const resetServiceUsageTimerState = useResetRecoilState(
+    serviceUsageTimerStateAtom,
+  );
+
   const processAppleLogin = (idToken: string) => {
     setIsLoading(true);
     postAppleLogin(idToken)
@@ -41,6 +47,8 @@ const AppleLoginButton: React.FC = () => {
         queryClient.invalidateQueries({
           queryKey: [QUERY_STATE_NOTIFICATION_MSG],
         });
+
+        resetServiceUsageTimerState();
         if (isApp()) {
           stackRouterLoginSuccess(res);
         } else {

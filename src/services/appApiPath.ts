@@ -55,6 +55,7 @@ export const EMAIL_LOGIN_API_PATH = `${AUTH_APTH}/login/email`;
 export const AUTH_MEMBER_WITHDRAWAL_API_PATH = `${AUTH_APTH}/member-withdrawal`;
 export const AUTH_CHECK_SIGNUP_QUAL_API_PATH = `${AUTH_APTH}/check/signup/qual`;
 export const SIGNUP_TYPE_API_PATH = `${AUTH_APTH}/signup/type`;
+export const AUTH_CHECK_ME_API_PATH = `${AUTH_APTH}/check/me`;
 
 // 회원 가입
 export const PROFILE_EXISTENCE_API_PATH = `${PROFILE_LIST_PATH}${EXISTENCE_API_PATH}`;
