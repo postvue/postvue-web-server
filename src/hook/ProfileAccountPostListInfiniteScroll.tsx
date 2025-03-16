@@ -24,7 +24,7 @@ const ProfileAccountPostListInfiniteScroll: React.FC<
 
   return (
     <ScrollBottomContainer ref={ref}>
-      <InViewComponent hasTermComponent={true} />
+      <InViewComponent />
     </ScrollBottomContainer>
   );
 };
