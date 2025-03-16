@@ -52,12 +52,12 @@ export const ACCOUNT_SETTING_CONTACT_TAB_NAME = '문의하기';
 export const ACCOUNT_SETTING_CONPANY_INFO_TAB_NAME = '서비스 정보';
 
 export const ACCOUNT_SETTING_PRIVACY_POLICY_URL =
-  'https://feelog.notion.site/1a659320aaac80ee8ff5e1b2597c7727';
+  'https://privacy-policy.feelog.net';
 export const ACCOUNT_SETTING_TERMS_OF_SERVICE_URL =
-  'https://feelog.notion.site/1a659320aaac80d298b1f259e45b6862';
+  'https://terms-of-use.feelog.net/';
 
 export const ACCOUNT_SETTING_TERMS_OF_USER_GEOLOATION_URL =
-  'https://feelog.notion.site/1a659320aaac8044959ff7dc0de93fca';
+  'https://terms-of-location.feelog.net';
 
 export const ACCOUNT_SETTING_COMPANY_INFO_URL =
   'https://feelog.notion.site/1a659320aaac8040b96ae44f3639c06f';
