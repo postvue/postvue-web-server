@@ -93,7 +93,9 @@ const MapExploreByProfilePostPopupBody: React.FC<
                 <SearchSS>
                   <SearchSubWrap>
                     <SearchAddressWrap>
-                      {snsPost.location.address}
+                      {snsPost.location.address
+                        ? snsPost.location.address
+                        : snsPost.location.buildName}
                     </SearchAddressWrap>
                   </SearchSubWrap>
                 </SearchSS>

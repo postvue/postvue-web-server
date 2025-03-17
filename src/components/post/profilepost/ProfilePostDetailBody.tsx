@@ -551,7 +551,9 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
                       </ProfileFollowButtonWrap>
                       <ProfilePositionWrap>
                         <ProfilePosition>
-                          {snsPost.location.address}
+                          {snsPost.location.address
+                            ? snsPost.location.address
+                            : snsPost.location.buildName}
                         </ProfilePosition>
                       </ProfilePositionWrap>
                     </ProfileUserNameFollowWrap>
