@@ -81,7 +81,7 @@ const PostImagePreviewElement: React.FC<PostImagePreviewELementProps> = ({
               loading="lazy"
             />
 
-            {onload && location.address && (
+            {onload && (location.address || location.buildName) && (
               <PostElementLocation
                 location={location}
                 ContentBorderRadius={ContentBorderRadius}

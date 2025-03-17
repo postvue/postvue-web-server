@@ -184,7 +184,7 @@ const PostVideoPreviewElement: React.FC<PostVideoPreviewELementProps> = ({
             </PostContentVideoWrap>
           </div>
 
-          {onload && location.address && (
+          {onload && (location.address || location.buildName) && (
             <PostElementLocation
               location={location}
               ContentBorderRadius={ContentBorderRadius}

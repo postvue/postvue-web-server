@@ -34,19 +34,27 @@ const PostComposePage: React.FC = () => {
     };
   }, []);
 
-  document.body.style.overscrollBehavior = 'none';
+  // if (isApp()) {
+  //   useBodyAdaptProps([
+  //     { key: 'overscroll-behavior', value: 'none' },
+  //     { key: 'overflow', value: 'hidden' },
+  //     { key: 'position', value: 'fixed' },
+  //     { key: 'left', value: '0' },
+  //     { key: 'right', value: '0' },
+  //     { key: 'top', value: '0' },
+  //     { key: 'bottom', value: '0' },
+  //   ]);
+  // }
 
-  if (isApp()) {
-    useBodyAdaptProps([
-      { key: 'overscroll-behavior', value: 'none' },
-      { key: 'overflow', value: 'hidden' },
-      { key: 'position', value: 'fixed' },
-      { key: 'left', value: '0' },
-      { key: 'right', value: '0' },
-      { key: 'top', value: '0' },
-      { key: 'bottom', value: '0' },
-    ]);
-  }
+  useBodyAdaptProps([
+    { key: 'overscroll-behavior', value: 'none' },
+    { key: 'overflow', value: 'hidden' },
+    { key: 'position', value: 'fixed' },
+    { key: 'left', value: '0' },
+    { key: 'right', value: '0' },
+    { key: 'top', value: '0' },
+    { key: 'bottom', value: '0' },
+  ]);
 
   return (
     <>

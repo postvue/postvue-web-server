@@ -49,9 +49,7 @@ const PostComposeBySourceUrlPopupBody: React.FC<
     const borderStyle = `${theme.mainColor.White} 0px 0px 0px 0px, ${theme.mainColor.Blue} 0px 0px 0px 3px`;
     if (isActive) {
       ref.classList.remove(ACTIVE_CLASS_NAME);
-      setTimeout(() => {
-        ref.style.boxShadow = '';
-      }, 100);
+      ref.style.boxShadow = '';
 
       setUploadResourceList((prev) =>
         prev.filter((value) => value.contentUrl !== ref.src),
@@ -119,7 +117,7 @@ const PostComposeBySourceUrlPopupBody: React.FC<
               {postComposeBySourceUrlList.length > 0 ? (
                 <PostComposeBySourceUrlMasonryLayout
                   MasonryContainerStyle={{ marginTop: '10px' }}
-                  longPressToResizeNum={0.95}
+                  longPressToResizeNum={0.98}
                   snsPostUrlList={postComposeBySourceUrlList.map((v) => {
                     const homePostRsp: MasonryPostRsp = {
                       postId: '',
