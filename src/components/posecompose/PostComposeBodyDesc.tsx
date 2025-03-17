@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import theme from 'styles/theme';
@@ -17,17 +17,50 @@ const PostComposeBodyDesc: React.FC<PostComposeBodyDescProps> = ({
 }) => {
   const textareaParentRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [textareaHeight, setTextareaHeight] = useState<string>('auto');
+
   useAutoBlur([textareaParentRef, textareaRef], undefined, undefined, false);
+
+  useEffect(() => {
+    const updateHeight = () => {
+      if (textareaParentRef.current) {
+        const safeAreaBottom =
+          parseFloat(
+            getComputedStyle(document.documentElement).getPropertyValue(
+              '--safe-area-inset-bottom',
+            ),
+          ) || 0;
+
+        setTextareaHeight(
+          `${textareaParentRef.current.clientHeight - safeAreaBottom - 10}px`,
+        );
+      }
+    };
+
+    // 부모 요소 크기 변화를 감지하는 ResizeObserver 추가
+    const resizeObserver = new ResizeObserver(updateHeight);
+    if (textareaParentRef.current) {
+      resizeObserver.observe(textareaParentRef.current);
+    }
+
+    // iOS Safari에서 주소창 변화를 감지하기 위한 resize & orientationchange 이벤트 추가
+    window.addEventListener('resize', updateHeight);
+    window.addEventListener('orientationchange', updateHeight);
+
+    updateHeight(); // 초기 높이 설정
+
+    return () => {
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', updateHeight);
+      window.removeEventListener('orientationchange', updateHeight);
+    };
+  }, []);
 
   return (
     <PostComposeDescWrap ref={textareaParentRef}>
       <PostComposeDesc
         ref={textareaRef}
-        style={{
-          height: textareaParentRef.current
-            ? textareaParentRef.current.clientHeight - 10 + 'px'
-            : 'auto',
-        }}
+        style={{ height: textareaHeight }}
         placeholder={'게시물 본문을 작성하세요.'}
         onChange={(e) => {
           if (e.target.value.length > MAX_POST_BODY_TEXT_NUM) return;
@@ -63,11 +96,9 @@ const PostComposeDescMaxNum = styled.div`
 const PostComposeDesc = styled.textarea`
   resize: none;
   width: 100%;
-
   font: ${({ theme }) => theme.fontSizes.Body3};
   outline: none;
   border: 0px;
-
   color: ${({ theme }) => theme.grey.Grey8};
   background-color: ${({ theme }) => theme.mainColor.White};
 
