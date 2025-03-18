@@ -32,7 +32,15 @@ const ProfileScrapThumbnailListView: React.FC<
   return (
     <>
       {profileThumbnailScrapList.map((v, i) => (
-        <ProfileScrapWrap key={i}>
+        <ProfileScrapWrap
+          key={i}
+          onClick={() => {
+            onButtonEvent({
+              scrapId: v.scrapId,
+              scrapName: v.scrapName,
+            });
+          }}
+        >
           {v.postScrapPreviewList.length > 0 ? (
             <ScrollXMoveButtonContainer
               scrollContainerRef={containerRefs[i]}
@@ -44,15 +52,7 @@ const ProfileScrapThumbnailListView: React.FC<
             >
               <ProfileScrapImgListWrap ref={containerRefs[i]}>
                 {[...v.postScrapPreviewList].reverse().map((value, k) => (
-                  <ProfileScrapImgWrap
-                    key={k}
-                    onClick={() =>
-                      onButtonEvent({
-                        scrapId: v.scrapId,
-                        scrapName: v.scrapName,
-                      })
-                    }
-                  >
+                  <ProfileScrapImgWrap key={k}>
                     {value.postThumbnailContentType === POST_IMAGE_TYPE && (
                       <ProfileScrapImg src={value.postThumbnailContent} />
                     )}

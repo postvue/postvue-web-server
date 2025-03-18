@@ -8,7 +8,7 @@ export const createPostReport = (
   createPostReportReq: CreatePostReportReq,
 ): Promise<boolean> => {
   return privateApi
-    .post(`${POST_LIST_PATH}/${postId}/${REPORT_PATH}`, createPostReportReq)
+    .post(`${POST_LIST_PATH}/${postId}${REPORT_PATH}`, createPostReportReq)
     .then((res) => {
       console.log(res.data);
       return res.data.data;
