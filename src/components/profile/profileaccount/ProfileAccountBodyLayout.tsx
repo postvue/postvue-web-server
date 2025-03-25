@@ -1,112 +1,96 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { generatePath, useNavigate } from 'react-router-dom';
-import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil';
+import { useResetRecoilState } from 'recoil';
 import styled from 'styled-components';
 import { Swiper } from 'swiper/react';
 import { POST_IMAGE_TYPE } from '../../../const/PostContentTypeConst';
-import {
-  activeProfileAccountPopupInfoAtom,
-  activeScrapViewPopupInfoAtom,
-} from '../../../states/ProfileAtom';
+import { activeScrapViewPopupInfoAtom } from '../../../states/ProfileAtom';
 
-import PostCommentThreadPopup from 'components/popups/postcommentthreadpopup/PostCommentThreadPopup';
-import ProfileOtherAccountPopup from 'components/popups/profileaccount/ProfileOtherAccountPopup';
 import {
   MEDIA_MOBILE_MAX_WIDTH,
   MEDIA_MOBILE_MAX_WIDTH_NUM,
 } from 'const/SystemAttrConst';
-import { PostCommentReplyMsgInfo } from 'global/interface/post';
 import ProfileAccountPostListInfiniteScroll from 'hook/ProfileAccountPostListInfiniteScroll';
-import {
-  ProfilePostListQueryInterface,
-  QueryStateProfileAccountPostList,
-} from 'hook/queryhook/QueryStateProfileAccountPostList';
+import { QueryStateProfileAccountPostList } from 'hook/queryhook/QueryStateProfileAccountPostList';
 import { QueryStateProfileInfo } from 'hook/queryhook/QueryStateProfileInfo';
-import { isPostDetailInfoPopupAtom, postRspAtom } from 'states/PostAtom';
-import { activeCommentByPostCommentThreadAtom } from 'states/PostThreadAtom';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/swiper-bundle.css';
 
-import { queryClient } from 'App';
 import { ReactComponent as EmptyPostIcon } from 'assets/images/icon/svg/empty/EmptyPostIcon.svg';
-import PullToRefreshComponent from 'components/PullToRefreshComponent';
-import { INIT_CURSOR_ID } from 'const/PageConfigConst';
 import { PROFILE_POST_LIST_PATH } from 'const/PathConst';
-import { QUERY_STATE_PROFILE_ACCOUNT_POST_LIST } from 'const/QueryClientConst';
 import {
+  FALSE_PARAM,
   POST_DETAIL_POPUP_PARAM,
   POST_DETAIL_POST_ID_PARAM,
   POST_DETAIL_PROFILE_PARAM,
+  PROFILE_POPUP_DISPLAY_PARAM,
   TRUE_PARAM,
 } from 'const/QueryParamConst';
-import { getProfilePostListByCursor } from 'services/profile/getProfilePostList';
 import ProfileAccountInfo from '../profileaccountbody/ProfileAccountInfo';
 
 interface ProfileAccountBodyProps {
   username: string;
+  ProfileAccountBodyContainerStyle?: React.CSSProperties;
 }
 
-const ProfileAccountBody: React.FC<ProfileAccountBodyProps> = ({
+const ProfileAccountBodyLayout: React.FC<ProfileAccountBodyProps> = ({
   username,
+  ProfileAccountBodyContainerStyle,
 }) => {
   const navigate = useNavigate();
   // const reactionPostId = useRecoilValue(reactionPostIdAtom);
-  const activeProfileAccountPopupInfo = useRecoilValue(
-    activeProfileAccountPopupInfoAtom,
+  // const activeProfileAccountPopupInfo = useRecoilValue(
+  //   activeProfileAccountPopupInfoAtom,
+  // );
+
+  const { data: profileInfo, isFetched: isFetchedByProfileInfo } =
+    QueryStateProfileInfo(username);
+
+  const { data: snsProfilePostList } = QueryStateProfileAccountPostList(
+    username || '',
+    !!profileInfo &&
+      profileInfo.isBlocked &&
+      !profileInfo.isPrivate &&
+      !profileInfo.isBlockerUser,
   );
-
-  const {
-    data: profileInfo,
-    isFetched: isFetchedByProfileInfo,
-    refetch: refetchByProfileInfo,
-  } = QueryStateProfileInfo(username);
-
-  const { data: snsProfilePostList, refetch: referchByProfileAccountPostList } =
-    QueryStateProfileAccountPostList(
-      username || '',
-      !!profileInfo &&
-        profileInfo.isBlocked &&
-        !profileInfo.isPrivate &&
-        !profileInfo.isBlockerUser,
-    );
 
   const resetActiveScrapViewPopupInfo = useResetRecoilState(
     activeScrapViewPopupInfoAtom,
   );
 
-  const isPostDetailInfoPopup = useRecoilValue(isPostDetailInfoPopupAtom);
+  // const isPostDetailInfoPopup = useRecoilValue(isPostDetailInfoPopupAtom);
 
   // Ref 관련 변수
-  const likeIconRef = useRef<{ [key: string]: SVGSVGElement | null }>({});
-  const likeCountRef = useRef<{ [key: string]: HTMLDivElement | null }>({});
-  const commentReplyCountRef = useRef<{ [key: string]: HTMLDivElement | null }>(
-    {},
-  );
-  const postCommentTextareaRef = useRef<HTMLTextAreaElement | null>(null);
+  // const likeIconRef = useRef<{ [key: string]: SVGSVGElement | null }>({});
+  // const likeCountRef = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  // const commentReplyCountRef = useRef<{ [key: string]: HTMLDivElement | null }>(
+  //   {},
+  // );
+  // const postCommentTextareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   // 상태 관리 관련 변수
-  const [replyMsg, setReplyMsg] = useState<PostCommentReplyMsgInfo | null>(
-    null,
-  );
-  const activeCommentByPostCommentThread = useRecoilValue(
-    activeCommentByPostCommentThreadAtom,
-  );
+  // const [replyMsg, setReplyMsg] = useState<PostCommentReplyMsgInfo | null>(
+  //   null,
+  // );
+  // const activeCommentByPostCommentThread = useRecoilValue(
+  //   activeCommentByPostCommentThreadAtom,
+  // );
 
-  const resetActiveCommentByPostCommentThread = useResetRecoilState(
-    activeCommentByPostCommentThreadAtom,
-  );
+  // const resetActiveCommentByPostCommentThread = useResetRecoilState(
+  //   activeCommentByPostCommentThreadAtom,
+  // );
 
   useEffect(() => {
     return () => {
       // resetIsPostReactionPopup();
       resetActiveScrapViewPopupInfo();
-      resetActiveCommentByPostCommentThread();
-      setReplyMsg(null);
+      // resetActiveCommentByPostCommentThread();
+      // setReplyMsg(null);
     };
   }, []);
 
-  const [snsPost, setSnsPost] = useRecoilState(postRspAtom);
+  // const [snsPost, setSnsPost] = useRecoilState(postRspAtom);
 
   // useEffect(() => {
   //   snsProfilePostList?.pages
@@ -131,117 +115,99 @@ const ProfileAccountBody: React.FC<ProfileAccountBodyProps> = ({
   return (
     <>
       {isFetchedByProfileInfo && (
-        <ProfileAccountBodyContainer>
-          <PullToRefreshComponent
-            onRefresh={async () => {
-              refetchByProfileInfo();
-              resetActiveScrapViewPopupInfo();
-              resetActiveCommentByPostCommentThread();
-              setReplyMsg(null);
+        <ProfileAccountBodyContainer style={ProfileAccountBodyContainerStyle}>
+          <ProfileAccountBodyWrap>
+            <ProfileAccountInfo username={username} />
+            {profileInfo && profileInfo.isBlocked ? (
+              <ProfileBlockMessageTitle>
+                @{profileInfo.username} 님이 차단되었습니다.
+              </ProfileBlockMessageTitle>
+            ) : (
+              profileInfo &&
+              profileInfo.isPrivate && (
+                <ProfileBlockMessageContainer
+                  $height={window.innerHeight - 300}
+                >
+                  <ProfileBlockMessageTitle>
+                    비공개 계정입니다.
+                  </ProfileBlockMessageTitle>
+                </ProfileBlockMessageContainer>
+              )
+            )}
 
-              const fetchData = await getProfilePostListByCursor(
-                username,
-                INIT_CURSOR_ID,
-              );
-
-              const data: ProfilePostListQueryInterface = {
-                pageParams: [INIT_CURSOR_ID],
-                pages: [{ ...fetchData }],
-              };
-
-              queryClient.setQueryData(
-                [QUERY_STATE_PROFILE_ACCOUNT_POST_LIST, username],
-                data,
-              );
-            }}
-          >
-            <ProfileAccountBodyWrap>
-              <ProfileAccountInfo username={username} />
-              {profileInfo && profileInfo.isBlocked ? (
-                <ProfileBlockMessageTitle>
-                  @{profileInfo.username} 님이 차단되었습니다.
-                </ProfileBlockMessageTitle>
-              ) : (
-                profileInfo &&
-                profileInfo.isPrivate && (
-                  <ProfileBlockMessageContainer
-                    $height={window.innerHeight - 300}
-                  >
-                    <ProfileBlockMessageTitle>
-                      비공개 계정입니다.
-                    </ProfileBlockMessageTitle>
-                  </ProfileBlockMessageContainer>
-                )
-              )}
-
-              {profileInfo &&
-                !profileInfo.isBlocked &&
-                !profileInfo.isPrivate &&
-                !profileInfo.isBlockerUser && (
-                  <ProfilePostListContainer>
-                    {containerRefs &&
-                      profilePostList?.map((v, k) => {
-                        return (
-                          <ProfilePostContent key={k}>
-                            <ProfilePostContainer
-                              onClick={() => {
-                                if (
-                                  window.innerWidth > MEDIA_MOBILE_MAX_WIDTH_NUM
-                                ) {
-                                  navigate(
-                                    generatePath(PROFILE_POST_LIST_PATH, {
-                                      user_id: v.username,
-                                      post_id: v.postId,
-                                    }),
-                                    {
-                                      state: { isDetailPopup: true },
-                                    },
-                                  );
-                                } else {
-                                  // 모바일 크기
-                                  // url만 바뀌도록 변경
-
-                                  // 새로운 쿼리 파라미터 추가 또는 기존 파라미터 값 수정
-                                  const searchParams = new URLSearchParams(
-                                    location.search,
-                                  );
-
-                                  searchParams.set(
-                                    POST_DETAIL_POPUP_PARAM,
-                                    TRUE_PARAM,
-                                  );
-                                  searchParams.set(
-                                    POST_DETAIL_POST_ID_PARAM,
-                                    v.postId,
-                                  );
-                                  searchParams.set(
-                                    POST_DETAIL_PROFILE_PARAM,
-                                    v.username,
-                                  );
-
-                                  // 새로운 쿼리 파라미터가 포함된 URL 생성
-                                  const newSearch = searchParams.toString();
-                                  const newPath = `${location.pathname}?${newSearch}`;
-
-                                  navigate(newPath, {
+            {profileInfo &&
+              !profileInfo.isBlocked &&
+              !profileInfo.isPrivate &&
+              !profileInfo.isBlockerUser && (
+                <ProfilePostListContainer>
+                  {containerRefs &&
+                    profilePostList?.map((v, k) => {
+                      return (
+                        <ProfilePostContent key={k}>
+                          <ProfilePostContainer
+                            onClick={() => {
+                              if (
+                                window.innerWidth > MEDIA_MOBILE_MAX_WIDTH_NUM
+                              ) {
+                                navigate(
+                                  generatePath(PROFILE_POST_LIST_PATH, {
+                                    user_id: v.username,
+                                    post_id: v.postId,
+                                  }),
+                                  {
                                     state: { isDetailPopup: true },
-                                  });
-                                }
-                              }}
-                            >
-                              <ImageWrapper>
-                                {v.postContents[0].postContentType ===
-                                POST_IMAGE_TYPE ? (
-                                  <StyledImage
-                                    src={v.postContents[0].content}
-                                  />
-                                ) : (
-                                  <StyledImage
-                                    src={v.postContents[0].previewImg}
-                                  />
-                                )}
-                              </ImageWrapper>
-                              {/* <>
+                                  },
+                                );
+                              } else {
+                                // 모바일 크기
+                                // url만 바뀌도록 변경
+
+                                // 새로운 쿼리 파라미터 추가 또는 기존 파라미터 값 수정
+                                // const searchParams = new URLSearchParams(
+                                //   location.search,
+                                // );
+                                const searchParams = new URLSearchParams(
+                                  location.search,
+                                );
+
+                                searchParams.set(
+                                  POST_DETAIL_POPUP_PARAM,
+                                  TRUE_PARAM,
+                                );
+                                searchParams.set(
+                                  POST_DETAIL_POST_ID_PARAM,
+                                  v.postId,
+                                );
+                                searchParams.set(
+                                  POST_DETAIL_PROFILE_PARAM,
+                                  v.username,
+                                );
+                                searchParams.set(
+                                  PROFILE_POPUP_DISPLAY_PARAM,
+                                  FALSE_PARAM,
+                                );
+
+                                // 새로운 쿼리 파라미터가 포함된 URL 생성
+                                const newSearch = searchParams.toString();
+                                const newPath = `${location.pathname}?${newSearch}`;
+
+                                navigate(newPath, {
+                                  state: { isDetailPopup: true },
+                                });
+                              }
+                            }}
+                          >
+                            <ImageWrapper>
+                              {v.postContents[0].postContentType ===
+                              POST_IMAGE_TYPE ? (
+                                <StyledImage src={v.postContents[0].content} />
+                              ) : (
+                                <StyledImage
+                                  src={v.postContents[0].previewImg}
+                                />
+                              )}
+                            </ImageWrapper>
+                            {/* <>
                                 {v.postContents.length > 1 ? (
                                   <ScrollXMoveButtonContainer
                                     scrollContainerRef={containerRefs[k]}
@@ -314,7 +280,7 @@ const ProfileAccountBody: React.FC<ProfileAccountBodyProps> = ({
                                 )}
                               </> */}
 
-                              {/* <PostReactionListElement
+                            {/* <PostReactionListElement
                                 username={v.username}
                                 postId={v.postId}
                                 snsPost={v}
@@ -334,43 +300,42 @@ const ProfileAccountBody: React.FC<ProfileAccountBodyProps> = ({
                                 postedAt={v.postedAt}
                                 tags={v.tags}
                               /> */}
-                            </ProfilePostContainer>
-                            {/* <BoundaryStickBar /> */}
-                          </ProfilePostContent>
-                        );
-                      })}
+                          </ProfilePostContainer>
+                          {/* <BoundaryStickBar /> */}
+                        </ProfilePostContent>
+                      );
+                    })}
 
-                    {profilePostList && profilePostList.length <= 0 && (
-                      <ProfileNotPostWrap>
-                        <ProfileNotPostImg>
-                          <EmptyPostIcon />
-                        </ProfileNotPostImg>
-                        <ProfileNotPostTitle>
-                          등록한 게시물 없음
-                        </ProfileNotPostTitle>
-                      </ProfileNotPostWrap>
-                    )}
-                  </ProfilePostListContainer>
-                )}
-              {username && (
-                <ProfileAccountPostListInfiniteScroll username={username} />
+                  {profilePostList && profilePostList.length <= 0 && (
+                    <ProfileNotPostWrap>
+                      <ProfileNotPostImg>
+                        <EmptyPostIcon />
+                      </ProfileNotPostImg>
+                      <ProfileNotPostTitle>
+                        등록한 게시물 없음
+                      </ProfileNotPostTitle>
+                    </ProfileNotPostWrap>
+                  )}
+                </ProfilePostListContainer>
               )}
-            </ProfileAccountBodyWrap>
-          </PullToRefreshComponent>
+            {username && (
+              <ProfileAccountPostListInfiniteScroll username={username} />
+            )}
+          </ProfileAccountBodyWrap>
         </ProfileAccountBodyContainer>
       )}
 
       {/* 팝업  */}
-      {!isPostDetailInfoPopup && (
+      {/* {!isPostDetailInfoPopup && (
         <>
-          {/* {isPopupActive && (
+          {isPopupActive && (
             <PostReactionPopup
               postId={reactionPostId}
               username={snsPost.username}
               replyMsg={replyMsg}
               setReplyMsg={setReplyMsg}
             />
-          )} */}
+          )}
 
           {activeCommentByPostCommentThread.isActive && (
             <PostCommentThreadPopup
@@ -383,12 +348,8 @@ const ProfileAccountBody: React.FC<ProfileAccountBodyProps> = ({
               commentCountByCommentRef={commentReplyCountRef}
             />
           )}
-
-          {activeProfileAccountPopupInfo.isActive && (
-            <ProfileOtherAccountPopup />
-          )}
         </>
-      )}
+      )} */}
     </>
   );
 };
@@ -396,7 +357,19 @@ const ProfileAccountBody: React.FC<ProfileAccountBodyProps> = ({
 const ProfileAccountBodyContainer = styled.div``;
 
 const ProfileAccountBodyWrap = styled.div`
-  min-height: calc(100dvh - env(safe-area-inset-bottom));
+  min-height: calc(
+    100dvh -
+      ${(parseFloat(
+        getComputedStyle(document.documentElement).getPropertyValue(
+          '--safe-area-inset-bottom',
+        ),
+      ) || 0) +
+      (parseFloat(
+        getComputedStyle(document.documentElement).getPropertyValue(
+          '--safe-area-inset-top',
+        ),
+      ) || 0)}px
+  );
   margin-bottom: env(safe-area-inset-bottom);
 `;
 
@@ -554,4 +527,4 @@ const ProfileNotPostTitle = styled.div`
   white-space: nowrap;
 `;
 
-export default ProfileAccountBody;
+export default ProfileAccountBodyLayout;

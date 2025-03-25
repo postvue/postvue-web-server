@@ -7,17 +7,22 @@ import {
 import {
   AuthTokenRsp,
   BRIDGE_CALENDAR_EVENT_TYPE,
+  BRIDGE_EVENT_GEOLOCATION_TYPE,
   BRIDGE_EVENT_IMAGE_NATIVE_UPLOAD_TYPE,
+  BRIDGE_EVENT_LOGIN_ROUTE_TYPE,
   BRIDGE_EVENT_POPUP_TYPE,
   BRIDGE_EVENT_REACTION_TYPE,
   BRIDGE_EVENT_ROUTE_TYPE,
   BRIDGE_EVENT_SHARE_TYPE,
+  BRIDGE_EVENT_SIGNUP_GRANT_REQUEST_TYPE,
   BRIDGE_EVENT_UPLOAD_VIDEO_TO_SERVER_TYPE,
   BRIDGE_EVENT_VIDEO_GALLERY_NATIVE_UPLOAD_TYPE,
   BRIDGE_EVENT_VIDEO_SHOOT_NATIVE_UPLOAD_TYPE,
   BRIDGE_EXPLORE_MAP_POPUP_EVENT_TYPE,
   BRIDGE_INIT_SETTING_EVENT_TYPE,
   BridgeMsgInterface,
+  EVENT_DATA_GEOLOCATION_CURRENT_POS_TYPE,
+  EVENT_DATA_GOOGLE_LOGIN_TYPE,
   EVENT_DATA_REACTION_ACTIVE_POPUP_TYPE,
   EVENT_DATA_REACTION_DEACTIVE_POPUP_TYPE,
   EVENT_DATA_REACTION_VIBRATION_HEAVY_TYPE,
@@ -232,6 +237,43 @@ export const sendBasicShareEvent = (shareInfo: ShareInfo): void => {
         data: JSON.stringify(shareInfo),
         eventType: EVENT_DATA_SHARE_BASIC_TYPE,
       } as EventDateInterface,
+    } as BridgeMsgInterface),
+  );
+};
+
+// 앱 회원가입 시, 권한 요청
+export const sendSignupPermissionRequestEvnet = (): void => {
+  if (!window.ReactNativeWebView) return;
+  window.ReactNativeWebView.postMessage(
+    JSON.stringify({
+      type: BRIDGE_EVENT_SIGNUP_GRANT_REQUEST_TYPE,
+    } as BridgeMsgInterface),
+  );
+};
+
+// 로그인
+
+export const sendGoogleLoginRequestEvnet = (): void => {
+  if (!window.ReactNativeWebView) return;
+  window.ReactNativeWebView.postMessage(
+    JSON.stringify({
+      type: BRIDGE_EVENT_LOGIN_ROUTE_TYPE,
+      data: {
+        eventType: EVENT_DATA_GOOGLE_LOGIN_TYPE,
+      } as EventDateInterface,
+    } as BridgeMsgInterface),
+  );
+};
+
+// 위치
+export const sendGeolocationCurrentPositionEvnet = (): void => {
+  if (!window.ReactNativeWebView) return;
+  window.ReactNativeWebView.postMessage(
+    JSON.stringify({
+      type: BRIDGE_EVENT_GEOLOCATION_TYPE,
+      data: {
+        eventType: EVENT_DATA_GEOLOCATION_CURRENT_POS_TYPE,
+      },
     } as BridgeMsgInterface),
   );
 };

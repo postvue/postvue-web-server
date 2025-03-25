@@ -3,7 +3,6 @@ import { useDrag } from '@use-gesture/react';
 import GeoCurrentPositionButton from 'components/mapexplore/GeoCurrentPositionButton';
 import GeoMyLogQueryButton from 'components/mapexplore/GeoMyLogQueryButton';
 import GeoPositionRefreshButton from 'components/mapexplore/GeoPositionRefreshButton';
-import MapExploreBody from 'components/mapexplore/MapExploreBody';
 import {
   MAP_EXPLORE_POST_POPUP_BOTTOM_STATE_TYPE,
   MAP_EXPLORE_POST_POPUP_MIDDLE_STATE_TYPE,
@@ -19,34 +18,36 @@ import {
   mapMoveLocationAtom,
 } from 'states/MapExploreAtom';
 import styled from 'styled-components';
+import { lock, unlock } from 'tua-body-scroll-lock';
 
 interface MapExplorePostPopupProps {
+  children: React.ReactNode;
   touchHeaderHeightNum?: number;
   bottomSheetCloseOffsetThreshold?: number;
   bottomSheetCloseAccelerThreshold?: number;
   popupTopHeight?: number;
   popupMiddleRatio?: number;
   popupBottomGap?: number;
-  funcPrevButton?: () => void;
-  linkPopupInfo?: {
-    isLinkPopup: boolean;
-    isReplaced: boolean;
-  };
   isCurrentPosButton?: boolean;
   isGeoPositionRefreshButton?: boolean;
+  isLock?: boolean;
+  isInitPos?: number;
+  middelOverflow?: string;
 }
 
 const MapExplorePostPopup: React.FC<MapExplorePostPopupProps> = ({
+  children,
   touchHeaderHeightNum = 50,
   bottomSheetCloseOffsetThreshold = 30,
   bottomSheetCloseAccelerThreshold = 1.2,
   popupTopHeight = 60,
   popupMiddleRatio = 1 / 2,
   popupBottomGap = 110,
-  funcPrevButton,
-  linkPopupInfo,
   isCurrentPosButton = true,
   isGeoPositionRefreshButton = true,
+  isLock = false,
+  isInitPos = 1,
+  middelOverflow = 'hidden',
 }) => {
   popupTopHeight =
     popupTopHeight +
@@ -122,7 +123,7 @@ const MapExplorePostPopup: React.FC<MapExplorePostPopupProps> = ({
       immediate: false,
       config: canceled ? config.default : config.default,
     });
-    ScrollRef.current.style.overflow = 'hidden';
+    ScrollRef.current.style.overflow = middelOverflow;
     setMapExplorePostPopupState(MAP_EXPLORE_POST_POPUP_MIDDLE_STATE_TYPE);
     setPopupPosition(popupMiddleHeight);
   };
@@ -289,8 +290,26 @@ const MapExplorePostPopup: React.FC<MapExplorePostPopupProps> = ({
 
   useEffect(() => {
     setTimeout(() => {
-      goToMiddle({ canceled: false });
+      if (isInitPos === 0) {
+        goToTop({ canceled: false });
+      } else if (isInitPos === 1) {
+        goToMiddle({ canceled: false });
+      } else {
+        goToBottom({ canceled: false });
+      }
     }, 700);
+
+    if (isLock && ScrollRef.current && BottomSheetContainerRef.current) {
+      lock([ScrollRef.current, BottomSheetContainerRef.current]);
+    }
+
+    return () => {
+      if (isLock) {
+        unlock([], {
+          useGlobalLockState: true,
+        });
+      }
+    };
   }, []);
 
   const mapLocation = useRecoilValue(mapLoactionAtom);
@@ -332,12 +351,6 @@ const MapExplorePostPopup: React.FC<MapExplorePostPopupProps> = ({
 
   return (
     <BottomSheetLayoutConatiner as={animated.div}>
-      {/* <OverlayBackground
-        as={animated.div}
-        onClick={() => close()}
-        style={bgStyle}
-      /> */}
-
       <BottomSheetContainer
         ref={BottomSheetContainerRef}
         as={animated.div}
@@ -357,10 +370,6 @@ const MapExplorePostPopup: React.FC<MapExplorePostPopupProps> = ({
               <PopupScrollStickBar />
             </PopupScrollBarArea>
           </PopupScrollBar>
-          {/* <div style={{ background: 'lavender', height: '77px' }}>
-            <div style={{ color: '#ff10e6' }}>{test}</div>
-            <div style={{ color: '#ff0404' }}>{testEnd}</div>
-          </div> */}
         </PopupScrollContainer>
 
         {isCurrentPosButton && (
@@ -491,12 +500,7 @@ const MapExplorePostPopup: React.FC<MapExplorePostPopupProps> = ({
             setAccelerationHistory([]);
           }}
         >
-          <MapExploreBody
-            latitude={mapLocation.latitude}
-            longitude={mapLocation.longitude}
-            funcPrevButton={funcPrevButton}
-            linkPopupInfo={linkPopupInfo}
-          />
+          {children}
         </BottomSheetWrap>
       </BottomSheetContainer>
     </BottomSheetLayoutConatiner>

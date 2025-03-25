@@ -261,6 +261,8 @@ const PostVideoContentELement: React.FC<PostVideoContentELementProps> = ({
     };
   }, [isDragging]);
 
+  const updateMasonryRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   return (
     <PostVideoContentElement
       style={PostVideoContentELementStyle}

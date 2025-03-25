@@ -1,5 +1,8 @@
 import { ReactComponent as GeoPositionRefreshIcon } from 'assets/images/icon/svg/explore/GeoPositionRefreshIcon.svg';
-import { MAP_CONTENT_LOCATION_TYPE } from 'const/MapExploreConst';
+import {
+  MAP_CONTENT_LOCATION_TYPE,
+  MAX_NEAR_POST_REQUEST_NUM,
+} from 'const/MapExploreConst';
 import { convertDateToCurrentCountryISO } from 'global/util/DateTimeUtil';
 import { QueryStateMapExploreList } from 'hook/queryhook/QueryStateMapExploreList';
 import React, { useState } from 'react';
@@ -41,7 +44,7 @@ const GeoPositionRefreshButton: React.FC<GeoPositionRefreshButtonProps> = ({
   const setCurrentSearchQuery = useSetRecoilState(currentSearchQueryAtom);
 
   const mapDatePickerPopupInfo = useRecoilValue(mapDatePickerPopupInfoAtom);
-  const { fetchNextPage, hasNextPage, isFetchingNextPage } =
+  const { fetchNextPage, hasNextPage, isFetchingNextPage, data } =
     QueryStateMapExploreList(
       mapLoaction.latitude,
       mapLoaction.longitude,
@@ -91,7 +94,10 @@ const GeoPositionRefreshButton: React.FC<GeoPositionRefreshButtonProps> = ({
 
   return (
     <>
-      {(mapMoveLocation.isMoved || (hasNextPage && !isFetchingNextPage)) && (
+      {(mapMoveLocation.isMoved ||
+        (hasNextPage &&
+          data &&
+          data.pages.length < MAX_NEAR_POST_REQUEST_NUM)) && (
         <GeoPositionRefreshButtonContainer
           onClick={onClickGeoPositionRefreshButton}
           style={GeoPositionRefreshButtonStyle}

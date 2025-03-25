@@ -100,6 +100,11 @@ const ProfileClipBodyContainer = styled.div`
         theme.systemSize.bottomNavBar.heightNum +
         parseFloat(
           getComputedStyle(document.documentElement).getPropertyValue(
+            '--safe-area-inset-bottom',
+          ),
+        ) +
+        parseFloat(
+          getComputedStyle(document.documentElement).getPropertyValue(
             '--safe-area-inset-top',
           ),
         ) || 0}px
@@ -112,7 +117,7 @@ const ProifileNotClipTitleWrap = styled.div`
 
 const ProifileNotClipWrap = styled.div`
   position: absolute;
-  top: 50%;
+  top: calc(50% - 50px);
   left: 50%;
   transform: translate(-50%, -50%);
   white-space: nowrap;

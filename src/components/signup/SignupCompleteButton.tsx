@@ -1,4 +1,5 @@
 import BottomNextButton from 'components/common/buttton/BottomNextButton';
+import { APP_SERVICE_NAME } from 'const/AppInfoConst';
 import { MEDIA_MIDDLE_WIDTH_NUM } from 'const/SystemAttrConst';
 import useWindowSize from 'hook/customhook/useWindowSize';
 import React from 'react';
@@ -16,8 +17,8 @@ const SignupCompleteButton: React.FC<SignupCompleteButtonProps> = ({
   const { windowWidth } = useWindowSize();
   return (
     <BottomNextButton
-      title={'필로그 시작하러가기'}
-      notActiveTitle={'필로그 시작하러가기'}
+      title={`${APP_SERVICE_NAME} 시작하기`}
+      notActiveTitle={`${APP_SERVICE_NAME} 시작하기`}
       isActive={isActive}
       hasNotActiveElement={true}
       isTransparent={true}
@@ -25,6 +26,7 @@ const SignupCompleteButton: React.FC<SignupCompleteButtonProps> = ({
       BottomNextButtonWrapContainerStyle={{
         position: windowWidth <= MEDIA_MIDDLE_WIDTH_NUM ? 'static' : 'absolute',
         maxWidth: theme.systemSize.appDisplaySize.maxWidth,
+        marginBottom: 'env(safe-area-inset-bottom)',
       }}
     />
   );

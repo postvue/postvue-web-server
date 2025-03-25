@@ -1,5 +1,5 @@
-import AppPopupWrapper from 'components/AppPopupWrapper';
 import PageRenderingLoading from 'components/common/container/PageRenderingLoading';
+import AppPopupWrapper from 'components/wrapper/AppPopupWrapper';
 import { TRUE_PARAM } from 'const/QueryParamConst';
 import ProfileAccountHelpInfoPage from 'pages/ProfileAccountSettingHelpInfoPage';
 import TestPage from 'pages/TestPage';

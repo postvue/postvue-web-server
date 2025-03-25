@@ -67,16 +67,9 @@ const PostMapExploreButton: React.FC<PostMapExploreButtonProps> = ({
                 if (windowWidth >= MEDIA_MOBILE_MAX_WIDTH_NUM) {
                   navigate(-1);
                   setIsClickAnnotation(true);
-
-                  // setTimeout(() => {
-                  //   navigate(location.pathname + searchParam);
-                  // }, 500);
                 } else {
                   setIsExternalClosePostDetailPopup(true);
                   setIsClickAnnotation(true);
-                  // setTimeout(() => {
-                  //   navigate(location.pathname + searchParam);
-                  // }, 500);
                 }
               }
             } else {

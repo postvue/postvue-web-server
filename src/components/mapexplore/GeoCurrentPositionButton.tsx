@@ -1,6 +1,6 @@
 import { ReactComponent as MyCurrentGeoIcon } from 'assets/images/icon/svg/explore/MyCurrentGeoIcon.svg';
 import { MAP_CONTENT_LOCATION_TYPE } from 'const/MapExploreConst';
-import { getCurrentPosition } from 'global/util/PositionUtil';
+import { getUnifiedPosition } from 'global/util/PositionUtil';
 import React from 'react';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import { mapContentTypeAtom, mapLoactionAtom } from 'states/MapExploreAtom';
@@ -28,7 +28,7 @@ const GeoCurrentPositionButton: React.FC<GeoCurrentPositionButtonProps> = ({
     setIsLoadingPopup(true);
 
     // 위치 가져와서, 갱신.
-    getCurrentPosition({
+    getUnifiedPosition({
       actionFunc: (position) => {
         setMapLoaction({
           latitude: position.latitude,

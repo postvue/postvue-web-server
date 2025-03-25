@@ -1,6 +1,6 @@
 import { ReactComponent as LightScrollXmoveButtonIcon } from 'assets/images/icon/svg/scrollx/LightScrollXMoveButtonIcon.svg';
 import { ReactComponent as RightScrollXmoveButtonIcon } from 'assets/images/icon/svg/scrollx/RightScrollXMoveButtonIcon.svg';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { MEDIA_MOBILE_MAX_WIDTH } from '../../../const/SystemAttrConst';
 
@@ -62,11 +62,14 @@ const ScrollXMoveButtonContainer: React.FC<ScrollXMoveButtonProps> = ({
     }
   };
 
+  const updateVisibleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
   useEffect(() => {
     const container = scrollContainerRef.current;
 
     if (container) {
-      setTimeout(() => {
+      updateVisibleTimerRef.current = setTimeout(() => {
         updateButtonVisibility();
       }, 0);
 
@@ -84,6 +87,9 @@ const ScrollXMoveButtonContainer: React.FC<ScrollXMoveButtonProps> = ({
             'scroll',
             updateButtonVisibility,
           );
+        }
+        if (updateVisibleTimerRef.current) {
+          clearTimeout(updateVisibleTimerRef.current);
         }
       };
     }

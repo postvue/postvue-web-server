@@ -1,6 +1,7 @@
 import { queryClient } from 'App';
 import { ReactComponent as FeelogLogo } from 'assets/images/icon/svg/logo/FeelogLargeLogo.svg';
 import BottomNextButton from 'components/common/buttton/BottomNextButton';
+import LoadingComponent from 'components/common/container/LoadingComponent';
 import PasswordVisibleInputElement from 'components/profile/profileaccountsetting/profileaccountsettingmanage/password/PasswordVisibleInputElement';
 import { INIT_EMPTY_STRING_VALUE } from 'const/AttributeConst';
 import { HOME_PATH } from 'const/PathConst';
@@ -52,7 +53,9 @@ const LoginEmailPopupBody: React.FC<LoginEmailPopupBodyProps> = ({
 
   const [isVerifedEmail, setIsVerifedEmail] = useState<boolean>(true);
 
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const onClicLoginEmail = () => {
+    setIsLoading(true);
     postEmailLogin(email, password)
       .then((value) => {
         const callbackUrl = sessionStorage.getItem(CALLBACK_URL);
@@ -71,6 +74,9 @@ const LoginEmailPopupBody: React.FC<LoginEmailPopupBodyProps> = ({
       })
       .catch(() => {
         setIsVerifedEmail(false);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   };
 
@@ -132,6 +138,7 @@ const LoginEmailPopupBody: React.FC<LoginEmailPopupBodyProps> = ({
           BottomNextButtonWrapContainerStyle={{ position: 'static' }}
         />
       </LoginWrap>
+      {isLoading && <LoadingComponent />}
     </>
   );
 };

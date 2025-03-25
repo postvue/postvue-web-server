@@ -11,7 +11,7 @@ import {
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
 import useWindowSize from 'hook/customhook/useWindowSize';
 import { debounce } from 'lodash';
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useSetRecoilState } from 'recoil';
 import {
   currentAnnotationAtom,
@@ -69,6 +69,9 @@ const MapkitClientManager: React.FC<MapkitClientManagerProps> = ({
   const { windowWidth } = useWindowSize();
 
   const setIsInitLister = useSetRecoilState(isInitListerAtom);
+
+  const initTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isListenerTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     if (init) return;
     map.showsCompass = mapkit.FeatureVisibility.Hidden;
@@ -100,12 +103,21 @@ const MapkitClientManager: React.FC<MapkitClientManagerProps> = ({
     //   initRef.current = true;
     // }, 100);
 
-    setTimeout(() => {
+    initTimerRef.current = setTimeout(() => {
       init = true;
     }, 300);
-    setTimeout(() => {
+    isListenerTimerRef.current = setTimeout(() => {
       setIsInitLister(true);
     }, 1000);
+
+    return () => {
+      if (initTimerRef.current) {
+        clearTimeout(initTimerRef.current);
+      }
+      if (isListenerTimerRef.current) {
+        clearTimeout(isListenerTimerRef.current);
+      }
+    };
   }, [map, mapkit]);
 
   const deleteAndReturnCurrentAnnotation = async (
@@ -184,6 +196,10 @@ const MapkitClientManager: React.FC<MapkitClientManagerProps> = ({
     setCurrentAnnotationTemp(currentAnnotation);
   };
 
+  const regionAnimeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
+  const moveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const mapMoveToPosition = async (
     mapLocation: GeoPositionInterface,
     coordinate: mapkit.Coordinate,
@@ -221,7 +237,11 @@ const MapkitClientManager: React.FC<MapkitClientManagerProps> = ({
           );
 
           const region = new mapkit.CoordinateRegion(posCoordinate, span);
-          setTimeout(() => {
+
+          if (regionAnimeTimerRef.current) {
+            clearTimeout(regionAnimeTimerRef.current);
+          }
+          regionAnimeTimerRef.current = setTimeout(() => {
             map.setRegionAnimated(region, isInit && true);
           }, 500);
         }
@@ -229,7 +249,10 @@ const MapkitClientManager: React.FC<MapkitClientManagerProps> = ({
       if (init) {
         moveFunc();
       } else {
-        setTimeout(() => {
+        if (moveTimerRef.current) {
+          clearTimeout(moveTimerRef.current);
+        }
+        moveTimerRef.current = setTimeout(() => {
           moveFunc();
         }, 100);
       }
@@ -263,6 +286,10 @@ const MapkitClientManager: React.FC<MapkitClientManagerProps> = ({
   //   debounceOnMove(coordinate);
   // }, [mapLocation]);
 
+  const regionChangeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
+
   useEffect(() => {
     const funcSingleTap = async (event: any) => {
       const point = event.pointOnPage;
@@ -276,7 +303,10 @@ const MapkitClientManager: React.FC<MapkitClientManagerProps> = ({
     };
 
     const eventByRegionChangeEnd = () => {
-      setTimeout(() => {
+      if (regionChangeTimerRef.current) {
+        clearTimeout(regionChangeTimerRef.current);
+      }
+      regionChangeTimerRef.current = setTimeout(() => {
         const mapLocationString = localStorage.getItem(
           MAPKIT_CLIENT_MANAGER_KEY,
         );
@@ -325,6 +355,9 @@ const MapkitClientManager: React.FC<MapkitClientManagerProps> = ({
     }
 
     return () => {
+      if (regionChangeTimerRef.current) {
+        clearTimeout(regionChangeTimerRef.current);
+      }
       // currentAnnotation이 있다면 이벤트 리스너 제거 후, annotation 제거
       if (currentAnnotation && selectHandler) {
         currentAnnotation.removeEventListener('select', selectHandler);

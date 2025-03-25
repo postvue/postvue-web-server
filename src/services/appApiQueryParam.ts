@@ -14,3 +14,5 @@ export const SEARCH_TYPE_PARAM = 'searchType';
 export const HAS_FOLLOW_INFO_PARAM = 'hasFollowInfo';
 export const START_DATE_PARAM = 'startDate';
 export const END_DATE_PARAM = 'endDate';
+
+export const DISTANCE_PARAM = 'distance';

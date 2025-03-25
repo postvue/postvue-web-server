@@ -464,7 +464,7 @@ const OverlayBackground = styled.div`
   height: 100vh;
   position: fixed;
   overflow: hidden;
-  z-index: 900;
+  z-index: 990;
   top: 0;
   left: 0;
   width: 100%;

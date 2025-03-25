@@ -20,6 +20,7 @@ export const QueryStateMapExploreList = (
   startDate: string | null,
   endDate: string | null,
   isActive = true,
+  distance?: number,
 ): UseInfiniteQueryResult<
   MapExploreListInterface,
   AxiosError<unknown, any>
@@ -40,7 +41,9 @@ export const QueryStateMapExploreList = (
         longitude +
         (startDate || '') +
         '_' +
-        (endDate || ''),
+        (endDate || '') +
+        '_' +
+        (distance || ''),
     ], // query key
     queryFn: async ({ pageParam }) => {
       // pageParam이 string인지 확인
@@ -56,6 +59,7 @@ export const QueryStateMapExploreList = (
         nearFilter,
         startDate || '',
         endDate || '',
+        distance,
       );
     },
 

@@ -23,7 +23,6 @@ export const TAG_SEARCH_PHASE_TEXT = '태그 검색';
 export const SNS_SHARE_USER_SEARCH_PHASE_TEXT = '받는 사람';
 
 // 로그인 페이지
-export const LOGIN_TITLE_PHASE_TEXT = '세상 모든 감각의 기록, 필로그';
 export const LOGIN_FAIL_ERROR_ALARM_PHARE_TEXT =
   '일시적 오류로 로그인에 실패했습니다.';
 

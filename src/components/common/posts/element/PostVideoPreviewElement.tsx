@@ -110,6 +110,16 @@ const PostVideoPreviewElement: React.FC<PostVideoPreviewELementProps> = ({
 
   const setMasonryUpdateCount = useSetRecoilState(masonryUpdateCountAtom);
 
+  const updateMasonryRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (updateMasonryRef.current) {
+        clearTimeout(updateMasonryRef.current);
+      }
+    };
+  }, []);
+
   return (
     <>
       <PostVideoAddressWrap>
@@ -150,7 +160,10 @@ const PostVideoPreviewElement: React.FC<PostVideoPreviewELementProps> = ({
                   }}
                   onLoad={() => {
                     setOnload(true);
-                    setTimeout(() => {
+                    if (updateMasonryRef.current) {
+                      clearTimeout(updateMasonryRef.current);
+                    }
+                    updateMasonryRef.current = setTimeout(() => {
                       setMasonryUpdateCount((prev) => prev + 1);
                     }, 50);
                   }}

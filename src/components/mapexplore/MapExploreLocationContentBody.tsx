@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import NoResultComponent from 'components/common/container/NoResultComponent';
 import SnsPostMasonryLayout from 'components/layouts/SnsPostMasonryLayout';
@@ -19,6 +19,7 @@ interface MapExploreBodyProps {
   mapContentType: MapContentType;
   latitude: number;
   longitude: number;
+  distance?: number;
   MapSnsPostLayoutStyle?: React.CSSProperties;
   MapExploreInfiniteScrollStyle?: React.CSSProperties;
   masonryLayoutNum?: number;
@@ -33,6 +34,7 @@ const MapExploreLocationContentBody: React.FC<MapExploreBodyProps> = ({
   mapContentType,
   latitude,
   longitude,
+  distance,
   MapSnsPostLayoutStyle,
   MapExploreInfiniteScrollStyle,
   masonryLayoutNum,
@@ -58,14 +60,23 @@ const MapExploreLocationContentBody: React.FC<MapExploreBodyProps> = ({
           )
         : null,
       mapContentType === MAP_CONTENT_LOCATION_TYPE,
+      distance,
     );
 
   const [init, setInit] = useState<boolean>(false);
+
+  const initTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     setInit(false);
-    setTimeout(() => {
+    initTimerRef.current = setTimeout(() => {
       setInit(true);
     }, 500);
+
+    return () => {
+      if (initTimerRef.current) {
+        clearTimeout(initTimerRef.current);
+      }
+    };
   }, [latitude + '_' + longitude + '_' + mapExploreFilterTab]);
 
   return (
@@ -104,6 +115,7 @@ const MapExploreLocationContentBody: React.FC<MapExploreBodyProps> = ({
                       )
                     : null
                 }
+                distance={distance}
               />
             </>
           ) : (

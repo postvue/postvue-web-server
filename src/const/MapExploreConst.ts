@@ -35,3 +35,5 @@ export const MAP_POSITION_ICON_PATH =
 export const MAPKIT_CLIENT_MANAGER_KEY = 'MAPKIT_CLIENT_MANAGER';
 
 export const POS_CONTROL_GAP_NUM = 0.01;
+
+export const MAX_NEAR_POST_REQUEST_NUM = 3;

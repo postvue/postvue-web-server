@@ -4,7 +4,7 @@ import { QueryStateMyProfileInfo } from 'hook/queryhook/QueryStateMyProfileInfo'
 import React from 'react';
 import BottomNavBar from '../components/BottomNavBar';
 import AppBaseTemplate from '../components/layouts/AppBaseTemplate';
-import ProfileAccountBody from '../components/profile/profileaccount/ProfileAccountBody';
+import ProfileAccountBody from '../components/profile/profileaccount/ProfileAccountBodyByPage';
 import ProfileAccountHeader from '../components/profile/profileaccount/ProfileAccountHeader';
 
 const MyProfileAccountPage: React.FC = () => {

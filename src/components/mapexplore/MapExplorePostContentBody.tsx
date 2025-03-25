@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import NoResultComponent from 'components/common/container/NoResultComponent';
 import SnsPostMasonryLayout from 'components/layouts/SnsPostMasonryLayout';
@@ -56,11 +56,19 @@ const MapExplorePostContentBody: React.FC<MapExploreBodyProps> = ({
     );
 
   const [init, setInit] = useState<boolean>(false);
+
+  const initTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     setInit(false);
-    setTimeout(() => {
+    initTimerRef.current = setTimeout(() => {
       setInit(true);
     }, 500);
+
+    return () => {
+      if (initTimerRef.current) {
+        clearTimeout(initTimerRef.current);
+      }
+    };
   }, [mapSearchPostWord + '_' + latitude + '_' + longitude]);
 
   return (

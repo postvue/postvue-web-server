@@ -60,10 +60,11 @@ const ViewPagerLayout: React.FC<ViewPagerLayoutProps> = ({
     });
   }, [scrollToInfo]);
 
+  const swiperTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     if (!swiper) return;
 
-    setTimeout(() => {
+    swiperTimerRef.current = setTimeout(() => {
       const touchEvent = new TouchEvent('touchstart', {
         bubbles: true,
         cancelable: true,
@@ -72,6 +73,12 @@ const ViewPagerLayout: React.FC<ViewPagerLayoutProps> = ({
 
       window.dispatchEvent(touchEvent);
     }, 500);
+
+    return () => {
+      if (swiperTimerRef.current) {
+        clearTimeout(swiperTimerRef.current);
+      }
+    };
   }, [swiper]);
 
   return (

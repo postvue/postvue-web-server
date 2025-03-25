@@ -13,16 +13,23 @@ const PrevStyle: React.CSSProperties = {
 interface PrevBtnProps {
   to?: string;
   type?: string;
+  screenName?: string;
   style?: React.CSSProperties;
 }
 
 const PrevButton: React.FC<PrevBtnProps> = ({
   to = location.pathname,
   type = EVENT_DATA_ROUTE_BACK_TYPE,
+  screenName,
   style,
 }) => {
   return (
-    <AppLink to={to} type={type} style={style || PrevStyle}>
+    <AppLink
+      screenName={screenName}
+      to={to}
+      type={type}
+      style={style || PrevStyle}
+    >
       <PrevButtonWrap>
         <PrevButtonIcon />
       </PrevButtonWrap>

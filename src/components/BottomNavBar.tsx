@@ -39,6 +39,7 @@ import {
 import { MEDIA_MOBILE_MAX_WIDTH } from 'const/SystemAttrConst';
 import { EXPLORE_TAB_NAME, FEED_TAB_NAME } from 'const/TabConst';
 import { isUserLoggedIn } from 'global/util/AuthUtil';
+import { fetchTasteForMeByNotChannel } from 'global/util/channel/static/fetchTasteForMeByNotChannel';
 import {
   isApp,
   navigateToMainTab,
@@ -135,9 +136,15 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
               } else {
+                if (!isApp()) {
+                  fetchTasteForMeByNotChannel();
+                }
                 navigateToTabWithUrl(navigate, HOME_PAGE_NAME, HOME_PATH);
               }
             } else {
+              if (!isApp()) {
+                fetchTasteForMeByNotChannel();
+              }
               navigateToMainTab(navigate, HOME_PAGE_NAME, HOME_PATH);
             }
           }}

@@ -1,13 +1,9 @@
 import React from 'react';
 
-import { queryClient } from 'App';
 import PullToRefreshComponent from 'components/PullToRefreshComponent';
-import { INIT_CURSOR_ID, PAGE_NUM } from 'const/PageConfigConst';
-import { QUERY_STATE_TASTE_FOR_ME_LIST } from 'const/QueryClientConst';
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
+import { fetchTasteForMeByNotChannel } from 'global/util/channel/static/fetchTasteForMeByNotChannel';
 import useWindowSize from 'hook/customhook/useWindowSize';
-import { TasteForMeListQueryInterface } from 'hook/queryhook/QueryStateTasteForMeListInfinite';
-import { getTasteForMeListByParam } from 'services/post/home/getTasteForMeList';
 import HomeTasteSubBody from './HomeTasteSubBody';
 
 const HomeTasteBody: React.FC = () => {
@@ -27,20 +23,7 @@ const HomeTasteBody: React.FC = () => {
             // fetchNextPage();
             // refetchByTasteForMeList();
 
-            const tasteForMeList = await getTasteForMeListByParam(
-              INIT_CURSOR_ID,
-              PAGE_NUM,
-            );
-
-            const fetchData: TasteForMeListQueryInterface = {
-              pageParams: [{ cursorId: INIT_CURSOR_ID, pageNum: PAGE_NUM }],
-              pages: [{ ...tasteForMeList }],
-            };
-
-            queryClient.setQueryData(
-              [QUERY_STATE_TASTE_FOR_ME_LIST],
-              fetchData,
-            );
+            fetchTasteForMeByNotChannel();
           }}
         >
           <HomeTasteSubBody />

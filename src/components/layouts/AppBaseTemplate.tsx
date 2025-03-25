@@ -13,6 +13,8 @@ import PostComposeVideoPopup from 'components/popups/postcompose/PostComposeVide
 import PostEditPopup from 'components/popups/postedit/PostEditPopup';
 import PostReactionCommentSettingPopup from 'components/popups/postreactionpopup/PostReactionCommentSettingPopup';
 import ProfileAccountComplaintPopup from 'components/popups/profileaccount/ProfileAccountComplaintPopup';
+import ProfileOtherAccountPopup from 'components/popups/profileaccount/ProfileOtherAccountPopup';
+import ProfileDetailPopup from 'components/popups/ProfileDetailPopup';
 import ComplaintCompletePopup from 'components/popups/profilepost/ComplaintCompletePopup';
 import PostSettingPopup from 'components/popups/profilepost/PostSettingPopup';
 import ProfilePostDetailPopup from 'components/popups/ProfilePostDetailPopup';
@@ -51,9 +53,11 @@ import {
 import {
   activeMapScrapPopupAtom,
   activeProfileAccountComplaintPopupAtom,
+  activeProfileAccountPopupInfoAtom,
   activeProfileBlockPopupInfoAtom,
   activeScrapViewPopupInfoAtom,
   isActiveProfileScarpTargetAudPopupAtom,
+  profileDetailInfoPopupAtom,
 } from 'states/ProfileAtom';
 import { isActiveSearchFavoritePopupAtom } from 'states/SearchPostAtom';
 import { sharePopupInfoAtom } from 'states/ShareAtom';
@@ -138,6 +142,8 @@ const AppBaseTemplate: React.FC<AppBaseTemplate> = ({
 
   const isPostDetailInfoPopup = useRecoilValue(isPostDetailInfoPopupAtom);
 
+  const profileDetailInfoPopup = useRecoilValue(profileDetailInfoPopupAtom);
+
   const isActiveSearchFavoritePopup = useRecoilValue(
     isActiveSearchFavoritePopupAtom,
   );
@@ -164,6 +170,10 @@ const AppBaseTemplate: React.FC<AppBaseTemplate> = ({
 
   const activeMakeScrapPopupInfo = useRecoilValue(activeMakeScrapPopupInfoAtom);
 
+  const activeProfileAccountPopupInfo = useRecoilValue(
+    activeProfileAccountPopupInfoAtom,
+  );
+
   const [
     activePostComplaintCompletePopup,
     setActivePostComplaintCompletePopup,
@@ -171,6 +181,8 @@ const AppBaseTemplate: React.FC<AppBaseTemplate> = ({
 
   const appContainerRef = useRef<HTMLDivElement>(null);
 
+  // @REFER: 수정이 필요한 코드
+  // ================
   if (isScrollSave) {
     const { scrollInfos, scrollRemove } = useObjectScrollY({
       path: location.pathname,
@@ -179,11 +191,15 @@ const AppBaseTemplate: React.FC<AppBaseTemplate> = ({
 
     useEffect(() => {
       setTimeout(() => {
-        if (appContainerRef.current) {
-          appContainerRef.current.scrollTo({ top: scrollInfos });
-        }
+        if (windowWidth > MEDIA_MOBILE_MAX_WIDTH_NUM) {
+          if (appContainerRef.current) {
+            appContainerRef.current.scrollTo({ top: scrollInfos });
+          }
 
-        scrollRemove();
+          scrollRemove();
+        } else {
+          window.scrollTo({ top: scrollInfos });
+        }
       }, 30);
     }, [location.pathname]);
   }
@@ -191,12 +207,17 @@ const AppBaseTemplate: React.FC<AppBaseTemplate> = ({
   if (fixedScrollPos != undefined) {
     useEffect(() => {
       setTimeout(() => {
-        if (appContainerRef.current) {
-          appContainerRef.current.scrollTo({ top: fixedScrollPos });
+        if (windowWidth > MEDIA_MOBILE_MAX_WIDTH_NUM) {
+          if (appContainerRef.current) {
+            appContainerRef.current.scrollTo({ top: fixedScrollPos });
+          }
+        } else {
+          window.scrollTo({ top: fixedScrollPos });
         }
       }, 30);
     }, [location.pathname]);
   }
+  // ==============
 
   useEffect(() => {
     setTimeout(() => {
@@ -248,9 +269,11 @@ const AppBaseTemplate: React.FC<AppBaseTemplate> = ({
           </MainContainer>
         </Main>
 
+        {profileDetailInfoPopup.isActive && <ProfileDetailPopup />}
         {isPostDetailInfoPopup && isValidString(postDetailInfoPopup.postId) && (
           <ProfilePostDetailPopup />
         )}
+
         {sharePopupInfo.isActive && <SnsSharePopup />}
         {isActivePostComposeSelectPopup && <PostComposeSelectPopup />}
         {isNotSupportVideoConfirmPopup && (
@@ -310,6 +333,7 @@ const AppBaseTemplate: React.FC<AppBaseTemplate> = ({
         {commentSettingPopupInfo.isActive && (
           <PostReactionCommentSettingPopup />
         )}
+        {activeProfileAccountPopupInfo.isActive && <ProfileOtherAccountPopup />}
       </Container>
       <ToastPopup />
     </>
@@ -324,9 +348,9 @@ const Container = styled.div`
   display: flex;
   flex-direction: row;
 
-  @media (max-width: ${MEDIA_MIDDLE_WIDTH}) {
-    gap: ${CONTAINER_MIN_GAP}px;
-  }
+  // @media (max-width: ${MEDIA_MIDDLE_WIDTH}) {
+  //   gap: ${CONTAINER_MIN_GAP}px;
+  // }
 
   @media (min-width: ${MEDIA_MIDDLE_WIDTH}) {
     gap: ${CONTAINER_GAP}px;
