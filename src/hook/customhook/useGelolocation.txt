@@ -1,0 +1,71 @@
+// import {
+//   BRIDGE_EVENT_GEOLOCATION_TYPE,
+//   BridgeMsgInterface,
+//   EventDateInterface,
+// } from 'const/ReactNativeConst';
+// import { getCurrentPosition } from 'global/util/PositionUtil';
+// import { isApp } from 'global/util/reactnative/nativeRouter';
+// import { useEffect, useState } from 'react';
+// import { useMessageListener } from './useMessageListener';
+
+// type GeolocationType = {
+//   latitude: number;
+//   longitude: number;
+// };
+
+// type GeolocationInfo = {
+//   geolocationAccess: boolean;
+//   geolocation: GeolocationType;
+// };
+
+// const useGeolocation = (): GeolocationInfo => {
+//   const [geolocation, setGeolocation] = useState({
+//     latitude: 0,
+//     longitude: 0,
+//   });
+//   const [geolocationAccess, setGeolocationAccess] = useState(false);
+
+//   useEffect(() => {
+//     getCurrentPosition({
+//       actionFunc: (position) => {
+//         setMapLoaction({
+//           latitude: position.latitude,
+//           longitude: position.longitude,
+//           isMoveCenter: true,
+//         });
+
+//         setIsLoadingPopup(false);
+//       },
+//       onClose: () => {
+//         setIsLoadingPopup(false);
+//       },
+//     });
+//   }, []);
+
+//   const handleMessage = (event: MessageEvent) => {
+//     if (!isApp()) return;
+//     try {
+//       const nativeEvent: BridgeMsgInterface = JSON.parse(event.data);
+
+//       if (nativeEvent.type === BRIDGE_EVENT_GEOLOCATION_TYPE) {
+//         const eventData: EventDateInterface = nativeEvent.data;
+//         const data: { latitude: number; longitude: number } = JSON.parse(
+//           eventData.data,
+//         );
+
+//         if (data.latitude !== 0 && data.longitude !== 0) {
+//           setGeolocation(data);
+//           setGeolocationAccess(true);
+//         }
+//       }
+//     } catch (error) {
+//       console.error('Failed to parse message:', event.data);
+//     }
+//   };
+
+//   useMessageListener(handleMessage);
+
+//   return { geolocation, geolocationAccess };
+// };
+
+// export default useGeolocation;

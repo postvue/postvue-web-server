@@ -40,6 +40,7 @@ const SignupNextButton: React.FC<SignupNextButtonProps> = ({ isActive }) => {
       BottomNextButtonWrapContainerStyle={{
         position: windowWidth <= MEDIA_MIDDLE_WIDTH_NUM ? 'static' : 'absolute',
         maxWidth: theme.systemSize.appDisplaySize.maxWidth,
+        marginBottom: 'env(safe-area-inset-bottom)',
       }}
     />
   );

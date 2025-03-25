@@ -139,6 +139,10 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
 
   const navigationType = useNavigationType();
 
+  const scrollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const scrollToPosTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
   // 검색어 바뀔 때 마다 렌더링
   useEffect(() => {
     // 검색 페이지 검색어 바뀔 때마다 입력 활성화 비활성화
@@ -151,7 +155,7 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
 
     // 새로운 페이지 들어갈 시(push) 검색 페이지 기록 제거
     if (navigationType === NavigationType.Push) {
-      setTimeout(() => {
+      scrollTimerRef.current = setTimeout(() => {
         window.scrollTo(0, 0);
       }, MAX_DELAY_SETTIMEOUT_TIME);
     }
@@ -163,7 +167,7 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
         if (
           getIsRetentionTimeInMinutes(query.savedTime, query.retentionMinutes)
         ) {
-          setTimeout(() => {
+          scrollToPosTimerRef.current = setTimeout(() => {
             window.scrollTo(0, query.position);
           }, MAX_DELAY_SETTIMEOUT_TIME);
         }
@@ -176,6 +180,13 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
     return () => {
       setSearchTempWord(INIT_EMPTY_STRING_VALUE);
       setIsSearchInputActive(false);
+
+      if (scrollTimerRef.current) {
+        clearTimeout(scrollTimerRef.current);
+      }
+      if (scrollToPosTimerRef.current) {
+        clearTimeout(scrollToPosTimerRef.current);
+      }
     };
   }, [searchQueryAndFilterKey]);
 

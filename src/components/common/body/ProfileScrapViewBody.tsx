@@ -32,13 +32,21 @@ const ProfileScrapViewBody: React.FC<ProfileScrapListBodyProps> = ({
   const [init, setInit] = useState<boolean>(false);
   const durarion = 500;
   useEffect(() => {
+    let timeoutId: ReturnType<typeof setTimeout>;
+
     if (isInitTimout) {
-      setTimeout(() => {
+      timeoutId = setTimeout(() => {
         setInit(true);
       }, durarion);
     } else {
       setInit(true);
     }
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
   }, []);
 
   const [activeMakeScrapPopupInfo, setActiveMakeScrapPopupInfo] =
@@ -106,6 +114,11 @@ const ProfileShowProfileScrapViewBodyContainer = styled.div`
         theme.systemSize.bottomNavBar.heightNum +
         parseFloat(
           getComputedStyle(document.documentElement).getPropertyValue(
+            '--safe-area-inset-bottom',
+          ),
+        ) +
+        parseFloat(
+          getComputedStyle(document.documentElement).getPropertyValue(
             '--safe-area-inset-top',
           ),
         ) || 0}px
@@ -121,7 +134,7 @@ const ProfileShowProfileScrapViewBodyContainer = styled.div`
 
 const NotScrapWrap = styled.div`
   position: absolute;
-  top: 50%;
+  top: calc(50% - 50px);
   left: 50%;
   transform: translate(-50%, -50%);
   display: flex;

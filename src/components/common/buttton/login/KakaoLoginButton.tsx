@@ -1,6 +1,7 @@
 import { queryClient } from 'App';
 import { ReactComponent as KakaoLoginIcon } from 'assets/images/icon/svg/login/KakaoLoginIcon.svg';
 import { AxiosError } from 'axios';
+import LoadingComponent from 'components/common/container/LoadingComponent';
 import KakaoInitConfig from 'config/appconfig/KakaoInitConfig';
 import { STATUS_UNAUTHORIZED_CODE } from 'const/HttpStatusConst';
 import {
@@ -16,7 +17,7 @@ import {
   isApp,
   stackRouterLoginSuccess,
 } from 'global/util/reactnative/nativeRouter';
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useResetRecoilState } from 'recoil';
 import { postKakaoAuthToken } from 'services/auth/kakao/postKakaoAuthToken';
@@ -55,7 +56,9 @@ const KakaoLoginButton: React.FC = () => {
   //   // });
   // };
 
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const kakaoLoginProcess = (access_token: string) => {
+    setIsLoading(true);
     postKakaoLogin(access_token)
       .then((res) => {
         const callbackUrl = sessionStorage.getItem(CALLBACK_URL);
@@ -81,6 +84,9 @@ const KakaoLoginButton: React.FC = () => {
           console.error(err);
           // navigate(HOME_PATH);
         }
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   };
 
@@ -107,6 +113,7 @@ const KakaoLoginButton: React.FC = () => {
         </LoginElementLogoWrap>
         <LoginElementTitle>{KAKAO_LOGIN_TITLE_NAME}</LoginElementTitle>
       </LoginElementWrap>
+      {isLoading && <LoadingComponent LoadingComponentStyle={{ top: '0px' }} />}
     </>
   );
 };

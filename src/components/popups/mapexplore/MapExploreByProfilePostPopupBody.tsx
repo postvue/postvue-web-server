@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import LoadingPopup from 'components/popups/LoadingPopup';
@@ -14,9 +14,12 @@ import { isLoadingPopupAtom } from 'states/SystemConfigAtom';
 
 import { ReactComponent as MapExplorePopupCloseButtonIcon } from 'assets/images/icon/svg/explore/MapExplorePopupCloseButtonIcon.svg';
 import AppleMapElement from 'components/mapexplore/body/AppleMapElement';
-import MapExploreBody from 'components/mapexplore/MapExploreBody';
+import MapExploreLocationContentBody from 'components/mapexplore/MapExploreLocationContentBody';
+import { MAP_CONTENT_LOCATION_TYPE } from 'const/MapExploreConst';
 import { PostRsp } from 'global/interface/post';
 import { isEmptyObject } from 'global/util/ObjectUtil';
+import { isApp } from 'global/util/reactnative/nativeRouter';
+import useBodyAdaptProps from 'hook/customhook/useBodyAdaptProps';
 import { QueryStateMapExploreList } from 'hook/queryhook/QueryStateMapExploreList';
 import MapExplorePostPopup from './MapExplorePostPopup';
 
@@ -24,11 +27,14 @@ interface MapExploreByProfilePostPopupBodyProps {
   snsPost: PostRsp;
   funcPrevButton: () => void;
   isMobile?: boolean;
+  initTime?: number;
 }
+
+const POST_MAX_DISTANCE = 1; //1km
 
 const MapExploreByProfilePostPopupBody: React.FC<
   MapExploreByProfilePostPopupBodyProps
-> = ({ snsPost, funcPrevButton, isMobile = true }) => {
+> = ({ snsPost, funcPrevButton, isMobile = true, initTime = 500 }) => {
   const [mapLocation, setMapLocation] = useRecoilState(mapLoactionAtom);
 
   const [mapMoveLocation, setMapMoveLoation] =
@@ -51,6 +57,9 @@ const MapExploreByProfilePostPopupBody: React.FC<
 
   const [init, setInit] = useState<boolean>(false);
   const [initPost, setInitPost] = useState<boolean>(false);
+
+  const initTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const initPostTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     if (isEmptyObject(snsPost.location)) return;
 
@@ -62,13 +71,22 @@ const MapExploreByProfilePostPopupBody: React.FC<
 
     setMapLocation(postMapLoation);
 
-    setTimeout(() => {
+    initPostTimerRef.current = setTimeout(() => {
       setInitPost(true);
-    }, 300);
+    }, 600);
 
-    setTimeout(() => {
+    initTimerRef.current = setTimeout(() => {
       setInit(true);
-    }, 500);
+    }, initTime);
+
+    return () => {
+      if (initTimerRef.current) {
+        clearTimeout(initTimerRef.current);
+      }
+      if (initPostTimerRef.current) {
+        clearTimeout(initPostTimerRef.current);
+      }
+    };
   }, []);
 
   const mapExploreFilterTab = useRecoilValue(mapExploreFilterTabAtom);
@@ -79,63 +97,76 @@ const MapExploreByProfilePostPopupBody: React.FC<
     mapExploreFilterTab,
     null,
     null,
+    true,
+    POST_MAX_DISTANCE,
   );
 
-  const GeoCurrentButtonSize = 50;
+  useBodyAdaptProps(
+    [
+      { key: 'overflow', value: 'hidden' },
+      { key: 'position', value: 'fixed' },
+    ],
+    initTime,
+    undefined,
+    isMobile && !isApp(),
+  );
 
   return (
     <>
       <MapExplorePopupContainer>
-        <MapExploreHeaderWrap>
-          <Search>
-            <SearchContainer>
-              <SearchWrap>
-                <SearchSS>
-                  <SearchSubWrap>
-                    <SearchAddressWrap>
-                      {snsPost.location.address
-                        ? snsPost.location.address
-                        : snsPost.location.buildName}
-                    </SearchAddressWrap>
-                  </SearchSubWrap>
-                </SearchSS>
-              </SearchWrap>
-            </SearchContainer>
-          </Search>
-          <MapExplorePopupCloseButtonnWrap onClick={funcPrevButton}>
-            <MapExplorePopupCloseButtonnSubWrap>
-              <MapExplorePopupCloseButtonn>
-                <MapExplorePopupCloseButtonIcon />
-              </MapExplorePopupCloseButtonn>
-            </MapExplorePopupCloseButtonnSubWrap>
-          </MapExplorePopupCloseButtonnWrap>
-        </MapExploreHeaderWrap>
+        {init && (
+          <MapExploreHeaderWrap>
+            <Search>
+              <SearchContainer>
+                <SearchWrap>
+                  <SearchSS>
+                    <SearchSubWrap>
+                      <SearchAddressWrap>
+                        {snsPost.location.address
+                          ? snsPost.location.address
+                          : snsPost.location.buildName}
+                      </SearchAddressWrap>
+                    </SearchSubWrap>
+                  </SearchSS>
+                </SearchWrap>
+              </SearchContainer>
+            </Search>
+            <MapExplorePopupCloseButtonnWrap onClick={funcPrevButton}>
+              <MapExplorePopupCloseButtonnSubWrap>
+                <MapExplorePopupCloseButtonn>
+                  <MapExplorePopupCloseButtonIcon />
+                </MapExplorePopupCloseButtonn>
+              </MapExplorePopupCloseButtonnSubWrap>
+            </MapExplorePopupCloseButtonnWrap>
+          </MapExploreHeaderWrap>
+        )}
 
         <MapExploreWrap>
           <MapExploreSubWrap>
-            {!isMobile && (
+            {/* {!isMobile && (
               <>
-                {/* <GeoCurrentPositionButtonWrap>
+                <GeoCurrentPositionButtonWrap>
                   <GeoCurrentPositionButton
                     buttonSize={GeoCurrentButtonSize}
                     GeoCurrentButtonStyle={{ position: 'static' }}
                   />
-                </GeoCurrentPositionButtonWrap> */}
+                </GeoCurrentPositionButtonWrap>
 
-                {/* <GeoPositionRefreshButton
+                <GeoPositionRefreshButton
                   GeoPositionRefreshButtonStyle={{
                     position: 'absolute',
                     left: '50%',
                     transform: 'translate(-50%, 0)',
                     bottom: `${GeoButtonMargin}px`,
                   }}
-                /> */}
+                />
               </>
-            )}
+            )} */}
 
             {init && (
               <AppleMapElement
                 mapPost={postMapLocation}
+                initAnnotationTime={1500}
                 // isRefresh={
                 //   postMapLocation ? postMapLocation?.pages.length <= 0 : false
                 // }
@@ -157,22 +188,34 @@ const MapExploreByProfilePostPopupBody: React.FC<
           <>
             {initPost && (
               <MapExplorePostPopup
-                funcPrevButton={funcPrevButton}
-                linkPopupInfo={{
-                  isLinkPopup: false,
-                  isReplaced: true,
-                }}
                 isGeoPositionRefreshButton={false}
                 isCurrentPosButton={false}
-              />
+                isLock={true}
+                isInitPos={2}
+                middelOverflow={'scroll'}
+              >
+                <MapExploreLocationContentBody
+                  latitude={mapLocation.latitude}
+                  longitude={mapLocation.longitude}
+                  distance={POST_MAX_DISTANCE}
+                  funcPrevButton={funcPrevButton}
+                  linkPopupInfo={{
+                    isLinkPopup: false,
+                    isReplaced: true,
+                  }}
+                  mapContentType={MAP_CONTENT_LOCATION_TYPE}
+                />
+              </MapExplorePostPopup>
             )}
           </>
         ) : (
           <MapPostExploreBodyWrap>
-            <MapExploreBody
+            <MapExploreLocationContentBody
               latitude={mapLocation.latitude}
               longitude={mapLocation.longitude}
+              distance={POST_MAX_DISTANCE}
               funcPrevButton={funcPrevButton}
+              mapContentType={MAP_CONTENT_LOCATION_TYPE}
             />
           </MapPostExploreBodyWrap>
         )}
@@ -185,7 +228,6 @@ const MapExploreByProfilePostPopupBody: React.FC<
   );
 };
 const MapFullMargin = 10;
-const GeoButtonMargin = 20;
 
 const MapExplorePopupContainer = styled.div`
   position: relative;
@@ -323,13 +365,6 @@ const MapExplorePopupCloseButtonnSubWrap = styled.div`
 const MapExplorePopupCloseButtonn = styled.div`
   display: flex;
   margin: auto;
-`;
-
-const GeoCurrentPositionButtonWrap = styled.div`
-  position: absolute;
-  z-index: 10;
-  left: ${GeoButtonMargin}px;
-  bottom: ${GeoButtonMargin}px;
 `;
 
 export default MapExploreByProfilePostPopupBody;

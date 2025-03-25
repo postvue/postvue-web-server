@@ -93,7 +93,7 @@ const SideNavBar: React.FC<SideNavBarProps> = ({ headerWidth }) => {
         <HeaderWrap>
           <HeaderSidebarWrap>
             <HeaderSidebarLogoWrap onClick={() => navigate(HOME_PATH)}>
-              <LongPressToResizeButton resize={0.85} resizeSpeedRate={0.3}>
+              <LongPressToResizeButton resize={0.99} resizeSpeedRate={0.1}>
                 <FeelogLargeLogo />
               </LongPressToResizeButton>
             </HeaderSidebarLogoWrap>

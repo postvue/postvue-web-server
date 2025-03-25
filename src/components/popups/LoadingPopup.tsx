@@ -7,12 +7,14 @@ interface LoadingPopupProps {
   LoadingPopupStyle?: React.CSSProperties;
   LoadingWrapStyle?: React.CSSProperties;
   isLight?: boolean;
+  children?: React.ReactNode;
 }
 
 const LoadingPopup: React.FC<LoadingPopupProps> = ({
   LoadingPopupStyle,
   LoadingWrapStyle,
   isLight = true,
+  children,
 }) => {
   return (
     <PopupOverLayLayout
@@ -21,6 +23,7 @@ const LoadingPopup: React.FC<LoadingPopupProps> = ({
     >
       <LoadingWrap style={LoadingWrapStyle}>
         <LoadingGif src={loadingBarGif} />
+        {children}
       </LoadingWrap>
     </PopupOverLayLayout>
   );
@@ -35,6 +38,9 @@ const LoadingWrap = styled.div`
   left: 50%;
 
   transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 `;
 
 const LoadingGif = styled.img`

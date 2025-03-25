@@ -91,10 +91,10 @@ const MasonryLayout: React.FC<MasonryLayoutProps> = ({
       >
         {children}
       </Masonry>
-      {loading &&
+      {/* {loading &&
         (option.customLoader || (
           <h2 style={{ textAlign: 'center' }}>loading...</h2>
-        ))}
+        ))} */}
     </div>
   );
 };

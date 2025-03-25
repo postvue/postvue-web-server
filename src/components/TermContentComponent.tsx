@@ -54,7 +54,7 @@ const TermContentComponent: React.FC = () => {
 const TermsWrap = styled.div`
   display: flex;
   position: absolute;
-  bottom: 0;
+  bottom: env(safe-area-inset-bottom);
   margin: 0 auto;
   left: 50%;
   transform: translate(-50%, 0);

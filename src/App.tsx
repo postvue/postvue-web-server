@@ -5,6 +5,7 @@ import { APP_SERVICE_HIDDEN_CONSOLE_LOG } from 'const/AppInfoConst';
 import { GOOGLE_OAUTH_CLIENT_ID } from 'const/login/GoogleConst';
 import { APPLE_MAP_ACCESS_TOKEN } from 'const/MapExploreConst';
 import { QUERY_CACHE_TIME, QUERY_STALE_TIME } from 'const/QueryClientConst';
+import { WindowSizeListener } from 'hook/customhook/useWindowSize';
 import React from 'react';
 import { HelmetProvider } from 'react-helmet-async';
 import { RecoilRoot } from 'recoil';
@@ -36,6 +37,7 @@ const App: React.FC = () => {
             <GoogleOAuthProvider clientId={GOOGLE_OAUTH_CLIENT_ID}>
               <ThemeProvider theme={theme}>
                 <Reset />
+                <WindowSizeListener />
                 <AppRouter />
                 <AppConfig />
               </ThemeProvider>

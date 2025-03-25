@@ -1,7 +1,7 @@
 import LongPressToResizeButton from 'components/common/buttton/LongPressToResizeButton';
 import PostSettingDotButton from 'components/common/buttton/PostSettingDotButton';
 import { Location, PostRsp } from 'global/interface/post';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSetRecoilState } from 'recoil';
 import { masonryUpdateCountAtom } from 'states/MasonryAtom';
 import styled from 'styled-components';
@@ -41,6 +41,26 @@ const PostImagePreviewElement: React.FC<PostImagePreviewELementProps> = ({
 
   const setMasonryUpdateCount = useSetRecoilState(masonryUpdateCountAtom);
 
+  const updateMasonryRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const isDisplayBySetDotTimerRef = useRef<ReturnType<
+    typeof setTimeout
+  > | null>(null);
+
+  const [isDisplayBySetDot, setIsDisplayBySetDot] = useState<boolean>(false);
+
+  useEffect(() => {
+    return () => {
+      setIsDisplayBySetDot(false);
+      if (updateMasonryRef.current) {
+        clearTimeout(updateMasonryRef.current);
+      }
+      if (isDisplayBySetDotTimerRef.current) {
+        clearTimeout(isDisplayBySetDotTimerRef.current);
+      }
+    };
+  }, []);
+
   return (
     <>
       <PostImgAddressWrap>
@@ -61,7 +81,16 @@ const PostImagePreviewElement: React.FC<PostImagePreviewELementProps> = ({
               src={imageSrc}
               onLoad={() => {
                 setOnload(true);
-                setTimeout(() => {
+                if (updateMasonryRef.current) {
+                  clearTimeout(updateMasonryRef.current);
+                }
+                if (isDisplayBySetDotTimerRef.current) {
+                  clearTimeout(isDisplayBySetDotTimerRef.current);
+                }
+                isDisplayBySetDotTimerRef.current = setTimeout(() => {
+                  setIsDisplayBySetDot(true);
+                }, 30);
+                updateMasonryRef.current = setTimeout(() => {
                   setMasonryUpdateCount((prev) => prev + 1);
                 }, 50);
               }}
@@ -100,6 +129,9 @@ const PostImagePreviewElement: React.FC<PostImagePreviewELementProps> = ({
           <PostSettingDotButton
             selectPostRsp={selectPostRsp}
             scrapId={scrapId}
+            PostSettingDotButtonStyle={{
+              visibility: isDisplayBySetDot ? 'visible' : 'hidden',
+            }}
           />
         )}
       </div>

@@ -11,11 +11,13 @@ import MapkitClient, { MoveLocationType } from './MapkitClient';
 interface AppleMapElementProps {
   mapPost: PostMapPostInfiniteInterface | undefined;
   coordinateSpan?: number;
+  initAnnotationTime?: number;
 }
 
 const AppleMapElement: React.FC<AppleMapElementProps> = ({
   mapPost,
   coordinateSpan,
+  initAnnotationTime,
 }) => {
   const setMapMoveLoation = useSetRecoilState(mapMoveLocationAtom);
 
@@ -106,6 +108,7 @@ const AppleMapElement: React.FC<AppleMapElementProps> = ({
           onSetMapMoveLocation={onSetMapMoveLocation}
           scrollEndEventFunc={scrollEndEventFunc}
           coordinateSpan={coordinateSpan}
+          initAnnotationTime={initAnnotationTime}
         />
       </AppleMapElementWrap>
     </>

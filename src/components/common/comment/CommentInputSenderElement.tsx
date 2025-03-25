@@ -106,6 +106,7 @@ const CommentInputSenderElement: React.FC<CommentInputSenderElementProps> = ({
     }
   };
 
+  const scrollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onClickSendComment = () => {
     if (!isActiveUpload) {
       return;
@@ -152,7 +153,11 @@ const CommentInputSenderElement: React.FC<CommentInputSenderElementProps> = ({
 
           if (!commentContainer) return;
 
-          setTimeout(() => {
+          if (scrollTimerRef.current) {
+            clearTimeout(scrollTimerRef.current);
+          }
+
+          scrollTimerRef.current = setTimeout(() => {
             commentContainer.scrollTo({
               top: commentContainer.scrollHeight,
               behavior: 'smooth',
@@ -218,7 +223,11 @@ const CommentInputSenderElement: React.FC<CommentInputSenderElementProps> = ({
 
           if (!commentContainer) return;
 
-          setTimeout(() => {
+          if (scrollTimerRef.current) {
+            clearTimeout(scrollTimerRef.current);
+          }
+
+          scrollTimerRef.current = setTimeout(() => {
             commentContainer.scrollTo({
               top: commentContainer.scrollHeight,
               behavior: 'smooth',
@@ -314,6 +323,9 @@ const CommentInputSenderElement: React.FC<CommentInputSenderElementProps> = ({
   useEffect(() => {
     return () => {
       setIsFocusPostReactionInput(false);
+      if (scrollTimerRef.current) {
+        clearTimeout(scrollTimerRef.current);
+      }
     };
   }, []);
 

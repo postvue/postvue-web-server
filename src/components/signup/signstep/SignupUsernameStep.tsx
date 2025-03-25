@@ -4,10 +4,12 @@ import {
 } from 'const/SignupConst';
 import { getSearchQueryByDebounce } from 'global/util/SearchUtil';
 import { isValidUsername } from 'global/util/ValidUtil';
+import useAutoBlur from 'hook/customhook/useAutoBlur';
 import React, { useEffect, useState } from 'react';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import { getProfileExistenceByUsername } from 'services/profile/getProfileExistenceByUsername';
 import {
+  signStepTransitionInfoAtom,
   signupInfoAtom,
   signupStepNumAtom,
   signupUsernameExistenceHashMapAtom,
@@ -28,6 +30,12 @@ const SignupUsernameStep: React.FC = () => {
   const [username, setUsername] = useState<string>(signupInfo.username);
 
   const setSignupStepNum = useSetRecoilState(signupStepNumAtom);
+
+  const setSignStepTransitionInfo = useSetRecoilState(
+    signStepTransitionInfoAtom,
+  );
+
+  useAutoBlur([]);
 
   const debouncedGetSearchQuery = getSearchQueryByDebounce(
     (word: string) => {
@@ -84,6 +92,10 @@ const SignupUsernameStep: React.FC = () => {
       event.nativeEvent.isComposing === false &&
       isActive
     ) {
+      setSignStepTransitionInfo({
+        inTransition: true,
+        direction: 'left',
+      });
       setSignupStepNum((prev) => prev + 1);
     }
   };

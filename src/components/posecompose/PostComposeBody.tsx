@@ -353,7 +353,11 @@ const PostComposeBody: React.FC<PostComposeBodyProps> = ({
         />
       )}
 
-      {isLoadingPopup && <LoadingPopup />}
+      {isLoadingPopup && (
+        <LoadingPopup>
+          <LoadingTitle>업로드 중입니다. 잠시만 기다려주세요.</LoadingTitle>
+        </LoadingPopup>
+      )}
       {selectScrapByComposePopupInfo.isActive && <SelectScrapByComposePopup />}
     </>
   );
@@ -463,6 +467,12 @@ const PostComposeDeleteIconButton = styled.div`
 const PostComposeDeleteSubButton = styled.div`
   display: flex;
   margin: auto;
+`;
+
+const LoadingTitle = styled.div`
+  font: ${({ theme }) => theme.fontSizes.Body3};
+  font-size: 13px;
+  color: ${({ theme }) => theme.grey.Grey9};
 `;
 
 export default PostComposeBody;

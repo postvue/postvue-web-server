@@ -19,7 +19,7 @@ import {
 } from 'global/util/reactnative/nativeRouter';
 import { useMessageListener } from 'hook/customhook/useMessageListener';
 import { QueryStateMyProfileInfo } from 'hook/queryhook/QueryStateMyProfileInfo';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { createPostCompose } from 'services/post/createPostCompose';
 import {
@@ -67,16 +67,20 @@ const PostComposeVideoPageBody: React.FC<PostComposePageBodyProps> = ({
 
   const [isLoadingPopup, setIsLoadingPopup] = useState<boolean>(false);
 
-  useEffect(() => {
-    if (!isLoadingPopup) return;
-    setTimeout(() => {
-      if (!isApp()) return;
-      if (isLoadingPopup) {
-        setIsLoadingPopup(false);
-        alert('오류로 인해 업로드에 실패했습니다.');
-      }
-    }, 10000);
-  }, [isLoadingPopup]);
+  // useEffect(() => {
+  //   if (!isLoadingPopup) return;
+  //   const timeoutId = setTimeout(() => {
+  //     if (!isApp()) return;
+  //     if (isLoadingPopup) {
+  //       setIsLoadingPopup(false);
+  //       alert('오류로 인해 업로드에 실패했습니다.');
+  //     }
+  //   }, 10000);
+
+  //   return () => {
+  //     clearTimeout(timeoutId);
+  //   };
+  // }, [isLoadingPopup]);
 
   const onClickUploadButton = async () => {
     if (isApp()) {

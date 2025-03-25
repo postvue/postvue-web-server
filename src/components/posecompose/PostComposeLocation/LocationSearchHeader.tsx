@@ -5,7 +5,7 @@ import HeaderLayout from '../../layouts/HeaderLayout';
 
 import LoadingComponent from 'components/common/container/LoadingComponent';
 import { LOCATION_SEARCH_INPUT_PHARSE_TEXT } from 'const/SystemPhraseConst';
-import { getCurrentPosition } from 'global/util/PositionUtil';
+import { getUnifiedPosition } from 'global/util/PositionUtil';
 import { getSearchQueryByDebounce } from 'global/util/SearchUtil';
 import { isValidString } from 'global/util/ValidUtil';
 import { QueryStateMapAddressRelationInfinite } from 'hook/queryhook/QueryStateMapAddressRelationInfinite';
@@ -61,7 +61,7 @@ const LocationSearchHeader: React.FC<LocationSearchHeaderProps> = ({
   );
 
   useEffect(() => {
-    getCurrentPosition({
+    getUnifiedPosition({
       actionFunc: (position) => {
         setCurrentGisInfo(position);
       },

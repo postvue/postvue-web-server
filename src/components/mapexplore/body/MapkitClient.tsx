@@ -1,5 +1,5 @@
-import { CustomImageAnnotation } from 'components/lib/mapkitjs/CustomImageAnnotation';
 import { AnnotationType } from 'components/lib/mapkitjs/CustomImageAnnotationV1';
+import { CustomImageAnnotationV3 } from 'components/lib/mapkitjs/CustomImageAnnotationV3';
 import { Map } from 'components/lib/mapkitjs/Map';
 import { useMap } from 'components/lib/mapkitjs/useMap';
 import { createCoordinate } from 'components/lib/mapkitjs/utils';
@@ -43,6 +43,7 @@ interface MapkitClientProps {
   scrollEndEventFunc: (e: mapkit.EventBase<mapkit.Map>) => void;
   onSetMapMoveLocation: (moveLocation: MoveLocationType) => void;
   coordinateSpan?: number;
+  initAnnotationTime?: number;
 }
 
 const MapkitClient: React.FC<MapkitClientProps> = ({
@@ -50,6 +51,7 @@ const MapkitClient: React.FC<MapkitClientProps> = ({
   onSetMapMoveLocation,
   scrollEndEventFunc,
   coordinateSpan = 0.06,
+  initAnnotationTime = 1000,
 }) => {
   const mapLocation = useRecoilValue(mapLoactionAtom);
   const { map, mapProps, mapkit } = useMap();
@@ -107,9 +109,10 @@ const MapkitClient: React.FC<MapkitClientProps> = ({
     setPostMarkerList(newMapPost);
   }, [mapPost, map]);
 
+  const mapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     if (!map || !mapkit) return;
-    setTimeout(
+    mapTimerRef.current = setTimeout(
       () => {
         const coordinate = createCoordinate(
           mapLocation.latitude,
@@ -161,19 +164,29 @@ const MapkitClient: React.FC<MapkitClientProps> = ({
       },
       isInitLister ? 700 : 1000,
     );
+
+    return () => {
+      if (mapTimerRef.current) {
+        clearTimeout(mapTimerRef.current);
+      }
+    };
   }, [map, mapLocation]);
 
+  const initImageTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     setSelectReverseGeoCodeMap({
       latitude: mapLocation.latitude,
       longitude: mapLocation.longitude,
       isActive: false,
     });
-    setTimeout(() => {
+    initImageTimerRef.current = setTimeout(() => {
       setInitImageAnnotation(true);
-    }, 1000);
+    }, initAnnotationTime);
 
     return () => {
+      if (initImageTimerRef.current) {
+        clearTimeout(initImageTimerRef.current);
+      }
       setInitImageAnnotation(false);
     };
   }, []);
@@ -218,12 +231,13 @@ const MapkitClient: React.FC<MapkitClientProps> = ({
         />
       )}
 
+      {/* @REFER: 잠깐 주석 처리 */}
       {map &&
         mapkit &&
         initImageAnnotation &&
         postMarkerList.map((worker) => {
           return (
-            <CustomImageAnnotation
+            <CustomImageAnnotationV3
               key={worker.id}
               offset={offset}
               selectedSize={selectedSize}

@@ -1,7 +1,7 @@
 import { CredentialResponse } from '@react-oauth/google';
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
 import useWindowSize from 'hook/customhook/useWindowSize';
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 interface GoogleOneTapProps {
   clientId: string;
@@ -13,8 +13,12 @@ const GoogleOneTap: React.FC<GoogleOneTapProps> = ({
   onLoginSuccess,
 }) => {
   const { windowWidth } = useWindowSize();
+
+  const googleLoginInitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
   useEffect(() => {
-    setTimeout(() => {
+    googleLoginInitTimerRef.current = setTimeout(() => {
       if (typeof window !== 'undefined' && window.google) {
         window.google.accounts.id.initialize({
           client_id: clientId,
@@ -30,6 +34,12 @@ const GoogleOneTap: React.FC<GoogleOneTapProps> = ({
         }
       }
     }, 500);
+
+    return () => {
+      if (googleLoginInitTimerRef.current) {
+        clearTimeout(googleLoginInitTimerRef.current);
+      }
+    };
   }, []);
 
   return null; // UI 요소가 필요하지 않음

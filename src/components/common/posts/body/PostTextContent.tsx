@@ -36,8 +36,9 @@ const PostTextContent: React.FC<PostTextContentProps> = ({
     setIsExpanded(!isExpanded);
   };
 
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
-    setTimeout(() => {
+    timerRef.current = setTimeout(() => {
       if (textRef.current) {
         const textHeight = textRef.current.scrollHeight;
         const lineHeight = parseFloat(
@@ -50,6 +51,12 @@ const PostTextContent: React.FC<PostTextContentProps> = ({
         }
       }
     }, 100);
+
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
   }, [bodyTextMaxLines]);
 
   return (

@@ -1,6 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { generatePath, useNavigate } from 'react-router-dom';
-import { useRecoilState, useResetRecoilState, useSetRecoilState } from 'recoil';
+import {
+  useRecoilState,
+  useRecoilValue,
+  useResetRecoilState,
+  useSetRecoilState,
+} from 'recoil';
 
 import styled from 'styled-components';
 import 'swiper/css';
@@ -28,6 +33,7 @@ import { isPostReactionAtom } from '../../../states/PostReactionAtom';
 import {
   activeProfileBlockPopupInfoAtom,
   activeScrapViewPopupInfoAtom,
+  profileDetailInfoPopupAtom,
 } from '../../../states/ProfileAtom';
 import theme from '../../../styles/theme';
 
@@ -49,9 +55,14 @@ import PostVideoContentElementV3 from 'components/common/posts/element/PostVideo
 import SnsPostMasonryLayout from 'components/layouts/SnsPostMasonryLayout';
 import ProfilePostSettingBody from 'components/post/ProfilePostSettingBody';
 import { POST_RELATION_SEARCH_TYPE } from 'const/PostConst';
+import {
+  PROFILE_POPUP_PARAM,
+  PROFILE_POPUP_USERNAME_PARAM,
+  TRUE_PARAM,
+} from 'const/QueryParamConst';
 import { RoutePushEventDateInterface } from 'const/ReactNativeConst';
 import { PostRsp } from 'global/interface/post';
-import { stackRouterPush } from 'global/util/reactnative/nativeRouter';
+import { isApp, stackRouterPush } from 'global/util/reactnative/nativeRouter';
 import { getRandomImage } from 'global/util/ShareUtil';
 import ProfileAccountPostListInfiniteScroll from 'hook/ProfileAccountPostListInfiniteScroll';
 import { QueryStatePostRelationListInfinite } from 'hook/queryhook/QueryStatePostRelationListInfinite';
@@ -123,6 +134,8 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
     snsPost.username,
     isActiveRelation,
   );
+
+  const profileDetailInfo = useRecoilValue(profileDetailInfoPopupAtom);
 
   const navigate = useNavigate();
 
@@ -516,20 +529,45 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
                         ...prev,
                         isClosePost: true,
                       }));
-                      const path = generatePath(PROFILE_ACCOUNT_ROUTE_PATH, {
-                        username: snsPost?.username,
-                      });
 
-                      const queryParams = new URLSearchParams({
-                        postId: postId,
-                      }).toString();
+                      const searchParams = new URLSearchParams();
+                      searchParams.set('postId', postId);
+                      if (
+                        isApp() ||
+                        windowWidthSize > MEDIA_MOBILE_MAX_WIDTH_NUM
+                      ) {
+                        const path = generatePath(PROFILE_ACCOUNT_ROUTE_PATH, {
+                          username: snsPost.username,
+                        });
 
-                      const fullPath = `${path}?${queryParams}`;
+                        // const queryParams = new URLSearchParams({
+                        //   postId: postId,
+                        // }).toString();
+                        const newSearch = searchParams.toString();
 
-                      const data: RoutePushEventDateInterface = {
-                        isShowInitBottomNavBar: true,
-                      };
-                      stackRouterPush(navigate, fullPath, data);
+                        const fullPath = `${path}?${newSearch}`;
+
+                        const data: RoutePushEventDateInterface = {
+                          isShowInitBottomNavBar: true,
+                        };
+                        stackRouterPush(navigate, fullPath, data);
+                      } else {
+                        // 새로운 쿼리 파라미터 추가 또는 기존 파라미터 값 수정
+                        searchParams.set(PROFILE_POPUP_PARAM, TRUE_PARAM);
+                        searchParams.set(
+                          PROFILE_POPUP_USERNAME_PARAM,
+                          snsPost.username,
+                        );
+                        // 새로운 쿼리 파라미터가 포함된 URL 생성
+                        const newSearch = searchParams.toString();
+                        const newPath = `${location.pathname}?${newSearch}`;
+
+                        if (profileDetailInfo.username === snsPost.username) {
+                          navigate(-1);
+                        } else {
+                          navigate(newPath);
+                        }
+                      }
                     }}
                   >
                     <ProfileImg src={snsPost?.profilePath} />

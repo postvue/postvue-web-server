@@ -367,7 +367,11 @@ const PostVideoComposeBody: React.FC<PostVideoComposeBodyProps> = ({
         />
       )}
 
-      {isLoadingPopup && <LoadingPopup />}
+      {isLoadingPopup && (
+        <LoadingPopup>
+          <LoadingTitle>업로드 중입니다. 잠시만 기다려주세요.</LoadingTitle>
+        </LoadingPopup>
+      )}
       {selectScrapByComposePopupInfo.isActive && <SelectScrapByComposePopup />}
     </>
   );
@@ -465,6 +469,12 @@ const VideoDurationWrap = styled.div`
 `;
 
 const VideoDurationElement = styled.div`
+  font: ${({ theme }) => theme.fontSizes.Body3};
+  font-size: 13px;
+  color: ${({ theme }) => theme.grey.Grey9};
+`;
+
+const LoadingTitle = styled.div`
   font: ${({ theme }) => theme.fontSizes.Body3};
   font-size: 13px;
   color: ${({ theme }) => theme.grey.Grey9};

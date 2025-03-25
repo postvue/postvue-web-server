@@ -152,3 +152,16 @@ export const activeProfileAccountComplaintPopupAtom = atom<{
     username: '',
   },
 });
+
+export const profileDetailInfoPopupAtom = atom<{
+  isActive: boolean;
+  username: string;
+  display: boolean;
+}>({
+  key: 'profileDetailInfo',
+  default: {
+    isActive: false,
+    username: '',
+    display: false,
+  },
+});

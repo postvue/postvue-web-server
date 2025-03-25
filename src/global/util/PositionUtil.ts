@@ -1,10 +1,72 @@
+import {
+  BRIDGE_EVENT_GEOLOCATION_TYPE,
+  BridgeMsgInterface,
+  EVENT_DATA_GEOLOCATION_CURRENT_POS_TYPE,
+  EventDateInterface,
+  GeolocationCurrentPos,
+} from 'const/ReactNativeConst';
+import {
+  isApp,
+  sendGeolocationCurrentPositionEvnet,
+} from './reactnative/nativeRouter';
+
 interface CurrentPositionProps {
   actionFunc: (position: { latitude: number; longitude: number }) => void;
   onClose?: () => void;
   isAlertError?: boolean;
 }
 
-export const getCurrentPosition = (
+export const getUnifiedPosition = (
+  currentPositionProps: CurrentPositionProps,
+): void => {
+  if (isApp()) {
+    // ✅ 앱에서 실행 (React Native → WebView로 메시지 요청)
+    sendGeolocationCurrentPositionEvnet();
+
+    // ✅ 앱에서 받은 위치 정보 처리
+    const receiveMessage = (event: MessageEvent) => {
+      if (!isApp()) return;
+      try {
+        const nativeEvent: BridgeMsgInterface = JSON.parse(event.data);
+
+        if (nativeEvent.type === BRIDGE_EVENT_GEOLOCATION_TYPE) {
+          const eventData: EventDateInterface = nativeEvent.data;
+          if (eventData.eventType === EVENT_DATA_GEOLOCATION_CURRENT_POS_TYPE) {
+            const data: GeolocationCurrentPos = JSON.parse(eventData.data);
+            if (data.latitude && data.longitude) {
+              currentPositionProps.actionFunc({
+                latitude: data.latitude,
+                longitude: data.longitude,
+              });
+            }
+          }
+        }
+      } catch (error) {
+        if (currentPositionProps.onClose) {
+          currentPositionProps.onClose();
+        }
+        if (currentPositionProps.isAlertError) {
+          alert('위치 정보를 가져오는 데 실패했습니다.' + error);
+        }
+      }
+    };
+
+    // ✅ 이벤트 리스너 추가 및 제거 (클린업)
+    window.addEventListener('message', receiveMessage);
+    setTimeout(() => {
+      if (currentPositionProps.onClose) {
+        currentPositionProps.onClose();
+      }
+
+      window.removeEventListener('message', receiveMessage);
+    }, 3000);
+  } else {
+    // ✅ 웹에서 실행 (기존 `getCurrentPosition` 사용)
+    getCurrentPosition(currentPositionProps);
+  }
+};
+
+const getCurrentPosition = (
   currentPositionProps: CurrentPositionProps,
 ): void => {
   navigator.permissions
@@ -60,24 +122,24 @@ const fetchPosition = (
   );
 };
 
-export const getCurrentPositionAsync = async (): Promise<{
-  latitude: number;
-  longitude: number;
-}> => {
-  return new Promise((resolve, reject) => {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        resolve({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        });
-      },
-      (error) => {
-        reject(error);
-      },
-    );
-  });
-};
+// export const getCurrentPositionAsync = async (): Promise<{
+//   latitude: number;
+//   longitude: number;
+// }> => {
+//   return new Promise((resolve, reject) => {
+//     navigator.geolocation.getCurrentPosition(
+//       (position) => {
+//         resolve({
+//           latitude: position.coords.latitude,
+//           longitude: position.coords.longitude,
+//         });
+//       },
+//       (error) => {
+//         reject(error);
+//       },
+//     );
+//   });
+// };
 
 export const getPosInfoByGis = async (
   latitude: number,

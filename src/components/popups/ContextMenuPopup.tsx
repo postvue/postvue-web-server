@@ -30,6 +30,9 @@ const ContextMenuPopup: React.FC<ContextMenuPopupProps> = ({
       positionValue: 0,
     });
 
+  const contextMenuTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
   useEffect(() => {
     if (contextMenuRef) {
       const dom = contextMenuRef.getBoundingClientRect();
@@ -52,20 +55,28 @@ const ContextMenuPopup: React.FC<ContextMenuPopupProps> = ({
         }));
       }
 
-      setTimeout(() => {
+      contextMenuTimerRef.current = setTimeout(() => {
         if (!contextMenuContainerRef.current) return;
         contextMenuContainerRef.current.style.display = 'block';
       }, 50);
     }
+
+    return () => {
+      if (!contextMenuTimerRef.current) return;
+      clearTimeout(contextMenuTimerRef.current);
+    };
   }, []);
 
-  if (hasFixedActive) {
-    useBodyAdaptProps([
+  useBodyAdaptProps(
+    [
       { key: 'overflow', value: 'hidden' },
       { key: 'touch-action', value: 'none' },
       { key: 'overscroll-behavior', value: 'none' },
-    ]);
-  }
+    ],
+    undefined,
+    undefined,
+    hasFixedActive,
+  );
 
   useOutsideClick([contextMenuContainerRef], () => {
     onClose();

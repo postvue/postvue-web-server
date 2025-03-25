@@ -14,7 +14,7 @@ import {
   SEARCH_POST_POPULAR_QUERY_PARAM,
   SearchPostFilterTabType,
 } from 'const/TabConfigConst';
-import { getCurrentPosition } from 'global/util/PositionUtil';
+import { getUnifiedPosition } from 'global/util/PositionUtil';
 import { isValidString } from 'global/util/ValidUtil';
 import React, { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -83,7 +83,7 @@ const SearchPostExploreFilter: React.FC<SearchPostExploreFilterProps> = ({
       queryParam.get(SEARCH_POST_FILTER_QUERY_PARAM) ===
       SEARCH_POST_MY_NEAR_QUERY_PARAM
     ) {
-      getCurrentPosition({
+      getUnifiedPosition({
         actionFunc: (value) => {
           setCurrentPositionSearchPost({
             latitude: value.latitude,

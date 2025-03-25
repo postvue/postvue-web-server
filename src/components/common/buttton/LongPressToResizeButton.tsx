@@ -19,15 +19,15 @@ const LongPressToResizeButton: React.FC<LongPressToResizeButtonProps> = ({
   const [isPressed, setIsPressed] = useState(false);
   const [isScrolling, setIsScrolling] = useState(false);
 
-  const pressTimerRef = useRef<number | null>(null);
-  const scrollTimerRef = useRef<number | null>(null);
+  const pressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const scrollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleTouchMove = () => {
     setIsScrolling(true);
     if (scrollTimerRef.current) {
       clearTimeout(scrollTimerRef.current);
     }
-    scrollTimerRef.current = window.setTimeout(() => {
+    scrollTimerRef.current = setTimeout(() => {
       setIsScrolling(false);
     }, 500); // 스크롤 멈춤 감지 딜레이
   };
@@ -37,6 +37,9 @@ const LongPressToResizeButton: React.FC<LongPressToResizeButtonProps> = ({
       if (scrollTimerRef.current) {
         clearTimeout(scrollTimerRef.current);
       }
+      if (pressTimerRef.current) {
+        clearTimeout(pressTimerRef.current);
+      }
     };
   }, []);
 
@@ -45,7 +48,7 @@ const LongPressToResizeButton: React.FC<LongPressToResizeButtonProps> = ({
 
     setIsPressed(true);
     if (!onDownFunc) return;
-    pressTimerRef.current = window.setTimeout(() => {
+    pressTimerRef.current = setTimeout(() => {
       onDownFunc();
     }, resizeSpeedRate * 1000);
   };

@@ -174,9 +174,11 @@ const LoginPage: React.FC = () => {
                   <GoogleLoginButton />
 
                   <AppleLoginButton />
-                  <EmailLoginButtonWrap onClick={onClickLoginEmail}>
-                    이메일로 로그인
-                  </EmailLoginButtonWrap>
+                  {!isApp() && (
+                    <EmailLoginButtonWrap onClick={onClickLoginEmail}>
+                      이메일로 로그인
+                    </EmailLoginButtonWrap>
+                  )}
                 </LoginPageBodyContainer>
               </LoginPageContainer>
               {isActiveLoginEmailPopup && (

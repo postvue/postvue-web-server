@@ -1,6 +1,6 @@
 import { ReactComponent as CurrentPositionButtonIcon } from 'assets/images/icon/svg/navbar/MapTabActiveIcon.svg';
 import LocationSearchHeader from 'components/posecompose/PostComposeLocation/LocationSearchHeader';
-import { getCurrentPosition } from 'global/util/PositionUtil';
+import { getUnifiedPosition } from 'global/util/PositionUtil';
 import React from 'react';
 import { useSetRecoilState } from 'recoil';
 import { locationSearchWordAtom } from 'states/GeoLocationAtom';
@@ -34,7 +34,7 @@ const PostComposeLocationPopupHeader: React.FC<
   const onClickGeoCurrentButton = async () => {
     setLoadingByAddressGeo(true);
 
-    getCurrentPosition({
+    getUnifiedPosition({
       actionFunc: (position) => {
         setCurPositionInfo({
           latitude: position.latitude,
