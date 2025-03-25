@@ -11,13 +11,13 @@ const LongPressReaction: React.FC<LongPressReactionProps> = ({
   onDownService,
 }) => {
   const [isPressed, setIsPressed] = useState<boolean>(false);
-  const pressTimerRef = useRef<number | null>(null);
+  const pressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const handleMouseStart = (): void => {
     // 배경색을 조금 어둡게 변경
 
     // 꾹 눌렀을 때 타이머 시작
     setIsPressed(true);
-    pressTimerRef.current = window.setTimeout(() => {
+    pressTimerRef.current = setTimeout(() => {
       onDownService();
     }, 400); // 400ms (1초) 동안 꾹 눌렀을 때 감지
   };

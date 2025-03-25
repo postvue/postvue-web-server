@@ -16,12 +16,14 @@ interface ProfileAccountHeaderProps {
   username: string;
   isPrevButton?: boolean;
   prevButton?: React.ReactNode;
+  HeaderLayoutStyle?: React.CSSProperties;
 }
 
 const ProfileAccountHeader: React.FC<ProfileAccountHeaderProps> = ({
   username,
   isPrevButton = true,
   prevButton,
+  HeaderLayoutStyle,
 }) => {
   const goBackOrNavigate = useGoBackOrNavigate(HOME_PATH);
 
@@ -45,6 +47,7 @@ const ProfileAccountHeader: React.FC<ProfileAccountHeaderProps> = ({
           titleName={data.username}
           isActionFunc={!isPrevButton}
           preNodeByState={prevButton}
+          HeaderLayoutStyle={HeaderLayoutStyle}
           RightButtonNode={
             <ProfileSettingWrap>
               <SearchTabComponent />

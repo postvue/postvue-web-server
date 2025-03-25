@@ -3,12 +3,21 @@ import { ReactComponent as SignupTermOfServiceNotCheckIcon } from 'assets/images
 import LoadingComponent from 'components/common/container/LoadingComponent';
 import { ACCESS_TOKEN } from 'const/LocalStorageConst';
 import { HOME_PATH } from 'const/PathConst';
+import {
+  BRIDGE_EVENT_SIGNUP_GRANT_REQUEST_TYPE,
+  BridgeMsgInterface,
+} from 'const/ReactNativeConst';
 import { SIGNUP_MIN_AGE } from 'const/SignupConst';
 import {
   ACCOUNT_SETTING_PRIVACY_POLICY_URL,
   ACCOUNT_SETTING_TERMS_OF_SERVICE_URL,
   ACCOUNT_SETTING_TERMS_OF_USER_GEOLOATION_URL,
 } from 'const/TabConfigConst';
+import {
+  isApp,
+  sendSignupPermissionRequestEvnet,
+} from 'global/util/reactnative/nativeRouter';
+import { useMessageListener } from 'hook/customhook/useMessageListener';
 import React, { useState } from 'react';
 import { useRecoilState } from 'recoil';
 import { postAuthSignup } from 'services/auth/postAuthSignup';
@@ -22,17 +31,11 @@ const SignupTermOfServiceStep: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const onClickSignup = () => {
-    postAuthSignup(signupInfo)
-      .then((value) => {
-        localStorage.setItem(ACCESS_TOKEN, value);
-        window.location.href = HOME_PATH;
-      })
-      .catch((e) => {
-        console.error(e);
-        alert(
-          '죄송합니다. 오류로 인해 가입에 실패 했습니다. 고객센터에 문의해주세요.',
-        );
-      });
+    if (isApp()) {
+      sendSignupPermissionRequestEvnet();
+    } else {
+      onClickSignupProcess();
+    }
   };
 
   const [isFullAgreement, setIsFullAgreement] = useState<boolean>(false);
@@ -65,6 +68,39 @@ const SignupTermOfServiceStep: React.FC = () => {
     }
     setIsFullAgreement(!isFullAgreement);
   };
+
+  const onClickSignupProcess = () => {
+    setIsLoading(true);
+    postAuthSignup(signupInfo)
+      .then((value) => {
+        localStorage.setItem(ACCESS_TOKEN, value);
+        window.location.href = HOME_PATH;
+      })
+      .catch((e) => {
+        console.error(e);
+        alert(
+          '죄송합니다. 오류로 인해 가입에 실패 했습니다. 고객센터에 문의해주세요.',
+        );
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+
+  const handleMessage = (event: MessageEvent) => {
+    if (!isApp()) return;
+    try {
+      const nativeEvent: BridgeMsgInterface = JSON.parse(event.data);
+
+      if (nativeEvent.type === BRIDGE_EVENT_SIGNUP_GRANT_REQUEST_TYPE) {
+        onClickSignupProcess();
+      }
+    } catch (error) {
+      console.error('Failed to parse message:', event.data);
+    }
+  };
+
+  useMessageListener(handleMessage);
 
   return (
     <>
@@ -134,18 +170,19 @@ const SignupTermOfServiceStep: React.FC = () => {
             (필수) 개인정보 수집 및 이용에 동의합니다.
           </SingupTermOsServiceChecTiele>
         </SingupTermOsServiceCheckWrap>
-        <SingupTermOsServiceCheckWrap
-          onClick={() => {
-            setSignupInfo((prev) => ({
-              ...prev,
-              termOfService: {
-                ...signupInfo.termOfService,
-                agreeToServieTerm: !signupInfo.termOfService.agreeToServieTerm,
-              },
-            }));
-          }}
-        >
-          <SingupTermOsServiceCheckIconWrap>
+        <SingupTermOsServiceCheckWrap>
+          <SingupTermOsServiceCheckIconWrap
+            onClick={() => {
+              setSignupInfo((prev) => ({
+                ...prev,
+                termOfService: {
+                  ...signupInfo.termOfService,
+                  agreeToServieTerm:
+                    !signupInfo.termOfService.agreeToServieTerm,
+                },
+              }));
+            }}
+          >
             {signupInfo.termOfService.agreeToServieTerm ? (
               <SignupTermOfServiceCheckIcon />
             ) : (
@@ -165,19 +202,19 @@ const SignupTermOfServiceStep: React.FC = () => {
             (필수) 이용 약관에 동의합니다.*
           </SingupTermOsServiceChecTiele>
         </SingupTermOsServiceCheckWrap>
-        <SingupTermOsServiceCheckWrap
-          onClick={() => {
-            setSignupInfo((prev) => ({
-              ...prev,
-              termOfService: {
-                ...signupInfo.termOfService,
-                agreeToPrivacyPolicyToThirdPaties:
-                  !signupInfo.termOfService.agreeToPrivacyPolicyToThirdPaties,
-              },
-            }));
-          }}
-        >
-          <SingupTermOsServiceCheckIconWrap>
+        <SingupTermOsServiceCheckWrap>
+          <SingupTermOsServiceCheckIconWrap
+            onClick={() => {
+              setSignupInfo((prev) => ({
+                ...prev,
+                termOfService: {
+                  ...signupInfo.termOfService,
+                  agreeToPrivacyPolicyToThirdPaties:
+                    !signupInfo.termOfService.agreeToPrivacyPolicyToThirdPaties,
+                },
+              }));
+            }}
+          >
             {signupInfo.termOfService.agreeToPrivacyPolicyToThirdPaties ? (
               <SignupTermOfServiceCheckIcon />
             ) : (
@@ -197,19 +234,19 @@ const SignupTermOfServiceStep: React.FC = () => {
             (필수) 개인정보의 제 3자 제공에 동의합니다.
           </SingupTermOsServiceChecTiele>
         </SingupTermOsServiceCheckWrap>
-        <SingupTermOsServiceCheckWrap
-          onClick={() => {
-            setSignupInfo((prev) => ({
-              ...prev,
-              termOfService: {
-                ...signupInfo.termOfService,
-                agreeToTermsOfUserGeoLocation:
-                  !signupInfo.termOfService.agreeToTermsOfUserGeoLocation,
-              },
-            }));
-          }}
-        >
-          <SingupTermOsServiceCheckIconWrap>
+        <SingupTermOsServiceCheckWrap>
+          <SingupTermOsServiceCheckIconWrap
+            onClick={() => {
+              setSignupInfo((prev) => ({
+                ...prev,
+                termOfService: {
+                  ...signupInfo.termOfService,
+                  agreeToTermsOfUserGeoLocation:
+                    !signupInfo.termOfService.agreeToTermsOfUserGeoLocation,
+                },
+              }));
+            }}
+          >
             {signupInfo.termOfService.agreeToTermsOfUserGeoLocation ? (
               <SignupTermOfServiceCheckIcon />
             ) : (
@@ -266,7 +303,7 @@ const SignupTermOfServiceStep: React.FC = () => {
           onClickSignup();
         }}
       />
-      {isLoading && <LoadingComponent LoadingComponentStyle={{ top: '0px' }} />}
+      {isLoading && <LoadingComponent />}
     </>
   );
 };

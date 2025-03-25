@@ -25,6 +25,7 @@ const PostContentZooomSwiper: React.FC<PostContentZoomSwiperProps> = ({
   isMobile,
 }) => {
   const [swiper, setSwiper] = useState<SwiperCore>();
+  const [isSwiperEnabled, setIsSwiperEnabled] = useState(true); // Swiper 활성화 상태
 
   useEffect(() => {
     if (!swiper) return;
@@ -52,6 +53,7 @@ const PostContentZooomSwiper: React.FC<PostContentZoomSwiperProps> = ({
       onActiveIndexChange={(swiper: SwiperClass) => {
         setCurrentIndex(swiper.realIndex);
       }}
+      allowTouchMove={isSwiperEnabled}
     >
       {postContents.map((value, index) => {
         return (
@@ -60,7 +62,13 @@ const PostContentZooomSwiper: React.FC<PostContentZoomSwiperProps> = ({
               <PostContentSlideWrap>
                 <PostContentSlideSubWrap>
                   {value.postContentType === POST_IMAGE_TYPE && (
-                    <PostZoomImage src={value.content} isMobile={isMobile} />
+                    <PostZoomImage
+                      src={value.content}
+                      isMobile={isMobile}
+                      // onSwiperEnabled={(isActive: boolean) => {
+                      //   setIsSwiperEnabled(isActive);
+                      // }}
+                    />
                   )}
                   {/* {value.postContentType === POST_VIDEO_TYPE && (
                     <PostVideoContentELement

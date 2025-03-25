@@ -4,7 +4,7 @@ import { getAccessTokenToLocalStorage } from 'global/util/CookieUtil';
 import { isApp } from 'global/util/reactnative/nativeRouter';
 import { isValidString } from 'global/util/ValidUtil';
 import { useLocalStorageListener } from 'hook/customhook/useLocalStorageLister';
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useSetRecoilState } from 'recoil';
 import { getCheckMe } from 'services/auth/getCheckMe';
 import { serviceUsageTimerStateAtom } from 'states/SystemConfigAtom';
@@ -15,6 +15,8 @@ const ServiceUsageTimerConfig: React.FC = () => {
   );
 
   const accessToken = useLocalStorageListener(ACCESS_TOKEN);
+
+  const checkTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
     if (isApp()) return;
     // const accessToken = getAccessTokenToLocalStorage();
@@ -26,7 +28,7 @@ const ServiceUsageTimerConfig: React.FC = () => {
       }
 
       // @REFER: 나중에 추가 window.location.pathname.startsWith(SIGNUP_PATH)
-      setTimeout(() => {
+      checkTimerRef.current = setTimeout(() => {
         const accessToken = getAccessTokenToLocalStorage();
         if (
           isValidString(accessToken) &&
@@ -41,6 +43,12 @@ const ServiceUsageTimerConfig: React.FC = () => {
     }
 
     checkAccessToken();
+
+    return () => {
+      if (checkTimerRef.current) {
+        clearTimeout(checkTimerRef.current);
+      }
+    };
   }, [accessToken]);
   return <></>;
 };

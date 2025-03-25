@@ -19,11 +19,11 @@ import {
   postDetailInfoPopupAtom,
 } from 'states/PostAtom';
 
-interface AppPopupWrapperProps {
+interface PostPopupWrapperProps {
   children: React.ReactNode;
 }
 
-const AppPopupWrapper: React.FC<AppPopupWrapperProps> = ({ children }) => {
+const PostPopupWrapper: React.FC<PostPopupWrapperProps> = ({ children }) => {
   const location = useLocation();
 
   const setIsPostDetailInfoPopup = useSetRecoilState(isPostDetailInfoPopupAtom);
@@ -77,4 +77,4 @@ const AppPopupWrapper: React.FC<AppPopupWrapperProps> = ({ children }) => {
   return <div>{children}</div>;
 };
 
-export default AppPopupWrapper;
+export default PostPopupWrapper;

@@ -18,10 +18,15 @@ export const MID_CATEGORY_ID = 'midCategoryId';
 // 가입, 스탭
 export const SIGNUP_STEP_QUERY_PARAM = 'step';
 
-// 프로필 상세 팝업
+// 포스트 상세 팝업
 export const POST_DETAIL_POPUP_PARAM = 'postPopup';
 export const POST_DETAIL_POST_ID_PARAM = 'postId';
 export const POST_DETAIL_PROFILE_PARAM = 'profile';
+
+// 프로필 상세 팝업
+export const PROFILE_POPUP_PARAM = 'profilePopup';
+export const PROFILE_POPUP_USERNAME_PARAM = 'username';
+export const PROFILE_POPUP_DISPLAY_PARAM = 'profileDisplay';
 
 export const TRUE_PARAM = 'true';
 export const FALSE_PARAM = 'false';

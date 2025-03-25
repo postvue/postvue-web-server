@@ -68,12 +68,16 @@ const PopupLayout: React.FC<PopupLayoutProps> = ({
     [startY],
   );
 
+  const moveYTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const handleTouchEnd = () => {
     document.body.style.overscrollBehavior = 'auto'; // Prevent overscroll behavior
     if (translateY > 100) {
       requestAnimationFrame(() => {
         setTranslateY(window.innerHeight);
-        setTimeout(() => {
+        if (moveYTimerRef.current) {
+          clearTimeout(moveYTimerRef.current);
+        }
+        moveYTimerRef.current = setTimeout(() => {
           onClose();
           setTranslateY(0);
         }, 150);
@@ -112,6 +116,9 @@ const PopupLayout: React.FC<PopupLayoutProps> = ({
 
     return () => {
       removeFixBody();
+      if (moveYTimerRef.current) {
+        clearTimeout(moveYTimerRef.current);
+      }
     };
   }, []);
 

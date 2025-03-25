@@ -242,12 +242,18 @@ const BottomSnapSheetLayout: React.FC<BottomSnapSheetLayoutProps> = ({
   };
 
   const [init, setInit] = useState<boolean>(false);
+
+  const initTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
-    setTimeout(() => {
+    initTimerRef.current = setTimeout(() => {
       setInit(true);
     }, initDuration);
+
     return () => {
       removeFixedByClose();
+      if (initTimerRef.current) {
+        clearTimeout(initTimerRef.current);
+      }
     };
   }, []);
 

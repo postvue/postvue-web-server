@@ -1,21 +1,26 @@
-import {
-  CredentialResponse,
-  TokenResponse,
-  useGoogleLogin,
-} from '@react-oauth/google';
+import { TokenResponse, useGoogleLogin } from '@react-oauth/google';
 import { queryClient } from 'App';
 import { ReactComponent as GoogleLoginButtonIcon } from 'assets/images/icon/svg/login/GoogleLoginIcon.svg';
+import LoadingComponent from 'components/common/container/LoadingComponent';
 import { STATUS_UNAUTHORIZED_CODE } from 'const/HttpStatusConst';
 import { GOOGLE_OAUTH_CLIENT_ID } from 'const/login/GoogleConst';
 import { HOME_PATH, SIGNUP_PATH } from 'const/PathConst';
 import { QUERY_STATE_NOTIFICATION_MSG } from 'const/QueryClientConst';
 import { CALLBACK_URL } from 'const/QueryParamConst';
+import {
+  BRIDGE_EVENT_LOGIN_ROUTE_TYPE,
+  BridgeMsgInterface,
+  EVENT_DATA_GOOGLE_LOGIN_TYPE,
+  EventDateInterface,
+} from 'const/ReactNativeConst';
 import { GOOGLE_LOGIN_TITLE_NAME } from 'const/TabConfigConst';
 import {
   isApp,
+  sendGoogleLoginRequestEvnet,
   stackRouterLoginSuccess,
 } from 'global/util/reactnative/nativeRouter';
-import React from 'react';
+import { useMessageListener } from 'hook/customhook/useMessageListener';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useResetRecoilState } from 'recoil';
 import { postGoogleLogin } from 'services/auth/google/postGoogleLogin';
@@ -29,17 +34,21 @@ const GoogleLoginButton: React.FC = () => {
 
   const navigate = useNavigate();
 
-  const googleLoginOnSuccess = (res: CredentialResponse) => {
-    if (!res.credential) return;
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const googleLoginOnSuccess = (accessToken: string) => {
+    if (!accessToken) return;
 
     // 백엔드로 `idToken` 전송
-    postGoogleLogin(res.credential)
+    setIsLoading(true);
+    postGoogleLogin(accessToken)
       .then((value) => {
         const callbackUrl = sessionStorage.getItem(CALLBACK_URL);
         const url = callbackUrl ? callbackUrl : HOME_PATH;
         queryClient.invalidateQueries({
           queryKey: [QUERY_STATE_NOTIFICATION_MSG],
         });
+
+        resetServiceUsageTimerState();
         if (isApp()) {
           stackRouterLoginSuccess(value);
         } else {
@@ -58,28 +67,48 @@ const GoogleLoginButton: React.FC = () => {
           alert(data.message);
           console.error(err);
         }
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   };
 
   const resetServiceUsageTimerState = useResetRecoilState(
     serviceUsageTimerStateAtom,
   );
-  const googleLogin = useGoogleLogin({
+
+  const googleLoginProcess = () => {
+    if (isApp()) {
+      googleLoginByApp();
+    } else {
+      googleLoginByWeb();
+    }
+  };
+
+  const googleLoginByApp = () => {
+    sendGoogleLoginRequestEvnet();
+  };
+
+  // const processAccessTokenToServer = async (accessToken: string) => {
+  //   const value = await postGoogleLogin(accessToken);
+  //   const callbackUrl = sessionStorage.getItem(CALLBACK_URL) || HOME_PATH;
+
+  //   queryClient.invalidateQueries({
+  //     queryKey: [QUERY_STATE_NOTIFICATION_MSG],
+  //   });
+
+  //   resetServiceUsageTimerState();
+  //   if (isApp()) {
+  //     stackRouterLoginSuccess(value);
+  //   } else {
+  //     navigate(callbackUrl);
+  //   }
+  // };
+
+  const googleLoginByWeb = useGoogleLogin({
     onSuccess: async (tokenResponse: TokenResponse) => {
       try {
-        const value = await postGoogleLogin(tokenResponse.access_token);
-        const callbackUrl = sessionStorage.getItem(CALLBACK_URL) || HOME_PATH;
-
-        queryClient.invalidateQueries({
-          queryKey: [QUERY_STATE_NOTIFICATION_MSG],
-        });
-
-        resetServiceUsageTimerState();
-        if (isApp()) {
-          stackRouterLoginSuccess(value);
-        } else {
-          navigate(callbackUrl);
-        }
+        googleLoginOnSuccess(tokenResponse.access_token);
       } catch (err: any) {
         console.error('Google 로그인 오류:', err);
 
@@ -96,6 +125,25 @@ const GoogleLoginButton: React.FC = () => {
       alert('Google 로그인에 실패했습니다.');
     },
   });
+
+  const handleMessage = (event: MessageEvent) => {
+    if (!isApp()) return;
+    try {
+      const nativeEvent: BridgeMsgInterface = JSON.parse(event.data);
+
+      if (nativeEvent.type === BRIDGE_EVENT_LOGIN_ROUTE_TYPE) {
+        const eventData: EventDateInterface = nativeEvent.data;
+
+        if (eventData.eventType === EVENT_DATA_GOOGLE_LOGIN_TYPE) {
+          googleLoginOnSuccess(eventData.data);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to parse message:', event.data);
+    }
+  };
+
+  useMessageListener(handleMessage);
 
   return (
     // <LoginElementWrap>
@@ -119,12 +167,13 @@ const GoogleLoginButton: React.FC = () => {
             width={'500px'}
           />
         </LoginElementWrap> */}
-      <LoginElementWrap onClick={() => googleLogin()}>
+      <LoginElementWrap onClick={() => googleLoginProcess()}>
         <LoginElementLogoWrap>
           <GoogleLoginButtonIcon />
         </LoginElementLogoWrap>
         <LoginElementTitle>{GOOGLE_LOGIN_TITLE_NAME}</LoginElementTitle>
       </LoginElementWrap>
+      {isLoading && <LoadingComponent LoadingComponentStyle={{ top: '0px' }} />}
     </>
   );
 };
@@ -132,11 +181,6 @@ const GoogleLoginButton: React.FC = () => {
 const GoogleLogo = styled.img`
   width: 20px;
   height: 20px;
-  margin-right: 10px;
-`;
-
-const ButtonText = styled.span`
-  font-weight: bold;
   color: #1f1f1f;
 `;
 

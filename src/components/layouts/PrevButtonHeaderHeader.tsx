@@ -13,6 +13,7 @@ interface PrevButtonHeaderProps {
   isActionFunc?: boolean;
   preNodeByState?: ReactNode;
   actionFunc?: () => void;
+  isInsetTopMatin?: boolean;
 }
 
 const PrevButtonHeaderHeader: React.FC<PrevButtonHeaderProps> = ({
@@ -24,9 +25,13 @@ const PrevButtonHeaderHeader: React.FC<PrevButtonHeaderProps> = ({
   actionFunc,
   preNodeByState,
   titleReactNode,
+  isInsetTopMatin,
 }) => {
   return (
-    <HeaderLayout HeaderLayoutStyle={HeaderLayoutStyle}>
+    <HeaderLayout
+      HeaderLayoutStyle={HeaderLayoutStyle}
+      isInsetTopMatin={isInsetTopMatin}
+    >
       <PrevButtonHeaderContainer>
         <PrevButtonHeaderHeaderWrap>
           <PrevButtonWrap>

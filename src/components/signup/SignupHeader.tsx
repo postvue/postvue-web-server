@@ -89,6 +89,7 @@ const SignupHeader: React.FC = () => {
           onClose();
         }
       }}
+      isInsetTopMatin={false}
       preNodeByState={
         <div>
           <PrevButtonIcon />

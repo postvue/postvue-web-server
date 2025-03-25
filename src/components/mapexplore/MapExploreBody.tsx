@@ -19,6 +19,7 @@ import MapExploreSelectClusterBody from './MapExploreSelectClusterBody';
 interface MapExploreBodyProps {
   latitude: number;
   longitude: number;
+  distance?: number;
   mapExploreBodyStyle?: React.CSSProperties;
   MapSnsPostLayoutStyle?: React.CSSProperties;
   MapExploreInfiniteScrollStyle?: React.CSSProperties;
@@ -33,6 +34,7 @@ interface MapExploreBodyProps {
 const MapExploreBody: React.FC<MapExploreBodyProps> = ({
   latitude,
   longitude,
+  distance,
   mapExploreBodyStyle,
   MapSnsPostLayoutStyle,
   MapExploreInfiniteScrollStyle,
@@ -60,6 +62,7 @@ const MapExploreBody: React.FC<MapExploreBodyProps> = ({
                 mapContentType={mapContentType}
                 latitude={latitude}
                 longitude={longitude}
+                distance={distance}
                 MapSnsPostLayoutStyle={MapSnsPostLayoutStyle}
                 MapExploreInfiniteScrollStyle={MapExploreInfiniteScrollStyle}
                 masonryLayoutNum={masonryLayoutNum}

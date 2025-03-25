@@ -10,18 +10,20 @@ import { hoverRoundCoverStyle } from 'styles/commonStyles';
 interface PostSettingDotButtonProps {
   selectPostRsp: PostRsp;
   scrapId?: string;
+  PostSettingDotButtonStyle?: React.CSSProperties;
 }
 
 const PostSettingDotButton: React.FC<PostSettingDotButtonProps> = ({
   selectPostRsp,
   scrapId,
+  PostSettingDotButtonStyle,
 }) => {
   const setActivePostDotSettingInfo = useSetRecoilState(
     activePostDotSettingInfoAtom,
   );
 
   return (
-    <PostSettingDotButtonContainer>
+    <PostSettingDotButtonContainer style={PostSettingDotButtonStyle}>
       <PostSettingDotButtonWrap
         onClick={(e) => {
           e.stopPropagation();

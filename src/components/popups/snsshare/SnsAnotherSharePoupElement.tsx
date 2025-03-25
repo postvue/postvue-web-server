@@ -4,7 +4,6 @@ import { ReactComponent as KakaoShareButtonIcon } from 'assets/images/icon/svg/s
 import { ReactComponent as MessageShareButtonIcon } from 'assets/images/icon/svg/share/MessageShareButtonIcon.svg';
 import { ReactComponent as PinterestShareButtonIcon } from 'assets/images/icon/svg/share/PinterestShareButtonIcon.svg';
 import { ReactComponent as ShareMoreButtonIcon } from 'assets/images/icon/svg/share/ShareMoreButtonIcon.svg';
-import { ReactComponent as XShareButtonIcon } from 'assets/images/icon/svg/share/XShareButtonIcon.svg';
 import { APP_SERVICE_LOWERCASE_NAME } from 'const/AppInfoConst';
 import {
   BaseShareSingleOptions,
@@ -204,7 +203,8 @@ const SnsAnotherSharePoupElement: React.FC<SnsAnotherSharePoupElementProps> = ({
             <AnotherSnsShareTitle>Pinterest</AnotherSnsShareTitle>
           </AnotherSnsShareItem>
 
-          <div
+          {/* @REFER: 테스트 용어 제거*/}
+          {/* <div
             onClick={() => {
               const twitterHref = `twitter://post?message=${encodeURIComponent('테스트')}%20${encodeURIComponent(location.href)}`;
               if (isApp()) {
@@ -220,7 +220,7 @@ const SnsAnotherSharePoupElement: React.FC<SnsAnotherSharePoupElementProps> = ({
               </AnotherSnsShareIconWrap>
               <AnotherSnsShareTitle>X</AnotherSnsShareTitle>
             </AnotherSnsShareItem>
-          </div>
+          </div> */}
 
           <FacebookShareButton
             url={sharePopupInfo.shareLink}

@@ -13,7 +13,7 @@ export const isValidString = (str: string): boolean => {
 //첫 글자는 알파벳이어야 하며, 공백 없이 알파벳, 숫자, _ 만 허용됩니다.
 export const isValidUsername = (str: string): boolean => {
   const NAME_REGEX = new RegExp(
-    `^(?!.*\\s)[a-zA-Z][a-zA-Z0-9-!]{${SIGNUP_USERNAME_MIN_SIZE - 1},${SIGNUP_USERNAME_MAX_SIZE - 1}}$`,
+    `^[a-zA-Z][a-zA-Z0-9_]{${SIGNUP_USERNAME_MIN_SIZE - 1},${SIGNUP_USERNAME_MAX_SIZE - 1}}$`,
   );
 
   return NAME_REGEX.test(str);

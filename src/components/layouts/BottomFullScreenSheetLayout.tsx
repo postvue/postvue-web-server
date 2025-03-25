@@ -15,6 +15,7 @@ interface BottomFullScreenSheetLayoutProps {
   BottomSheetContainerStyle?: React.CSSProperties;
   bottomSheetHeaderNode?: React.ReactNode;
   BottomSheetBottomNode?: React.ReactNode;
+  isFixed?: boolean;
 }
 
 const BottomFullScreenSheetLayout: React.FC<
@@ -28,6 +29,7 @@ const BottomFullScreenSheetLayout: React.FC<
   BottomSheetContainerStyle,
   bottomSheetHeaderNode,
   BottomSheetBottomNode,
+  isFixed = true,
 }) => {
   const setIsFixScrollToPostDetailPopup = useSetRecoilState(
     isFixScrollToPostDetailPopupAtom,
@@ -75,6 +77,7 @@ const BottomFullScreenSheetLayout: React.FC<
   };
 
   const isFixBody = () => {
+    if (!isFixed) return;
     if (!BottomFullScreenSheetRef.current || !BottomScrollSheetRef.current)
       return;
     sendPopupEvent(true);
@@ -83,6 +86,7 @@ const BottomFullScreenSheetLayout: React.FC<
   };
 
   const removeFixBody = () => {
+    if (!isFixed) return;
     sendPopupEvent(false);
     unlock([], {
       useGlobalLockState: true,

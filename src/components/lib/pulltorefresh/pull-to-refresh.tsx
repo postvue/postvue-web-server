@@ -253,6 +253,7 @@ const PullToRefresh: React.FC<PullToRefreshProps> = ({
     }
   };
 
+  const pullTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onEnd = (): void => {
     isDragging = false;
     startY = 0;
@@ -268,7 +269,11 @@ const PullToRefresh: React.FC<PullToRefreshProps> = ({
 
     sendVibrationLightEvent();
 
-    setTimeout(() => {
+    if (pullTimerRef.current) {
+      clearTimeout(pullTimerRef.current);
+    }
+
+    pullTimerRef.current = setTimeout(() => {
       onRefresh()
         .then(() => {
           if (childrenRef.current) {

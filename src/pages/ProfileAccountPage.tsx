@@ -3,7 +3,7 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import BottomNavBar from '../components/BottomNavBar';
 import AppBaseTemplate from '../components/layouts/AppBaseTemplate';
-import ProfileAccountBody from '../components/profile/profileaccount/ProfileAccountBody';
+import ProfileAccountBody from '../components/profile/profileaccount/ProfileAccountBodyByPage';
 import ProfileAccountHeader from '../components/profile/profileaccount/ProfileAccountHeader';
 
 const ProfileAccountPage: React.FC = () => {

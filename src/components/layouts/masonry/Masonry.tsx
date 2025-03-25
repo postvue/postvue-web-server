@@ -1,5 +1,11 @@
 import MasonryUtil from 'global/util/MasonryUtil';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import {
   masonryColumnCountAtom,
@@ -43,19 +49,29 @@ const Masonry: React.FC<MasonryProps> = ({
   const utils = useMemo(() => new MasonryUtil(), []);
 
   // 칼럼 개수 설정
-  useEffect(() => {
-    const resizeHandler = () => {
-      // 윈도우 너비
-      const wWidth = window.innerWidth;
-      setColumnCount(
-        utils.caculateColumnCount(wWidth, breakPointOption, fixNum),
-      );
-    };
+  // useEffect(() => {
+  //   const resizeHandler = () => {
+  //     // 윈도우 너비
+  //     const wWidth = window.innerWidth;
+  //     setColumnCount(
+  //       utils.caculateColumnCount(wWidth, breakPointOption, fixNum),
+  //     );
+  //   };
 
+  //   resizeHandler();
+  //   window.addEventListener('resize', resizeHandler);
+  //   return () => window.removeEventListener('resize', resizeHandler);
+  // }, [breakPointOption, utils]);
+  const resizeHandler = useCallback(() => {
+    const wWidth = window.innerWidth;
+    setColumnCount(utils.caculateColumnCount(wWidth, breakPointOption, fixNum));
+  }, [breakPointOption, utils, fixNum, setColumnCount]);
+
+  useEffect(() => {
     resizeHandler();
     window.addEventListener('resize', resizeHandler);
     return () => window.removeEventListener('resize', resizeHandler);
-  }, [breakPointOption, utils]);
+  }, [resizeHandler]);
 
   // 반응형 너비
   useEffect(() => {
@@ -95,36 +111,63 @@ const Masonry: React.FC<MasonryProps> = ({
 
   // Brick 컴포넌트 설정
   useEffect(() => {
+    const imgLoadHandlers: { img: HTMLImageElement; handler: () => void }[] =
+      [];
+
     brickRefs.forEach((el, index) => {
       const brickEl = el.current;
-      const wrapEl = wrapRefs[index].current;
+      const wrapEl = wrapRefs[index]?.current;
       const cellWidth = columnWidth;
 
-      // 이미지가 있다면 이미지 로딩 후, reload를 업데이트함으로써 Brick 컴포넌트 설정 및 배치
       if (brickEl && wrapEl) {
-        const imgEl = wrapEl.querySelector('img');
-
-        // const videoEl = wrapEl.querySelector('video');
+        const imgEl = wrapEl.querySelector('img') as HTMLImageElement | null;
 
         if (imgEl) {
-          imgEl.addEventListener('load', () => {
+          const onLoadHandler = () => {
             applyBrickStyles(brickEl, wrapEl, cellWidth);
             setReload((prev) => prev + 1);
-          });
+          };
+
+          imgEl.addEventListener('load', onLoadHandler);
+          imgLoadHandlers.push({ img: imgEl, handler: onLoadHandler });
         }
 
-        //@REFER: 비디오 자동 실행 구현 완료시
-        // if (videoEl) {
-        //   videoEl.addEventListener('loadedmetadata', () => {
-        //     applyBrickStyles(brickEl, wrapEl, cellWidth);
-        //     setReload((prev) => prev + 1);
-        //   });
-        // }
-
-        // 기본 스타일 설정
         applyBrickStyles(brickEl, wrapEl, cellWidth);
       }
+
+      // @REFER: 주석 처리
+      // // 이미지가 있다면 이미지 로딩 후, reload를 업데이트함으로써 Brick 컴포넌트 설정 및 배치
+      // if (brickEl && wrapEl) {
+      //   const imgEl = wrapEl.querySelector('img');
+
+      //   // const videoEl = wrapEl.querySelector('video');
+
+      //   if (imgEl) {
+      //     imgEl.addEventListener('load', () => {
+      //       applyBrickStyles(brickEl, wrapEl, cellWidth);
+      //       setReload((prev) => prev + 1);
+      //     });
+      //   }
+
+      //   //@REFER: 비디오 자동 실행 구현 완료시
+      //   // if (videoEl) {
+      //   //   videoEl.addEventListener('loadedmetadata', () => {
+      //   //     applyBrickStyles(brickEl, wrapEl, cellWidth);
+      //   //     setReload((prev) => prev + 1);
+      //   //   });
+      //   // }
+
+      //   // 기본 스타일 설정
+      //   applyBrickStyles(brickEl, wrapEl, cellWidth);
+      // }
     });
+
+    return () => {
+      // 등록된 모든 load 이벤트 리스너 제거
+      imgLoadHandlers.forEach(({ img, handler }) => {
+        img.removeEventListener('load', handler);
+      });
+    };
   }, [
     brickRefs,
     wrapRefs,

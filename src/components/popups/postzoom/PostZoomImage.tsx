@@ -6,9 +6,14 @@ import theme from 'styles/theme';
 interface PostZoomImageProps {
   src: string;
   isMobile: boolean;
+  // onSwiperEnabled: (isActive: boolean) => void;
 }
 
-const PostZoomImage: React.FC<PostZoomImageProps> = ({ src, isMobile }) => {
+const PostZoomImage: React.FC<PostZoomImageProps> = ({
+  src,
+  isMobile,
+  // onSwiperEnabled,
+}) => {
   const { windowWidth, windowHeight } = useWindowSize();
   const PostImgRef = useRef<HTMLImageElement>(null);
 
@@ -73,13 +78,34 @@ const PostZoomImage: React.FC<PostZoomImageProps> = ({ src, isMobile }) => {
   }, [windowWidth]);
 
   return (
+    // <TransformWrapper
+    // // initialScale={1}
+    // // minScale={1}
+    // // maxScale={3}
+    // // pinch={{ step: 0.05 }} // 핀치 줌 설정
+    // // panning={{ disabled: true }} // 🛑 이동 방지
+    // // centerZoomedOut={true} // 확대 전에는 중앙 정렬 유
+    // // limitToBounds={true}
+    // // onTransformed={({ state, instance }) => {
+    // //   if (state.scale < 1) {
+    // //     requestAnimationFrame(() => {
+    // //       instance.setTransformState(1, 0, 0); // ✅ 강제로 원래 크기로 복귀
+    // //     });
+    // //   }
+    // //   onSwiperEnabled(state.scale === 1); // Swiper 활성화 여부 변경
+    // // }}
+    // // fitView // 화면에 맞게 초기 확대 조정
+    // >
+    //   <TransformComponent>
+    // <PanPitchZoom zoomable={true} zooming={true}>
     <PostImage
       ref={PostImgRef}
       src={src}
       $isDisplay={imgDisplay}
       onClick={(e) => e.stopPropagation()}
-      style={postImgStyle}
+      // style={postImgStyle}
     />
+    // </PanPitchZoom>
   );
 };
 

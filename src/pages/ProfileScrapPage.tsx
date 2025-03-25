@@ -1,6 +1,7 @@
 import { queryClient } from 'App';
 import PageHelmentInfoElement from 'components/PageHelmetInfoElement';
 import PullToRefreshComponent from 'components/PullToRefreshComponent';
+import { APP_SERVICE_NAME } from 'const/AppInfoConst';
 import { INIT_CURSOR_ID } from 'const/PageConfigConst';
 import { POST_VIDEO_TYPE } from 'const/PostContentTypeConst';
 import { QUERY_STATE_PROFILE_SCRAP } from 'const/QueryClientConst';
@@ -50,7 +51,7 @@ const ProfileScrapPage: React.FC = () => {
             profileScrapInfo.profilePath,
           )}
           ogUrl={window.location.href}
-          ogDescription={'안녕하세요 필로그 입니다.'}
+          ogDescription={`안녕하세요 ${APP_SERVICE_NAME} 입니다.`}
         />
       )}
 

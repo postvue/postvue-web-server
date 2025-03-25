@@ -27,6 +27,90 @@ export async function uploadImgUtil(
   }
 }
 
+export async function resizeImageV2(
+  file: File,
+  maxWidth: number,
+  maxHeight: number,
+  quality = 0.95, // WebP 품질 조정
+): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = async () => {
+      let width = img.width;
+      let height = img.height;
+
+      // 원본이 maxWidth, maxHeight보다 작으면 그대로 반환
+      if (width <= maxWidth && height <= maxHeight) {
+        resolve(file);
+        return;
+      }
+
+      // 리사이징 과정에서 createImageBitmap 활용
+      const scaleDown = (
+        source: HTMLImageElement,
+        targetWidth: number,
+        targetHeight: number,
+      ) => {
+        return new Promise<HTMLCanvasElement>((resolve) => {
+          const canvas = document.createElement('canvas');
+          canvas.width = targetWidth;
+          canvas.height = targetHeight;
+          const ctx = canvas.getContext('2d');
+
+          if (!ctx) return;
+
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+
+          // 고품질 리사이징
+          createImageBitmap(source, {
+            resizeWidth: targetWidth,
+            resizeHeight: targetHeight,
+            resizeQuality: 'high',
+          }).then((bitmap) => {
+            ctx.drawImage(bitmap, 0, 0, targetWidth, targetHeight);
+            resolve(canvas);
+          });
+        });
+      };
+
+      // 비율 유지하면서 크기 조정
+      if (width > height) {
+        if (width > maxWidth) {
+          height *= maxWidth / width;
+          width = maxWidth;
+        }
+      } else {
+        if (height > maxHeight) {
+          width *= maxHeight / height;
+          height = maxHeight;
+        }
+      }
+
+      const canvas = await scaleDown(img, width, height);
+
+      // WebP로 변환 (quality 설정)
+      canvas.toBlob(
+        (blob) => {
+          if (blob) {
+            const resizedFile = new File([blob], file.name, {
+              type: 'image/webp',
+            });
+            resolve(resizedFile);
+          } else {
+            reject(new Error('Failed to resize image'));
+          }
+        },
+        'image/webp',
+        quality,
+      );
+    };
+
+    img.onerror = reject;
+    img.src = URL.createObjectURL(file);
+  });
+}
+
 export async function resizeImage(
   file: File,
   maxWidth: number,

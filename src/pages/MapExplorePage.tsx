@@ -41,7 +41,7 @@ import {
   convertDateToCurrentCountryISO,
 } from 'global/util/DateTimeUtil';
 import { getRoundedNumber } from 'global/util/MathUtil';
-import { getCurrentPosition, getPosInfoByGis } from 'global/util/PositionUtil';
+import { getPosInfoByGis, getUnifiedPosition } from 'global/util/PositionUtil';
 import { getSearchQueryByDebounce } from 'global/util/SearchUtil';
 import { useMessageListener } from 'hook/customhook/useMessageListener';
 import useWindowSize from 'hook/customhook/useWindowSize';
@@ -160,7 +160,7 @@ const MapExplorePage: React.FC = () => {
       document.body.style.width = '100%';
     }
 
-    getCurrentPosition({
+    getUnifiedPosition({
       actionFunc: (position) => {
         setMapLocation({
           latitude: position.latitude,
@@ -416,7 +416,14 @@ const MapExplorePage: React.FC = () => {
               />
             )}
           </MapExploreWrap>
-          {windowWidth <= MEDIA_MOBILE_MAX_WIDTH_NUM && <MapExplorePostPopup />}
+          {windowWidth <= MEDIA_MOBILE_MAX_WIDTH_NUM && (
+            <MapExplorePostPopup>
+              <MapExploreBody
+                latitude={mapLocation.latitude}
+                longitude={mapLocation.longitude}
+              />
+            </MapExplorePostPopup>
+          )}
         </MapExplorePageContainer>
 
         <BottomNavBar />

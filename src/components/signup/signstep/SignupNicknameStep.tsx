@@ -1,8 +1,13 @@
 import { SIGNUP_NICKNAME_MAX_SIZE } from 'const/SignupConst';
 import { isValidNickname } from 'global/util/ValidUtil';
+import useAutoBlur from 'hook/customhook/useAutoBlur';
 import React, { useEffect, useState } from 'react';
 import { useRecoilState, useSetRecoilState } from 'recoil';
-import { signupInfoAtom, signupStepNumAtom } from 'states/SignupAtom';
+import {
+  signStepTransitionInfoAtom,
+  signupInfoAtom,
+  signupStepNumAtom,
+} from 'states/SignupAtom';
 import styled from 'styled-components';
 import SignupHeader from '../SignupHeader';
 import SignupNextButton from '../SignupNextButton';
@@ -17,6 +22,11 @@ const SignupNicknameStep: React.FC = () => {
     setNickname(e.target.value);
     setSignupInfo((prev) => ({ ...prev, nickname: e.target.value }));
   };
+  const setSignStepTransitionInfo = useSetRecoilState(
+    signStepTransitionInfoAtom,
+  );
+
+  useAutoBlur([]);
 
   useEffect(() => {
     if (isValidNickname(nickname)) {
@@ -34,6 +44,10 @@ const SignupNicknameStep: React.FC = () => {
       event.nativeEvent.isComposing === false &&
       isActive
     ) {
+      setSignStepTransitionInfo({
+        inTransition: true,
+        direction: 'left',
+      });
       setSignupStepNum((prev) => prev + 1);
     }
   };
