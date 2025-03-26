@@ -56,14 +56,14 @@ const SignupNicknameStep: React.FC = () => {
     <>
       <SignupHeader />
       <SignupStepTitleWrap>
-        <SignupStepTitle>이름은 어떻게 되시나요?</SignupStepTitle>
+        <SignupStepTitle>닉네임을 정해주세요.</SignupStepTitle>
         <SignupStepSubTitle>
-          친구들과 사람들에게 표시되는 이름입니다.
+          앱에서 표시될 별명입니다. 언제든지 설정에서 바꿀 수 있어요.
         </SignupStepSubTitle>
       </SignupStepTitleWrap>
       <SignupInputWrap>
         <SignupNicknameInput
-          placeholder="이름을 넣어주세요."
+          placeholder="닉네임을 정해주세요."
           value={nickname}
           onChange={(e) => onChangeNickname(e)}
           onKeyDown={(e) => handleKeyPress(e)}

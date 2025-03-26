@@ -11,12 +11,20 @@ import {
 import { HOME_PATH, SIGNUP_PATH } from 'const/PathConst';
 import { QUERY_STATE_NOTIFICATION_MSG } from 'const/QueryClientConst';
 import { CALLBACK_URL } from 'const/QueryParamConst';
+import {
+  BRIDGE_EVENT_LOGIN_ROUTE_TYPE,
+  BridgeMsgInterface,
+  EVENT_DATA_KAKAO_LOGIN_TYPE,
+  EventDateInterface,
+} from 'const/ReactNativeConst';
 import { LOGIN_FAIL_ERROR_ALARM_PHARE_TEXT } from 'const/SystemPhraseConst';
 import { KAKAO_LOGIN_TITLE_NAME } from 'const/TabConfigConst';
 import {
   isApp,
+  sendKakaoLoginRequestEvnet,
   stackRouterLoginSuccess,
 } from 'global/util/reactnative/nativeRouter';
+import { useMessageListener } from 'hook/customhook/useMessageListener';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useResetRecoilState } from 'recoil';
@@ -34,11 +42,15 @@ const KakaoLoginButton: React.FC = () => {
   );
 
   const handleLogin = () => {
-    if (!window.Kakao) return;
+    if (isApp()) {
+      sendKakaoLoginRequestEvnet();
+    } else {
+      if (!window.Kakao) return;
 
-    window.Kakao.Auth.authorize({
-      redirectUri: KAKAO_REDIRECT_URI,
-    });
+      window.Kakao.Auth.authorize({
+        redirectUri: KAKAO_REDIRECT_URI,
+      });
+    }
   };
 
   // const handleLogin = () => {
@@ -95,14 +107,35 @@ const KakaoLoginButton: React.FC = () => {
   );
 
   if (code !== null) {
-    postKakaoAuthToken(code)
-      .then((res) => {
-        kakaoLoginProcess(res.access_token);
-      })
-      .catch((e) => {
-        navigate(-2);
-      });
+    if (!isApp()) {
+      postKakaoAuthToken(code)
+        .then((res) => {
+          kakaoLoginProcess(res.access_token);
+        })
+        .catch((e) => {
+          navigate(-2);
+        });
+    }
   }
+
+  const handleMessage = (event: MessageEvent) => {
+    if (!isApp()) return;
+    try {
+      const nativeEvent: BridgeMsgInterface = JSON.parse(event.data);
+
+      if (nativeEvent.type === BRIDGE_EVENT_LOGIN_ROUTE_TYPE) {
+        const eventData: EventDateInterface = nativeEvent.data;
+
+        if (eventData.eventType === EVENT_DATA_KAKAO_LOGIN_TYPE) {
+          kakaoLoginProcess(eventData.authToken.accessToken);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to parse message:', event.data);
+    }
+  };
+
+  useMessageListener(handleMessage);
 
   return (
     <>

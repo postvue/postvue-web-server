@@ -16,6 +16,7 @@ import {
 import { NAVER_LOGIN_TITLE_NAME } from 'const/TabConfigConst';
 import {
   isApp,
+  sendNaverLoginRequestEvnet,
   stackRouterLoginSuccess,
 } from 'global/util/reactnative/nativeRouter';
 import { useMessageListener } from 'hook/customhook/useMessageListener';
@@ -108,11 +109,15 @@ const NaverLoginButton: React.FC = () => {
   }, []);
 
   const handleNaverClick = () => {
-    const naverLoginButton = document.getElementById(
-      'naverIdLogin_loginButton',
-    );
+    if (isApp()) {
+      sendNaverLoginRequestEvnet();
+    } else {
+      const naverLoginButton = document.getElementById(
+        'naverIdLogin_loginButton',
+      );
 
-    if (naverLoginButton) naverLoginButton.click();
+      if (naverLoginButton) naverLoginButton.click();
+    }
   };
 
   const params = new URLSearchParams(location.hash.substring(1));

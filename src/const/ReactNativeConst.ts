@@ -98,6 +98,7 @@ export const BRIDGE_EVENT_SIGNUP_GRANT_REQUEST_TYPE =
 
 export const BRIDGE_EVENT_LOGIN_ROUTE_TYPE = 'LOGIN_EVENT';
 export const EVENT_DATA_NAVER_LOGIN_TYPE = 'NAVER_LOGIN';
+export const EVENT_DATA_KAKAO_LOGIN_TYPE = 'KAKAO_LOGIN';
 export const EVENT_DATA_GOOGLE_LOGIN_TYPE = 'GOOGLE_LOGIN';
 
 // 위치
@@ -105,6 +106,10 @@ export const BRIDGE_EVENT_GEOLOCATION_TYPE = 'GEOLOCATION_EVENT';
 
 export const EVENT_DATA_GEOLOCATION_CURRENT_POS_TYPE =
   'GEOLOCATION_CURRENT_POS';
+
+export interface GeoPosGrantRequest {
+  isRequest: boolean;
+}
 
 export interface GeolocationCurrentPos {
   latitude: number;
