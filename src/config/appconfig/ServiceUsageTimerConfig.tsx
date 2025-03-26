@@ -17,6 +17,7 @@ const ServiceUsageTimerConfig: React.FC = () => {
   const accessToken = useLocalStorageListener(ACCESS_TOKEN);
 
   const checkTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   useEffect(() => {
     if (isApp()) return;
     // const accessToken = getAccessTokenToLocalStorage();
