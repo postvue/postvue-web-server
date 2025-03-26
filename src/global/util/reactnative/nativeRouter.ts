@@ -23,6 +23,8 @@ import {
   BridgeMsgInterface,
   EVENT_DATA_GEOLOCATION_CURRENT_POS_TYPE,
   EVENT_DATA_GOOGLE_LOGIN_TYPE,
+  EVENT_DATA_KAKAO_LOGIN_TYPE,
+  EVENT_DATA_NAVER_LOGIN_TYPE,
   EVENT_DATA_REACTION_ACTIVE_POPUP_TYPE,
   EVENT_DATA_REACTION_DEACTIVE_POPUP_TYPE,
   EVENT_DATA_REACTION_VIBRATION_HEAVY_TYPE,
@@ -46,6 +48,7 @@ import {
   EVENT_DATA_UPLOAD_VIDEO_TO_SERVER_UPDATE_TYPE,
   EVENT_REACTION_VIBRATION_TYPE,
   EventDateInterface,
+  GeoPosGrantRequest,
   RoutePushEventDateInterface,
 } from 'const/ReactNativeConst';
 import {
@@ -252,7 +255,6 @@ export const sendSignupPermissionRequestEvnet = (): void => {
 };
 
 // 로그인
-
 export const sendGoogleLoginRequestEvnet = (): void => {
   if (!window.ReactNativeWebView) return;
   window.ReactNativeWebView.postMessage(
@@ -265,14 +267,41 @@ export const sendGoogleLoginRequestEvnet = (): void => {
   );
 };
 
+export const sendKakaoLoginRequestEvnet = (): void => {
+  if (!window.ReactNativeWebView) return;
+  window.ReactNativeWebView.postMessage(
+    JSON.stringify({
+      type: BRIDGE_EVENT_LOGIN_ROUTE_TYPE,
+      data: {
+        eventType: EVENT_DATA_KAKAO_LOGIN_TYPE,
+      } as EventDateInterface,
+    } as BridgeMsgInterface),
+  );
+};
+
+export const sendNaverLoginRequestEvnet = (): void => {
+  if (!window.ReactNativeWebView) return;
+  window.ReactNativeWebView.postMessage(
+    JSON.stringify({
+      type: BRIDGE_EVENT_LOGIN_ROUTE_TYPE,
+      data: {
+        eventType: EVENT_DATA_NAVER_LOGIN_TYPE,
+      } as EventDateInterface,
+    } as BridgeMsgInterface),
+  );
+};
+
 // 위치
-export const sendGeolocationCurrentPositionEvnet = (): void => {
+export const sendGeolocationCurrentPositionEvnet = (
+  isRequest: boolean,
+): void => {
   if (!window.ReactNativeWebView) return;
   window.ReactNativeWebView.postMessage(
     JSON.stringify({
       type: BRIDGE_EVENT_GEOLOCATION_TYPE,
       data: {
         eventType: EVENT_DATA_GEOLOCATION_CURRENT_POS_TYPE,
+        data: JSON.stringify({ isRequest: isRequest } as GeoPosGrantRequest),
       },
     } as BridgeMsgInterface),
   );

@@ -160,41 +160,44 @@ const MapExplorePage: React.FC = () => {
       document.body.style.width = '100%';
     }
 
-    getUnifiedPosition({
-      actionFunc: (position) => {
-        setMapLocation({
-          latitude: position.latitude,
-          longitude: position.longitude,
-          isMoveCenter: true,
-        });
-        getPosInfoByGis(position.latitude, position.longitude).then((v) => {
-          setMapMoveLoation((prev) => ({
-            ...prev,
-            regionInfo: {
-              city: v.city,
-              continent: v.continent,
-              continentCode: v.continentCode,
-              countryCode: v.countryCode,
-              countryName: v.countryName,
-              locality: v.locality,
-            },
-          }));
+    getUnifiedPosition(
+      {
+        actionFunc: (position) => {
+          setMapLocation({
+            latitude: position.latitude,
+            longitude: position.longitude,
+            isMoveCenter: true,
+          });
+          getPosInfoByGis(position.latitude, position.longitude).then((v) => {
+            setMapMoveLoation((prev) => ({
+              ...prev,
+              regionInfo: {
+                city: v.city,
+                continent: v.continent,
+                continentCode: v.continentCode,
+                countryCode: v.countryCode,
+                countryName: v.countryName,
+                locality: v.locality,
+              },
+            }));
 
-          setMapLocation((prev) => ({
-            ...prev,
-            regionInfo: {
-              city: v.city,
-              continent: v.continent,
-              continentCode: v.continentCode,
-              countryCode: v.countryCode,
-              countryName: v.countryName,
-              locality: v.locality,
-            },
-          }));
-        });
+            setMapLocation((prev) => ({
+              ...prev,
+              regionInfo: {
+                city: v.city,
+                continent: v.continent,
+                continentCode: v.continentCode,
+                countryCode: v.countryCode,
+                countryName: v.countryName,
+                locality: v.locality,
+              },
+            }));
+          });
+        },
+        isAlertError: false,
       },
-      isAlertError: false,
-    });
+      false,
+    );
 
     return () => {
       if (windowWidth < MEDIA_MOBILE_MAX_WIDTH_NUM) {

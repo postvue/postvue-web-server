@@ -18,10 +18,11 @@ interface CurrentPositionProps {
 
 export const getUnifiedPosition = (
   currentPositionProps: CurrentPositionProps,
+  isPosRequest = true,
 ): void => {
   if (isApp()) {
     // ✅ 앱에서 실행 (React Native → WebView로 메시지 요청)
-    sendGeolocationCurrentPositionEvnet();
+    sendGeolocationCurrentPositionEvnet(isPosRequest);
 
     // ✅ 앱에서 받은 위치 정보 처리
     const receiveMessage = (event: MessageEvent) => {
