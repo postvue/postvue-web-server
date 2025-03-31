@@ -30,7 +30,6 @@ const SearchProfileWithFollowListInfiniteScroll: React.FC<
             ? data?.pages[0].getProfileUserByUsernameList.length > 5
             : false) && hasNextPage
         }
-        hasTermComponent={true}
       />
     </PostRelationWrap>
   );

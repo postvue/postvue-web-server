@@ -25,7 +25,7 @@ import {
   stackRouterLoginSuccess,
 } from 'global/util/reactnative/nativeRouter';
 import { useMessageListener } from 'hook/customhook/useMessageListener';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useResetRecoilState } from 'recoil';
 import { postKakaoAuthToken } from 'services/auth/kakao/postKakaoAuthToken';
@@ -102,21 +102,44 @@ const KakaoLoginButton: React.FC = () => {
       });
   };
 
-  const code = new URL(window.location.href).searchParams.get(
-    KAKAO_LOGIN_CODE_QUERY_PARAM,
-  );
+  // const code = new URL(window.location.href).searchParams.get(
+  //   KAKAO_LOGIN_CODE_QUERY_PARAM,
+  // );
 
-  if (code !== null) {
-    if (!isApp()) {
+  // if (code !== null) {
+  //   if (!isApp()) {
+  //     postKakaoAuthToken(code)
+  //       .then((res) => {
+  //         alert('테스트');
+  //         kakaoLoginProcess(res.access_token);
+  //       })
+  //       .catch((e) => {
+  //         alert('테스트2');
+  //         navigate(-2);
+  //       });
+  //   }
+  // }
+
+  useEffect(() => {
+    const code = new URL(window.location.href).searchParams.get(
+      KAKAO_LOGIN_CODE_QUERY_PARAM,
+    );
+
+    if (code && !isApp()) {
+      setIsLoading(true);
       postKakaoAuthToken(code)
         .then((res) => {
           kakaoLoginProcess(res.access_token);
         })
         .catch((e) => {
-          navigate(-2);
+          alert('카카오 로그인 인증에 실패했습니다. 다시 시도해주세요.');
+          console.error(e);
+        })
+        .finally(() => {
+          setIsLoading(false);
         });
     }
-  }
+  }, []);
 
   const handleMessage = (event: MessageEvent) => {
     if (!isApp()) return;

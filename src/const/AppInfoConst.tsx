@@ -1,6 +1,11 @@
 export const APP_SERVICE_NAME = 'Feelog';
 export const APP_SERVICE_LOWERCASE_NAME = 'feelog';
+export const APP_SERVICE_KO_NAME = '필록';
 export const APP_CONTACT_EMAIL = 'feelog.contact@gmail.com';
+
+export const APP_SCHEME_LINK = 'feelogapp://open';
+export const FALLBACK_IOS_APPSTORE_LINK =
+  'https://apps.apple.com/kr/app/feelog-%ED%95%84%EB%A1%9D/id6743757603';
 
 const banner = `
   ______           _
