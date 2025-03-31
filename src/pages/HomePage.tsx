@@ -1,14 +1,19 @@
 import React from 'react';
 
 import BottomNavBar from 'components/BottomNavBar';
+import HomeHeaderByAppBanner from 'components/home/header/HomeHeaderByAppBanner';
 import HomeBody from 'components/home/HomeBody';
 import PageHelmentInfoElement from 'components/PageHelmetInfoElement';
 import { APP_SERVICE_NAME } from 'const/AppInfoConst';
 import { FEED_TAB_NAME } from 'const/TabConst';
+import { isApp } from 'global/util/reactnative/nativeRouter';
 import HomeHeader from '../components/home/header/HomeHeader';
 import AppBaseTemplate from '../components/layouts/AppBaseTemplate';
 
 const HomePage: React.FC = () => {
+  const ua = navigator.userAgent.toLowerCase();
+  const isMobile = /iphone/.test(ua);
+
   return (
     <>
       <PageHelmentInfoElement
@@ -17,8 +22,10 @@ const HomePage: React.FC = () => {
         ogUrl={window.location.href}
         ogDescription={`${APP_SERVICE_NAME} 서비스: ${FEED_TAB_NAME}}`}
       />
-      <AppBaseTemplate>
-        <HomeHeader />
+      <AppBaseTemplate
+        appContainerTopMargin={isApp() || !isMobile ? undefined : `0px`}
+      >
+        {isApp() || !isMobile ? <HomeHeader /> : <HomeHeaderByAppBanner />}
 
         <HomeBody />
 
