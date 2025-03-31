@@ -146,6 +146,7 @@ const PostComposeBySourceUrlPopupHeader: React.FC<
           backgroundColor: 'transparent',
           position: 'static',
         }}
+        isInsetTopMatin={false}
         RightButtonNode={
           <PostComposeUploadNumWrap>
             {uploadResourceList.length}/{POST_COMPOSEUPLOAD_MAX_NUM}
