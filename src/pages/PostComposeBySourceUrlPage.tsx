@@ -38,7 +38,7 @@ const PostComposeBySourceUrlPage: React.FC = () => {
   return (
     <>
       <AppBaseTemplate
-        isAppContainerTopMargin={false}
+        // isAppContainerTopMargin={false}
         isAppInsetTopMargin={false}
       >
         <PostComposeBySourceUrlPopupHeader
