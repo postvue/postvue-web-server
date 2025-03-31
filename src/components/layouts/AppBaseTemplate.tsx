@@ -83,6 +83,7 @@ interface AppBaseTemplate {
   isAppInsetTopMargin?: boolean;
   isDisplayFavoriteTerm?: boolean;
   isAppContainerTopMargin?: boolean;
+  appContainerTopMargin?: string;
   appRef?: React.RefObject<HTMLDivElement>;
   sideWidth?: number;
   headerWidth?: number;
@@ -109,6 +110,7 @@ const AppBaseTemplate: React.FC<AppBaseTemplate> = ({
   isTransparentSearchButton = false,
   isDisplayFavoriteTerm = true,
   isAppContainerTopMargin = true,
+  appContainerTopMargin = theme.systemSize.header.height,
   isAppInsetTopMargin = true,
   appRef,
   sideWidth = 400,
@@ -241,6 +243,7 @@ const AppBaseTemplate: React.FC<AppBaseTemplate> = ({
                 <AppContainer
                   style={AppContainerStyle}
                   $isAppContainerTopMargin={isAppContainerTopMargin}
+                  $appContainerTopMargin={appContainerTopMargin}
                   $appContainerSize={appContainerWidth}
                   $isScrollByAppContainer={isScrollByAppContainer}
                   ref={appContainerRef}
@@ -390,6 +393,7 @@ const AppBase = styled.div`
 
 const AppContainer = styled.div<{
   $isAppContainerTopMargin: boolean;
+  $appContainerTopMargin: string;
   $appContainerSize: number;
   $isScrollByAppContainer: boolean;
 }>`
@@ -412,14 +416,10 @@ const AppContainer = styled.div<{
     min-height: calc(
       100dvh -
         ${(props) =>
-          props.$isAppContainerTopMargin
-            ? `${theme.systemSize.header.height}`
-            : '0px'}
+          props.$isAppContainerTopMargin ? props.$appContainerTopMargin : '0px'}
     );
     padding-top: ${(props) =>
-      props.$isAppContainerTopMargin
-        ? `${theme.systemSize.header.height}`
-        : '0px'};
+      props.$isAppContainerTopMargin ? props.$appContainerTopMargin : '0px'};
   }
 
   @media (max-width: ${theme.systemSize.appDisplaySize.maxWidth}) {

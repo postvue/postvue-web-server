@@ -28,7 +28,6 @@ const SearchScrapListInfiniteScroll: React.FC<
         hasLoadingIcon={
           (data ? data?.pages[0].length > 5 : false) && hasNextPage
         }
-        hasTermComponent={true}
       />
     </PostRelationWrap>
   );
