@@ -14,6 +14,7 @@ import {
   isActivPostComposeBySourceUrlPopupAtom,
   isActivPostComposePopupAtom,
 } from 'states/PostComposeAtom';
+import styled from 'styled-components';
 
 const PostComposeBySourceUrlPage: React.FC = () => {
   const goBackOrNavigate = useGoBackOrNavigate(HOME_PATH);
@@ -35,36 +36,45 @@ const PostComposeBySourceUrlPage: React.FC = () => {
       goBackOrNavigate();
     }
   }, [windowWidth]);
+
   return (
     <>
       <AppBaseTemplate
         // isAppContainerTopMargin={false}
         isAppInsetTopMargin={false}
       >
-        <PostComposeBySourceUrlPopupHeader
-          funcPrevButton={() => {
-            stackRouterBack(navigate);
-          }}
-          postComposeSearchInput={postComposeSearchInput}
-          setPostComposeSearchInput={setPostComposeSearchInput}
-        />
-        <PostComposeBySourceUrlPopupBody
-          postComposeSearchInput={postComposeSearchInput}
-        />
-        <PostComposeBySourceUrlPopupBottom
-          bottomNextButtonActionFunc={() => {
-            if (isApp()) {
-              navigate(POST_COMPOSE_PATH);
-            } else {
-              setIsActivePostComposeBySourceUrlPopup(false);
-              setIsActivPostComposePopup(true);
-            }
-          }}
-        />
+        <PostComposePageBodyContainer>
+          <PostComposeBySourceUrlPopupHeader
+            funcPrevButton={() => {
+              stackRouterBack(navigate);
+            }}
+            postComposeSearchInput={postComposeSearchInput}
+            setPostComposeSearchInput={setPostComposeSearchInput}
+          />
+          <PostComposeBySourceUrlPopupBody
+            postComposeSearchInput={postComposeSearchInput}
+          />
+          <PostComposeBySourceUrlPopupBottom
+            bottomNextButtonActionFunc={() => {
+              if (isApp()) {
+                navigate(POST_COMPOSE_PATH);
+              } else {
+                setIsActivePostComposeBySourceUrlPopup(false);
+                setIsActivPostComposePopup(true);
+              }
+            }}
+          />
+        </PostComposePageBodyContainer>
       </AppBaseTemplate>
       <MyAccountSettingInfoState />
     </>
   );
 };
+
+const PostComposePageBodyContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+`;
 
 export default PostComposeBySourceUrlPage;
