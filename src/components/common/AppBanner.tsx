@@ -15,9 +15,9 @@ const AppBanner: React.FC = () => {
 
   useEffect(() => {
     const ua = navigator.userAgent.toLowerCase();
-    const isMobile = /iphone/.test(ua);
+    const isIosMobile = /iphone/.test(ua);
 
-    if (!isApp()) {
+    if (!isApp() && isIosMobile) {
       setIsVisible(true);
     }
   }, []);
