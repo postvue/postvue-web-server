@@ -6,8 +6,10 @@ import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
 import useWindowSize from 'hook/customhook/useWindowSize';
 
 import { AnimatePresence, motion } from 'framer-motion';
+import { isApp, stackRouterLogin } from 'global/util/reactnative/nativeRouter';
 import useBodyAdaptProps from 'hook/customhook/useBodyAdaptProps';
 import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil';
 import { getCheckVerificationCode } from 'services/auth/getCheckVerificationCode';
 import {
@@ -19,10 +21,15 @@ import styled from 'styled-components';
 const SignupPage: React.FC = () => {
   const { windowWidth } = useWindowSize();
   const resetSignupStepNum = useResetRecoilState(signupStepNumAtom);
+  const navigate = useNavigate();
 
   useEffect(() => {
     getCheckVerificationCode().catch(() => {
-      window.location.href = HOME_PATH;
+      if (isApp()) {
+        stackRouterLogin({ isNavigate: true, navigate: navigate });
+      } else {
+        window.location.href = HOME_PATH;
+      }
     });
 
     return () => {

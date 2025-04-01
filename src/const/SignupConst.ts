@@ -21,7 +21,7 @@ export const SIGNUP_TERM_OF_SERVICE_QUERY_PARAM_VALUE = 'term_of_service';
 export const SIGNUP_USERNAME_MIN_SIZE = 5;
 export const SIGNUP_USERNAME_MAX_SIZE = 18;
 
-export const SIGNUP_NICKNAME_MIN_SIZE = 1;
+export const SIGNUP_NICKNAME_MIN_SIZE = 2;
 export const SIGNUP_NICKNAME_MAX_SIZE = 30;
 
 export const SIGNUP_PASSWORD_MIN_SIZE = 8;

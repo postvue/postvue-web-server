@@ -108,7 +108,9 @@ const MapExploreByScrapPopupBody: React.FC<MapExploreByScrapPopupBodyProps> = ({
           //     isReplaced: true,
           //   }}
           // />
-          <MapExplorePostByScrapBottomSheet scrapId={scrapId} />
+          <MapExplorePostByScrapBottomSheet>
+            <ProfileScrapBody scrapId={scrapId} isEdit={false} />
+          </MapExplorePostByScrapBottomSheet>
         ) : (
           <MapPostExploreBodyWrap>
             <ProfileScrapBody scrapId={scrapId} isEdit={false} />

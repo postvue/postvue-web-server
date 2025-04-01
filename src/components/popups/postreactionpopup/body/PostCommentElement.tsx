@@ -5,11 +5,11 @@ import {
   PostComment,
   PostCommentReplyMsgInfo,
 } from '../../../../global/interface/post';
-import { convertDiffrenceDateTimeByString } from '../../../../global/util/DateTimeUtil';
 
 import { queryClient } from 'App';
 import { POST_COMMENT_MEDIA_IMAGE_TYPE } from 'const/PostCommentConst';
 import { QUERY_STATE_POST_COMMENT_REPLY_LIST } from 'const/QueryClientConst';
+import { convertDifferenceDateTimeByString } from 'global/util/DateTimeUtil';
 import {
   isApp,
   sendVibrationLightEvent,
@@ -243,7 +243,7 @@ const PostCommentElement: React.FC<PostCommentElementProps> = ({
             <ProfileUserNameDateWrap>
               <ProfileUsername>{postComment.username}</ProfileUsername>
               <PostCommentDatetime>
-                {convertDiffrenceDateTimeByString(postComment.postedAt)}
+                {convertDifferenceDateTimeByString(postComment.postedAt)}
               </PostCommentDatetime>
             </ProfileUserNameDateWrap>
             <PostReactionCommentSettingButton

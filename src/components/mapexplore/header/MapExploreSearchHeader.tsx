@@ -1,15 +1,17 @@
 import React, { useEffect, useRef } from 'react';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import styled from 'styled-components';
 import HeaderLayout from '../../layouts/HeaderLayout';
 
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
 import { MAP_EXPLORE_SELECT_LOCATION_PHARSE_TEXT } from 'const/SystemPhraseConst';
+import { MAP_EXPLORE_SEARCH_POST_TAB_ID } from 'const/TabConfigConst';
 import { getSearchQueryByDebounce } from 'global/util/SearchUtil';
 import useWindowSize from 'hook/customhook/useWindowSize';
 import {
   isMapExploreSearchResultActiveAtom,
   isMapSearchInputActiveAtom,
+  mapExploreSearchTabIdAtom,
   mapSearchTempWordAtom,
 } from 'states/MapExploreAtom';
 import MapSearchInputElement from './MapSearchInputElement';
@@ -18,12 +20,14 @@ interface MapExploreSearchHeaderProps {
   SearchButtonInputLayoutActiveStyle?: React.CSSProperties;
   SearchButtonInputLayoutNotActiceStyle?: React.CSSProperties;
   address: string;
+  onClickMapPostButton: (postSearchQuery: string) => void;
 }
 
 const MapExploreSearchHeader: React.FC<MapExploreSearchHeaderProps> = ({
   SearchButtonInputLayoutActiveStyle,
   SearchButtonInputLayoutNotActiceStyle,
   address,
+  onClickMapPostButton,
 }) => {
   const deleteButtonRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -39,6 +43,8 @@ const MapExploreSearchHeader: React.FC<MapExploreSearchHeaderProps> = ({
 
   const [isMapExploreSearchResultActive, setIsMapExploreSearchResultActive] =
     useRecoilState(isMapExploreSearchResultActiveAtom);
+
+  const mapExploreSearchTabId = useRecoilValue(mapExploreSearchTabIdAtom);
 
   const onClickCancelSearchInput = () => {
     setIsMapSearchInputActive(false);
@@ -119,7 +125,12 @@ const MapExploreSearchHeader: React.FC<MapExploreSearchHeaderProps> = ({
                   ? SearchButtonInputLayoutActiveStyle
                   : SearchButtonInputLayoutNotActiceStyle
               }
-              hasHandlePress={false}
+              hasHandlePress={
+                mapExploreSearchTabId === MAP_EXPLORE_SEARCH_POST_TAB_ID
+              }
+              onSearchQueryByPost={() =>
+                onClickMapPostButton(mapSearchTempWord)
+              }
             />
           </SearchContainerWrap>
 

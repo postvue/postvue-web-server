@@ -3,7 +3,7 @@ import { ReactComponent as LeftScrollXButtonIcon } from 'assets/images/icon/svg/
 import { ReactComponent as RightScrollXButtonIcon } from 'assets/images/icon/svg/scrollx/RightScrollXButton35x35Icon.svg';
 import { POST_IMAGE_TYPE, POST_VIDEO_TYPE } from 'const/PostContentTypeConst';
 import { ProfileThumbnailScrapList } from 'global/interface/profile';
-import { convertDiffrenceDateTimeByString } from 'global/util/DateTimeUtil';
+import { convertDifferenceDateTimeByString } from 'global/util/DateTimeUtil';
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
 import theme from 'styles/theme';
@@ -71,31 +71,19 @@ const ProfileScrapThumbnailListView: React.FC<
             </ScrollXMoveButtonContainer>
           ) : (
             <ProfileScrapImgListWrap>
-              <ProfileScrapImgWrap
-                onClick={() =>
-                  onButtonEvent({ scrapId: v.scrapId, scrapName: v.scrapName })
-                }
-              >
+              <ProfileScrapImgWrap>
                 <ProfileScrapImg
                   src={''}
                   style={{ backgroundColor: theme.grey.Grey1 }}
                 />
               </ProfileScrapImgWrap>
-              <ProfileScrapImgWrap
-                onClick={() =>
-                  onButtonEvent({ scrapId: v.scrapId, scrapName: v.scrapName })
-                }
-              >
+              <ProfileScrapImgWrap>
                 <ProfileScrapImg
                   src={''}
                   style={{ backgroundColor: theme.grey.Grey1 }}
                 />
               </ProfileScrapImgWrap>
-              <ProfileScrapImgWrap
-                onClick={() =>
-                  onButtonEvent({ scrapId: v.scrapId, scrapName: v.scrapName })
-                }
-              >
+              <ProfileScrapImgWrap>
                 <ProfileScrapImg
                   src={''}
                   style={{ backgroundColor: theme.grey.Grey1 }}
@@ -112,7 +100,7 @@ const ProfileScrapThumbnailListView: React.FC<
                   {v.scrapNum.toLocaleString()}개
                 </ProfileScrapNum>
                 <ProfileScrapDate>
-                  {convertDiffrenceDateTimeByString(v.lastPostedAt)}
+                  {convertDifferenceDateTimeByString(v.lastPostedAt)}
                 </ProfileScrapDate>
               </ProfileScrapNumDateWrap>
             </ProfileScrapNameAndSunInfoWrap>

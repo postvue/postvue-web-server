@@ -75,50 +75,96 @@ export const convertDiffrenceDateTime = (dateTime: Date): string => {
   }
 };
 
-export const convertDiffrenceDateTimeByString = (
+// Z가 없으면 붙이고 마이크로초 제거하는 함수
+const normalizeToUtcISOString = (input: string): string => {
+  const withoutMicroseconds = input.split('.')[0]; // 마이크로초 제거
+  const withZ = /z$/i.test(input) ? '' : 'Z'; // Z가 없으면 붙이기
+  return withoutMicroseconds + withZ;
+};
+
+export const convertDifferenceDateTimeByString = (
   dateTimeString: string,
 ): string => {
   if (!isISODate(dateTimeString)) return NOT_DATE_TIME;
 
   try {
+    const normalized = normalizeToUtcISOString(dateTimeString);
+    const postDate = new Date(normalized);
     const currentDate = new Date();
-    const postDate = new Date(dateTimeString);
 
     const diffInMillis = currentDate.getTime() - postDate.getTime();
+    if (diffInMillis < 0) return NOT_DATE_TIME;
     const diffInMinutes = Math.floor(diffInMillis / (1000 * 60));
     const diffInHours = Math.floor(diffInMillis / (1000 * 60 * 60));
 
-    // 1. 같은 날인 경우 (시간 차이만 보여줌)
-    if (diffInHours < 1) {
-      return `${diffInMinutes}분 전`;
-    }
+    if (diffInHours < 1) return `${diffInMinutes}분 전`;
+    if (diffInHours < 24) return `${diffInHours}시간 전`;
 
-    if (diffInHours < 24) {
-      return `${diffInHours}시간 전`;
-    }
-
-    // 2. 1년 미만일 때는 일 단위로 표시
     const diffInDays = Math.floor(diffInMillis / (1000 * 60 * 60 * 24));
-    if (diffInDays < 365) {
-      return `${diffInDays}일 전`;
-    }
+    if (diffInDays < 31) return `${diffInDays}일 전`;
 
-    // 3. 1년 이상인 경우 정확한 년 차이 계산
+    if (31 <= diffInDays && diffInDays < 365)
+      return `${Math.floor(diffInDays / 30)}개월 전`;
+
     let diffInYears = currentDate.getFullYear() - postDate.getFullYear();
     const hasBirthdayPassedThisYear =
       currentDate.getMonth() > postDate.getMonth() ||
       (currentDate.getMonth() === postDate.getMonth() &&
         currentDate.getDate() >= postDate.getDate());
 
-    if (!hasBirthdayPassedThisYear) {
-      diffInYears--;
-    }
+    if (!hasBirthdayPassedThisYear) diffInYears--;
 
     return `${diffInYears}년 전`;
   } catch (e) {
     return NOT_DATE_TIME;
   }
 };
+
+// 버전 1
+// export const convertDiffrenceDateTimeByString = (
+//   dateTimeString: string,
+// ): string => {
+//   if (!isISODate(dateTimeString)) return NOT_DATE_TIME;
+
+//   try {
+//     const currentDate = new Date();
+//     const postDate = new Date(dateTimeString);
+
+//     const diffInMillis = currentDate.getTime() - postDate.getTime();
+//     const diffInMinutes = Math.floor(diffInMillis / (1000 * 60));
+//     const diffInHours = Math.floor(diffInMillis / (1000 * 60 * 60));
+
+//     // 1. 같은 날인 경우 (시간 차이만 보여줌)
+//     if (diffInHours < 1) {
+//       return `${diffInMinutes}분 전`;
+//     }
+
+//     if (diffInHours < 24) {
+//       return `${diffInHours}시간 전`;
+//     }
+
+//     // 2. 1년 미만일 때는 일 단위로 표시
+//     const diffInDays = Math.floor(diffInMillis / (1000 * 60 * 60 * 24));
+//     if (diffInDays < 365) {
+//       return `${diffInDays}일 전`;
+//     }
+
+//     // 3. 1년 이상인 경우 정확한 년 차이 계산
+//     let diffInYears = currentDate.getFullYear() - postDate.getFullYear();
+//     const hasBirthdayPassedThisYear =
+//       currentDate.getMonth() > postDate.getMonth() ||
+//       (currentDate.getMonth() === postDate.getMonth() &&
+//         currentDate.getDate() >= postDate.getDate());
+
+//     if (!hasBirthdayPassedThisYear) {
+//       diffInYears--;
+//     }
+
+//     return `${diffInYears}년 전`;
+//   } catch (e) {
+//     return NOT_DATE_TIME;
+//   }
+// };
 
 export const checkAgeDate = (dateString: string, minAge: number): boolean => {
   if (!dateString) {

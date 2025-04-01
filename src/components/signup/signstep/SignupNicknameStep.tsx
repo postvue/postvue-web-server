@@ -1,4 +1,7 @@
-import { SIGNUP_NICKNAME_MAX_SIZE } from 'const/SignupConst';
+import {
+  SIGNUP_NICKNAME_MAX_SIZE,
+  SIGNUP_NICKNAME_MIN_SIZE,
+} from 'const/SignupConst';
 import { isValidNickname } from 'global/util/ValidUtil';
 import useAutoBlur from 'hook/customhook/useAutoBlur';
 import React, { useEffect, useState } from 'react';
@@ -68,21 +71,37 @@ const SignupNicknameStep: React.FC = () => {
           onChange={(e) => onChangeNickname(e)}
           onKeyDown={(e) => handleKeyPress(e)}
         />
+        {nickname !== '' && !isValidNickname(nickname) && (
+          <NicknameExistenceWrap>
+            {isValidNickname(nickname) ? (
+              <>
+                {nickname.length < SIGNUP_NICKNAME_MIN_SIZE ? (
+                  <NicknameIsExistedExistence>
+                    두 글자 이상 작성해주어야 됩닏.
+                  </NicknameIsExistedExistence>
+                ) : (
+                  <>
+                    {nickname.length > SIGNUP_NICKNAME_MAX_SIZE && (
+                      <NicknameIsExistedExistence>
+                        사용자 아이디는 {SIGNUP_NICKNAME_MAX_SIZE}자 이하여야
+                        합니다.
+                      </NicknameIsExistedExistence>
+                    )}
+                  </>
+                )}
+              </>
+            ) : (
+              <>
+                <NicknameIsExistedExistence>
+                  맨 앞 두 글자는 공백 및 특수문자를 제외한 글자 및 밑줄(_)
+                  가능합니다.
+                </NicknameIsExistedExistence>
+              </>
+            )}
+          </NicknameExistenceWrap>
+        )}
       </SignupInputWrap>
-      {nickname !== '' && !isValidNickname(nickname) && (
-        <NicknameExistenceWrap>
-          {nickname.length <= SIGNUP_NICKNAME_MAX_SIZE && (
-            <NicknameIsExistedExistence>
-              밑줄(_) 이외의 특수문자는 허용되지 않습니다.
-            </NicknameIsExistedExistence>
-          )}
-          {nickname.length > SIGNUP_NICKNAME_MAX_SIZE && (
-            <NicknameIsExistedExistence>
-              사용자 아이디는 {SIGNUP_NICKNAME_MAX_SIZE}자 이하여야 합니다.
-            </NicknameIsExistedExistence>
-          )}
-        </NicknameExistenceWrap>
-      )}
+
       <SignupNextButton isActive={isActive} />
     </>
   );
@@ -120,8 +139,7 @@ const SignupNicknameInput = styled.input`
 `;
 
 const NicknameExistenceWrap = styled.div`
-  margin: 7px 0px 0px
-    ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding};
+  margin: 7px 0px 0px 0px;
 `;
 
 const NicknameIsExistence = styled.div`
