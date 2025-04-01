@@ -2,9 +2,16 @@ import { ReactComponent as MapExplorePopupCloseButtonIcon } from 'assets/images/
 import ContextMenuPopup from 'components/popups/ContextMenuPopup';
 import { ACCOUNT_NOT_PROFILE_IMG_PATH } from 'const/AccountConst';
 import {
+  MAP_CONTENT_LOCATION_TYPE,
+  MAP_CONTENT_POST_TYPE,
+} from 'const/MapExploreConst';
+import {
   MEDIA_MOBILE_MAX_WIDTH,
   MEDIA_MOBILE_MAX_WIDTH_NUM,
 } from 'const/SystemAttrConst';
+import { MAP_EXPLORE_ALL_TAB_PARAM } from 'const/TabConfigConst';
+import { MapLocalSrchRsp } from 'global/interface/map';
+import { getPosInfoByGis } from 'global/util/PositionUtil';
 import { isApp } from 'global/util/reactnative/nativeRouter';
 import useOutsideClick from 'hook/customhook/useOutsideClick';
 import useWindowSize from 'hook/customhook/useWindowSize';
@@ -16,12 +23,19 @@ import {
   useResetRecoilState,
   useSetRecoilState,
 } from 'recoil';
+import { getMapLocation } from 'services/maps/getMapLocation';
 import {
+  currentSearchQueryAtom,
   isActiveMyMapAtom,
   isMapDatePickerPopupAtom,
   isMapDateRangePickerPopupAtom,
   isMapSearchInputActiveAtom,
+  mapContentTypeAtom,
   mapDatePickerPopupInfoAtom,
+  mapExploreFilterTabAtom,
+  mapLoactionAtom,
+  mapMoveLocationAtom,
+  mapSearchPostWordAtom,
   mapSearchTempWordAtom,
 } from 'states/MapExploreAtom';
 import styled from 'styled-components';
@@ -86,6 +100,79 @@ const MapExploreHeader: React.FC<MapExploreHeaderProps> = ({
     };
   }, []);
 
+  const setMapExploreFilterTab = useSetRecoilState(mapExploreFilterTabAtom);
+
+  const [mapMoveLocation, setMapMoveLoation] =
+    useRecoilState(mapMoveLocationAtom);
+
+  const setMapSearchPostWord = useSetRecoilState(mapSearchPostWordAtom);
+
+  const setCurrentSearchQuery = useSetRecoilState(currentSearchQueryAtom);
+  const setMapContentType = useSetRecoilState(mapContentTypeAtom);
+  const setMapLoaction = useSetRecoilState(mapLoactionAtom);
+
+  const [mapSearchTempWord, setMapSearchTempWord] = useRecoilState(
+    mapSearchTempWordAtom,
+  );
+
+  const onClickMapPostButton = (postSearchQuery: string) => {
+    setIsMapSearchInputActive(false);
+    setMapExploreFilterTab(MAP_EXPLORE_ALL_TAB_PARAM);
+    setMapSearchPostWord(postSearchQuery);
+    setCurrentSearchQuery(postSearchQuery);
+    setMapContentType(MAP_CONTENT_POST_TYPE);
+    setMapLoaction({
+      latitude: mapMoveLocation.latitude,
+      longitude: mapMoveLocation.longitude,
+      isMoveCenter: false,
+    });
+    setMapSearchTempWord('');
+  };
+
+  const onClickGeoPositionRefreshButton = (
+    latitude: number,
+    longitude: number,
+  ) => {
+    setMapExploreFilterTab(MAP_EXPLORE_ALL_TAB_PARAM);
+    setMapLoaction({
+      latitude: latitude,
+      longitude: longitude,
+      isMoveCenter: true,
+    });
+    setMapContentType(MAP_CONTENT_LOCATION_TYPE);
+  };
+
+  const onClickAddress = (value: MapLocalSrchRsp) => {
+    setCurrentSearchQuery(value.roadAddr ? value.roadAddr : value.placeName);
+    getPosInfoByGis(value.latitude, value.longitude).then((v) => {
+      setMapMoveLoation((prev) => ({
+        ...prev,
+        regionInfo: {
+          city: v.city,
+          continent: v.continent,
+          continentCode: v.continentCode,
+          countryCode: v.countryCode,
+          countryName: v.countryName,
+          locality: v.locality,
+        },
+      }));
+    });
+    if (value.hasLocation) {
+      setIsMapSearchInputActive(false);
+      onClickGeoPositionRefreshButton(value.latitude, value.longitude);
+      setMapSearchTempWord('');
+    } else {
+      getMapLocation(value.roadAddr).then((mapLocationRsp) => {
+        setIsMapSearchInputActive(false);
+        onClickGeoPositionRefreshButton(
+          mapLocationRsp.latitude,
+          mapLocationRsp.longitude,
+        );
+        setMapSearchTempWord('');
+      });
+    }
+  };
+
   return (
     <MapExploreHeaderContainer $MapFullMargin={MapFullMargin}>
       {isFetchedByMyAccount && (
@@ -122,6 +209,7 @@ const MapExploreHeader: React.FC<MapExploreHeaderProps> = ({
                     SearchButtonInputLayoutNotActiveStyle
                   }
                   address={address}
+                  onClickMapPostButton={onClickMapPostButton}
                 />
                 {!isMapSearchInputActive &&
                   !mapDatePickerPopupInfo.isActive && (
@@ -230,6 +318,8 @@ const MapExploreHeader: React.FC<MapExploreHeaderProps> = ({
                 SearchSuggestBodyContiainerStyle={{
                   backgroundColor: 'transparent',
                 }}
+                onClickMapPostButton={onClickMapPostButton}
+                onClickAddress={onClickAddress}
               />
             </MapExploreSuggestBodyWrap>
           )}

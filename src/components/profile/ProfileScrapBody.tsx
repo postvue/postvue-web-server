@@ -2,7 +2,7 @@ import FloatingActionButtonLayout from 'components/layouts/FloatingActionButtonL
 import SnsPostMasonryLayout from 'components/layouts/SnsPostMasonryLayout';
 import { PROFILE_EDIT_SCRAP_ROUTE_PATH, SEARCH_PATH } from 'const/PathConst';
 import { SEARCH_PAGE_NAME } from 'const/ReactNativeConst';
-import { convertDiffrenceDateTimeByString } from 'global/util/DateTimeUtil';
+import { convertDifferenceDateTimeByString } from 'global/util/DateTimeUtil';
 import {
   navigateToTabWithUrl,
   stackRouterPush,
@@ -18,10 +18,12 @@ import theme from 'styles/theme';
 interface ProfileScrapBodyProps {
   scrapId: string;
   isEdit?: boolean;
+  actionFunc?: () => void;
 }
 const ProfileScrapBody: React.FC<ProfileScrapBodyProps> = ({
   scrapId,
   isEdit = true,
+  actionFunc,
 }) => {
   const navigate = useNavigate();
 
@@ -39,73 +41,72 @@ const ProfileScrapBody: React.FC<ProfileScrapBodyProps> = ({
       {isFetchedByScrapInfo && scrapInfo && isFetchedByProfileScrap && (
         <>
           <ProfileScrapBodyContainer>
-            <ProfileScrapBodyWrap>
-              <ProfileScrapTitleEditWrap>
-                <ProfileScrapTitleWrap>
-                  <ProfileScrapTitle>{scrapInfo?.scrapName}</ProfileScrapTitle>
-                  <ProfileScrapNumDateWrap>
-                    <ProfileScrapNum>
-                      {scrapInfo.scrapNum.toLocaleString()}개
-                    </ProfileScrapNum>
-                    <ProfileScrapDate>
-                      {convertDiffrenceDateTimeByString(scrapInfo.lastPostedAt)}
-                    </ProfileScrapDate>
-                  </ProfileScrapNumDateWrap>
-                </ProfileScrapTitleWrap>
-                {scrapInfo.isMe && isEdit && (
-                  <ProfileScrapEditButtonWrap
-                    onClick={() => {
-                      if (!scrapId) return;
-                      stackRouterPush(
-                        navigate,
-                        generatePath(PROFILE_EDIT_SCRAP_ROUTE_PATH, {
-                          scrapId: scrapId,
-                        }),
-                      );
-                    }}
-                  >
-                    <ProfileScrapEditButton>편집하기</ProfileScrapEditButton>
-                  </ProfileScrapEditButtonWrap>
-                )}
-              </ProfileScrapTitleEditWrap>
-
-              {!isErrorByScrapInfo && profileScrap?.pages && (
-                <SnsPostMasonryLayout
-                  snsPostList={profileScrap.pages.flatMap(
-                    (value) => value.snsPostRspList,
-                  )}
-                  scrapId={scrapId}
-                />
+            {/* <ProfileScrapBodyWrap> */}
+            <ProfileScrapTitleEditWrap>
+              <ProfileScrapTitleWrap>
+                <ProfileScrapTitle>{scrapInfo?.scrapName}</ProfileScrapTitle>
+                <ProfileScrapNumDateWrap>
+                  <ProfileScrapNum>
+                    {scrapInfo.scrapNum.toLocaleString()}개
+                  </ProfileScrapNum>
+                  <ProfileScrapDate>
+                    {convertDifferenceDateTimeByString(scrapInfo.lastPostedAt)}
+                  </ProfileScrapDate>
+                </ProfileScrapNumDateWrap>
+              </ProfileScrapTitleWrap>
+              {scrapInfo.isMe && isEdit && (
+                <ProfileScrapEditButtonWrap
+                  onClick={() => {
+                    if (!scrapId) return;
+                    stackRouterPush(
+                      navigate,
+                      generatePath(PROFILE_EDIT_SCRAP_ROUTE_PATH, {
+                        scrapId: scrapId,
+                      }),
+                    );
+                  }}
+                >
+                  <ProfileScrapEditButton>편집하기</ProfileScrapEditButton>
+                </ProfileScrapEditButtonWrap>
               )}
-              {isErrorByScrapInfo && (
-                <PrivateScrapTitle>비어있는 스크랩입니다.</PrivateScrapTitle>
-              )}
-              {scrapInfo &&
-                !isErrorByScrapInfo &&
-                profileScrap &&
-                profileScrap?.pages.flatMap((v) => v.snsPostRspList).length <=
-                  0 && (
-                  <>
-                    {scrapInfo.scrapNum > 0 ? (
-                      <PrivateScrapTitle>
-                        비공개 스크랩입니다.
-                      </PrivateScrapTitle>
-                    ) : (
-                      <PrivateScrapTitle>
-                        비어있는 스크랩입니다.
-                      </PrivateScrapTitle>
-                    )}
-                  </>
-                )}
+            </ProfileScrapTitleEditWrap>
 
-              {scrapInfo && scrapId && (
+            {!isErrorByScrapInfo && profileScrap?.pages && (
+              <SnsPostMasonryLayout
+                snsPostList={profileScrap.pages.flatMap(
+                  (value) => value.snsPostRspList,
+                )}
+                actionFunc={actionFunc}
+                scrapId={scrapId}
+              />
+            )}
+            {isErrorByScrapInfo && (
+              <PrivateScrapTitle>비어있는 스크랩입니다.</PrivateScrapTitle>
+            )}
+            {scrapInfo &&
+              !isErrorByScrapInfo &&
+              profileScrap &&
+              profileScrap?.pages.flatMap((v) => v.snsPostRspList).length <=
+                0 && (
                 <>
-                  {scrapInfo.scrapName !== '' && (
-                    <ProfileScrapInfiniteScroll scrapId={scrapId} />
+                  {scrapInfo.scrapNum > 0 ? (
+                    <PrivateScrapTitle>비공개 스크랩입니다.</PrivateScrapTitle>
+                  ) : (
+                    <PrivateScrapTitle>
+                      비어있는 스크랩입니다.
+                    </PrivateScrapTitle>
                   )}
                 </>
               )}
-            </ProfileScrapBodyWrap>
+
+            {scrapInfo && scrapId && (
+              <>
+                {scrapInfo.scrapName !== '' && (
+                  <ProfileScrapInfiniteScroll scrapId={scrapId} />
+                )}
+              </>
+            )}
+            {/* </ProfileScrapBodyWrap> */}
           </ProfileScrapBodyContainer>
           {scrapInfo.isMe && isEdit && (
             <FloatingActionButtonLayout bottomGap={0}>
@@ -145,10 +146,25 @@ const ProfileScrapBody: React.FC<ProfileScrapBodyProps> = ({
 };
 
 const ProfileScrapBodyContainer = styled.div`
-  min-height: calc(100dvh - ${theme.systemSize.header.height});
+  min-height: calc(
+    100dvh -
+      ${theme.systemSize.header.heightNumber +
+      (parseFloat(
+        getComputedStyle(document.documentElement).getPropertyValue(
+          '--safe-area-inset-top',
+        ),
+      ) || 0) +
+      (parseFloat(
+        getComputedStyle(document.documentElement).getPropertyValue(
+          '--safe-area-inset-bottom',
+        ),
+      ) || 0)}px
+  );
 `;
 
-const ProfileScrapBodyWrap = styled.div``;
+const ProfileScrapBodyWrap = styled.div`
+  position: relative;
+`;
 
 const ProfileScrapTitleEditWrap = styled.div`
   display: flex;

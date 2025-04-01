@@ -22,8 +22,13 @@ export const isValidUsername = (str: string): boolean => {
 //최소 5글자, 최대 20글자까지 입력 가능합니다.
 //첫 글자는 알파벳이어야 하며, 공백 없이 알파벳, 숫자, _ 만 허용됩니다.
 export const isValidNickname = (str: string): boolean => {
+  // const NAME_REGEX = new RegExp(
+  //   `^(?!.*\\s)[\\p{L}_0-9-]{${SIGNUP_NICKNAME_MIN_SIZE},${SIGNUP_NICKNAME_MAX_SIZE - 1}}$`,
+  //   'u',
+  // );
+
   const NAME_REGEX = new RegExp(
-    `^(?!.*\\s)[\\p{L}_0-9-]{${SIGNUP_NICKNAME_MIN_SIZE},${SIGNUP_NICKNAME_MAX_SIZE - 1}}$`,
+    `^[\\p{L}0-9_]{${SIGNUP_NICKNAME_MIN_SIZE}}.{0,${SIGNUP_NICKNAME_MAX_SIZE - SIGNUP_NICKNAME_MIN_SIZE}}$`,
     'u',
   );
 

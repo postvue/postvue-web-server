@@ -1,9 +1,9 @@
 import LongPressToResizeButton from 'components/common/buttton/LongPressToResizeButton';
 import { ProfileInfoByDirectMsg } from 'global/interface/profile';
+import { convertDifferenceDateTimeByString } from 'global/util/DateTimeUtil';
 import React, { useRef } from 'react';
 import styled from 'styled-components';
 import { MsgConversation } from '../../../global/interface/message';
-import { convertDiffrenceDateTimeByString } from '../../../global/util/DateTimeUtil';
 import ConversationMsgitem from './ConversationMsgItem';
 
 interface FollowConversationMsgProps {
@@ -49,7 +49,9 @@ const FollowConversationMsg: React.FC<FollowConversationMsgProps> = ({
                   </MsgConversationFollowItem>
                 </LongPressToResizeButton>
                 <MsgConversationFollowDate>
-                  {convertDiffrenceDateTimeByString(msg.msgConversation.sendAt)}
+                  {convertDifferenceDateTimeByString(
+                    msg.msgConversation.sendAt,
+                  )}
                 </MsgConversationFollowDate>
               </MsgDateWrap>
             ) : (

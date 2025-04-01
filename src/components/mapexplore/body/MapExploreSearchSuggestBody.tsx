@@ -4,17 +4,12 @@ import TabStickBar from 'components/common/container/TabStickBar';
 import LocationPositionElement from 'components/location/LocationPostionElement';
 import SearchQueryElement from 'components/search/body/SearchQueryElement';
 import { ACTIVE_CLASS_NAME } from 'const/ClassNameConst';
-import {
-  MAP_CONTENT_LOCATION_TYPE,
-  MAP_CONTENT_POST_TYPE,
-} from 'const/MapExploreConst';
 import { MAP_SEARCH_LOCATION_TYPE } from 'const/SearchConst';
 import {
   MEDIA_MOBILE_MAX_WIDTH,
   MEDIA_MOBILE_MAX_WIDTH_NUM,
 } from 'const/SystemAttrConst';
 import {
-  MAP_EXPLORE_ALL_TAB_PARAM,
   MAP_EXPLORE_SEARCH_LOCATION_TAB_ID,
   MAP_EXPLORE_SEARCH_LOCATION_TAB_NAME,
   MAP_EXPLORE_SEARCH_POST_TAB_ID,
@@ -28,21 +23,14 @@ import {
   getMapRecentSearchWordList,
 } from 'global/util/MapSearchUtil';
 
-import { getPosInfoByGis } from 'global/util/PositionUtil';
 import useWindowSize from 'hook/customhook/useWindowSize';
 import React, { useEffect, useState } from 'react';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
-import { getMapLocation } from 'services/maps/getMapLocation';
 import {
-  currentSearchQueryAtom,
   isMapExploreSearchResultActiveAtom,
   isMapSearchInputActiveAtom,
-  mapContentTypeAtom,
-  mapExploreFilterTabAtom,
   mapExploreSearchTabIdAtom,
-  mapLoactionAtom,
   mapMoveLocationAtom,
-  mapSearchPostWordAtom,
   mapSearchTempWordAtom,
 } from 'states/MapExploreAtom';
 import styled from 'styled-components';
@@ -55,11 +43,17 @@ import MapExploreSearchRecommSuggestBody from './MapExploreSearchRecommSuggestBo
 
 interface MapExploreSearchSuggestBodyProps {
   SearchSuggestBodyContiainerStyle?: React.CSSProperties;
+  onClickMapPostButton: (postSearchQuery: string) => void;
+  onClickAddress: (value: MapLocalSrchRsp) => void;
 }
 
 const MapExploreSearchSuggestBody: React.FC<
   MapExploreSearchSuggestBodyProps
-> = ({ SearchSuggestBodyContiainerStyle }) => {
+> = ({
+  SearchSuggestBodyContiainerStyle,
+  onClickMapPostButton,
+  onClickAddress,
+}) => {
   const mapExploreSearchTabList = [
     {
       tabId: MAP_EXPLORE_SEARCH_RECOMM_TAB_ID,
@@ -74,7 +68,7 @@ const MapExploreSearchSuggestBody: React.FC<
       tabName: MAP_EXPLORE_SEARCH_LOCATION_TAB_NAME,
     },
   ];
-  const setMapContentType = useSetRecoilState(mapContentTypeAtom);
+  // const setMapContentType = useSetRecoilState(mapContentTypeAtom);
   const [mapExploreSearchTabId, setMapExploreSearchTabId] = useRecoilState(
     mapExploreSearchTabIdAtom,
   );
@@ -93,7 +87,6 @@ const MapExploreSearchSuggestBody: React.FC<
   const [mapSearchTempWord, setMapSearchTempWord] = useRecoilState(
     mapSearchTempWordAtom,
   );
-  const setMapSearchPostWord = useSetRecoilState(mapSearchPostWordAtom);
 
   const onClickDeleteSearchWord = (
     searchWord: MapSearchRecentKeywordInterface,
@@ -104,9 +97,9 @@ const MapExploreSearchSuggestBody: React.FC<
     setRecentSearchWordList(deletedSearchRecentSearchWordList);
   };
 
-  const setMapLoaction = useSetRecoilState(mapLoactionAtom);
+  // const setMapLoaction = useSetRecoilState(mapLoactionAtom);
 
-  const setMapExploreFilterTab = useSetRecoilState(mapExploreFilterTabAtom);
+  // const setMapExploreFilterTab = useSetRecoilState(mapExploreFilterTabAtom);
 
   const [mapMoveLocation, setMapMoveLoation] =
     useRecoilState(mapMoveLocationAtom);
@@ -128,32 +121,32 @@ const MapExploreSearchSuggestBody: React.FC<
   //   isMapPostQuery && mapContentType === MAP_CONTENT_POST_TYPE,
   // );
 
-  const onClickGeoPositionRefreshButton = (
-    latitude: number,
-    longitude: number,
-  ) => {
-    setMapExploreFilterTab(MAP_EXPLORE_ALL_TAB_PARAM);
-    setMapLoaction({
-      latitude: latitude,
-      longitude: longitude,
-      isMoveCenter: true,
-    });
-    setMapContentType(MAP_CONTENT_LOCATION_TYPE);
-  };
+  // const onClickGeoPositionRefreshButton = (
+  //   latitude: number,
+  //   longitude: number,
+  // ) => {
+  //   setMapExploreFilterTab(MAP_EXPLORE_ALL_TAB_PARAM);
+  //   setMapLoaction({
+  //     latitude: latitude,
+  //     longitude: longitude,
+  //     isMoveCenter: true,
+  //   });
+  //   setMapContentType(MAP_CONTENT_LOCATION_TYPE);
+  // };
 
-  const onClickMapPostButton = (postSearchQuery: string) => {
-    setIsMapSearchInputActive(false);
-    setMapExploreFilterTab(MAP_EXPLORE_ALL_TAB_PARAM);
-    setMapSearchPostWord(postSearchQuery);
-    setCurrentSearchQuery(postSearchQuery);
-    setMapContentType(MAP_CONTENT_POST_TYPE);
-    setMapLoaction({
-      latitude: mapMoveLocation.latitude,
-      longitude: mapMoveLocation.longitude,
-      isMoveCenter: false,
-    });
-    setMapSearchTempWord('');
-  };
+  // const onClickMapPostButton = (postSearchQuery: string) => {
+  //   setIsMapSearchInputActive(false);
+  //   setMapExploreFilterTab(MAP_EXPLORE_ALL_TAB_PARAM);
+  //   setMapSearchPostWord(postSearchQuery);
+  //   setCurrentSearchQuery(postSearchQuery);
+  //   setMapContentType(MAP_CONTENT_POST_TYPE);
+  //   setMapLoaction({
+  //     latitude: mapMoveLocation.latitude,
+  //     longitude: mapMoveLocation.longitude,
+  //     isMoveCenter: false,
+  //   });
+  //   setMapSearchTempWord('');
+  // };
 
   useEffect(() => {
     setRecentSearchWordList(getMapRecentSearchWordList());
@@ -163,38 +156,7 @@ const MapExploreSearchSuggestBody: React.FC<
     };
   }, []);
 
-  const setCurrentSearchQuery = useSetRecoilState(currentSearchQueryAtom);
-
-  const onClickAddress = (value: MapLocalSrchRsp) => {
-    setCurrentSearchQuery(value.roadAddr ? value.roadAddr : value.placeName);
-    getPosInfoByGis(value.latitude, value.longitude).then((v) => {
-      setMapMoveLoation((prev) => ({
-        ...prev,
-        regionInfo: {
-          city: v.city,
-          continent: v.continent,
-          continentCode: v.continentCode,
-          countryCode: v.countryCode,
-          countryName: v.countryName,
-          locality: v.locality,
-        },
-      }));
-    });
-    if (value.hasLocation) {
-      setIsMapSearchInputActive(false);
-      onClickGeoPositionRefreshButton(value.latitude, value.longitude);
-      setMapSearchTempWord('');
-    } else {
-      getMapLocation(value.roadAddr).then((mapLocationRsp) => {
-        setIsMapSearchInputActive(false);
-        onClickGeoPositionRefreshButton(
-          mapLocationRsp.latitude,
-          mapLocationRsp.longitude,
-        );
-        setMapSearchTempWord('');
-      });
-    }
-  };
+  // const setCurrentSearchQuery = useSetRecoilState(currentSearchQueryAtom);
 
   const { windowWidth } = useWindowSize();
   return (

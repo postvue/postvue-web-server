@@ -2,7 +2,8 @@ import LongPressToResizeButton from 'components/common/buttton/LongPressToResize
 import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 import { MsgConversation } from '../../../global/interface/message';
-import { convertDiffrenceDateTimeByString } from '../../../global/util/DateTimeUtil';
+
+import { convertDifferenceDateTimeByString } from 'global/util/DateTimeUtil';
 import MyMsgConversationReactionContextPopup from '../popup/MyMsgConversationReactionContextPopup';
 import ConversationMsgitem from './ConversationMsgItem';
 
@@ -36,7 +37,7 @@ const MyConversationMsg: React.FC<MyConversationMsgProps> = ({ groupData }) => {
           {idx === groupData.group.length - 1 || msg.showDate === true ? (
             <MsgDateWrap key={msg.msgConversation.msgId}>
               <MsgConversationMeDate>
-                {convertDiffrenceDateTimeByString(msg.msgConversation.sendAt)}
+                {convertDifferenceDateTimeByString(msg.msgConversation.sendAt)}
               </MsgConversationMeDate>
               <LongPressToResizeButton
                 resize={MsgResize}

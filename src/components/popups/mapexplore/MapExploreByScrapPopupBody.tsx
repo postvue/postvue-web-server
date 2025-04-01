@@ -13,6 +13,8 @@ import GeoCurrentPositionButton from 'components/mapexplore/GeoCurrentPositionBu
 import ProfileScrapBody from 'components/profile/ProfileScrapBody';
 import { POS_CONTROL_GAP_NUM } from 'const/MapExploreConst';
 import { isEmptyObject } from 'global/util/ObjectUtil';
+import { isApp } from 'global/util/reactnative/nativeRouter';
+import useBodyAdaptProps from 'hook/customhook/useBodyAdaptProps';
 import { PostMapPostInfiniteInterface } from 'hook/queryhook/QueryStatePostMapPostInfinite';
 import { QueryStateProfileScrap } from 'hook/queryhook/QueryStateProfileScrap';
 import MapExplorePostByScrapBottomSheet from './MapExplorePostByScrapBottomSheet';
@@ -22,6 +24,8 @@ interface MapExploreByScrapPopupBodyProps {
   funcPrevButton: () => void;
   isMobile?: boolean;
 }
+
+const initTime = 1000;
 
 const MapExploreByScrapPopupBody: React.FC<MapExploreByScrapPopupBodyProps> = ({
   scrapId,
@@ -61,7 +65,7 @@ const MapExploreByScrapPopupBody: React.FC<MapExploreByScrapPopupBodyProps> = ({
         isMoveCenter: true,
       });
       setInitScrapPopup(true);
-    }, 1000);
+    }, initTime);
   }, [profileScrap]);
 
   useEffect(() => {
@@ -69,6 +73,16 @@ const MapExploreByScrapPopupBody: React.FC<MapExploreByScrapPopupBodyProps> = ({
       setInitScrapPopup(false);
     };
   }, []);
+
+  useBodyAdaptProps(
+    [
+      { key: 'overflow', value: 'hidden' },
+      { key: 'position', value: 'fixed' },
+    ],
+    initTime,
+    undefined,
+    isMobile && !isApp(),
+  );
 
   return (
     <>
@@ -143,7 +157,9 @@ const MapExploreByScrapPopupBody: React.FC<MapExploreByScrapPopupBodyProps> = ({
           //     isReplaced: true,
           //   }}
           // />
-          <MapExplorePostByScrapBottomSheet scrapId={scrapId} />
+          <MapExplorePostByScrapBottomSheet>
+            <ProfileScrapBody scrapId={scrapId} isEdit={false} />
+          </MapExplorePostByScrapBottomSheet>
         ) : (
           <MapPostExploreBodyWrap>
             <ProfileScrapBody scrapId={scrapId} isEdit={false} />
