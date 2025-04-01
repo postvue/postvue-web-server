@@ -18,7 +18,7 @@ import {
   sendSignupPermissionRequestEvnet,
 } from 'global/util/reactnative/nativeRouter';
 import { useMessageListener } from 'hook/customhook/useMessageListener';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRecoilState } from 'recoil';
 import { postAuthSignup } from 'services/auth/postAuthSignup';
 import { signupInfoAtom } from 'states/SignupAtom';
@@ -101,6 +101,20 @@ const SignupTermOfServiceStep: React.FC = () => {
   };
 
   useMessageListener(handleMessage);
+
+  useEffect(() => {
+    setSignupInfo((prev) => ({
+      ...prev,
+      termOfService: {
+        agreeToAgeTerm: false,
+        agreeToServieTerm: false,
+        agreeToPrivacyPolicy: false,
+        agreeToPrivacyPolicyToThirdPaties: false,
+        agreeToMarketingCommunications: false,
+        agreeToTermsOfUserGeoLocation: false,
+      },
+    }));
+  }, []);
 
   return (
     <>

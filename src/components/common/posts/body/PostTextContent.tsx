@@ -7,7 +7,7 @@ import LinkifyTextComponent from 'components/LinkifyTextComponent';
 import { RoutePushEventDateInterface } from 'const/ReactNativeConst';
 import { stackRouterPush } from 'global/util/reactnative/nativeRouter';
 import { isValidString } from 'global/util/ValidUtil';
-import { convertDiffrenceDateTimeByString } from '../../../../global/util/DateTimeUtil';
+import { convertDifferenceDateTimeByString } from '../../../../global/util/DateTimeUtil';
 
 interface PostTextContentProps {
   postTitle: string;
@@ -83,7 +83,7 @@ const PostTextContent: React.FC<PostTextContentProps> = ({
           )}
         </PostTextFieldContentWrap>
       )}
-      <PostDateTime>{convertDiffrenceDateTimeByString(postedAt)}</PostDateTime>
+      <PostDateTime>{convertDifferenceDateTimeByString(postedAt)}</PostDateTime>
       <PostTagWrap onClick={(e) => e.stopPropagation()}>
         {tags.map((v, i) => (
           <div

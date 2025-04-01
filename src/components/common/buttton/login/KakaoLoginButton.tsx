@@ -110,11 +110,9 @@ const KakaoLoginButton: React.FC = () => {
   //   if (!isApp()) {
   //     postKakaoAuthToken(code)
   //       .then((res) => {
-  //         alert('테스트');
   //         kakaoLoginProcess(res.access_token);
   //       })
   //       .catch((e) => {
-  //         alert('테스트2');
   //         navigate(-2);
   //       });
   //   }

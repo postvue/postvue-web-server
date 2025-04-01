@@ -114,52 +114,58 @@ const SignupUsernameStep: React.FC = () => {
           onChange={(e) => onSearchInputChange(e)}
           onKeyDown={handleKeyPress}
         />
-      </SignupDateWrap>
-
-      <div style={{ flex: 1 }}>
-        {!loading && username !== '' && !isValidUsername(username) && (
-          <UsernameExistenceWrap>
-            {username.length < SIGNUP_USERNAME_MIN_SIZE && (
-              <UsernameIsExistedExistence>
-                사용자 아이디는 {SIGNUP_USERNAME_MIN_SIZE}자 이상이어야 합니다.
-              </UsernameIsExistedExistence>
-            )}
-            {username.length >= SIGNUP_USERNAME_MIN_SIZE && (
-              <>
-                {username.length < SIGNUP_USERNAME_MAX_SIZE && (
-                  <UsernameIsExistedExistence>
-                    아이디는 공백없이 첫 글자는 영어, 나머지는 알파벳, 숫자,
-                    밑줄(_) 만 허용됩니다.
-                  </UsernameIsExistedExistence>
+        {!loading && (
+          <>
+            {username === '' || !isValidUsername(username) ? (
+              <UsernameExistenceWrap>
+                {isValidUsername(username) ? (
+                  <>
+                    {username.length < SIGNUP_USERNAME_MIN_SIZE ? (
+                      <UsernameIsExistedExistence>
+                        사용자 아이디는 {SIGNUP_USERNAME_MIN_SIZE}자 이상이어야
+                        합니다.
+                      </UsernameIsExistedExistence>
+                    ) : (
+                      <UsernameIsExistedExistence>
+                        사용자 아이디는 {SIGNUP_USERNAME_MAX_SIZE}자 이하여야
+                        합니다.
+                      </UsernameIsExistedExistence>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    {username !== '' && (
+                      <UsernameIsExistedExistence>
+                        아이디는 공백없이 첫 글자는 영어, 나머지는 알파벳, 숫자,
+                        밑줄(_) 만 허용됩니다.
+                      </UsernameIsExistedExistence>
+                    )}
+                  </>
                 )}
-                {username.length > SIGNUP_USERNAME_MAX_SIZE && (
-                  <UsernameIsExistedExistence>
-                    사용자 아이디는 {SIGNUP_USERNAME_MAX_SIZE}자 이하여야
-                    합니다.
-                  </UsernameIsExistedExistence>
+              </UsernameExistenceWrap>
+            ) : (
+              <>
+                {signupUsernameExistenceHashMap.has(username) && (
+                  <UsernameExistenceWrap>
+                    {signupUsernameExistenceHashMap.get(username) ? (
+                      // 존재함
+                      <UsernameIsExistedExistence>
+                        이미 존재하는 아이디입니다.
+                      </UsernameIsExistedExistence>
+                    ) : (
+                      // 존재하지 않음
+                      <UsernameIsNotExistedExistence>
+                        사용가능한 아이디입니다.
+                      </UsernameIsNotExistedExistence>
+                    )}
+                  </UsernameExistenceWrap>
                 )}
               </>
             )}
-          </UsernameExistenceWrap>
+          </>
         )}
-        {!loading &&
-          isValidUsername(username) &&
-          signupUsernameExistenceHashMap.has(username) && (
-            <UsernameExistenceWrap>
-              {signupUsernameExistenceHashMap.get(username) ? (
-                // 존재함
-                <UsernameIsExistedExistence>
-                  이미 존재하는 아이디입니다.
-                </UsernameIsExistedExistence>
-              ) : (
-                // 존재하지 않음
-                <UsernameIsNotExistedExistence>
-                  사용가능한 아이디입니다.
-                </UsernameIsNotExistedExistence>
-              )}
-            </UsernameExistenceWrap>
-          )}
-      </div>
+      </SignupDateWrap>
+
       <SignupNextButton isActive={isActive} />
     </>
   );
@@ -182,6 +188,7 @@ const SignupStepSubTitle = styled.div`
 
 const SignupDateWrap = styled.div`
   margin: 0 ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding};
+  flex: 1;
 `;
 
 const SignupNicknameInput = styled.input`
@@ -196,8 +203,7 @@ const SignupNicknameInput = styled.input`
 `;
 
 const UsernameExistenceWrap = styled.div`
-  margin: 7px 0px 0px
-    ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding};
+  margin: 7px 0px 0px 0px;
 `;
 
 const UsernameIsExistence = styled.div`

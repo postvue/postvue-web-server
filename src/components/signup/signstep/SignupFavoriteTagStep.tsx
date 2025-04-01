@@ -86,16 +86,15 @@ const SignupFavoriteTagStep: React.FC = () => {
             <FavoriteTagSuggestItemListWrap>
               {data &&
                 !isLoading &&
-                data?.pages.flatMap((value, pageIndex) =>
-                  value.map((v, index) => {
-                    const refIndex = pageIndex * value.length + index;
-
+                data?.pages
+                  .flatMap((v) => v)
+                  .map((v, index) => {
                     return (
-                      <LongPressToResizeButton key={refIndex}>
+                      <LongPressToResizeButton key={index}>
                         <TagElementContainer
-                          ref={(el) => (tagRefs.current[refIndex] = el)}
+                          ref={(el) => (tagRefs.current[index] = el)}
                           onClick={() => {
-                            const tagRef = tagRefs.current[refIndex];
+                            const tagRef = tagRefs.current[index];
                             if (tagRef) {
                               actionFuncByRef(tagRef, v.tagId);
                             }
@@ -107,8 +106,7 @@ const SignupFavoriteTagStep: React.FC = () => {
                         </TagElementContainer>
                       </LongPressToResizeButton>
                     );
-                  }),
-                )}
+                  })}
             </FavoriteTagSuggestItemListWrap>
             <RecommFavoriteTagListInfiniteScroll />
           </>

@@ -3,6 +3,7 @@ import SearchButtonInput from 'components/common/input/SearchButtonInput';
 import PullToRefreshComponent from 'components/PullToRefreshComponent';
 import { PAGE_NUM } from 'const/PageConfigConst';
 import { QUERY_STATE_MSG_INBOX_LIST } from 'const/QueryClientConst';
+import { convertDifferenceDateTimeByString } from 'global/util/DateTimeUtil';
 import { stackRouterPush } from 'global/util/reactnative/nativeRouter';
 import { useActiveUserSessionHookByIndexedDb } from 'hook/db/useActiveUserSessionHookByIndexedDb';
 import MsgInboxListInfiniteScroll from 'hook/MsgInboxListInfiniteScroll';
@@ -17,7 +18,6 @@ import styled from 'styled-components';
 import { MSG_CONTENT_IMAGE_TYPE } from '../../../const/MsgContentTypeConst';
 import { CONVERSTAION_PATH, MESSAGE_PATH } from '../../../const/PathConst';
 import { MESSAGE_SEARCH_INPUT_PHARSE_TEXT } from '../../../const/SystemPhraseConst';
-import { convertDiffrenceDateTimeByString } from '../../../global/util/DateTimeUtil';
 import theme from '../../../styles/theme';
 
 const MessageInboxBody: React.FC = () => {
@@ -127,7 +127,7 @@ const MessageInboxBody: React.FC = () => {
                               </MsgInboxUnreadWrap>
                             )}
                             <MsgInboxRecentSendTime>
-                              {convertDiffrenceDateTimeByString(value.sendAt)}
+                              {convertDifferenceDateTimeByString(value.sendAt)}
                             </MsgInboxRecentSendTime>
                           </MsgSubWrap>
                         </MsgInboxProfileWrap>

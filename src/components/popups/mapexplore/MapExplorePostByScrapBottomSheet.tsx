@@ -1,19 +1,13 @@
-import ProfileScrapBody from 'components/profile/ProfileScrapBody';
 import React, { useEffect, useState } from 'react';
 import MapExplorePostBottomSheet from './MapExplorePostBottomSheet';
 
 interface MapExplorePostByScrapBottomSheetProps {
-  funcPrevButton?: () => void;
-  linkPopupInfo?: {
-    isLinkPopup: boolean;
-    isReplaced: boolean;
-  };
-  scrapId: string;
+  children: React.ReactNode;
 }
 
 const MapExplorePostByScrapBottomSheet: React.FC<
   MapExplorePostByScrapBottomSheetProps
-> = ({ funcPrevButton, linkPopupInfo, scrapId }) => {
+> = ({ children }) => {
   const [init, setInit] = useState<boolean>(false);
   useEffect(() => {
     setTimeout(() => {
@@ -26,7 +20,7 @@ const MapExplorePostByScrapBottomSheet: React.FC<
       hasGeoCurrentPositionButton={false}
       hasGeoPositionRefreshButton={false}
     >
-      <div>{init && <ProfileScrapBody scrapId={scrapId} isEdit={false} />}</div>
+      {init && <div>{children}</div>}
     </MapExplorePostBottomSheet>
   );
 };

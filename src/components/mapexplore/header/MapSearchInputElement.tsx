@@ -22,8 +22,8 @@ interface MapSearchInputElementProps {
     | SetterOrUpdater<string>
     | React.Dispatch<React.SetStateAction<string>>;
   debouncedGetSearchQuery: DebouncedFunc<(searchQuery: string) => void>;
-  onSearchQuery?: () => void;
-  onEmptyTermFunc?: () => void;
+  onSearchQueryByPost: () => void;
+  // onEmptyTermFunc?: () => void;
   SearchButtonInputLayoutStyle?: React.CSSProperties;
   hasHandlePress?: boolean;
 }
@@ -38,8 +38,8 @@ const MapSearchInputElement: React.FC<MapSearchInputElementProps> = ({
   searchTempWord,
   setSearchTempWord,
   debouncedGetSearchQuery,
-  onSearchQuery,
-  onEmptyTermFunc,
+  onSearchQueryByPost,
+  // onEmptyTermFunc,
   SearchButtonInputLayoutStyle,
   hasHandlePress = true,
 }) => {
@@ -49,9 +49,9 @@ const MapSearchInputElement: React.FC<MapSearchInputElementProps> = ({
 
   const isEmptyTermFunc = () => {
     setSearchTempWord('');
-    if (onEmptyTermFunc) {
-      onEmptyTermFunc();
-    }
+    // if (onEmptyTermFunc) {
+    //   onEmptyTermFunc();
+    // }
   };
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -76,9 +76,7 @@ const MapSearchInputElement: React.FC<MapSearchInputElementProps> = ({
   const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter' && event.nativeEvent.isComposing === false) {
       setIsSearchInputActive(false);
-      if (onSearchQuery) {
-        onSearchQuery();
-      }
+      onSearchQueryByPost();
     }
   };
 
