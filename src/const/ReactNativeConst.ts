@@ -35,6 +35,10 @@ export interface BridgeEventImageNativeUploadInfoInterface {
   duration?: number;
 }
 
+export interface BridgeEventImageNativeRequestInterface {
+  imageMaxNumber: number;
+}
+
 export const BRIDGE_EVENT_POPUP_TYPE = 'POPUP_EVENT';
 
 export const EVENT_DATA_REACTION_ACTIVE_POPUP_TYPE = 'ACTIVE_POPUP';

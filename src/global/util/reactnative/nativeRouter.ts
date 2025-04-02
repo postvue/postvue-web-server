@@ -20,6 +20,7 @@ import {
   BRIDGE_EVENT_VIDEO_SHOOT_NATIVE_UPLOAD_TYPE,
   BRIDGE_EXPLORE_MAP_POPUP_EVENT_TYPE,
   BRIDGE_INIT_SETTING_EVENT_TYPE,
+  BridgeEventImageNativeRequestInterface,
   BridgeMsgInterface,
   EVENT_DATA_GEOLOCATION_CURRENT_POS_TYPE,
   EVENT_DATA_GOOGLE_LOGIN_TYPE,
@@ -173,11 +174,19 @@ export const sendPopupEvent = (isActive: boolean): void => {
 };
 
 // ReactNative Webview에 popup 활성화 전달
-export const sendNativeImageUploadEvent = (): void => {
+export const sendNativeImageUploadEvent = (imageMaxNumber: number): void => {
   if (!window.ReactNativeWebView) return;
+
+  const bridgeEventImageNativeRequestInterface: BridgeEventImageNativeRequestInterface =
+    {
+      imageMaxNumber: imageMaxNumber,
+    };
   window.ReactNativeWebView.postMessage(
     JSON.stringify({
       type: BRIDGE_EVENT_IMAGE_NATIVE_UPLOAD_TYPE,
+      data: {
+        data: JSON.stringify(bridgeEventImageNativeRequestInterface),
+      },
     } as BridgeMsgInterface),
   );
 };

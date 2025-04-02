@@ -340,7 +340,7 @@ const PoseComposeBody: React.FC<PostComposeBodyProps> = ({
                   <PostImgWrap
                     key={index}
                     onClick={() => {
-                      sendNativeImageUploadEvent();
+                      sendNativeImageUploadEvent(POST_COMPOSEUPLOAD_MAX_NUM);
                     }}
                   >
                     <PostEmptyImgWrap $isDragActive={isDragActive}>

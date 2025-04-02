@@ -121,7 +121,7 @@ const MyProfileEditBody: React.FC = () => {
                 <ProfileImgUploadImgLabel
                   htmlFor={profileUploadImgId}
                   onClick={() => {
-                    sendNativeImageUploadEvent();
+                    sendNativeImageUploadEvent(1);
                   }}
                 >
                   <MyProfileImgEditImg $src={userProfilePath}>
