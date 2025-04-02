@@ -387,7 +387,7 @@ const CommentInputSenderElement: React.FC<CommentInputSenderElementProps> = ({
                     <>
                       <PostCommentUploadImgLabel
                         onClick={() => {
-                          sendNativeImageUploadEvent();
+                          sendNativeImageUploadEvent(1);
                         }}
                       >
                         <PostCommentImageIcon />

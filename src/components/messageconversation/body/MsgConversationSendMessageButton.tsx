@@ -192,7 +192,7 @@ const MsgConversationSendMessage: React.FC<MsgConversationSendMessageProps> = ({
                 htmlFor={uploadMsgImgId}
                 onClick={() => {
                   if (!isApp()) return;
-                  sendNativeImageUploadEvent();
+                  sendNativeImageUploadEvent(1);
                 }}
               >
                 <MsgConversationSernPhotoButtonIcon />
