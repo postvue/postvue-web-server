@@ -70,34 +70,39 @@ export const getUnifiedPosition = (
 const getCurrentPosition = (
   currentPositionProps: CurrentPositionProps,
 ): void => {
-  navigator.permissions
-    .query({ name: 'geolocation' })
-    .then((permissionStatus) => {
-      if (permissionStatus.state === 'granted') {
-        // 권한이 이미 승인된 경우 위치 정보 가져오기
-        fetchPosition(
-          currentPositionProps.actionFunc,
-          currentPositionProps.isAlertError,
-          currentPositionProps.onClose,
-        );
-      } else if (permissionStatus.state === 'prompt') {
-        // 권한을 요청하는 경우
-        fetchPosition(
-          currentPositionProps.actionFunc,
-          currentPositionProps.isAlertError,
-          currentPositionProps.onClose,
-        );
-      } else {
-        // 권한이 거부된 경우
-        if (currentPositionProps.onClose) {
-          currentPositionProps.onClose();
+  if (navigator.permissions && navigator.permissions.query) {
+    navigator.permissions
+      .query({ name: 'geolocation' })
+      .then((permissionStatus) => {
+        if (
+          permissionStatus.state === 'granted' ||
+          permissionStatus.state === 'prompt'
+        ) {
+          fetchPosition(
+            currentPositionProps.actionFunc,
+            currentPositionProps.isAlertError,
+            currentPositionProps.onClose,
+          );
+        } else {
+          if (currentPositionProps.onClose) {
+            currentPositionProps.onClose();
+          }
+          alert(
+            '위치 권한이 거부되었습니다. 설정에서 위치 권한을 허용해주세요.',
+          );
         }
-        alert('위치 권한이 거부되었습니다. 설정에서 위치 권한을 허용해주세요.');
-      }
-    })
-    .catch(() => {
-      alert('권한 상태를 확인할 수 없습니다.');
-    });
+      })
+      .catch(() => {
+        alert('권한 상태를 확인할 수 없습니다.');
+      });
+  } else {
+    // navigator.permissions를 지원하지 않는 브라우저 대응
+    fetchPosition(
+      currentPositionProps.actionFunc,
+      currentPositionProps.isAlertError,
+      currentPositionProps.onClose,
+    );
+  }
 };
 
 const fetchPosition = (
