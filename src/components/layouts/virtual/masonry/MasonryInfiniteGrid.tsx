@@ -237,8 +237,7 @@ const FavoriteTagSuggestItemListWrap = styled.div<{ $columnNum: number }>`
   display: grid;
   grid-template-columns: ${(props) => `repeat(${props.$columnNum}, 1fr)`};
   gap: 10px;
-  margin: 10px ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding}
-    0px ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding};
+  margin: 10px 5px 0px 5px;
 `;
 
 export default MasonryInfiniteGrid;

@@ -166,6 +166,8 @@ const BottomSheetNotScrollLayoutConatiner = styled.div`
 const OverlayBackground = styled.div`
   height: 100dvh;
   position: fixed;
+  right: 0;
+  left: 0;
 
   z-index: 2000;
   top: 0;

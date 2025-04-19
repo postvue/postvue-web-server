@@ -20,6 +20,8 @@ interface ProfileScrapBodyProps {
   isEdit?: boolean;
   actionFunc?: () => void;
 }
+
+const NAV_TIMER = 500;
 const ProfileScrapBody: React.FC<ProfileScrapBodyProps> = ({
   scrapId,
   isEdit = true,
@@ -79,6 +81,7 @@ const ProfileScrapBody: React.FC<ProfileScrapBodyProps> = ({
                 actionFunc={actionFunc}
                 scrapId={scrapId}
                 inViewElement={<ProfileScrapInfiniteScroll scrapId={scrapId} />}
+                navTimer={NAV_TIMER}
               />
             )}
 

@@ -40,6 +40,7 @@ interface SnsPostMasonryLayoutProps {
   actionFunc?: () => void;
   scrapId?: string;
   searchType?: POST_RELATION_SEARCH_TYPE;
+  navTimer?: number;
 }
 
 const SnsPostMasonryLayout: React.FC<SnsPostMasonryLayoutProps> = ({
@@ -57,6 +58,7 @@ const SnsPostMasonryLayout: React.FC<SnsPostMasonryLayoutProps> = ({
   actionFunc,
   scrapId,
   searchType,
+  navTimer,
 }) => {
   const navigate = useNavigate();
 
@@ -161,16 +163,25 @@ const SnsPostMasonryLayout: React.FC<SnsPostMasonryLayoutProps> = ({
                       } else {
                         // 데스크탑 크기
                         // url로 이동
+                        const onFunc = () => {
+                          navigate(
+                            generatePath(PROFILE_POST_LIST_PATH, {
+                              user_id: v.username,
+                              post_id: v.postId,
+                            }),
+                            {
+                              state: { isDetailPopup: true },
+                            },
+                          );
+                        };
 
-                        navigate(
-                          generatePath(PROFILE_POST_LIST_PATH, {
-                            user_id: v.username,
-                            post_id: v.postId,
-                          }),
-                          {
-                            state: { isDetailPopup: true },
-                          },
-                        );
+                        if (navTimer) {
+                          setTimeout(() => {
+                            onFunc();
+                          }, navTimer);
+                        } else {
+                          onFunc();
+                        }
                       }
                       if (actionFunc) {
                         actionFunc();

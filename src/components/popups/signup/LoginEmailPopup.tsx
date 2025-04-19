@@ -41,12 +41,17 @@ const LoginEmailPopup: React.FC<LoginEmailPopupProps> = ({
           isOpen={isOpen}
           isExternalCloseFunc={isExternalCloseFunc}
           heightNum={
-            600 +
-              parseFloat(
-                getComputedStyle(document.documentElement).getPropertyValue(
-                  '--safe-area-inset-bottom',
-                ),
-              ) || 0
+            // 600 +
+            //   parseFloat(
+            //     getComputedStyle(document.documentElement).getPropertyValue(
+            //       '--safe-area-inset-bottom',
+            //     ),
+            //   ) || 0
+            window.innerHeight >
+            theme.systemSize.appDisplaySize.minDeviceHeightNum
+              ? window.innerHeight * (5 / 6)
+              : window.innerHeight -
+                theme.systemSize.appDisplaySize.popupMinusNumByMinDeviceNum
           }
         >
           <LoginEmailPopupBody
@@ -54,7 +59,18 @@ const LoginEmailPopup: React.FC<LoginEmailPopupProps> = ({
               setIsExternalCloseFunc(true);
               onOpen();
             }}
-            height={630}
+            height={
+              (window.innerHeight >
+              theme.systemSize.appDisplaySize.minDeviceHeightNum
+                ? window.innerHeight * (5 / 6)
+                : window.innerHeight -
+                  theme.systemSize.appDisplaySize.popupMinusNumByMinDeviceNum) -
+                parseFloat(
+                  getComputedStyle(document.documentElement).getPropertyValue(
+                    '--safe-area-inset-bottom',
+                  ),
+                ) || 0
+            }
           />
         </BottomSheetNotScrollLayout>
       )}

@@ -222,6 +222,8 @@ const BottomSheetContainer = styled.div`
   z-index: 1590;
   max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
   position: fixed;
+  right: 0;
+  left: 0;
   height: calc(100dvh + 100px);
   width: 100%;
   border-radius: 20px 20px 0 0;

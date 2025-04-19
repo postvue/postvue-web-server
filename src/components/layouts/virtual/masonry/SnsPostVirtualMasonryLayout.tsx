@@ -44,6 +44,7 @@ interface SnsPostVirtualMasonryLayoutProps {
   isAutoPlay?: boolean;
   actionFuncByRef?: (value: HTMLImageElement | HTMLVideoElement) => void;
   longPressToResizeNum?: number;
+  navTimer?: number;
 }
 
 const SnsPostVirtualMasonryLayout: React.FC<
@@ -64,6 +65,7 @@ const SnsPostVirtualMasonryLayout: React.FC<
   isAutoPlay = false,
   actionFuncByRef,
   longPressToResizeNum,
+  navTimer,
 }) => {
   const [images, setImages] = useState<Item[]>([]);
   const [itemsWithSizes, setItemsWithSizes] = useState<PostItem[]>([]);
@@ -104,26 +106,36 @@ const SnsPostVirtualMasonryLayout: React.FC<
       window.innerWidth <= MEDIA_MOBILE_MAX_WIDTH_NUM ||
       linkPopupInfo.isLinkPopup
     ) {
-      // 모바일 크기
-      // url만 바뀌도록 변경
+      const onFunc = () => {
+        // 모바일 크기
+        // url만 바뀌도록 변경
 
-      const searchParams = new URLSearchParams(location.search);
+        const searchParams = new URLSearchParams(location.search);
 
-      // 새로운 쿼리 파라미터 추가 또는 기존 파라미터 값 수정
-      searchParams.set(POST_DETAIL_POPUP_PARAM, TRUE_PARAM);
-      searchParams.set(POST_DETAIL_POST_ID_PARAM, post.postId);
-      searchParams.set(POST_DETAIL_PROFILE_PARAM, post.username);
+        // 새로운 쿼리 파라미터 추가 또는 기존 파라미터 값 수정
+        searchParams.set(POST_DETAIL_POPUP_PARAM, TRUE_PARAM);
+        searchParams.set(POST_DETAIL_POST_ID_PARAM, post.postId);
+        searchParams.set(POST_DETAIL_PROFILE_PARAM, post.username);
 
-      // 새로운 쿼리 파라미터가 포함된 URL 생성
-      const newSearch = searchParams.toString();
-      const newPath =
-        `${location.pathname}?${newSearch}` +
-        (searchType ? `&${SEARCH_TYPE_PARAM}=${searchType}` : '');
+        // 새로운 쿼리 파라미터가 포함된 URL 생성
+        const newSearch = searchParams.toString();
+        const newPath =
+          `${location.pathname}?${newSearch}` +
+          (searchType ? `&${SEARCH_TYPE_PARAM}=${searchType}` : '');
 
-      navigate(newPath, {
-        replace: linkPopupInfo.isReplaced,
-        state: { isDetailPopup: true },
-      });
+        navigate(newPath, {
+          replace: linkPopupInfo.isReplaced,
+          state: { isDetailPopup: true },
+        });
+      };
+
+      if (navTimer) {
+        setTimeout(() => {
+          onFunc();
+        }, navTimer);
+      } else {
+        onFunc();
+      }
     } else {
       // 데스크탑 크기: url로 이동
 

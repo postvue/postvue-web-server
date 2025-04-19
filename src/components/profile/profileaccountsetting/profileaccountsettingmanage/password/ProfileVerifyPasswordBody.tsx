@@ -25,7 +25,7 @@ const ProfileVerifyPasswordBody: React.FC<ProfileVerifyPasswordBodyProps> = ({
   checkPassword,
 }) => {
   return (
-    <>
+    <PasswordValidContainer>
       <PasswordValidCheckWrap>
         {checkLengthByPassword(password) ? (
           <PasswordValidCheckIcon />
@@ -74,19 +74,24 @@ const ProfileVerifyPasswordBody: React.FC<ProfileVerifyPasswordBodyProps> = ({
         )}
         <PasswordValidTitle>비밀번호가 일치해야 합니다.</PasswordValidTitle>
       </PasswordValidCheckWrap>
-    </>
+    </PasswordValidContainer>
   );
 };
 
+const PasswordValidContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+`;
+
 const PasswordValidCheckWrap = styled.div`
-  margin: 7px 0px 0px
-    ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding};
+  margin: 7px 0px 0px 0px;
   display: flex;
   gap: 11px;
 `;
 
 const PasswordValidTitle = styled.div`
-  font: ${({ theme }) => theme.fontSizes.Body2};
+  font: ${({ theme }) => theme.fontSizes.Body1};
   color: ${({ theme }) => theme.grey.Grey8};
 `;
 
