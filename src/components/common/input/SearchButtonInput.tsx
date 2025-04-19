@@ -38,7 +38,6 @@ const SearchButtonInput: React.FC<SearchButtonInputProps> = ({
     : useRef<HTMLInputElement>(null);
   // useScrollToBlur();
   useAutoBlur([searchInputProcessRef]);
-  // useKeyboardScrollLock();
 
   return (
     <SearchButtonInputLayout

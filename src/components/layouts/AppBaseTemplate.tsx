@@ -1,7 +1,9 @@
-import React, { ReactNode, Suspense, useEffect, useRef } from 'react';
+import SideNavBar from 'components/SideNavBar';
+import React, { ReactNode, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
 import BlockUserPopup from 'components/popups/BlockUserPopup';
+import ConfirmCheckPopup from 'components/popups/ConfirmCheckPopup';
 import MakeScrapPopup from 'components/popups/makescrap/MakeScrapPopup';
 import MapExploreByScrapPopup from 'components/popups/mapexplore/MapExploreByScrapPopup';
 import PostComposePopup from 'components/popups/postcompose/PostComposePopup';
@@ -14,14 +16,13 @@ import ProfileAccountComplaintPopup from 'components/popups/profileaccount/Profi
 import ProfileOtherAccountPopup from 'components/popups/profileaccount/ProfileOtherAccountPopup';
 import ProfileDetailPopup from 'components/popups/ProfileDetailPopup';
 import ComplaintCompletePopup from 'components/popups/profilepost/ComplaintCompletePopup';
-import PostMapGuideSelectPopup from 'components/popups/profilepost/postselectmapcontentpopup/PostMapGuideSelectPopup';
-import PostSelectMapContentPopup from 'components/popups/profilepost/postselectmapcontentpopup/PostSelectMapContentPopup';
 import PostSettingPopup from 'components/popups/profilepost/PostSettingPopup';
 import ProfilePostDetailPopup from 'components/popups/ProfilePostDetailPopup';
 import ScrapViewPopup from 'components/popups/profilescrap/ScrapViewPopup';
 import ProfileScrapTargetAudiencePopup from 'components/popups/ProfileScrapTargetAudiencePopup';
 import SearchFavoriteTermEditPopup from 'components/popups/search/SearchFavoriteTermEditPopup';
 import ServiceUsageTimerPopup from 'components/popups/service/usagetimer/ServiceUsageTimerPopup';
+import SnsSharePopup from 'components/popups/SnsSharePopup';
 import ToastPopup from 'components/popups/ToastMsgPopup';
 import {
   MEDIA_MIDDLE_WIDTH,
@@ -37,8 +38,6 @@ import {
   activeMakeScrapPopupInfoAtom,
   activePostComplaintCompletePopupAtom,
   activePostDotSettingInfoAtom,
-  activePostMapGuideSelectPopupInfoAtom,
-  activePostSelectMapContentPopupInfoAtom,
   commentSettingPopupInfoAtom,
   isPostDetailInfoPopupAtom,
   postDetailInfoPopupAtom,
@@ -68,11 +67,6 @@ import theme from 'styles/theme';
 const AppBaseTemplateSideBar = React.lazy(
   () => import('./AppBaseTemplateSideBar'),
 );
-const SideNavBar = React.lazy(() => import('components/SideNavBar'));
-
-const ConfirmCheckPopup = React.lazy(
-  () => import('components/popups/ConfirmCheckPopup'),
-);
 
 interface AppBaseTemplate {
   children: ReactNode;
@@ -100,7 +94,6 @@ interface AppBaseTemplate {
   AppBaseStlye?: React.CSSProperties;
   AppHeaderNode?: React.ReactNode;
   AppBottomNode?: React.ReactNode;
-  appContainerRefObject?: React.RefObject<HTMLDivElement>;
 }
 
 const AppBaseTemplate: React.FC<AppBaseTemplate> = ({
@@ -129,7 +122,6 @@ const AppBaseTemplate: React.FC<AppBaseTemplate> = ({
   AppBaseStlye,
   AppHeaderNode,
   AppBottomNode,
-  appContainerRefObject,
 }) => {
   const { windowWidth } = useWindowSize();
 
@@ -184,22 +176,12 @@ const AppBaseTemplate: React.FC<AppBaseTemplate> = ({
     activeProfileAccountPopupInfoAtom,
   );
 
-  const activePostSelectMapContentPopupInfo = useRecoilValue(
-    activePostSelectMapContentPopupInfoAtom,
-  );
-
-  const activePostMapGuideSelectPopupInfo = useRecoilValue(
-    activePostMapGuideSelectPopupInfoAtom,
-  );
-
   const [
     activePostComplaintCompletePopup,
     setActivePostComplaintCompletePopup,
   ] = useRecoilState(activePostComplaintCompletePopupAtom);
 
-  const appContainerRef = appContainerRefObject
-    ? appContainerRefObject
-    : useRef<HTMLDivElement>(null);
+  const appContainerRef = useRef<HTMLDivElement>(null);
 
   // @REFER: 수정이 필요한 코드
   // ================
@@ -237,13 +219,12 @@ const AppBaseTemplate: React.FC<AppBaseTemplate> = ({
       }, 30);
     }, [location.pathname]);
   }
+  // ==============
 
   useEffect(() => {
-    requestAnimationFrame(() => {
-      setTimeout(() => {
-        sendInitEvent();
-      }, 100);
-    });
+    setTimeout(() => {
+      sendInitEvent();
+    }, 100);
   }, []);
 
   return (
@@ -251,9 +232,7 @@ const AppBaseTemplate: React.FC<AppBaseTemplate> = ({
       <Container id="app" ref={appRef}>
         {/* refer: 수정 */}
         {windowWidth > MEDIA_MOBILE_MAX_WIDTH_NUM && (
-          <Suspense fallback={<></>}>
-            <SideNavBar headerWidth={headerWidth} />
-          </Suspense>
+          <SideNavBar headerWidth={headerWidth} />
         )}
 
         <Main id="main" $isAppInsetTopMargin={isAppInsetTopMargin}>
@@ -275,22 +254,19 @@ const AppBaseTemplate: React.FC<AppBaseTemplate> = ({
               </AppBase>
 
               {windowWidth > MEDIA_MOBILE_MAX_WIDTH_NUM && (
-                <Suspense fallback={<></>}>
-                  <AppBaseTemplateSideBar
-                    slideBarNode={slideBarNode}
-                    SlideBarNodeStyle={SlideBarNodeStyle}
-                    hasSearchInputModule={hasSearchInputModule}
-                    hasSearchBodyModule={hasSearchBodyModule}
-                    hasPostSearchFilterPopupBody={hasPostSearchFilterPopupBody}
-                    SideContainerStyle={SideContainerStyle}
-                    SideBarNodeWrapStyle={SideBarNodeWrapStyle}
-                    SideSearchBodyWrapStyle={SideSearchBodyWrapStyle}
-                    isTransparentSearchButton={isTransparentSearchButton}
-                    isDisplayFavoriteTerm={isDisplayFavoriteTerm}
-                    isScrollByAppContainer={isScrollByAppContainer}
-                    sideWidth={sideWidth}
-                  />
-                </Suspense>
+                <AppBaseTemplateSideBar
+                  slideBarNode={slideBarNode}
+                  SlideBarNodeStyle={SlideBarNodeStyle}
+                  hasSearchInputModule={hasSearchInputModule}
+                  hasSearchBodyModule={hasSearchBodyModule}
+                  hasPostSearchFilterPopupBody={hasPostSearchFilterPopupBody}
+                  SideContainerStyle={SideContainerStyle}
+                  SideBarNodeWrapStyle={SideBarNodeWrapStyle}
+                  SideSearchBodyWrapStyle={SideSearchBodyWrapStyle}
+                  isTransparentSearchButton={isTransparentSearchButton}
+                  isDisplayFavoriteTerm={isDisplayFavoriteTerm}
+                  sideWidth={sideWidth}
+                />
               )}
             </MainWrap>
           </MainContainer>
@@ -301,7 +277,7 @@ const AppBaseTemplate: React.FC<AppBaseTemplate> = ({
           <ProfilePostDetailPopup />
         )}
 
-        {/* {sharePopupInfo.isActive && <SnsSharePopup />} */}
+        {sharePopupInfo.isActive && <SnsSharePopup />}
         {isActivePostComposeSelectPopup && <PostComposeSelectPopup />}
         {isNotSupportVideoConfirmPopup && (
           <ConfirmCheckPopup
@@ -359,12 +335,6 @@ const AppBaseTemplate: React.FC<AppBaseTemplate> = ({
         )}
         {commentSettingPopupInfo.isActive && (
           <PostReactionCommentSettingPopup />
-        )}
-        {activePostSelectMapContentPopupInfo.isActive && (
-          <PostSelectMapContentPopup />
-        )}
-        {activePostMapGuideSelectPopupInfo.isActive && (
-          <PostMapGuideSelectPopup />
         )}
         {activeProfileAccountPopupInfo.isActive && <ProfileOtherAccountPopup />}
       </Container>
@@ -435,7 +405,7 @@ const AppContainer = styled.div<{
     min-width: ${(props) => props.$appContainerSize}px;
 
     overscroll-behavior: none;
-    height: ${(props) => (props.$isScrollByAppContainer ? '100dvh' : 'auto')};
+    height: 100dvh;
     overflow: ${(props) => (props.$isScrollByAppContainer ? 'scroll' : '')};
   }
 

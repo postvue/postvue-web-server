@@ -6,7 +6,6 @@ import { createCoordinate } from 'components/lib/mapkitjs/utils';
 import {
   MAP_EXPLORE_POST_POPUP_MIDDLE_STATE_TYPE,
   MAPKIT_CLIENT_MANAGER_KEY,
-  MAPKIT_SELECT_ANNOTASTION_MOVE_LISTENER_EVENT,
   POS_CONTROL_GAP_NUM,
 } from 'const/MapExploreConst';
 import { POST_VIDEO_TYPE } from 'const/PostContentTypeConst';
@@ -19,7 +18,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import {
   currentAnnotationAtom,
-  GeoPositionInterface,
+  geocoderAtom,
   isInitListerAtom,
   mapExplorePostPopupStateAtom,
   mapLoactionAtom,
@@ -111,32 +110,6 @@ const MapkitClient: React.FC<MapkitClientProps> = ({
   }, [mapPost, map]);
 
   const mapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const timer = 100;
-  const geoPosByMessageListener = (
-    position: {
-      latitude: number;
-      longitude: number;
-    },
-    timer = 0,
-  ) => {
-    setTimeout(() => {
-      const geoPositionInterface: GeoPositionInterface = {
-        latitude: position.latitude,
-        longitude: position.longitude,
-        isMoveCenter: true,
-      };
-
-      window.postMessage(
-        JSON.stringify({
-          eventType: MAPKIT_SELECT_ANNOTASTION_MOVE_LISTENER_EVENT,
-          mapLocation: geoPositionInterface,
-        }),
-        '*',
-      );
-    }, timer);
-  };
-
   useEffect(() => {
     if (!map || !mapkit) return;
     mapTimerRef.current = setTimeout(
@@ -159,11 +132,6 @@ const MapkitClient: React.FC<MapkitClientProps> = ({
                 )
               : coordinate;
           map.setCenterAnimated(posCoordinate, initImageAnnotation && true);
-
-          geoPosByMessageListener({
-            latitude: mapLocation.latitude,
-            longitude: mapLocation.longitude,
-          });
 
           const currentLatDelta = map.region.span.latitudeDelta;
           const currentLngDelta = map.region.span.longitudeDelta;
@@ -224,6 +192,7 @@ const MapkitClient: React.FC<MapkitClientProps> = ({
   }, []);
 
   const currentAnnotation = useRecoilValue(currentAnnotationAtom);
+  const geocoder = useRecoilValue(geocoderAtom);
 
   useEffect(() => {
     if (
@@ -235,8 +204,6 @@ const MapkitClient: React.FC<MapkitClientProps> = ({
     }
 
     if (!mapAddress || (mapAddress && !isValidString(mapAddress.address))) {
-      if (!mapkit) return;
-      const geocoder = new mapkit.Geocoder({ language: 'ko-KR' });
       if (!geocoder) return;
 
       geocoder.reverseLookup(currentAnnotation.coordinate, (error, data) => {

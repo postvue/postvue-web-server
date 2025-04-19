@@ -2,13 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { ReactComponent as ProfilePostShareButtonIcon } from 'assets/images/icon/svg/post/ProfilePostShareButtonIcon.svg';
-import { POST_IMAGE_TYPE } from 'const/PostContentTypeConst';
-import { PostRsp } from 'global/interface/post';
-import {
-  getRandomImage,
-  handleShareUtil,
-  ShareInfo,
-} from 'global/util/ShareUtil';
+import { handleShareUtil, ShareInfo } from 'global/util/ShareUtil';
 import {
   isApp,
   sendBasicShareEvent,
@@ -19,7 +13,7 @@ import ReactionLongPressButtonTemplate from '../posts/body/ReactionLongPressButt
 
 interface ShareButtonProps {
   shareLink: string;
-  snsPost: PostRsp;
+  mainImageUrl: string;
   title?: string;
   description?: string;
   address?: string;
@@ -29,7 +23,7 @@ interface ShareButtonProps {
 
 const ShareButton: React.FC<ShareButtonProps> = ({
   shareLink,
-  snsPost,
+  mainImageUrl,
   title,
   description,
   address,
@@ -37,13 +31,6 @@ const ShareButton: React.FC<ShareButtonProps> = ({
   onClickFunc,
 }) => {
   const setSharePopupInfo = useSetRecoilState(sharePopupInfoAtom);
-
-  const mainImageUrl = getRandomImage(
-    snsPost.postContents
-      .filter((v) => v.postContentType === POST_IMAGE_TYPE)
-      .map((v) => v.content),
-    snsPost.profilePath,
-  );
   return (
     <ReactionLongPressButtonTemplate resize={0.85} resizeSpeedRate={0.2}>
       <ShareButtonWrap

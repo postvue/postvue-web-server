@@ -23,6 +23,7 @@ import React, { useRef } from 'react';
 import { generatePath, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSetRecoilState } from 'recoil';
 import { activeProfileBlockPopupInfoAtom } from 'states/ProfileAtom';
+import { sharePopupInfoAtom } from 'states/ShareAtom';
 import styled from 'styled-components';
 
 interface ProfileAccountInfoProps {
@@ -49,7 +50,7 @@ const ProfileAccountInfo: React.FC<ProfileAccountInfoProps> = ({
     activeProfileBlockPopupInfoAtom,
   );
 
-  // const setSharePopupInfo = useSetRecoilState(sharePopupInfoAtom);
+  const setSharePopupInfo = useSetRecoilState(sharePopupInfoAtom);
 
   const onClickUnblocking = () => {
     if (!profileInfo) return;

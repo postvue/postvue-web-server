@@ -10,7 +10,6 @@ const mainColor = {
 
 const grey = {
   Grey0: '#F8F9FA',
-  Grey05: '#F5F5F5',
   Grey1: '#F2F3F4',
   Grey2: '#E8EBED',
   Grey3: '#C8CDD2',
@@ -91,8 +90,6 @@ const background = {
 const maxWidthNum = 500;
 const profilePostMaxWidthNum = 530;
 const widthByPcNum = 600;
-const minDeviceHeight = 770;
-const popupMinusNumByMinDevice = 50;
 
 const systemSize = {
   appDisplaySize: {
@@ -102,10 +99,7 @@ const systemSize = {
     widthByPc: `${widthByPcNum}px`,
     profilePostMaxWidthNum: profilePostMaxWidthNum,
     profilePostMaxWidth: `${profilePostMaxWidthNum}px`,
-    minDeviceHeightNum: minDeviceHeight,
-    minDeviceHeight: `${minDeviceHeight}px`,
-    popupMinusNumByMinDevice: `${popupMinusNumByMinDevice}px`,
-    popupMinusNumByMinDeviceNum: popupMinusNumByMinDevice,
+
     bothSidePadding: '20px',
     bottomButtonMargin: '40px',
   },

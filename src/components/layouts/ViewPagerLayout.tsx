@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import theme from 'styles/theme';
 
 import SwiperCore from 'swiper';
+
 import 'swiper/css';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { lock, unlock } from 'tua-body-scroll-lock';
@@ -15,7 +16,6 @@ interface ViewPagerLayoutProps {
     tabId: number;
     scrollTo: number;
   };
-  externalRefs?: React.MutableRefObject<HTMLDivElement[]>;
 }
 
 const ViewPagerLayout: React.FC<ViewPagerLayoutProps> = ({
@@ -23,15 +23,14 @@ const ViewPagerLayout: React.FC<ViewPagerLayoutProps> = ({
   index,
   actionSilde,
   scrollToInfo,
-  externalRefs,
 }) => {
   const [swiper, setSwiper] = useState<SwiperCore>();
-  const objectListRef = useRef<HTMLDivElement[]>([]);
 
   useEffect(() => {
     if (index === undefined || !swiper) return;
+
     swiper.slideTo(index);
-  }, [index, swiper]);
+  }, [index]);
 
   useBodyAdaptProps([
     { key: 'position', value: 'fixed' },
@@ -41,33 +40,25 @@ const ViewPagerLayout: React.FC<ViewPagerLayoutProps> = ({
     { key: 'top', value: '0' },
     { key: 'bottom', value: '0' },
   ]);
-
+  const objectListRef = useRef<HTMLDivElement[]>([]);
   useEffect(() => {
-    const targetRefs = externalRefs?.current ?? objectListRef.current;
-    const elements = targetRefs.filter((el) => el);
-
-    lock(elements);
+    lock(objectListRef.current.map((v) => v));
 
     return () => {
-      unlock([], { useGlobalLockState: true });
+      unlock([], {
+        useGlobalLockState: true,
+      });
     };
-  }, [externalRefs]);
+  }, []);
 
   useEffect(() => {
     if (!scrollToInfo) return;
 
-    const ref =
-      externalRefs?.current?.[scrollToInfo.tabId] ??
-      objectListRef.current[scrollToInfo.tabId];
-
-    if (!ref) return;
-
-    // if (ref.scrollHeight <= 10000) {
-    ref.scrollTo({ top: scrollToInfo.scrollTo, behavior: 'smooth' });
-    // } else {
-    //   ref.scrollTo(0, 0);
-    // }
-  }, [scrollToInfo, externalRefs]);
+    objectListRef.current[scrollToInfo.tabId].scrollTo({
+      top: scrollToInfo.scrollTo,
+      behavior: 'smooth',
+    });
+  }, [scrollToInfo]);
 
   const swiperTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   useEffect(() => {
@@ -104,19 +95,12 @@ const ViewPagerLayout: React.FC<ViewPagerLayoutProps> = ({
       {childrenList.map((v, i) => (
         <SwiperSlide key={i}>
           <div
-            ref={(el) => {
-              if (!el) return;
-              if (externalRefs) {
-                externalRefs.current[i] = el;
-              } else {
-                objectListRef.current[i] = el;
-              }
+            ref={(e) => {
+              if (!e) return;
+              objectListRef.current[i] = e;
             }}
             style={{
-              height: `calc(100dvh - ${
-                theme.systemSize.header.heightNumber +
-                theme.systemSize.bottomNavBar.heightNum
-              }px)`,
+              height: `calc(100dvh - ${theme.systemSize.header.heightNumber + theme.systemSize.bottomNavBar.heightNum}px)`,
               overflow: 'scroll',
             }}
           >

@@ -10,7 +10,7 @@ import {
   mapLoactionAtom,
   mapMoveLocationAtom,
 } from 'states/MapExploreAtom';
-import { initPageInfoAtom, isLoadingPopupAtom } from 'states/SystemConfigAtom';
+import { isLoadingPopupAtom } from 'states/SystemConfigAtom';
 
 import { ReactComponent as MapExplorePopupCloseButtonIcon } from 'assets/images/icon/svg/explore/MapExplorePopupCloseButtonIcon.svg';
 import AppleMapElement from 'components/mapexplore/body/AppleMapElement';
@@ -21,7 +21,6 @@ import { isEmptyObject } from 'global/util/ObjectUtil';
 import { isApp } from 'global/util/reactnative/nativeRouter';
 import useBodyAdaptProps from 'hook/customhook/useBodyAdaptProps';
 import { QueryStateMapExploreList } from 'hook/queryhook/QueryStateMapExploreList';
-import Skeleton from 'react-loading-skeleton';
 import MapExplorePostPopup from './MapExplorePostPopup';
 
 interface MapExploreByProfilePostPopupBodyProps {
@@ -32,8 +31,7 @@ interface MapExploreByProfilePostPopupBodyProps {
 }
 
 const POST_MAX_DISTANCE = 1; //1km
-const MAP_POPUP_TIME = 800;
-const MAP_OPEN_TIME = 300;
+
 const MapExploreByProfilePostPopupBody: React.FC<
   MapExploreByProfilePostPopupBodyProps
 > = ({ snsPost, funcPrevButton, isMobile = true, initTime = 500 }) => {
@@ -75,7 +73,7 @@ const MapExploreByProfilePostPopupBody: React.FC<
 
     initPostTimerRef.current = setTimeout(() => {
       setInitPost(true);
-    }, initTime + MAP_OPEN_TIME);
+    }, 600);
 
     initTimerRef.current = setTimeout(() => {
       setInit(true);
@@ -107,27 +105,11 @@ const MapExploreByProfilePostPopupBody: React.FC<
     [
       { key: 'overflow', value: 'hidden' },
       { key: 'position', value: 'fixed' },
-      { key: 'top', value: '0' },
-      { key: 'bottom', value: '0' },
-      { key: 'right', value: '0' },
-      { key: 'left', value: '0' },
     ],
     initTime,
     undefined,
     isMobile && !isApp(),
   );
-
-  const ScrollRef = useRef<HTMLDivElement>(null);
-
-  const [initPageInfo, setInitPageInfo] = useRecoilState(initPageInfoAtom);
-
-  useEffect(() => {
-    requestAnimationFrame(() => {
-      setTimeout(() => {
-        setInitPageInfo((prev) => ({ ...prev, isMapPopupByProfilePost: true }));
-      }, MAP_POPUP_TIME);
-    });
-  }, []);
 
   return (
     <>
@@ -181,7 +163,7 @@ const MapExploreByProfilePostPopupBody: React.FC<
               </>
             )} */}
 
-            {init && initPageInfo.isMapPopupByProfilePost ? (
+            {init && (
               <AppleMapElement
                 mapPost={postMapLocation}
                 initAnnotationTime={1500}
@@ -198,8 +180,6 @@ const MapExploreByProfilePostPopupBody: React.FC<
                 // }
                 // scrollEndEventFunc={scrollEndEventFunc}
               />
-            ) : (
-              <Skeleton height={window.innerHeight} />
             )}
           </MapExploreSubWrap>
         </MapExploreWrap>
@@ -213,7 +193,6 @@ const MapExploreByProfilePostPopupBody: React.FC<
                 isLock={true}
                 isInitPos={2}
                 middelOverflow={'scroll'}
-                ScrollRefObject={ScrollRef}
               >
                 <MapExploreLocationContentBody
                   latitude={mapLocation.latitude}
@@ -225,7 +204,6 @@ const MapExploreByProfilePostPopupBody: React.FC<
                     isReplaced: true,
                   }}
                   mapContentType={MAP_CONTENT_LOCATION_TYPE}
-                  scrollElement={ScrollRef.current || undefined}
                 />
               </MapExplorePostPopup>
             )}
@@ -250,6 +228,7 @@ const MapExploreByProfilePostPopupBody: React.FC<
   );
 };
 const MapFullMargin = 10;
+
 const MapExplorePopupContainer = styled.div`
   position: relative;
 

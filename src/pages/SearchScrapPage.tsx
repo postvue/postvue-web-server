@@ -14,9 +14,6 @@ import PageHelmentInfoElement from 'components/PageHelmetInfoElement';
 import PostSearchFilterPopup from 'components/popups/search/PostSearchFilterPopup';
 import SearchScrapBody from 'components/search/body/SearchScrapBody';
 import { SEARCH_SCRAP_PATH } from 'const/PathConst';
-import { handleMessageByRouteAndMoveUrl } from 'global/native/nativeHandleMessage';
-import { useMessageListener } from 'hook/customhook/useMessageListener';
-import { useNavigate } from 'react-router-dom';
 
 const SearchScrapPage: React.FC = () => {
   const isActiveSearchPostFilterPopup = useRecoilValue(
@@ -24,14 +21,6 @@ const SearchScrapPage: React.FC = () => {
   );
 
   const searchWord = useRecoilValue(searchWordAtom);
-
-  const navigate = useNavigate();
-
-  useMessageListener((event) => {
-    handleMessageByRouteAndMoveUrl(event, (url: string) => {
-      navigate(url, { replace: true });
-    });
-  });
 
   return (
     <>

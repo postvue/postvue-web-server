@@ -33,7 +33,6 @@ const NotificationPage: React.FC = () => {
         <PrevButtonHeaderHeader
           titleName={'알림'}
           isActionFunc={windowWidth >= MEDIA_MOBILE_MAX_WIDTH_NUM}
-          preNodeByState={<></>}
         />
         {windowWidth >= MEDIA_MOBILE_MAX_WIDTH_NUM ? (
           <NotificationPageBody />

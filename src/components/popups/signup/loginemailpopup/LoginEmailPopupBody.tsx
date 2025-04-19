@@ -90,10 +90,6 @@ const LoginEmailPopupBody: React.FC<LoginEmailPopupBodyProps> = ({
       onClicLoginEmail();
     }
   };
-
-  // const emailInputRef = useRef<HTMLInputElement>(null);
-  // const passwordInputRef = useRef<HTMLInputElement>(null);
-  // useAutoBlur([emailInputRef, passwordInputRef]);
   return (
     <>
       <LoginLogoWrap>
@@ -106,7 +102,6 @@ const LoginEmailPopupBody: React.FC<LoginEmailPopupBodyProps> = ({
       <LoginEmailInputWrap>
         <LoginEmailInputSubWrap>
           <LoginEmailInput
-            // ref={emailInputRef}
             type={'email'}
             value={email}
             placeholder="이메일"
@@ -116,7 +111,6 @@ const LoginEmailPopupBody: React.FC<LoginEmailPopupBodyProps> = ({
         </LoginEmailInputSubWrap>
         <ProfilePasswordInputWrap>
           <PasswordVisibleInputElement
-            // passwordInputRef={passwordInputRef}
             password={password}
             onChangePassword={onChangePassword}
             placeholder={LOING_PASSWORD_PHASE_TEXT}

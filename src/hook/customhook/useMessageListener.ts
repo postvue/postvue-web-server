@@ -1,4 +1,3 @@
-import { isApp } from 'global/util/reactnative/nativeRouter';
 import { useEffect } from 'react';
 
 // 중앙에서 메시지를 관리하는 모듈
@@ -15,7 +14,6 @@ if (typeof window !== 'undefined') {
 export const useMessageListener = (
   handler: (event: MessageEvent) => void,
 ): void => {
-  if (!isApp()) return;
   useEffect(() => {
     // 핸들러를 등록
     messageHandlers.push(handler);

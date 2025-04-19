@@ -14,12 +14,14 @@ interface PostReactionListElementProps {
   username: string;
   postId: string;
   snsPost: PostRsp;
+  mainImageUrl: string;
 }
 
 const PostReactionListElement: React.FC<PostReactionListElementProps> = ({
   username,
   postId,
   snsPost,
+  mainImageUrl,
 }) => {
   return (
     <ReactionContainer
@@ -43,7 +45,7 @@ const PostReactionListElement: React.FC<PostReactionListElementProps> = ({
               post_id: postId,
             })
           }
-          snsPost={snsPost}
+          mainImageUrl={mainImageUrl}
           title={snsPost.postTitle}
           description={snsPost.postBodyText}
           address={snsPost.location.address}

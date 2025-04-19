@@ -1,9 +1,8 @@
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode } from 'react';
 import styled from 'styled-components';
 
 import PostSearchFilterPopupBody from 'components/popups/search/PostSearchFilterPopupBody';
-import SearchBodyEditComponent from 'components/search/body/SearchBodyEditComponent';
-import SearchBodyRecommComponent from 'components/search/body/SearchBodyRecommComponent';
+import SearchBody from 'components/search/body/SearchBody';
 import SearchPostExploreFilter from 'components/search/body/SearchPostExploreFilter';
 import SearchHeader from 'components/search/header/SearchHeader';
 import {
@@ -30,7 +29,6 @@ interface AppBaseTemplateSideBar {
   SideBarNodeWrapStyle?: React.CSSProperties;
   SideSearchBodyWrapStyle?: React.CSSProperties;
   isTransparentSearchButton?: boolean;
-  isScrollByAppContainer: boolean;
   isDisplayFavoriteTerm?: boolean;
   sideWidth?: number;
 }
@@ -46,7 +44,6 @@ const AppBaseTemplateSideBar: React.FC<AppBaseTemplateSideBar> = ({
   SideSearchBodyWrapStyle,
   isTransparentSearchButton = false,
   isDisplayFavoriteTerm = true,
-  isScrollByAppContainer,
   sideWidth = 400,
 }) => {
   const searchWord = useRecoilValue(searchWordAtom);
@@ -61,15 +58,9 @@ const AppBaseTemplateSideBar: React.FC<AppBaseTemplateSideBar> = ({
 
   const isProfilePostPath = useMatch(PROFILE_POST_LIST_PATH);
 
-  const [size, setSize] = useState({ width: 0, height: 0 });
-
   return (
     <>
-      <SideBar
-        style={SideContainerStyle}
-        $sideWidth={sideWidth}
-        $isScrollByAppContainer={isScrollByAppContainer}
-      >
+      <SideBar style={SideContainerStyle} $sideWidth={sideWidth}>
         {hasSearchInputModule && (
           <SearchHeader
             backToUrl={HOME_PATH}
@@ -87,7 +78,7 @@ const AppBaseTemplateSideBar: React.FC<AppBaseTemplateSideBar> = ({
               backgroundColor: isTransparentSearchButton ? 'transparent' : '',
 
               marginTop: isProfilePostPath ? '10px' : '0',
-              position: isScrollByAppContainer ? 'fixed' : 'sticky',
+              position: 'fixed',
             }}
             isPrevButton={false}
             SearchSuggestBodyContiainerStyle={{
@@ -128,20 +119,12 @@ const AppBaseTemplateSideBar: React.FC<AppBaseTemplateSideBar> = ({
         )}
 
         {hasSearchBodyModule && !isNotActiveSearchBody && (
-          <>
-            <SearchBodyEditComponent
-              size={size}
-              isDisplayFavoriteTerm={isDisplayFavoriteTerm}
-            />
-            <SearchBodyRecommComponent
-              size={size}
-              onSetSize={(size) => setSize(size)}
-              SearchTagRecommContainerStyle={{
-                position: 'sticky',
-                top: '60px',
-              }}
-            />
-          </>
+          <SearchBodyWrap
+            style={SideSearchBodyWrapStyle}
+            $hasSearchInputModule={hasSearchInputModule}
+          >
+            <SearchBody isDisplayFavoriteTerm={isDisplayFavoriteTerm} />
+          </SearchBodyWrap>
         )}
         {slideBarNode && (
           <RightSidebarWrapWrap
@@ -160,13 +143,10 @@ const AppBaseTemplateSideBar: React.FC<AppBaseTemplateSideBar> = ({
 
 const RightSideHeaderMargin = 8;
 
-const SideBar = styled.div<{
-  $sideWidth: number;
-  $isScrollByAppContainer: boolean;
-}>`
-  position: ${(props) => (props.$isScrollByAppContainer ? 'relative' : '')};
-  overflow: ${(props) => (props.$isScrollByAppContainer ? 'scroll' : '')};
-  height: ${(props) => (props.$isScrollByAppContainer ? '100dvh' : 'auto')};
+const SideBar = styled.div<{ $sideWidth: number }>`
+  position: relative;
+  overflow: scroll;
+  height: 100dvh;
 
   max-width: ${(props) => props.$sideWidth}px;
   min-width: ${(props) => props.$sideWidth}px;

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 import NoResultComponent from 'components/common/container/NoResultComponent';
-import SnsPostVirtualMasonryLayout from 'components/layouts/virtual/masonry/SnsPostVirtualMasonryLayout';
+import SnsPostMasonryLayout from 'components/layouts/SnsPostMasonryLayout';
 import {
   MAP_CONTENT_LOCATION_TYPE,
   MapContentType,
@@ -28,7 +28,6 @@ interface MapExploreBodyProps {
     isReplaced: boolean;
   };
   funcPrevButton?: () => void;
-  scrollElement?: Element;
 }
 
 const MapExploreLocationContentBody: React.FC<MapExploreBodyProps> = ({
@@ -41,7 +40,6 @@ const MapExploreLocationContentBody: React.FC<MapExploreBodyProps> = ({
   masonryLayoutNum,
   linkPopupInfo,
   funcPrevButton,
-  scrollElement,
 }) => {
   const mapExploreFilterTab = useRecoilValue(mapExploreFilterTabAtom);
 
@@ -88,43 +86,7 @@ const MapExploreLocationContentBody: React.FC<MapExploreBodyProps> = ({
           {postMapLocation &&
           postMapLocation?.pages.flatMap((v) => v).length > 0 ? (
             <>
-              <SnsPostVirtualMasonryLayout
-                // SnsPostMasonryLayoutStyle={MapSnsPostLayoutStyle}
-                snsPostList={postMapLocation?.pages.flatMap((v) =>
-                  v.map((value) => value),
-                )}
-                linkPopupInfo={linkPopupInfo}
-                actionFunc={funcPrevButton}
-                searchType={'distance'}
-                scrollElement={scrollElement}
-                inViewElement={
-                  <MapExploreListInfiniteScroll
-                    latitude={latitude}
-                    longitude={longitude}
-                    MapExploreInfiniteScrollStyle={
-                      MapExploreInfiniteScrollStyle
-                    }
-                    nearFilter={mapExploreFilterTab}
-                    startDate={
-                      mapDatePickerPopupInfo.dateInfo.startDate
-                        ? convertDateToCurrentCountryISO(
-                            mapDatePickerPopupInfo.dateInfo.startDate,
-                          )
-                        : null
-                    }
-                    endDate={
-                      mapDatePickerPopupInfo.dateInfo.endDate
-                        ? convertDateToCurrentCountryISO(
-                            mapDatePickerPopupInfo.dateInfo.endDate,
-                          )
-                        : null
-                    }
-                    distance={distance}
-                  />
-                }
-              />
-
-              {/* <SnsPostMasonryLayout
+              <SnsPostMasonryLayout
                 SnsPostMasonryLayoutStyle={MapSnsPostLayoutStyle}
                 snsPostList={postMapLocation?.pages.flatMap((v) =>
                   v.map((value) => value),
@@ -154,7 +116,7 @@ const MapExploreLocationContentBody: React.FC<MapExploreBodyProps> = ({
                     : null
                 }
                 distance={distance}
-              /> */}
+              />
             </>
           ) : (
             <NoResultComponent

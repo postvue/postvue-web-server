@@ -1,7 +1,7 @@
 import React from 'react';
 
 import NoResultComponent from 'components/common/container/NoResultComponent';
-import SnsPostVirtualMasonryLayout from 'components/layouts/virtual/masonry/SnsPostVirtualMasonryLayout';
+import SnsPostMasonryLayout from 'components/layouts/SnsPostMasonryLayout';
 import MapMyPostListInfiniteScroll from 'hook/MapMyPostListInfiniteScroll';
 import { QueryStateMapMyPostList } from 'hook/queryhook/QueryStateMapMyPostList';
 
@@ -14,7 +14,6 @@ interface MapExploreBodyProps {
     isReplaced: boolean;
   };
   funcPrevButton?: () => void;
-  scrollElement?: Element;
 }
 
 const MapExploreMyPostBody: React.FC<MapExploreBodyProps> = ({
@@ -23,7 +22,6 @@ const MapExploreMyPostBody: React.FC<MapExploreBodyProps> = ({
   masonryLayoutNum,
   linkPopupInfo,
   funcPrevButton,
-  scrollElement,
 }) => {
   const { data: mapMyPostList, isFetched: isFetchedByMapMyPostList } =
     QueryStateMapMyPostList(isActiveMyMap);
@@ -31,32 +29,6 @@ const MapExploreMyPostBody: React.FC<MapExploreBodyProps> = ({
   return (
     <>
       {isFetchedByMapMyPostList && (
-        <>
-          {mapMyPostList &&
-          mapMyPostList &&
-          mapMyPostList.pages.flatMap((v) => v).length > 0 ? (
-            <SnsPostVirtualMasonryLayout
-              // SnsPostMasonryLayoutStyle={MapSnsPostLayoutStyle}
-              snsPostList={mapMyPostList.pages.flatMap((v) => v)}
-              // fixNum={masonryLayoutNum}
-              linkPopupInfo={linkPopupInfo}
-              actionFunc={funcPrevButton}
-              searchType={'distance'}
-              scrollElement={scrollElement}
-              inViewElement={<MapMyPostListInfiniteScroll />}
-            />
-          ) : (
-            <NoResultComponent
-              NoResultTitleStyle={{
-                top: '20%',
-                transform: 'translate(-50%,0%)',
-              }}
-            />
-          )}
-        </>
-      )}
-
-      {/* {isFetchedByMapMyPostList && (
         <>
           {mapMyPostList &&
           mapMyPostList &&
@@ -79,7 +51,7 @@ const MapExploreMyPostBody: React.FC<MapExploreBodyProps> = ({
           )}
         </>
       )}
-      <MapMyPostListInfiniteScroll /> */}
+      <MapMyPostListInfiniteScroll />
     </>
   );
 };

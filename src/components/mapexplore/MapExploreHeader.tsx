@@ -1,7 +1,6 @@
 import { ReactComponent as MapExplorePopupCloseButtonIcon } from 'assets/images/icon/svg/explore/MapExplorePopupCloseButtonIcon.svg';
 import ContextMenuPopup from 'components/popups/ContextMenuPopup';
 import { ACCOUNT_NOT_PROFILE_IMG_PATH } from 'const/AccountConst';
-import { MAP_CONTENT_LOCATION_TYPE } from 'const/MapExploreConst';
 import {
   MAP_CONTENT_LOCATION_TYPE,
   MAP_CONTENT_POST_TYPE,
@@ -36,6 +35,7 @@ import {
   mapExploreFilterTabAtom,
   mapLoactionAtom,
   mapMoveLocationAtom,
+  mapSearchPostWordAtom,
   mapSearchTempWordAtom,
 } from 'states/MapExploreAtom';
 import styled from 'styled-components';
@@ -49,10 +49,6 @@ interface MapExploreHeaderProps {
   SearchButtonInputLayoutActiveStyle?: React.CSSProperties;
   SearchButtonInputLayoutNotActiveStyle?: React.CSSProperties;
   MapFullMargin: number;
-  onClickMapPostButton: (
-    postSearchQuery: string,
-    posData: { latitude: number; longitude: number; isMoveCenter: boolean },
-  ) => void;
 }
 
 const MapExploreHeader: React.FC<MapExploreHeaderProps> = ({
@@ -60,7 +56,6 @@ const MapExploreHeader: React.FC<MapExploreHeaderProps> = ({
   SearchButtonInputLayoutActiveStyle,
   SearchButtonInputLayoutNotActiveStyle,
   MapFullMargin,
-  onClickMapPostButton,
 }) => {
   const isMapSearchInputActive = useRecoilValue(isMapSearchInputActiveAtom);
 
@@ -107,13 +102,32 @@ const MapExploreHeader: React.FC<MapExploreHeaderProps> = ({
 
   const setMapExploreFilterTab = useSetRecoilState(mapExploreFilterTabAtom);
 
+  const [mapMoveLocation, setMapMoveLoation] =
+    useRecoilState(mapMoveLocationAtom);
+
+  const setMapSearchPostWord = useSetRecoilState(mapSearchPostWordAtom);
+
   const setCurrentSearchQuery = useSetRecoilState(currentSearchQueryAtom);
   const setMapContentType = useSetRecoilState(mapContentTypeAtom);
   const setMapLoaction = useSetRecoilState(mapLoactionAtom);
 
-  const setMapSearchTempWord = useSetRecoilState(mapSearchTempWordAtom);
-  const [mapMoveLocation, setMapMoveLoation] =
-    useRecoilState(mapMoveLocationAtom);
+  const [mapSearchTempWord, setMapSearchTempWord] = useRecoilState(
+    mapSearchTempWordAtom,
+  );
+
+  const onClickMapPostButton = (postSearchQuery: string) => {
+    setIsMapSearchInputActive(false);
+    setMapExploreFilterTab(MAP_EXPLORE_ALL_TAB_PARAM);
+    setMapSearchPostWord(postSearchQuery);
+    setCurrentSearchQuery(postSearchQuery);
+    setMapContentType(MAP_CONTENT_POST_TYPE);
+    setMapLoaction({
+      latitude: mapMoveLocation.latitude,
+      longitude: mapMoveLocation.longitude,
+      isMoveCenter: false,
+    });
+    setMapSearchTempWord('');
+  };
 
   const onClickGeoPositionRefreshButton = (
     latitude: number,
@@ -195,13 +209,7 @@ const MapExploreHeader: React.FC<MapExploreHeaderProps> = ({
                     SearchButtonInputLayoutNotActiveStyle
                   }
                   address={address}
-                  onClickMapPostButton={(postSearchQuery: string) => {
-                    onClickMapPostButton(postSearchQuery, {
-                      latitude: mapMoveLocation.latitude,
-                      longitude: mapMoveLocation.longitude,
-                      isMoveCenter: false,
-                    });
-                  }}
+                  onClickMapPostButton={onClickMapPostButton}
                 />
                 {!isMapSearchInputActive &&
                   !mapDatePickerPopupInfo.isActive && (
@@ -310,13 +318,7 @@ const MapExploreHeader: React.FC<MapExploreHeaderProps> = ({
                 SearchSuggestBodyContiainerStyle={{
                   backgroundColor: 'transparent',
                 }}
-                onClickMapPostButton={(postSearchQuery) => {
-                  onClickMapPostButton(postSearchQuery, {
-                    latitude: mapMoveLocation.latitude,
-                    longitude: mapMoveLocation.longitude,
-                    isMoveCenter: false,
-                  });
-                }}
+                onClickMapPostButton={onClickMapPostButton}
                 onClickAddress={onClickAddress}
               />
             </MapExploreSuggestBodyWrap>

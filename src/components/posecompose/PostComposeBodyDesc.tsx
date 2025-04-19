@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import theme from 'styles/theme';
 
 import { MAX_POST_BODY_TEXT_NUM } from 'const/PostConst';
+import useAutoBlur from 'hook/customhook/useAutoBlur';
 
 interface PostComposeBodyDescProps {
   postBodyText: string;
@@ -18,7 +19,7 @@ const PostComposeBodyDesc: React.FC<PostComposeBodyDescProps> = ({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [textareaHeight, setTextareaHeight] = useState<string>('auto');
 
-  // useAutoBlur([textareaParentRef, textareaRef], undefined, undefined, false);
+  useAutoBlur([textareaParentRef, textareaRef], undefined, undefined, false);
 
   useEffect(() => {
     const updateHeight = () => {

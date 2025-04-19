@@ -4,6 +4,7 @@ import {
 } from 'const/SignupConst';
 import { getSearchQueryByDebounce } from 'global/util/SearchUtil';
 import { isValidUsername } from 'global/util/ValidUtil';
+import useAutoBlur from 'hook/customhook/useAutoBlur';
 import React, { useEffect, useState } from 'react';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import { getProfileExistenceByUsername } from 'services/profile/getProfileExistenceByUsername';
@@ -34,7 +35,7 @@ const SignupUsernameStep: React.FC = () => {
     signStepTransitionInfoAtom,
   );
 
-  // useAutoBlur([]);
+  useAutoBlur([]);
 
   const debouncedGetSearchQuery = getSearchQueryByDebounce(
     (word: string) => {
@@ -171,7 +172,7 @@ const SignupUsernameStep: React.FC = () => {
 };
 
 const SignupStepTitleWrap = styled.div`
-  padding: 30px 0px 20px 0px;
+  padding: 30px 0px 50px 0px;
 `;
 
 const SignupStepTitle = styled.div`

@@ -3,13 +3,14 @@ import { RECENTLY_SEARCH_WORD_LIST_LOCAL_STORAGE } from 'const/LocalStorageConst
 import { RoutePushEventDateInterface } from 'const/ReactNativeConst';
 import { MEDIA_MOBILE_MAX_WIDTH } from 'const/SystemAttrConst';
 import { SEARCH_INPUT_PHARSE_TEXT } from 'const/SystemPhraseConst';
+import { stackRouterPush } from 'global/util/reactnative/nativeRouter';
 import React, { useEffect, useState } from 'react';
-import { generatePath, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import styled from 'styled-components';
 import {
-  SEARCH_POST_ROUTE_PATH,
-  SEARCH_TAG_POST_ROUTE_PATH,
+  SEARCH_POST_PATH,
+  SEARCH_TAG_POST_PATH,
 } from '../../../const/PathConst';
 import { SearchRecentKeywordInterface } from '../../../global/interface/localstorage/SearchInterface';
 import {
@@ -99,24 +100,13 @@ const SearchSuggestBody: React.FC<SearchSuggestBodyProps> = ({
         isShowInitBottomNavBar: true,
       };
       if (startsWithHashTag(word)) {
-        // stackRouterPush(
-        //   navigate,
-        //   `${SEARCH_TAG_POST_PATH}/${removeHashTag(word)}`,
-        //   data,
-        // );
-
-        navigate(
-          generatePath(SEARCH_TAG_POST_ROUTE_PATH, {
-            search_word: removeHashTag(word),
-          }),
+        stackRouterPush(
+          navigate,
+          `${SEARCH_TAG_POST_PATH}/${removeHashTag(word)}`,
+          data,
         );
       } else {
-        // stackRouterPush(navigate, `${SEARCH_POST_PATH}/${word}`, data);
-        navigate(
-          generatePath(SEARCH_POST_ROUTE_PATH, {
-            search_word: word,
-          }),
-        );
+        stackRouterPush(navigate, `${SEARCH_POST_PATH}/${word}`, data);
       }
 
       setTimeout(() => {

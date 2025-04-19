@@ -3,9 +3,9 @@ import styled from 'styled-components';
 
 import LoadingPopup from 'components/popups/LoadingPopup';
 import { MEDIA_MOBILE_MAX_WIDTH } from 'const/SystemAttrConst';
-import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { mapLoactionAtom } from 'states/MapExploreAtom';
-import { initPageInfoAtom, isLoadingPopupAtom } from 'states/SystemConfigAtom';
+import { isLoadingPopupAtom } from 'states/SystemConfigAtom';
 
 import { ReactComponent as MapExplorePopupCloseButtonIcon } from 'assets/images/icon/svg/explore/MapExplorePopupCloseButtonIcon.svg';
 import AppleMapElement from 'components/mapexplore/body/AppleMapElement';
@@ -17,7 +17,6 @@ import { isApp } from 'global/util/reactnative/nativeRouter';
 import useBodyAdaptProps from 'hook/customhook/useBodyAdaptProps';
 import { PostMapPostInfiniteInterface } from 'hook/queryhook/QueryStatePostMapPostInfinite';
 import { QueryStateProfileScrap } from 'hook/queryhook/QueryStateProfileScrap';
-import Skeleton from 'react-loading-skeleton';
 import MapExplorePostByScrapBottomSheet from './MapExplorePostByScrapBottomSheet';
 
 interface MapExploreByScrapPopupBodyProps {
@@ -27,9 +26,6 @@ interface MapExploreByScrapPopupBodyProps {
 }
 
 const initTime = 1000;
-
-const MAP_OPEN_TIME = 300;
-const MAP_POPUP_TIME = 1200;
 
 const MapExploreByScrapPopupBody: React.FC<MapExploreByScrapPopupBodyProps> = ({
   scrapId,
@@ -41,11 +37,10 @@ const MapExploreByScrapPopupBody: React.FC<MapExploreByScrapPopupBodyProps> = ({
   const isLoadingPopup = useRecoilValue(isLoadingPopupAtom);
 
   const [init, setInit] = useState<boolean>(false);
-  const [initPageInfo, setInitPageInfo] = useRecoilState(initPageInfoAtom);
   useEffect(() => {
     setTimeout(() => {
       setInit(true);
-    }, MAP_OPEN_TIME);
+    }, 300);
   }, []);
 
   const { data: profileScrap } = QueryStateProfileScrap(scrapId);
@@ -89,18 +84,6 @@ const MapExploreByScrapPopupBody: React.FC<MapExploreByScrapPopupBodyProps> = ({
     isMobile && !isApp(),
   );
 
-  const actionFunc = () => {
-    funcPrevButton();
-  };
-
-  useEffect(() => {
-    requestAnimationFrame(() => {
-      setTimeout(() => {
-        setInitPageInfo((prev) => ({ ...prev, isMapPopupByScrap: true }));
-      }, MAP_POPUP_TIME);
-    });
-  }, []);
-
   return (
     <>
       <MapExplorePopupContainer>
@@ -133,7 +116,7 @@ const MapExploreByScrapPopupBody: React.FC<MapExploreByScrapPopupBodyProps> = ({
               timeout={300}
               unmountOnExit
             > */}
-            {initPageInfo.isMapPopupByScrap && init ? (
+            {init && (
               <AppleMapElement
                 mapPost={
                   profileScrap
@@ -160,11 +143,6 @@ const MapExploreByScrapPopupBody: React.FC<MapExploreByScrapPopupBodyProps> = ({
                 // }
                 coordinateSpan={1}
               />
-            ) : (
-              <Skeleton
-                height={window.innerHeight}
-                style={{ borderRadius: '20px 20px 0 0' }}
-              />
             )}
             {/* </CSSTransition> */}
           </MapExploreSubWrap>
@@ -180,19 +158,11 @@ const MapExploreByScrapPopupBody: React.FC<MapExploreByScrapPopupBodyProps> = ({
           //   }}
           // />
           <MapExplorePostByScrapBottomSheet>
-            <ProfileScrapBody
-              scrapId={scrapId}
-              isEdit={false}
-              actionFunc={actionFunc}
-            />
+            <ProfileScrapBody scrapId={scrapId} isEdit={false} />
           </MapExplorePostByScrapBottomSheet>
         ) : (
           <MapPostExploreBodyWrap>
-            <ProfileScrapBody
-              scrapId={scrapId}
-              isEdit={false}
-              actionFunc={actionFunc}
-            />
+            <ProfileScrapBody scrapId={scrapId} isEdit={false} />
           </MapPostExploreBodyWrap>
         )}
       </MapExplorePopupContainer>

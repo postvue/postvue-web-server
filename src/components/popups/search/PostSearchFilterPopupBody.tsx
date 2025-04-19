@@ -53,7 +53,7 @@ const PostSearchFilterPopupBody: React.FC<PostSearchFilterPopupBodyProps> = ({
               key={key}
               onClick={() => {
                 setIsActiveSearchPostFilterPopup(false);
-                navigate(`${value.url}/${searchWord}`, { replace: true });
+                navigate(`${value.url}/${searchWord}`);
               }}
             >
               <ProfileScrapTargetAudienceTab style={FilterTargetNameStyle}>

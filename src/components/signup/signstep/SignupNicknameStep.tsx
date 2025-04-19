@@ -3,6 +3,7 @@ import {
   SIGNUP_NICKNAME_MIN_SIZE,
 } from 'const/SignupConst';
 import { isValidNickname } from 'global/util/ValidUtil';
+import useAutoBlur from 'hook/customhook/useAutoBlur';
 import React, { useEffect, useState } from 'react';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import {
@@ -27,6 +28,8 @@ const SignupNicknameStep: React.FC = () => {
   const setSignStepTransitionInfo = useSetRecoilState(
     signStepTransitionInfoAtom,
   );
+
+  useAutoBlur([]);
 
   useEffect(() => {
     if (isValidNickname(nickname)) {
@@ -56,14 +59,14 @@ const SignupNicknameStep: React.FC = () => {
     <>
       <SignupHeader />
       <SignupStepTitleWrap>
-        <SignupStepTitle>별명을 적어주세요.</SignupStepTitle>
+        <SignupStepTitle>닉네임을 정해주세요.</SignupStepTitle>
         <SignupStepSubTitle>
           앱에서 표시될 별명입니다. 언제든지 설정에서 바꿀 수 있어요.
         </SignupStepSubTitle>
       </SignupStepTitleWrap>
       <SignupInputWrap>
         <SignupNicknameInput
-          placeholder="별명을 적어주세요."
+          placeholder="닉네임을 정해주세요."
           value={nickname}
           onChange={(e) => onChangeNickname(e)}
           onKeyDown={(e) => handleKeyPress(e)}
@@ -105,7 +108,7 @@ const SignupNicknameStep: React.FC = () => {
 };
 
 const SignupStepTitleWrap = styled.div`
-  padding: 30px 0px 20px 0px;
+  padding: 30px 0px 50px 0px;
 `;
 
 const SignupStepTitle = styled.div`

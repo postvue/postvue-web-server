@@ -17,32 +17,3 @@ export const windowSizeAtom = atom({
     windowHeight: window.innerHeight,
   },
 });
-
-export type AnimeDirectionType = 'forward' | 'back' | 'none';
-
-export type InitPageInfoType = {
-  isSearchPage: boolean;
-  isHomePage: boolean;
-  isMyProfilePage: boolean;
-  isMyProfileScrapPage: boolean;
-  isLoginPage: boolean;
-  isMapPage: boolean;
-  isSignupPage: boolean;
-  isMapPopupByProfilePost: boolean;
-  isMapPopupByScrap: boolean;
-};
-
-export const initPageInfoAtom = atom<InitPageInfoType>({
-  key: 'initPageInfo',
-  default: {
-    isHomePage: false,
-    isSearchPage: false,
-    isMyProfilePage: false,
-    isMyProfileScrapPage: false,
-    isLoginPage: false,
-    isMapPage: false,
-    isSignupPage: false,
-    isMapPopupByProfilePost: false,
-    isMapPopupByScrap: false,
-  },
-});

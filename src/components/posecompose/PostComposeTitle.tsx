@@ -1,5 +1,4 @@
 import { MAX_POST_TITLE_NUM } from 'const/PostConst';
-import { useIOSKeyboardLock } from 'hook/customhook/useIOSKeyboardLock';
 import React, { useRef } from 'react';
 import styled from 'styled-components';
 
@@ -13,16 +12,11 @@ const PostComposeTitle: React.FC<PostComposeTitleProps> = ({
   setPostTitle,
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const { activate } = useIOSKeyboardLock();
 
   return (
     <PostComposeTitleWrap>
       <PostComposeTitleInput
         ref={inputRef}
-        onFocus={(e) => {
-          // activate();
-          e.stopPropagation();
-        }}
         placeholder={'제목을 넣어주세요'}
         onChange={(e) => {
           if (e.target.value.length > MAX_POST_TITLE_NUM) return;

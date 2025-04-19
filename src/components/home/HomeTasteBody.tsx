@@ -6,11 +6,7 @@ import { fetchTasteForMeByNotChannel } from 'global/util/channel/static/fetchTas
 import useWindowSize from 'hook/customhook/useWindowSize';
 import HomeTasteSubBody from './HomeTasteSubBody';
 
-interface HomeTasteBodyProps {
-  scrollElement?: Element | undefined;
-}
-
-const HomeTasteBody: React.FC<HomeTasteBodyProps> = ({ scrollElement }) => {
+const HomeTasteBody: React.FC = () => {
   const { windowWidth } = useWindowSize();
 
   return (
@@ -27,10 +23,10 @@ const HomeTasteBody: React.FC<HomeTasteBodyProps> = ({ scrollElement }) => {
             // fetchNextPage();
             // refetchByTasteForMeList();
 
-            await fetchTasteForMeByNotChannel();
+            fetchTasteForMeByNotChannel();
           }}
         >
-          <HomeTasteSubBody scrollElement={scrollElement} />
+          <HomeTasteSubBody />
         </PullToRefreshComponent>
       ) : (
         <HomeTasteSubBody />

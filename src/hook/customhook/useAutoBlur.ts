@@ -37,11 +37,6 @@ function useAutoBlur(
         )
       )
         return;
-      // if (
-      //   excludeRefs.some((ref) => ref.current && ref.current === activeElement)
-      // ) {
-      //   return;
-      // }
 
       // 키보드 닫기
 

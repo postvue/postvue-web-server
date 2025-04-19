@@ -65,13 +65,7 @@ const PostComposeLocationPopup: React.FC<PostComposeLocationPopupProps> = ({
             setIsActivPostComposeLocationPopup(false);
           }}
           initDuration={0}
-          heightNum={
-            window.innerHeight >
-            theme.systemSize.appDisplaySize.minDeviceHeightNum
-              ? window.innerHeight * (5 / 6)
-              : window.innerHeight -
-                theme.systemSize.appDisplaySize.popupMinusNumByMinDeviceNum
-          }
+          heightNum={window.innerHeight * (5 / 6)}
           isExternalCloseFunc={isExternalCloseFunc}
           bottomSheetHeader={
             <PostComposeLocationPopupHeader
@@ -120,7 +114,7 @@ const PostComposeLocationPopup: React.FC<PostComposeLocationPopupProps> = ({
       {(isLodingByAddresListByGeo || loadingByAddressGeo) && (
         <LoadingPopup
           LoadingPopupStyle={{
-            backgroundColor: 'transparent',
+            backgroundColor: theme.background.lightBlurBackground,
           }}
         />
       )}

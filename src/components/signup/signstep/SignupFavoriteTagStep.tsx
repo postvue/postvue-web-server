@@ -1,12 +1,10 @@
-import { ReactComponent as ScrapSelectIcon } from 'assets/images/icon/svg/scrap/ScrapSelectIcon.svg';
+import LongPressToResizeButton from 'components/common/buttton/LongPressToResizeButton';
 import { ACTIVE_CLASS_NAME } from 'const/ClassNameConst';
 import { SIGNUP_FAVORITE_TAG_MAX_NUM } from 'const/SignupConst';
-import { sendVibrationLightEvent } from 'global/util/reactnative/nativeRouter';
 import { isValidString } from 'global/util/ValidUtil';
 import { QueryStateRecommFavoriteTagList } from 'hook/queryhook/QueryStateRecommFavoriteTagList';
 import RecommFavoriteTagListInfiniteScroll from 'hook/RecommFavoriteTagListInfiniteScroll';
 import React, { useEffect, useRef, useState } from 'react';
-import Skeleton from 'react-loading-skeleton';
 import { useRecoilState } from 'recoil';
 import { signupInfoAtom } from 'states/SignupAtom';
 import { tagSearchInputAtom } from 'states/TagAtom';
@@ -33,10 +31,10 @@ const SignupFavoriteTagStep: React.FC = () => {
 
   const handleElementAction = (ref: HTMLDivElement, tagId: string) => {
     const isActive = hasClass(ref, ACTIVE_CLASS_NAME);
-    // const borderStyle = `${theme.mainColor.White} 0px 0px 0px 0px, ${theme.mainColor.Blue} 0px 0px 0px 2px`; // border style example, modify as needed
+    const borderStyle = `${theme.mainColor.White} 0px 0px 0px 0px, ${theme.mainColor.Blue} 0px 0px 0px 3px`; // border style example, modify as needed
     if (isActive) {
       ref.classList.remove(ACTIVE_CLASS_NAME);
-      // ref.style.boxShadow = '';
+      ref.style.boxShadow = '';
       setSignupInfo((prev) => ({
         ...prev,
         favoriteTagList: prev.favoriteTagList.filter(
@@ -46,10 +44,8 @@ const SignupFavoriteTagStep: React.FC = () => {
     } else {
       if (signupInfo.favoriteTagList.length >= SIGNUP_FAVORITE_TAG_MAX_NUM)
         return;
-
-      sendVibrationLightEvent();
       ref.classList.add(ACTIVE_CLASS_NAME);
-      // ref.style.boxShadow = borderStyle;
+      ref.style.boxShadow = borderStyle;
 
       setSignupInfo((prev) => ({
         ...prev,
@@ -70,15 +66,9 @@ const SignupFavoriteTagStep: React.FC = () => {
     }
   }, [signupInfo.favoriteTagList]);
 
-  const [init, setInit] = useState<boolean>(false);
   useEffect(() => {
     setSignupInfo((prev) => ({ ...prev, favoriteTagList: [] }));
-    setTimeout(() => {
-      setInit(true);
-    }, 1000);
   }, []);
-
-  const _MOCK_LIST = Array(30).fill(0);
 
   return (
     <>
@@ -94,14 +84,14 @@ const SignupFavoriteTagStep: React.FC = () => {
         {!isValidString(tagSearchInput) ? (
           <>
             <FavoriteTagSuggestItemListWrap>
-              {init && data && !isLoading ? (
-                <>
-                  {data?.pages
-                    .flatMap((v) => v)
-                    .map((v, index) => {
-                      return (
+              {data &&
+                !isLoading &&
+                data?.pages
+                  .flatMap((v) => v)
+                  .map((v, index) => {
+                    return (
+                      <LongPressToResizeButton key={index}>
                         <TagElementContainer
-                          key={index}
                           ref={(el) => (tagRefs.current[index] = el)}
                           onClick={() => {
                             const tagRef = tagRefs.current[index];
@@ -113,35 +103,11 @@ const SignupFavoriteTagStep: React.FC = () => {
                           <TagElementWrap $tagBkgdPath={v.tagBkgdContent}>
                             <TagNameDiv>#{v.tagName}</TagNameDiv>
                           </TagElementWrap>
-                          {signupInfo.favoriteTagList.includes(v.tagId) && (
-                            <ActiveSelecteScrapdWrap>
-                              <ActiveSelecteScrapIconWrap>
-                                <ScrapSelectIcon />
-                              </ActiveSelecteScrapIconWrap>
-                            </ActiveSelecteScrapdWrap>
-                          )}
                         </TagElementContainer>
-                      );
-                    })}
-                </>
-              ) : (
-                <>
-                  {_MOCK_LIST.map((v, index) => {
-                    return (
-                      <TagElementContainer key={index}>
-                        <Skeleton
-                          style={{
-                            borderRadius: BORDER_RADIUS_NUM,
-                            aspectRatio: ASPECT_RATIO,
-                          }}
-                        />
-                      </TagElementContainer>
+                      </LongPressToResizeButton>
                     );
                   })}
-                </>
-              )}
             </FavoriteTagSuggestItemListWrap>
-
             <RecommFavoriteTagListInfiniteScroll />
           </>
         ) : (
@@ -157,17 +123,13 @@ const SignupFavoriteTagStep: React.FC = () => {
           </>
         )}
       </FavoriteTagSuggestItemListContainer>
-
       <SignupNextButton isActive={isActive} />
     </>
   );
 };
 
-const BORDER_RADIUS_NUM = 20;
-const ASPECT_RATIO = '2/1';
-
 const SignupStepTitleWrap = styled.div`
-  padding: 20px 0px 10px 0px;
+  padding: 30px 0px 30px 0px;
 `;
 
 const SignupStepTitle = styled.div`
@@ -184,7 +146,7 @@ const SignupStepSubTitle = styled.div`
 const FavoriteTagSuggestItemListContainer = styled.div`
   padding-bottom: 20px;
   overflow: auto;
-  flex: 1;
+  flex-grow: 1;
 `;
 
 const FavoriteTagSuggestItemListWrap = styled.div`
@@ -197,21 +159,18 @@ const FavoriteTagSuggestItemListWrap = styled.div`
 
 const TagElementContainer = styled.div`
   cursor: pointer;
-  position: relative;
-  border-radius: ${BORDER_RADIUS_NUM}px;
+  border-radius: 8px;
 `;
 
 const TagElementWrap = styled.div<{ $tagBkgdPath: string }>`
-  color: white;
-  aspect-ratio: ${ASPECT_RATIO};
-  border-radius: ${BORDER_RADIUS_NUM}px;
+  border-radius: 8px;
   text-align: center;
 
   font: ${({ theme }) => theme.fontSizes.Subhead2};
+  padding: 39px 0px;
 
   margin: 0 auto;
-
-  display: flex;
+  color: white;
 
   ${(props) =>
     props.$tagBkgdPath
@@ -219,22 +178,6 @@ const TagElementWrap = styled.div<{ $tagBkgdPath: string }>`
       : `background-color: ${theme.grey.Grey7};`};
 `;
 
-const TagNameDiv = styled.div`
-  display: flex;
-  margin: auto;
-`;
-
-const ActiveSelecteScrapdWrap = styled.div`
-  display: flex;
-  animation: 0.4s cubic-bezier(0.4, 0, 0, 1.5) 0s 1 normal scale-and-fadein;
-  position: absolute;
-  bottom: 0px;
-  right: 0px;
-  padding: 5px;
-`;
-
-const ActiveSelecteScrapIconWrap = styled.div`
-  margin: auto 0px;
-`;
+const TagNameDiv = styled.div``;
 
 export default SignupFavoriteTagStep;

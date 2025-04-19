@@ -406,7 +406,7 @@ const PoseComposeButtonWrap = styled.div`
 
 const PoseComposeButton = styled.div`
   font: ${({ theme }) => theme.fontSizes.Headline2};
-  padding: 8px 38px;
+  padding: 8px 45px;
   background-color: ${({ theme }) => theme.mainColor.Blue};
   color: ${({ theme }) => theme.mainColor.White};
   border-radius: 30px;

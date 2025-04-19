@@ -46,7 +46,7 @@ import SearchButtonInputElement from './SearchButtonInputElement';
 
 import LoadingComponent from 'components/common/container/LoadingComponent';
 import { SEARCH_TAG_POST_PATH } from 'const/PathConst';
-import { EVENT_DATA_WEB_BACK_TYPE } from 'const/ReactNativeConst';
+import { EVENT_DATA_ROUTE_BACK_TYPE } from 'const/ReactNativeConst';
 import useOutsideClick from 'hook/customhook/useOutsideClick';
 import useWindowSize from 'hook/customhook/useWindowSize';
 import SearchSuggestBody from '../body/SearchSuggestBody';
@@ -66,8 +66,7 @@ interface SearchHeaderProps {
 const SearchHeader: React.FC<SearchHeaderProps> = ({
   backToUrl,
   searchUrl,
-  prevNavigateType = EVENT_DATA_WEB_BACK_TYPE,
-
+  prevNavigateType = EVENT_DATA_ROUTE_BACK_TYPE,
   isShowFavoriteTermButton = false,
   favoriteTermButton,
   SearchHeaderContainerStyle,
@@ -263,7 +262,9 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
           HeaderLayoutStyle={{
             ...{
               position:
-                windowWidth >= MEDIA_MOBILE_MAX_WIDTH_NUM ? 'static' : 'fixed',
+                windowWidth >= MEDIA_MOBILE_MAX_WIDTH_NUM
+                  ? 'absolute'
+                  : 'fixed',
               maxWidth:
                 windowWidth >= MEDIA_MOBILE_MAX_WIDTH_NUM
                   ? theme.systemSize.appDisplaySize.widthByPc
@@ -278,7 +279,7 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
             <SearchInpuElementWrap>
               <SearchContainerWrap>
                 {isPrevButton && (
-                  <PrevButtonWrap>
+                  <PrevButtonWrap $shrink={!isSearchInputActive}>
                     <PrevButton
                       style={PrevStyle}
                       to={backToUrl}
@@ -333,23 +334,15 @@ const SearchHeaderWrap = styled.div`
   display: flex;
 `;
 
-// const PrevButtonWrap = styled.div<{ $shrink: boolean }>`
-//   display: flex;
-//   flex: 0 0 auto;
-//   overflow: hidden;
-//   width: ${(props) => (props.$shrink ? '20px' : '0')};
-//   opacity: ${(props) => (props.$shrink ? '1' : '0')};
-//   pointer-events: ${(props) => (props.$shrink ? 'auto' : 'none')};
-//   // willchange: transform;
-
-//   // transition:
-//   //   width 0.35s ease-in-out,
-//   //   opacity 0.35s ease-in-out;
-// `;
-
-const PrevButtonWrap = styled.div`
+const PrevButtonWrap = styled.div<{ $shrink: boolean }>`
   display: flex;
+
+  transition:
+    width 0.3s ease,
+    opacity 0.3s ease;
   flex: 0 0 auto;
+  width: ${(props) => (props.$shrink ? '20px' : '0')};
+  opacity: ${(props) => (props.$shrink ? '1' : '0')};
   overflow: hidden;
 `;
 
@@ -365,6 +358,7 @@ const SearchContainerWrap = styled.div`
 
 const SearchInpuElementWrap = styled.div`
   display: flex;
+  transition: flex 0.5s ease;
   flex: 1;
   width: auto;
   opacity: 1;
@@ -373,8 +367,7 @@ const SearchInpuElementWrap = styled.div`
 
 const SearchInpuElementSubWrap = styled.div`
   display: flex;
-  willchange: transform;
-  transition: flex 0.35 ease;
+  transition: flex 0.3s ease;
   flex: 1;
   width: auto;
   opacity: 1;
@@ -384,10 +377,9 @@ const SearchInpuElementSubWrap = styled.div`
 const SearchInputCancelButtonWrap = styled.div<{ $shrink: boolean }>`
   display: flex;
   border-radius: 5px;
-  willchange: transform;
   transition:
-    width 0.35s ease,
-    opacity 0.35s ease;
+    width 0.5s ease,
+    opacity 0.5s ease;
   flex: 0 0 auto;
   width: ${(props) => (props.$shrink ? '50px' : '0')};
   opacity: ${(props) => (props.$shrink ? '1' : '0')};

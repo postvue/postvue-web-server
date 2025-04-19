@@ -16,7 +16,6 @@ import {
 import {
   isApp,
   sendSignupPermissionRequestEvnet,
-  sendVibrationLightEvent,
 } from 'global/util/reactnative/nativeRouter';
 import { useMessageListener } from 'hook/customhook/useMessageListener';
 import React, { useEffect, useState } from 'react';
@@ -33,7 +32,6 @@ const SignupTermOfServiceStep: React.FC = () => {
 
   const onClickSignup = () => {
     if (isApp()) {
-      sendVibrationLightEvent();
       sendSignupPermissionRequestEvnet();
     } else {
       onClickSignupProcess();

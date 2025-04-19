@@ -1,15 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { SEARCH_POST_PATH } from '../../../../const/PathConst';
 
 import LinkifyTextComponent from 'components/LinkifyTextComponent';
-import { SEARCH_POST_PATH } from 'const/PathConst';
-import {
-  RouteAndMoveUrlInfoType,
-  SEARCH_PAGE_NAME,
-  SEARCH_PAGE_STACK_NAME,
-} from 'const/ReactNativeConst';
-import { navigateToTabWithUrl } from 'global/util/reactnative/nativeRouter';
+import { RoutePushEventDateInterface } from 'const/ReactNativeConst';
+import { stackRouterPush } from 'global/util/reactnative/nativeRouter';
 import { isValidString } from 'global/util/ValidUtil';
 import { convertDifferenceDateTimeByString } from '../../../../global/util/DateTimeUtil';
 
@@ -92,20 +88,10 @@ const PostTextContent: React.FC<PostTextContentProps> = ({
         {tags.map((v, i) => (
           <div
             onClick={() => {
-              // const data: RoutePushEventDateInterface = {
-              //   isShowInitBottomNavBar: true,
-              // };
-              // stackRouterPush(navigate, `${SEARCH_POST_PATH}/${v}`, data);'
-              const param: RouteAndMoveUrlInfoType = {
-                moveUrl: `${SEARCH_POST_PATH}/${v}`,
-                screenStackName: SEARCH_PAGE_STACK_NAME,
+              const data: RoutePushEventDateInterface = {
+                isShowInitBottomNavBar: true,
               };
-              navigateToTabWithUrl(
-                navigate,
-                SEARCH_PAGE_NAME,
-                `${SEARCH_POST_PATH}/${v}`,
-                JSON.stringify(param),
-              );
+              stackRouterPush(navigate, `${SEARCH_POST_PATH}/${v}`, data);
             }}
             key={i}
           >

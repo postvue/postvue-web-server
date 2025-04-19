@@ -91,9 +91,9 @@ const sendRouterEvent = (
 };
 
 // ReactNative Navigation
-export const stackRouterNavigation = (url: string, param?: string): void => {
+export const stackRouterNavigation = (url: string): void => {
   if (isApp()) {
-    sendRouterEvent(EVENT_DATA_ROUTE_NAVIGATE_TYPE, url, undefined, param);
+    sendRouterEvent(EVENT_DATA_ROUTE_NAVIGATE_TYPE, url);
   }
 };
 
@@ -479,10 +479,9 @@ export const navigateToTabWithUrl = (
   navigate: NavigateFunction,
   screenName: string,
   url: string,
-  param?: string,
 ): void => {
   if (isApp()) {
-    stackRouterNavigation(screenName, param);
+    stackRouterNavigation(screenName);
   } else {
     navigate(url); // React Router의 navigate 사용
   }

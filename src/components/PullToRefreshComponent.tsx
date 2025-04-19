@@ -19,9 +19,11 @@ const PullToRefreshComponent: React.FC<PullToRefreshProps> = ({
       resistance={3}
       refreshTimeout={100}
       pullingContent={
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
-          <FontAwesomeIcon icon={faArrowDown} size="lg" />
-        </div>
+        <FontAwesomeIcon
+          style={{ margin: '0 auto', display: 'flex', marginTop: '20px' }}
+          icon={faArrowDown}
+          size="lg"
+        />
       }
     >
       {children as React.ReactElement}

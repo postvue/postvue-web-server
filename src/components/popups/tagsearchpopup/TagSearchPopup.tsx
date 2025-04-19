@@ -10,7 +10,6 @@ import BottomSnapSheetLayout from 'components/layouts/BottomSnapSheetLayout';
 import RoundSquareCenterPopupLayout from 'components/layouts/RoundSquareCenterPopupLayout';
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
 import useWindowSize from 'hook/customhook/useWindowSize';
-import theme from 'styles/theme';
 import TagSearchPopupBody from './TagSearchPopupBody';
 import TagSearchPopupHeader from './TagSearchPopupHeader';
 import TagSelectedListElement from './TagSelectedListElement';
@@ -81,13 +80,7 @@ const TagSearchPopup: React.FC<TagSearchPopupProps> = ({
         <BottomSnapSheetLayout
           isOpen={isTagSearchPopup}
           onClose={() => setIsTagSearchPopup(false)}
-          heightNum={
-            window.innerHeight >
-            theme.systemSize.appDisplaySize.minDeviceHeightNum
-              ? window.innerHeight * (5 / 6)
-              : window.innerHeight -
-                theme.systemSize.appDisplaySize.popupMinusNumByMinDeviceNum
-          }
+          heightNum={700}
           initDuration={0}
           bottomSheetHeader={
             <TagSearchPopupHeader
