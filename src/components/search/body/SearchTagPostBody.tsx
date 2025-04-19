@@ -43,22 +43,18 @@ const SearchTagPostBody: React.FC = () => {
   const {
     data: searchPostPopularList,
     isFetched: isFetchedBySearchPostPopular,
-    refetch: refetchByPostPopular,
   } = QueryStateSearchPostPopularListInfinite(
     searchQueryAndFilterKey,
     searchPostExploreFilterTab === SEARCH_POST_POPULAR_QUERY_PARAM,
   );
 
-  const {
-    data: searchPostNearList,
-    isFetched: isFetchedBySearchPostNear,
-    refetch: refetchByPostNear,
-  } = QueryStateSearchPostNearListInfinite(
-    searchQueryAndFilterKey,
-    searchPostExploreFilterTab === SEARCH_POST_MY_NEAR_QUERY_PARAM,
-    currentPositionSearchPost.latitude,
-    currentPositionSearchPost.longitude,
-  );
+  const { data: searchPostNearList, isFetched: isFetchedBySearchPostNear } =
+    QueryStateSearchPostNearListInfinite(
+      searchQueryAndFilterKey,
+      searchPostExploreFilterTab === SEARCH_POST_MY_NEAR_QUERY_PARAM,
+      currentPositionSearchPost.latitude,
+      currentPositionSearchPost.longitude,
+    );
 
   const {
     data: searchPostRecentlyList,

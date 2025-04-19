@@ -15,36 +15,46 @@ code {
 
 @font-face {
   font-family: 'Pretendard-Bold';
-  src: url('/public/assets/fonts/pretendard/Pretendard-Bold.woff2') format('woff2'),
+  src: 
+      url('/public/assets/fonts/pretendard/Pretendard-Bold.subset.woff2') format('woff2'),
+      url('/public/assets/fonts/pretendard/Pretendard-Bold.woff2') format('woff2'),
        url('/public/assets/fonts/pretendard/Pretendard-Bold.woff') format('woff');
-  font-display: block;
+  /* font-display: block; */
 }
 
 @font-face {
   font-family: 'Pretendard-Medium';
-  src: url('/public/assets/fonts/pretendard/Pretendard-Medium.woff2') format('woff2'),
+  src: 
+      url('/public/assets/fonts/pretendard/Pretendard-Medium.subset.woff2') format('woff2'),
+      url('/public/assets/fonts/pretendard/Pretendard-Medium.woff2') format('woff2'),
        url('/public/assets/fonts/pretendard/Pretendard-Medium.woff') format('woff');
-  font-display: block;
+  /* font-display: block; */
 }
 
 @font-face {
   font-family: 'Pretendard-SemiBold';
-  src: url('/public/assets/fonts/pretendard/Pretendard-SemiBold.woff2') format('woff2'),
+  src:  
+        url('/public/assets/fonts/pretendard/Pretendard-SemiBold.subset.woff2') format('woff2'),
+        url('/public/assets/fonts/pretendard/Pretendard-SemiBold.woff2') format('woff2'),
        url('/public/assets/fonts/pretendard/Pretendard-SemiBold.woff') format('woff');
-  font-display: block;
+  /* font-display: block; */
 }
 
 @font-face {
   font-family: 'Pretendard-Light';
-  src: url('/public/assets/fonts/pretendard/Pretendard-Light.woff2') format('woff2'),
+  src: 
+        url('/public/assets/fonts/pretendard/Pretendard-Light.subset.woff2') format('woff2'),
+        url('/public/assets/fonts/pretendard/Pretendard-Light.woff2') format('woff2'),
        url('/public/assets/fonts/pretendard/Pretendard-Light.woff') format('woff');
-  font-display: block;
+  /* font-display: block; */
 }
 
 @font-face {
   font-family: 'Pretendard-Regular';
-  src: url('/public/assets/fonts/pretendard/Pretendard-Regular.woff2') format('woff2'),
+  src: 
+        url('/public/assets/fonts/pretendard/Pretendard-Regular.subset.woff2') format('woff2'),
+        url('/public/assets/fonts/pretendard/Pretendard-Regular.woff2') format('woff2'),
        url('/public/assets/fonts/pretendard/Pretendard-Regular.woff') format('woff');
-  font-display: block;
+  /* font-display: block; */
 }
 

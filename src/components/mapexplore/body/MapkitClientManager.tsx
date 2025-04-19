@@ -6,6 +6,7 @@ import {
   MAP_POSITION_ICON_PATH,
   MapExplorePostPopupStateType,
   MAPKIT_CLIENT_MANAGER_KEY,
+  MAPKIT_SELECT_ANNOTASTION_MOVE_LISTENER_EVENT,
   POS_CONTROL_GAP_NUM,
 } from 'const/MapExploreConst';
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
@@ -15,7 +16,6 @@ import React, { useEffect, useRef } from 'react';
 import { useSetRecoilState } from 'recoil';
 import {
   currentAnnotationAtom,
-  geocoderAtom,
   GeoPositionInterface,
   isInitListerAtom,
   selectReverseGeoCodeMapAtom,
@@ -28,7 +28,7 @@ let currentAnnotationPos: { latitude: number; longitude: number } = {
   latitude: MAP_EXPLORE_INIT_LATITUDE,
   longitude: MAP_EXPLORE_INIT_LONGITUDE,
 };
-let geocoder: mapkit.Geocoder | null = null;
+
 let init = false;
 let selectHandler: (() => void) | null = null;
 
@@ -64,7 +64,6 @@ const MapkitClientManager: React.FC<MapkitClientManagerProps> = ({
     selectReverseGeoCodeMapAtom,
   );
   const setCurrentAnnotationTemp = useSetRecoilState(currentAnnotationAtom);
-  const setGeocoderTemp = useSetRecoilState(geocoderAtom);
 
   const { windowWidth } = useWindowSize();
 
@@ -77,9 +76,6 @@ const MapkitClientManager: React.FC<MapkitClientManagerProps> = ({
     map.showsCompass = mapkit.FeatureVisibility.Hidden;
     // map.isRotationAvailable = false;
     map.showsMapTypeControl = false;
-
-    geocoder = new mapkit.Geocoder({ language: 'ko-KR' });
-    setGeocoderTemp(geocoder);
 
     // setTimeout(() => {
     //   const posCoordinate = new mapkit.Coordinate(
@@ -200,6 +196,7 @@ const MapkitClientManager: React.FC<MapkitClientManagerProps> = ({
     null,
   );
   const moveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const mapMoveToPosition = async (
     mapLocation: GeoPositionInterface,
     coordinate: mapkit.Coordinate,
@@ -290,6 +287,52 @@ const MapkitClientManager: React.FC<MapkitClientManagerProps> = ({
     null,
   );
 
+  const handleMessage = (event: MessageEvent) => {
+    try {
+      const data: { eventType: string; mapLocation: GeoPositionInterface } =
+        JSON.parse(event.data);
+
+      if (
+        data.eventType !== MAPKIT_SELECT_ANNOTASTION_MOVE_LISTENER_EVENT ||
+        !data.mapLocation
+      )
+        return;
+
+      const mapLocation = data.mapLocation;
+
+      if (!mapLocation) return;
+      const currentPostion = currentAnnotation?.coordinate;
+
+      if (
+        currentPostion &&
+        currentPostion.latitude === mapLocation.latitude &&
+        currentPostion.longitude === mapLocation.longitude
+      ) {
+        return;
+      }
+
+      const coordinate = createCoordinate(
+        mapLocation.latitude,
+        mapLocation.longitude,
+      );
+
+      currentAnnotationPos = {
+        latitude: mapLocation.latitude,
+        longitude: mapLocation.longitude,
+      };
+
+      debounceOnMove(mapLocation, coordinate);
+    } catch (error) {
+      console.log('Failed to parse message:', event.data);
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener('message', (event) => {
+      handleMessage(event);
+    });
+  }, []);
+
   useEffect(() => {
     const funcSingleTap = async (event: any) => {
       const point = event.pointOnPage;
@@ -368,8 +411,6 @@ const MapkitClientManager: React.FC<MapkitClientManagerProps> = ({
       if (currentAnnotation) {
         map.removeAnnotation(currentAnnotation);
         // 제거 후, ref를 null로 초기화하여 다음 마운트 시 기존 annotation 참조가 남지 않도록 함
-        geocoder = null;
-        setGeocoderTemp(geocoder);
       }
 
       if (scrollEndEventFunc) {

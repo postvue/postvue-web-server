@@ -87,7 +87,7 @@ const HomeFollowSubBody: React.FC = () => {
               />
             </RecommFollowProfileInfo>
             <MyProfileScrapImgListWrap>
-              {value.postPreviewImgUrlList.map((image, k) => (
+              {value.postPreviewImgUrlList.slice(0, 3).map((image, k) => (
                 <MyProfileScrapImgWrap
                   key={k}
                   onClick={() => {
@@ -224,8 +224,10 @@ const MyProfileScrapImgListWrap = styled.div`
 `;
 
 const MyProfileScrapImgWrap = styled.div`
-  width: 40%;
-  flex: 0 0 auto;
+  // width: 40%;
+  // width: 30%;
+  width: 100%;
+  // flex: 0 0 auto;
   ${filterBrigntnessStyle}
   cursor: pointer;
 `;

@@ -190,3 +190,36 @@ export const commentSettingPopupInfoAtom = atom<{
     commentId: '',
   },
 });
+
+export const activePostSelectMapContentPopupInfoAtom = atom<{
+  isActive: boolean;
+  latitude: number | null;
+  longitude: number | null;
+  address: string;
+  buildName: string;
+  onClickFunc?: () => void;
+}>({
+  key: 'activePostSelectMapContentPopupInfo',
+  default: {
+    isActive: false,
+    latitude: null,
+    longitude: null,
+    address: '',
+    buildName: '',
+  },
+});
+
+export const activePostMapGuideSelectPopupInfoAtom = atom<{
+  isActive: boolean;
+  latitude: number | null;
+  longitude: number | null;
+  address?: string;
+  buildName?: string;
+}>({
+  key: 'activePostMapGuideSelectPopupInfo',
+  default: {
+    isActive: false,
+    latitude: null,
+    longitude: null,
+  },
+});

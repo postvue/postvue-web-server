@@ -3,16 +3,17 @@ import MapExplorePostBottomSheet from './MapExplorePostBottomSheet';
 
 interface MapExplorePostByScrapBottomSheetProps {
   children: React.ReactNode;
+  initTime?: number;
 }
 
 const MapExplorePostByScrapBottomSheet: React.FC<
   MapExplorePostByScrapBottomSheetProps
-> = ({ children }) => {
+> = ({ children, initTime = 500 }) => {
   const [init, setInit] = useState<boolean>(false);
   useEffect(() => {
     setTimeout(() => {
       setInit(true);
-    }, 500);
+    }, initTime);
   }, []);
 
   return (

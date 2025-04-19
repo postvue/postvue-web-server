@@ -15,8 +15,11 @@ import {
 } from '../../../const/TabConfigConst';
 
 import NoResultComponentInfinite from 'components/common/container/NoResultComponentInfitie';
-import SnsPostMasonryLayout from 'components/layouts/SnsPostMasonryLayout';
-import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
+import SnsPostVirtualMasonryLayout from 'components/layouts/virtual/masonry/SnsPostVirtualMasonryLayout';
+import {
+  MEDIA_MOBILE_MAX_WIDTH,
+  MEDIA_MOBILE_MAX_WIDTH_NUM,
+} from 'const/SystemAttrConst';
 import useWindowSize from 'hook/customhook/useWindowSize';
 import { QueryStateSearchPostNearListInfinite } from 'hook/queryhook/QueryStateSearchPostNearListInfinite';
 import { QueryStateSearchPostPopularListInfinite } from 'hook/queryhook/QueryStateSearchPostPopularListInfinite';
@@ -82,6 +85,29 @@ const SearchSubPostBody: React.FC = () => {
                   searchPostPopularList.pages.flatMap(
                     (value) => value.snsPostRspList,
                   ).length > 0 ? (
+                    <SnsPostVirtualMasonryLayout
+                      snsPostList={searchPostPopularList.pages.flatMap((page) =>
+                        page.snsPostRspList.map((v) => v),
+                      )}
+                      searchType={'recomm'}
+                      inViewElement={
+                        <SearchPostPopularListInfiniteScroll
+                          searchQueryAndFilterKey={searchQueryAndFilterKey}
+                        />
+                      }
+                      // scrollElement={scrollElement}
+                    />
+                  ) : (
+                    <NoResultComponentInfinite />
+                  )}
+                </>
+              )}
+              {/* {isFetchedBySearchPostPopular && (
+                <>
+                  {!!searchPostPopularList &&
+                  searchPostPopularList.pages.flatMap(
+                    (value) => value.snsPostRspList,
+                  ).length > 0 ? (
                     <SnsPostMasonryLayout
                       snsPostList={searchPostPopularList.pages.flatMap((page) =>
                         page.snsPostRspList.map((v) => v),
@@ -95,12 +121,35 @@ const SearchSubPostBody: React.FC = () => {
               )}
               <SearchPostPopularListInfiniteScroll
                 searchQueryAndFilterKey={searchQueryAndFilterKey}
-              />
+              /> */}
             </>
           )}
           {searchPostExploreFilterTab === SEARCH_POST_LASTEST_QUERY_PARAM && (
             <>
               {isFetchedBySearchPostRecently && (
+                <>
+                  {!!searchPostRecentlyList &&
+                  searchPostRecentlyList.pages.flatMap(
+                    (value) => value.snsPostRspList,
+                  ).length > 0 ? (
+                    <SnsPostVirtualMasonryLayout
+                      snsPostList={searchPostRecentlyList.pages.flatMap(
+                        (page) => page.snsPostRspList.map((v) => v),
+                      )}
+                      searchType={'live'}
+                      inViewElement={
+                        <SearchPostRecentlyListInfiniteScroll
+                          searchQueryAndFilterKey={searchQueryAndFilterKey}
+                        />
+                      }
+                    />
+                  ) : (
+                    <NoResultComponentInfinite />
+                  )}
+                </>
+              )}
+
+              {/* {isFetchedBySearchPostRecently && (
                 <>
                   {!!searchPostRecentlyList &&
                   searchPostRecentlyList.pages.flatMap(
@@ -119,12 +168,39 @@ const SearchSubPostBody: React.FC = () => {
               )}
               <SearchPostRecentlyListInfiniteScroll
                 searchQueryAndFilterKey={searchQueryAndFilterKey}
-              />
+              /> */}
             </>
           )}
           {searchPostExploreFilterTab === SEARCH_POST_MY_NEAR_QUERY_PARAM && (
             <>
-              {isFetchedBySearchPostNear && (
+              {isFetchedBySearchPostNear &&
+                !!currentPositionSearchPost.latitude &&
+                !!currentPositionSearchPost.longitude && (
+                  <>
+                    {!!searchPostNearList &&
+                    searchPostNearList.pages.flatMap(
+                      (value) => value.snsPostRspList,
+                    ).length > 0 ? (
+                      <SnsPostVirtualMasonryLayout
+                        snsPostList={searchPostNearList.pages.flatMap((page) =>
+                          page.snsPostRspList.map((v) => v),
+                        )}
+                        searchType={'distance'}
+                        inViewElement={
+                          <SearchPostNearListInfiniteScroll
+                            searchQueryAndFilterKey={searchQueryAndFilterKey}
+                            latitude={currentPositionSearchPost.latitude}
+                            longitude={currentPositionSearchPost.longitude}
+                          />
+                        }
+                      />
+                    ) : (
+                      <NoResultComponentInfinite />
+                    )}
+                  </>
+                )}
+
+              {/* {isFetchedBySearchPostNear && (
                 <>
                   {!!searchPostNearList &&
                   searchPostNearList.pages.flatMap(
@@ -148,7 +224,7 @@ const SearchSubPostBody: React.FC = () => {
                     latitude={currentPositionSearchPost.latitude}
                     longitude={currentPositionSearchPost.longitude}
                   />
-                )}
+                )} */}
             </>
           )}
         </SearchPostContainer>
@@ -177,7 +253,9 @@ const SearchFilterContainer = styled.div`
 `;
 
 const SearchPostContainer = styled.div`
-  margin-top: ${({ theme }) => theme.systemSize.header.heightNumber}px;
+  @media (max-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
+    margin-top: ${({ theme }) => theme.systemSize.header.heightNumber}px;
+  }
 `;
 
 export default SearchSubPostBody;

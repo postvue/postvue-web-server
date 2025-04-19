@@ -17,6 +17,7 @@ import {
 import styled from 'styled-components';
 
 interface PostComposeBySourceUrlPopupHeaderProps {
+  HeaderStyle?: React.CSSProperties;
   funcPrevButton: () => void;
   postComposeSearchInput: string;
   setPostComposeSearchInput: React.Dispatch<React.SetStateAction<string>>;
@@ -24,7 +25,12 @@ interface PostComposeBySourceUrlPopupHeaderProps {
 
 const PostComposeBySourceUrlPopupHeader: React.FC<
   PostComposeBySourceUrlPopupHeaderProps
-> = ({ postComposeSearchInput, setPostComposeSearchInput, funcPrevButton }) => {
+> = ({
+  HeaderStyle,
+  postComposeSearchInput,
+  setPostComposeSearchInput,
+  funcPrevButton,
+}) => {
   const searchInputRef: React.RefObject<HTMLInputElement> =
     useRef<HTMLInputElement>(null);
 
@@ -136,7 +142,12 @@ const PostComposeBySourceUrlPopupHeader: React.FC<
   }, [isSuccess]);
 
   return (
-    <>
+    <div
+      style={{
+        ...{ width: '100%' },
+        ...HeaderStyle,
+      }}
+    >
       <PrevButtonHeaderHeader
         titleName="이미지 고르기"
         isActionFunc={true}
@@ -145,6 +156,7 @@ const PostComposeBySourceUrlPopupHeader: React.FC<
         HeaderLayoutStyle={{
           backgroundColor: 'transparent',
           position: 'static',
+          zIndex: 100,
         }}
         isInsetTopMatin={false}
         RightButtonNode={
@@ -171,7 +183,7 @@ const PostComposeBySourceUrlPopupHeader: React.FC<
           </SearchButtonInputWrap>
         </PostComposeSearchInputWrap>
       </HeaderLayout>
-    </>
+    </div>
   );
 };
 

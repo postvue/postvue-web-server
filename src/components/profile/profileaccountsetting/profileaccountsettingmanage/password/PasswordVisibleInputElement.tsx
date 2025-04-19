@@ -9,6 +9,7 @@ interface PasswordVisibleInputElementProps {
   onChangePassword: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
   isNewPassword?: boolean;
+  passwordInputRef?: React.RefObject<HTMLInputElement>;
 }
 
 const PasswordVisibleInputElement: React.FC<
@@ -19,12 +20,14 @@ const PasswordVisibleInputElement: React.FC<
   onChangePassword,
   onKeyDown,
   isNewPassword = false,
+  passwordInputRef,
 }) => {
   const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
   return (
     <ProfileEditPasswordWrap>
       <ProfileEditPasswordInputWrap>
         <ProfileEditPasswordInput
+          ref={passwordInputRef}
           value={password}
           type={isPasswordVisible ? 'text' : 'password'}
           onChange={(e) => onChangePassword(e)}

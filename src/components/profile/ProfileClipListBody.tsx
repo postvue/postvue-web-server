@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 import { queryClient } from 'App';
 import { ReactComponent as EmptyClipIcon } from 'assets/images/icon/svg/empty/EmptyClipIcon.svg';
-import SnsPostMasonryLayout from 'components/layouts/SnsPostMasonryLayout';
+import SnsPostVirtualMasonryLayout from 'components/layouts/virtual/masonry/SnsPostVirtualMasonryLayout';
 import PullToRefreshComponent from 'components/PullToRefreshComponent';
 import { INIT_CURSOR_ID } from 'const/PageConfigConst';
 import { HOME_PATH } from 'const/PathConst';
@@ -21,7 +21,13 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { getMyProfileClipList } from 'services/profile/getProfileClipList';
 import theme from 'styles/theme';
-const ProfileClipListBody: React.FC = () => {
+
+interface ProfileClipListBodyProps {
+  scrollElement?: Element;
+}
+const ProfileClipListBody: React.FC<ProfileClipListBodyProps> = ({
+  scrollElement,
+}) => {
   const { data: myProfileClipList } = QueryStateProfileClipListInfinite();
   const navigate = useNavigate();
 
@@ -41,13 +47,25 @@ const ProfileClipListBody: React.FC = () => {
       >
         <ProfileClipBodyContainer>
           <div style={{ paddingTop: '10px' }}></div>
-          {myProfileClipList && (
+          {/* {myProfileClipList && (
             <SnsPostMasonryLayout
               snsPostList={myProfileClipList?.pages.flatMap((v) =>
                 v.snsPostRspList.map((value) => value),
               )}
             />
+          )} */}
+          {/* <ProfileClipListInfiniteScroll /> */}
+          {myProfileClipList && (
+            <SnsPostVirtualMasonryLayout
+              snsPostList={myProfileClipList?.pages.flatMap((v) =>
+                v.snsPostRspList.map((value) => value),
+              )}
+              searchType="recomm"
+              scrollElement={scrollElement}
+              inViewElement={<ProfileClipListInfiniteScroll />}
+            />
           )}
+
           {myProfileClipList &&
             myProfileClipList?.pages.flatMap((v) => v.snsPostRspList).length <=
               0 && (
@@ -78,8 +96,6 @@ const ProfileClipListBody: React.FC = () => {
                 </ProifileNotClipWrap>
               </ProifileNotClipTitleWrap>
             )}
-
-          <ProfileClipListInfiniteScroll />
         </ProfileClipBodyContainer>
       </PullToRefreshComponent>
     </div>

@@ -5,10 +5,12 @@ import {
   SEARCH_POST_ROUTE_PATH,
   SEARCH_TAG_POST_ROUTE_PATH,
 } from 'const/PathConst';
-import { RoutePushEventDateInterface } from 'const/ReactNativeConst';
+import {
+  EVENT_DATA_WEB_BACK_TYPE,
+  RoutePushEventDateInterface,
+} from 'const/ReactNativeConst';
 import { MEDIA_MOBILE_MAX_WIDTH } from 'const/SystemAttrConst';
 import { FAVORITE_TERM_TITLE } from 'const/SystemPhraseConst';
-import { stackRouterPush } from 'global/util/reactnative/nativeRouter';
 import { removeHashTag, startsWithHashTag } from 'global/util/SearchUtil';
 import { QueryStateSearchFavoriteTermListInfinite } from 'hook/queryhook/QueryStateSearchFavoriteTermListInfinite';
 import SearchFavoriteListInfiniteScroll from 'hook/SearchFavoriteListInfiniteScroll';
@@ -49,7 +51,10 @@ const SearchFavoriteTermEditBody: React.FC<SearchFavoriteTermEditBodyProps> = ({
     <SearchFavoriteTermEditContainer
       style={SearchFavoriteTermEditContainerStyle}
     >
-      <PrevButtonHeaderHeader titleName={FAVORITE_TERM_TITLE} />
+      <PrevButtonHeaderHeader
+        titleName={FAVORITE_TERM_TITLE}
+        routeType={EVENT_DATA_WEB_BACK_TYPE}
+      />
       <SearchFavoriteItemListWrap>
         {/* {favoriteTermList !== undefined &&
             favoriteTermList.map((value, key) => (
@@ -90,20 +95,34 @@ const SearchFavoriteTermEditBody: React.FC<SearchFavoriteTermEditBodyProps> = ({
                         if (startsWithHashTag(v.favoriteTermName)) {
                           const keyword = removeHashTag(v.favoriteTermName);
 
-                          stackRouterPush(
-                            naviate,
+                          // stackRouterPush(
+                          //   naviate,
+                          //   generatePath(SEARCH_TAG_POST_ROUTE_PATH, {
+                          //     search_word: keyword,
+                          //   }),
+                          //   data,
+                          // );
+
+                          naviate(
                             generatePath(SEARCH_TAG_POST_ROUTE_PATH, {
                               search_word: keyword,
                             }),
-                            data,
+                            { replace: true },
                           );
                         } else {
-                          stackRouterPush(
-                            naviate,
+                          // stackRouterPush(
+                          //   naviate,
+                          //   generatePath(SEARCH_POST_ROUTE_PATH, {
+                          //     search_word: v.favoriteTermName,
+                          //   }),
+                          //   data,
+                          // );
+
+                          naviate(
                             generatePath(SEARCH_POST_ROUTE_PATH, {
                               search_word: v.favoriteTermName,
                             }),
-                            data,
+                            { replace: true },
                           );
                         }
                       }}
