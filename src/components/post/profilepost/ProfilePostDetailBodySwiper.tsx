@@ -20,6 +20,7 @@ import {
 } from 'const/SystemAttrConst';
 import 'swiper/css/pagination';
 
+import PostVideoContentElementV3 from 'components/common/posts/element/PostVideoContentElementV3';
 import { PostRsp } from 'global/interface/post';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
@@ -32,19 +33,19 @@ const isMobile = (): boolean => {
   );
 };
 
-const PostVideoContentElementV3 = React.lazy(
-  () =>
-    new Promise<{ default: React.ComponentType<any> }>((resolve) => {
-      setTimeout(
-        () => {
-          import(
-            'components/common/posts/element/PostVideoContentElementV3'
-          ).then((module) => resolve({ default: module.default }));
-        },
-        isMobile() ? 1000 : 0,
-      ); // 1초 후 로드
-    }),
-);
+// const PostVideoContentElementV3 = React.lazy(
+//   () =>
+//     new Promise<{ default: React.ComponentType<any> }>((resolve) => {
+//       setTimeout(
+//         () => {
+//           import(
+//             'components/common/posts/element/PostVideoContentElementV3'
+//           ).then((module) => resolve({ default: module.default }));
+//         },
+//         isMobile() ? 1000 : 0,
+//       ); // 1초 후 로드
+//     }),
+// );
 
 interface ProfilePostDetailBodyProps {
   postId: string;

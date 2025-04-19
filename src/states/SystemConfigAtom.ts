@@ -30,6 +30,7 @@ export type InitPageInfoType = {
   isSignupPage: boolean;
   isMapPopupByProfilePost: boolean;
   isMapPopupByScrap: boolean;
+  isProfilePostPage: boolean;
 };
 
 export const initPageInfoAtom = atom<InitPageInfoType>({
@@ -44,5 +45,6 @@ export const initPageInfoAtom = atom<InitPageInfoType>({
     isSignupPage: false,
     isMapPopupByProfilePost: false,
     isMapPopupByScrap: false,
+    isProfilePostPage: false,
   },
 });

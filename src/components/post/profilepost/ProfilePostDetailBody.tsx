@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { generatePath, useNavigate } from 'react-router-dom';
 import {
   useRecoilState,
@@ -61,7 +61,6 @@ import PostRelationListInfiniteScroll from 'hook/PostRelationInfiniteScroll';
 import ProfileAccountPostListInfiniteScroll from 'hook/ProfileAccountPostListInfiniteScroll';
 import { QueryStatePostRelationListInfinite } from 'hook/queryhook/QueryStatePostRelationListInfinite';
 import { QueryStateProfileAccountPostList } from 'hook/queryhook/QueryStateProfileAccountPostList';
-import Skeleton from 'react-loading-skeleton';
 import { borderShadowStyle_prop } from 'styles/commonStyles';
 import ProfilePostDetailBodySwiper from './ProfilePostDetailBodySwiper';
 
@@ -72,6 +71,7 @@ interface ProfilePostDetailBodyProps {
   setIsInterest: React.Dispatch<React.SetStateAction<boolean>>;
   windowWidthSize: number;
   funcPrevCloseButton: () => void;
+  masonryWidth?: number;
   fixNum?: number;
   ProfilePostWrapStyle?: React.CSSProperties;
   PostImageWrapStyle?: React.CSSProperties;
@@ -91,6 +91,7 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
   setIsInterest,
   windowWidthSize,
   funcPrevCloseButton,
+  masonryWidth,
   fixNum,
   ProfilePostWrapStyle,
   PostImageWrapStyle,
@@ -282,16 +283,16 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
                     )}
                 </SettingButton>
               </SettingButtonWrap>
-              <Suspense
+              {/* <Suspense
                 fallback={<Skeleton height={400} style={PostImageWrapStyle} />}
-              >
-                <ProfilePostDetailBodySwiper
-                  postId={postId}
-                  snsPost={snsPost}
-                  windowWidthSize={windowWidthSize}
-                  PostImageWrapStyle={PostImageWrapStyle}
-                />
-              </Suspense>
+              > */}
+              <ProfilePostDetailBodySwiper
+                postId={postId}
+                snsPost={snsPost}
+                windowWidthSize={windowWidthSize}
+                PostImageWrapStyle={PostImageWrapStyle}
+              />
+              {/* </Suspense> */}
 
               <PostContentContainer>
                 <ProfileWrap>
@@ -465,6 +466,8 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
                               searchType={searchType}
                             />
                           }
+                          masonryWidth={masonryWidth}
+                          columnNum={fixNum}
                         />
                       </PostRelationWrap>
                     )}
@@ -671,7 +674,8 @@ const RelatedTitle = styled.div`
 
 const SettingButtonWrap = styled.div`
   position: absolute;
-  z-index: 1010;
+  // z-index: 1010;
+  z-index: 990;
   cursor: pointer;
   right: 0px;
 `;
@@ -719,7 +723,8 @@ const StyledSwiper = styled(Swiper)`
 
 const PostPreButtonWrap = styled.div`
   position: fixed;
-  z-index: 1010;
+  // z-index: 1010;
+  z-index: 990;
 `;
 
 const PostPreButton = styled.div`

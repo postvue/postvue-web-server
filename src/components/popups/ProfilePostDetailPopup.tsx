@@ -180,6 +180,7 @@ const ProfilePostDetailPopup: React.FC = () => {
               navigate(-1);
             }}
             fixNum={2}
+            masonryWidth={theme.systemSize.appDisplaySize.maxWidthNum}
             ProfilePostWrapStyle={{ boxShadow: 'none', margin: 0 }}
             linkPopupInfo={{
               isLinkPopup: true,

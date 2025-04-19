@@ -5,18 +5,12 @@ import SnsPostVirtualImagePreviewElement from 'components/common/posts/element/S
 import { PROFILE_POST_LIST_PATH } from 'const/PathConst';
 import { POST_RELATION_SEARCH_TYPE } from 'const/PostConst';
 import { POST_IMAGE_TYPE } from 'const/PostContentTypeConst';
-import {
-  POST_DETAIL_POPUP_PARAM,
-  POST_DETAIL_POST_ID_PARAM,
-  POST_DETAIL_PROFILE_PARAM,
-  TRUE_PARAM,
-} from 'const/QueryParamConst';
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
 import { MasonryPostRsp, PostRsp } from 'global/interface/post';
+import { stackRouterPush } from 'global/util/reactnative/nativeRouter';
 import useWindowSize from 'hook/customhook/useWindowSize';
 import { generatePath, useNavigate } from 'react-router-dom';
 import { Size } from 'react-virtualized';
-import { SEARCH_TYPE_PARAM } from 'services/appApiQueryParam';
 import theme from 'styles/theme';
 import { Item, PostItem } from './Grid';
 import ImageMeasurer from './ImageMessurer';
@@ -45,6 +39,8 @@ interface SnsPostVirtualMasonryLayoutProps {
   actionFuncByRef?: (value: HTMLImageElement | HTMLVideoElement) => void;
   longPressToResizeNum?: number;
   navTimer?: number;
+  masonryWidth?: number;
+  columnNum?: number;
 }
 
 const SnsPostVirtualMasonryLayout: React.FC<
@@ -66,6 +62,8 @@ const SnsPostVirtualMasonryLayout: React.FC<
   actionFuncByRef,
   longPressToResizeNum,
   navTimer,
+  masonryWidth,
+  columnNum,
 }) => {
   const [images, setImages] = useState<Item[]>([]);
   const [itemsWithSizes, setItemsWithSizes] = useState<PostItem[]>([]);
@@ -102,53 +100,66 @@ const SnsPostVirtualMasonryLayout: React.FC<
   const navigate = useNavigate();
 
   const onClickMasonry = (post: PostRsp) => {
-    if (
-      window.innerWidth <= MEDIA_MOBILE_MAX_WIDTH_NUM ||
-      linkPopupInfo.isLinkPopup
-    ) {
-      const onFunc = () => {
-        // 모바일 크기
-        // url만 바뀌도록 변경
+    // if (
+    //   window.innerWidth <= MEDIA_MOBILE_MAX_WIDTH_NUM ||
+    //   linkPopupInfo.isLinkPopup
+    // ) {
+    //   const onFunc = () => {
+    //     // 모바일 크기
+    //     // url만 바뀌도록 변경
 
-        const searchParams = new URLSearchParams(location.search);
+    //     const searchParams = new URLSearchParams(location.search);
 
-        // 새로운 쿼리 파라미터 추가 또는 기존 파라미터 값 수정
-        searchParams.set(POST_DETAIL_POPUP_PARAM, TRUE_PARAM);
-        searchParams.set(POST_DETAIL_POST_ID_PARAM, post.postId);
-        searchParams.set(POST_DETAIL_PROFILE_PARAM, post.username);
+    //     // 새로운 쿼리 파라미터 추가 또는 기존 파라미터 값 수정
+    //     searchParams.set(POST_DETAIL_POPUP_PARAM, TRUE_PARAM);
+    //     searchParams.set(POST_DETAIL_POST_ID_PARAM, post.postId);
+    //     searchParams.set(POST_DETAIL_PROFILE_PARAM, post.username);
 
-        // 새로운 쿼리 파라미터가 포함된 URL 생성
-        const newSearch = searchParams.toString();
-        const newPath =
-          `${location.pathname}?${newSearch}` +
-          (searchType ? `&${SEARCH_TYPE_PARAM}=${searchType}` : '');
+    //     // 새로운 쿼리 파라미터가 포함된 URL 생성
+    //     const newSearch = searchParams.toString();
+    //     const newPath =
+    //       `${location.pathname}?${newSearch}` +
+    //       (searchType ? `&${SEARCH_TYPE_PARAM}=${searchType}` : '');
 
-        navigate(newPath, {
-          replace: linkPopupInfo.isReplaced,
-          state: { isDetailPopup: true },
-        });
-      };
+    //     navigate(newPath, {
+    //       replace: linkPopupInfo.isReplaced,
+    //       state: { isDetailPopup: true },
+    //     });
+    //   };
 
-      if (navTimer) {
-        setTimeout(() => {
-          onFunc();
-        }, navTimer);
-      } else {
-        onFunc();
-      }
-    } else {
-      // 데스크탑 크기: url로 이동
+    //   if (navTimer) {
+    //     setTimeout(() => {
+    //       onFunc();
+    //     }, navTimer);
+    //   } else {
+    //     onFunc();
+    //   }
+    // } else {
+    //   // 데스크탑 크기: url로 이동
 
-      navigate(
-        generatePath(PROFILE_POST_LIST_PATH, {
-          user_id: post.username,
-          post_id: post.postId,
-        }),
-        {
-          state: { isDetailPopup: true },
-        },
-      );
-    }
+    //   navigate(
+    //     generatePath(PROFILE_POST_LIST_PATH, {
+    //       user_id: post.username,
+    //       post_id: post.postId,
+    //     }),
+    //     {
+    //       state: { isDetailPopup: true },
+    //     },
+    //   );
+    // }
+    // const data: RoutePushEventDateInterface = {
+    //   isShowInitBottomNavBar: true,
+    // };
+
+    stackRouterPush(
+      navigate,
+      generatePath(PROFILE_POST_LIST_PATH, {
+        user_id: post.username,
+        post_id: post.postId,
+      }),
+      // data,
+    );
+
     if (actionFunc) {
       actionFunc();
     }
@@ -217,13 +228,21 @@ const SnsPostVirtualMasonryLayout: React.FC<
               onClickMasonry={onClickMasonry}
               returnPostMasonryItem={returnPostMasonryItem}
               masonryWidth={
-                windowWidth > MEDIA_MOBILE_MAX_WIDTH_NUM
-                  ? theme.systemSize.appDisplaySize.widthByPcNum
-                  : windowWidth > theme.systemSize.appDisplaySize.maxWidthNum
-                    ? theme.systemSize.appDisplaySize.maxWidthNum
-                    : windowWidth
+                masonryWidth
+                  ? masonryWidth
+                  : windowWidth > MEDIA_MOBILE_MAX_WIDTH_NUM
+                    ? theme.systemSize.appDisplaySize.widthByPcNum
+                    : windowWidth > theme.systemSize.appDisplaySize.maxWidthNum
+                      ? theme.systemSize.appDisplaySize.maxWidthNum
+                      : windowWidth
               }
-              columnNum={windowWidth > MEDIA_MOBILE_MAX_WIDTH_NUM ? 3 : 2}
+              columnNum={
+                columnNum
+                  ? columnNum
+                  : windowWidth > MEDIA_MOBILE_MAX_WIDTH_NUM
+                    ? 3
+                    : 2
+              }
               scrollElement={scrollElement}
               inViewElement={inViewElement}
             />
