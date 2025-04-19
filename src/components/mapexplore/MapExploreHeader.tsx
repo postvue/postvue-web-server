@@ -3,10 +3,6 @@ import ContextMenuPopup from 'components/popups/ContextMenuPopup';
 import { ACCOUNT_NOT_PROFILE_IMG_PATH } from 'const/AccountConst';
 import { MAP_CONTENT_LOCATION_TYPE } from 'const/MapExploreConst';
 import {
-  MAP_CONTENT_LOCATION_TYPE,
-  MAP_CONTENT_POST_TYPE,
-} from 'const/MapExploreConst';
-import {
   MEDIA_MOBILE_MAX_WIDTH,
   MEDIA_MOBILE_MAX_WIDTH_NUM,
 } from 'const/SystemAttrConst';

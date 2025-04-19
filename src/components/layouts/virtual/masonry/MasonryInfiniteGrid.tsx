@@ -1,7 +1,6 @@
 import { PostRsp } from 'global/interface/post';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import Skeleton from 'react-loading-skeleton';
-import { useNavigate } from 'react-router-dom';
 import {
   AutoSizer,
   CellMeasurer,
@@ -55,7 +54,7 @@ const MasonryInfiniteGrid: React.FC<MasonryInfiniteGridProps> = ({
     }),
   );
   const cellPositioner = useRef<any>(null);
-  const [columnCount, setColumnCount] = useState(1);
+  // const [columnCount, setColumnCount] = useState(1);
 
   const getColumnCount = (width: number) =>
     Math.floor(width / (CARD_WIDTH + GUTTER_SIZE));
@@ -69,24 +68,23 @@ const MasonryInfiniteGrid: React.FC<MasonryInfiniteGridProps> = ({
 
   const initCellPositioner = (width: number) => {
     const count = getColumnCount(width);
-    setColumnCount(count);
+    // setColumnCount(count);
     cellPositioner.current = createMasonryCellPositioner(cellPositionerConfig);
   };
 
-  const resetCellPositioner = (width: number) => {
-    const count = getColumnCount(width);
-    setColumnCount(count);
-    cellPositioner.current.reset({
-      columnCount: count,
-      columnWidth: CARD_WIDTH,
-      spacer: GUTTER_SIZE,
-    });
-  };
+  // const resetCellPositioner = (width: number) => {
+  //   const count = getColumnCount(width);
+  //   setColumnCount(count);
+  //   cellPositioner.current.reset({
+  //     columnCount: count,
+  //     columnWidth: CARD_WIDTH,
+  //     spacer: GUTTER_SIZE,
+  //   });
+  // };
 
   const isRowLoaded = ({ index }: { index: number }) => {
     return !!itemsWithSizes[index];
   };
-  const navigate = useNavigate();
 
   const cellRenderer = ({ index, key, parent, style }: MasonryCellProps) => {
     const data = itemsWithSizes[index];
@@ -206,7 +204,7 @@ const MasonryInfiniteGrid: React.FC<MasonryInfiniteGridProps> = ({
         {renderAutoSizer()}
       </InfiniteLoader>
       {itemsWithSizes.length <= 0 && (
-        <FavoriteTagSuggestItemListWrap>
+        <FavoriteTagSuggestItemListWrap $columnNum={columnNum}>
           {_MOCK_LIST.map((v, index) => {
             return (
               <TagElementContainer key={index}>
@@ -235,9 +233,9 @@ const TagElementContainer = styled.div`
   position: relative;
 `;
 
-const FavoriteTagSuggestItemListWrap = styled.div`
+const FavoriteTagSuggestItemListWrap = styled.div<{ $columnNum: number }>`
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: ${(props) => `repeat(${props.$columnNum}, 1fr)`};
   gap: 10px;
   margin: 10px ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding}
     0px ${({ theme }) => theme.systemSize.appDisplaySize.bothSidePadding};
