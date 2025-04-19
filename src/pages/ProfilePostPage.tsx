@@ -1,10 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { Suspense, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil';
 
 import styled from 'styled-components';
-import 'swiper/css';
-import AppBaseTemplate from '../components/layouts/AppBaseTemplate';
 import { PROFILE_LIST_PATH } from '../const/PathConst';
 import { POST_IMAGE_TYPE } from '../const/PostContentTypeConst';
 import { getHiddenPostIdList } from '../global/util/HiddenPostIdListUtil';
@@ -15,20 +13,45 @@ import theme from '../styles/theme';
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
 import 'swiper/css/pagination';
 
-import PostReactionPopupBody from 'components/popups/postreactionpopup/body/PostReactionPopupBody';
-
 import PageHelmentInfoElement from 'components/PageHelmetInfoElement';
-import PostReactionCommentSendElement from 'components/popups/postreactionpopup/body/PostReactionCommentSendElement';
-import PostReactionPopupHeader from 'components/popups/postreactionpopup/body/PostReactionPopupHeader';
+import ToastPopup from 'components/popups/ToastMsgPopup';
 import ProfilePostDetailBody from 'components/post/profilepost/ProfilePostDetailBody';
 import ProfilePostDetailPopupManager from 'components/post/profilepost/ProfilePostDetailPopupManager';
 import { APP_SERVICE_NAME } from 'const/AppInfoConst';
 import { COMMENT_CONTAINER_ID } from 'const/IdNameConst';
 import { POST_REACTION_COMMENT_ID } from 'const/TabConfigConst';
 import { PostCommentReplyMsgInfo } from 'global/interface/post';
+import {
+  isApp,
+  sendInitEvent,
+  stackRouterBack,
+} from 'global/util/reactnative/nativeRouter';
 import { getRandomImage } from 'global/util/ShareUtil';
 import useWindowSize from 'hook/customhook/useWindowSize';
 import { QueryStateProfilePost } from 'hook/queryhook/QueryStateProfilePost';
+import { initPageInfoAtom } from 'states/SystemConfigAtom';
+
+const PostReactionPopupHeader = React.lazy(
+  () =>
+    import('components/popups/postreactionpopup/body/PostReactionPopupHeader'),
+);
+
+const PostReactionPopupBody = React.lazy(
+  () =>
+    import('components/popups/postreactionpopup/body/PostReactionPopupBody'),
+);
+
+const PostReactionCommentSendElement = React.lazy(
+  () =>
+    import(
+      'components/popups/postreactionpopup/body/PostReactionCommentSendElement'
+    ),
+);
+
+const AppBaseTemplate = React.lazy(
+  () => import('../components/layouts/AppBaseTemplate'),
+);
+
 const ProfilePostPage: React.FC = () => {
   const param = useParams();
   const postId = param.post_id;
@@ -48,12 +71,6 @@ const ProfilePostPage: React.FC = () => {
     isError: isErrorByProfilePost,
     error: errorByProfilePost,
   } = QueryStateProfilePost(postId || '', true);
-
-  useEffect(() => {
-    return () => {
-      resetSnsPost();
-    };
-  }, []);
 
   useEffect(() => {
     if (postId) {
@@ -91,10 +108,36 @@ const ProfilePostPage: React.FC = () => {
   );
 
   const funcPrevCloseButton = () => {
-    navigate(-1);
+    if (isApp()) {
+      stackRouterBack(navigate);
+    } else {
+      navigate(-1);
+    }
   };
 
   const appContainerRefObject = useRef<HTMLDivElement>(null);
+
+  const [initPageInfo, setInitPageInfo] = useRecoilState(initPageInfoAtom);
+
+  useEffect(() => {
+    if (isApp()) {
+      setTimeout(() => {
+        sendInitEvent();
+      }, 50);
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          setInitPageInfo((prev) => ({
+            ...prev,
+            isProfilePostPage: true,
+          }));
+        }, 100);
+      });
+    }
+
+    return () => {
+      resetSnsPost();
+    };
+  }, []);
 
   return (
     <>
@@ -112,93 +155,136 @@ const ProfilePostPage: React.FC = () => {
           snsPost.postTitle || snsPost.postBodyText || APP_SERVICE_NAME
         }
       />
-      <AppBaseTemplate
-        hasSearchBodyModule={false}
-        isAppContainerTopMargin={false || !isIntereset}
-        isTransparentSearchButton={true}
-        AppContainerStyle={{
-          borderRadius:
-            windowWidth > MEDIA_MOBILE_MAX_WIDTH_NUM ? ImageBorderRadius : ``,
-        }}
-        isScrollSave={false}
-        fixedScrollPos={0}
-        appContainerRefObject={appContainerRefObject}
-        slideBarNode={
-          <>
+      {isApp() ? (
+        <>
+          <ProfilePostByMobileContainer
+            style={{
+              opacity: initPageInfo.isProfilePostPage ? 1 : 0,
+              transition: `opacity 0.3s ease-in`,
+            }}
+          >
             {postId && (
-              <PostReactionPopupSideWrap>
-                <PostReactionPopupHeader
-                  PostReactionTabStyle={{
-                    marginTop: '0px',
-                    paddingTop: `${theme.systemSize.header.heightNumber + 17}px`,
-                    flexShrink: '0',
-                  }}
-                />
-                <PostReactionPopupSideBodyWrap id={COMMENT_CONTAINER_ID}>
-                  <PostReactionPopupBody
-                    postId={postId || ''}
-                    likeCountRef={likeCountRef}
-                    likeIconRef={likeIconRef}
-                    postCommentTextareaRef={postCommentTextareaRef}
-                    commentReplyCountRef={commentReplyCountRef}
-                    setReplyMsg={setReplyMsg}
-                  />
-                </PostReactionPopupSideBodyWrap>
-                <PostReactionPopupSideInputWrap>
-                  {reactionTabId === POST_REACTION_COMMENT_ID && (
-                    <PostReactionCommentSendElement
-                      postId={postId}
-                      postCommentTextareaRef={postCommentTextareaRef}
-                      commentReplyCountRef={commentReplyCountRef}
-                      username={snsPost.username}
-                      replyMsg={replyMsg}
-                      setReplyMsg={setReplyMsg}
-                    />
-                  )}
-                </PostReactionPopupSideInputWrap>
-              </PostReactionPopupSideWrap>
+              <ProfilePostDetailBody
+                postId={postId}
+                snsPost={snsPost}
+                isIntereset={isIntereset}
+                setIsInterest={setIsInterest}
+                windowWidthSize={windowWidth}
+                funcPrevCloseButton={funcPrevCloseButton}
+                isErrorProfilePost={isErrorByProfilePost}
+                ProfilePostWrapStyle={
+                  windowWidth > MEDIA_MOBILE_MAX_WIDTH_NUM
+                    ? { paddingTop: '10px' }
+                    : {}
+                }
+              />
             )}
-          </>
-        }
-      >
-        {postId && (
-          <ProfilePostDetailBody
-            postId={postId}
-            snsPost={snsPost}
-            isIntereset={isIntereset}
-            setIsInterest={setIsInterest}
-            windowWidthSize={windowWidth}
-            funcPrevCloseButton={funcPrevCloseButton}
-            isErrorProfilePost={isErrorByProfilePost}
-            scrollElement={appContainerRefObject.current || undefined}
-            ProfilePostWrapStyle={
-              windowWidth > MEDIA_MOBILE_MAX_WIDTH_NUM
-                ? { paddingTop: '10px' }
-                : {}
+          </ProfilePostByMobileContainer>
+          {/* <BottomNavBar /> */}
+        </>
+      ) : (
+        <Suspense fallback={<></>}>
+          <AppBaseTemplate
+            hasSearchBodyModule={false}
+            isAppInsetTopMargin={false}
+            isAppContainerTopMargin={false || !isIntereset}
+            isTransparentSearchButton={true}
+            AppContainerStyle={{
+              borderRadius:
+                windowWidth > MEDIA_MOBILE_MAX_WIDTH_NUM
+                  ? ImageBorderRadius
+                  : ``,
+            }}
+            isScrollSave={false}
+            fixedScrollPos={0}
+            appContainerRefObject={appContainerRefObject}
+            slideBarNode={
+              <>
+                {postId && windowWidth > MEDIA_MOBILE_MAX_WIDTH_NUM && (
+                  <Suspense fallback={<></>}>
+                    <PostReactionPopupSideWrap>
+                      <PostReactionPopupHeader
+                        PostReactionTabStyle={{
+                          marginTop: '0px',
+                          paddingTop: `${theme.systemSize.header.heightNumber + 17}px`,
+                          flexShrink: '0',
+                        }}
+                      />
+                      <PostReactionPopupSideBodyWrap id={COMMENT_CONTAINER_ID}>
+                        <PostReactionPopupBody
+                          postId={postId || ''}
+                          likeCountRef={likeCountRef}
+                          likeIconRef={likeIconRef}
+                          postCommentTextareaRef={postCommentTextareaRef}
+                          commentReplyCountRef={commentReplyCountRef}
+                          setReplyMsg={setReplyMsg}
+                        />
+                      </PostReactionPopupSideBodyWrap>
+                      <PostReactionPopupSideInputWrap>
+                        {reactionTabId === POST_REACTION_COMMENT_ID && (
+                          <PostReactionCommentSendElement
+                            postId={postId}
+                            postCommentTextareaRef={postCommentTextareaRef}
+                            commentReplyCountRef={commentReplyCountRef}
+                            username={snsPost.username}
+                            replyMsg={replyMsg}
+                            setReplyMsg={setReplyMsg}
+                          />
+                        )}
+                      </PostReactionPopupSideInputWrap>
+                    </PostReactionPopupSideWrap>
+                  </Suspense>
+                )}
+              </>
             }
-          />
-        )}
-        {postId && (
-          <ProfilePostDetailPopupManager
-            postId={postId}
-            snsPost={snsPost}
-            replyMsg={replyMsg}
-            setReplyMsg={setReplyMsg}
-            likeIconRef={likeIconRef}
-            likeCountRef={likeCountRef}
-            commentReplyCountRef={commentReplyCountRef}
-            postCommentTextareaRef={postCommentTextareaRef}
-            funcPrevCloseButton={funcPrevCloseButton}
-            windowWidthSize={windowWidth}
-            setIsInterest={setIsInterest}
-            isError={isErrorByProfilePost}
-            errorMsg={errorByProfilePost?.response?.data.message || ''}
-          />
-        )}
-      </AppBaseTemplate>
+          >
+            {postId && (
+              <ProfilePostDetailBody
+                postId={postId}
+                snsPost={snsPost}
+                isIntereset={isIntereset}
+                setIsInterest={setIsInterest}
+                windowWidthSize={windowWidth}
+                funcPrevCloseButton={funcPrevCloseButton}
+                isErrorProfilePost={isErrorByProfilePost}
+                scrollElement={appContainerRefObject.current || undefined}
+                ProfilePostWrapStyle={
+                  windowWidth > MEDIA_MOBILE_MAX_WIDTH_NUM
+                    ? { paddingTop: '10px' }
+                    : {}
+                }
+              />
+            )}
+          </AppBaseTemplate>
+        </Suspense>
+      )}
+      {postId && (
+        <ProfilePostDetailPopupManager
+          postId={postId}
+          snsPost={snsPost}
+          replyMsg={replyMsg}
+          setReplyMsg={setReplyMsg}
+          likeIconRef={likeIconRef}
+          likeCountRef={likeCountRef}
+          commentReplyCountRef={commentReplyCountRef}
+          postCommentTextareaRef={postCommentTextareaRef}
+          funcPrevCloseButton={funcPrevCloseButton}
+          windowWidthSize={windowWidth}
+          setIsInterest={setIsInterest}
+          isError={isErrorByProfilePost}
+          errorMsg={errorByProfilePost?.response?.data.message || ''}
+        />
+      )}
+      {isApp() && (
+        <>
+          <ToastPopup />
+        </>
+      )}
     </>
   );
 };
+
+const ProfilePostByMobileContainer = styled.div``;
 
 const ImageBorderRadius = '20px';
 

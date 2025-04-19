@@ -14,8 +14,6 @@ import ProfileAccountComplaintPopup from 'components/popups/profileaccount/Profi
 import ProfileOtherAccountPopup from 'components/popups/profileaccount/ProfileOtherAccountPopup';
 import ProfileDetailPopup from 'components/popups/ProfileDetailPopup';
 import ComplaintCompletePopup from 'components/popups/profilepost/ComplaintCompletePopup';
-import PostMapGuideSelectPopup from 'components/popups/profilepost/postselectmapcontentpopup/PostMapGuideSelectPopup';
-import PostSelectMapContentPopup from 'components/popups/profilepost/postselectmapcontentpopup/PostSelectMapContentPopup';
 import PostSettingPopup from 'components/popups/profilepost/PostSettingPopup';
 import ProfilePostDetailPopup from 'components/popups/ProfilePostDetailPopup';
 import ScrapViewPopup from 'components/popups/profilescrap/ScrapViewPopup';
@@ -37,8 +35,6 @@ import {
   activeMakeScrapPopupInfoAtom,
   activePostComplaintCompletePopupAtom,
   activePostDotSettingInfoAtom,
-  activePostMapGuideSelectPopupInfoAtom,
-  activePostSelectMapContentPopupInfoAtom,
   commentSettingPopupInfoAtom,
   isPostDetailInfoPopupAtom,
   postDetailInfoPopupAtom,
@@ -184,18 +180,9 @@ const AppBaseTemplate: React.FC<AppBaseTemplate> = ({
     activeProfileAccountPopupInfoAtom,
   );
 
-  const activePostSelectMapContentPopupInfo = useRecoilValue(
-    activePostSelectMapContentPopupInfoAtom,
+  const activePostComplaintCompletePopup = useRecoilValue(
+    activePostComplaintCompletePopupAtom,
   );
-
-  const activePostMapGuideSelectPopupInfo = useRecoilValue(
-    activePostMapGuideSelectPopupInfoAtom,
-  );
-
-  const [
-    activePostComplaintCompletePopup,
-    setActivePostComplaintCompletePopup,
-  ] = useRecoilState(activePostComplaintCompletePopupAtom);
 
   const appContainerRef = appContainerRefObject
     ? appContainerRefObject
@@ -360,12 +347,7 @@ const AppBaseTemplate: React.FC<AppBaseTemplate> = ({
         {commentSettingPopupInfo.isActive && (
           <PostReactionCommentSettingPopup />
         )}
-        {activePostSelectMapContentPopupInfo.isActive && (
-          <PostSelectMapContentPopup />
-        )}
-        {activePostMapGuideSelectPopupInfo.isActive && (
-          <PostMapGuideSelectPopup />
-        )}
+
         {activeProfileAccountPopupInfo.isActive && <ProfileOtherAccountPopup />}
       </Container>
       <ToastPopup />

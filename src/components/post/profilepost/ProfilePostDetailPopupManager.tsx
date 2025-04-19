@@ -5,6 +5,8 @@ import PostCommentThreadPopup from 'components/popups/postcommentthreadpopup/Pos
 import PostReactionPopup from 'components/popups/postreactionpopup/PostReactionPopup';
 import PostCommentComplaintPopup from 'components/popups/profilepost/PostCommentComplaintPopup';
 import PostComplaintPopup from 'components/popups/profilepost/PostComplaintPopup';
+import PostMapGuideSelectPopup from 'components/popups/profilepost/postselectmapcontentpopup/PostMapGuideSelectPopup';
+import PostSelectMapContentPopup from 'components/popups/profilepost/postselectmapcontentpopup/PostSelectMapContentPopup';
 import ProfilePostSettingPopup from 'components/popups/ProfilePostSettingPopup';
 import { POST_VIDEO_TYPE } from 'const/PostContentTypeConst';
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
@@ -15,6 +17,8 @@ import { isMapExplorePopupAtom } from 'states/MapExploreAtom';
 import {
   activePostCommentComplaintPopupAtom,
   activePostComplaintPopupAtom,
+  activePostMapGuideSelectPopupInfoAtom,
+  activePostSelectMapContentPopupInfoAtom,
   isActivePostDeletePopupAtom,
   isSettingPopupAtom,
 } from 'states/PostAtom';
@@ -91,6 +95,14 @@ const ProfilePostDetailPopupManager: React.FC<
 
   const isMapExplorePopup = useRecoilValue(isMapExplorePopupAtom);
 
+  const activePostSelectMapContentPopupInfo = useRecoilValue(
+    activePostSelectMapContentPopupInfoAtom,
+  );
+
+  const activePostMapGuideSelectPopupInfo = useRecoilValue(
+    activePostMapGuideSelectPopupInfoAtom,
+  );
+
   return (
     <>
       {/* 게시물 설정 팝업 */}
@@ -155,6 +167,12 @@ const ProfilePostDetailPopupManager: React.FC<
 
       {isLoadingPopup && (
         <LoadingPopup LoadingPopupStyle={{ backgroundColor: 'transparent' }} />
+      )}
+      {activePostSelectMapContentPopupInfo.isActive && (
+        <PostSelectMapContentPopup />
+      )}
+      {activePostMapGuideSelectPopupInfo.isActive && (
+        <PostMapGuideSelectPopup />
       )}
 
       {isError && (

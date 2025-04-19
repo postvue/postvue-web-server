@@ -1,11 +1,15 @@
 import BottomSheetLayout from 'components/layouts/BottomSheetLayout';
-import RoundSquareCenterPopupLayout from 'components/layouts/RoundSquareCenterPopupLayout';
+// import RoundSquareCenterPopupLayout from 'components/layouts/RoundSquareCenterPopupLayout';
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
 import useWindowSize from 'hook/customhook/useWindowSize';
-import React, { useState } from 'react';
+import React, { Suspense, useState } from 'react';
 import { useRecoilState } from 'recoil';
 import { isActivPostComposeSelectPopupAtom } from 'states/PostComposeAtom';
 import PostComposePopupBody from './PostComposeSelectPopupBody';
+
+const RoundSquareCenterPopupLayout = React.lazy(
+  () => import('components/layouts/RoundSquareCenterPopupLayout'),
+);
 
 const PostComposeSelectPopup: React.FC = () => {
   const [isActivePostComposeSelectPopup, setIsActivePostComposeSelectPopup] =
@@ -39,14 +43,16 @@ const PostComposeSelectPopup: React.FC = () => {
       ) : (
         <>
           {isActivePostComposeSelectPopup && (
-            <RoundSquareCenterPopupLayout
-              onClose={() => setIsActivePostComposeSelectPopup(false)}
-              popupWrapStyle={{ height: '300px', width: '400px' }}
-            >
-              <PostComposePopupBody
+            <Suspense>
+              <RoundSquareCenterPopupLayout
                 onClose={() => setIsActivePostComposeSelectPopup(false)}
-              />
-            </RoundSquareCenterPopupLayout>
+                popupWrapStyle={{ height: '300px', width: '400px' }}
+              >
+                <PostComposePopupBody
+                  onClose={() => setIsActivePostComposeSelectPopup(false)}
+                />
+              </RoundSquareCenterPopupLayout>
+            </Suspense>
           )}
         </>
       )}

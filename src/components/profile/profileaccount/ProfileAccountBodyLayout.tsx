@@ -6,10 +6,7 @@ import { Swiper } from 'swiper/react';
 import { POST_IMAGE_TYPE } from '../../../const/PostContentTypeConst';
 import { activeScrapViewPopupInfoAtom } from '../../../states/ProfileAtom';
 
-import {
-  MEDIA_MOBILE_MAX_WIDTH,
-  MEDIA_MOBILE_MAX_WIDTH_NUM,
-} from 'const/SystemAttrConst';
+import { MEDIA_MOBILE_MAX_WIDTH } from 'const/SystemAttrConst';
 import ProfileAccountPostListInfiniteScroll from 'hook/ProfileAccountPostListInfiniteScroll';
 import { QueryStateProfileAccountPostList } from 'hook/queryhook/QueryStateProfileAccountPostList';
 import { QueryStateProfileInfo } from 'hook/queryhook/QueryStateProfileInfo';
@@ -19,14 +16,7 @@ import 'swiper/swiper-bundle.css';
 
 import { ReactComponent as EmptyPostIcon } from 'assets/images/icon/svg/empty/EmptyPostIcon.svg';
 import { PROFILE_POST_LIST_PATH } from 'const/PathConst';
-import {
-  FALSE_PARAM,
-  POST_DETAIL_POPUP_PARAM,
-  POST_DETAIL_POST_ID_PARAM,
-  POST_DETAIL_PROFILE_PARAM,
-  PROFILE_POPUP_DISPLAY_PARAM,
-  TRUE_PARAM,
-} from 'const/QueryParamConst';
+import { stackRouterPush } from 'global/util/reactnative/nativeRouter';
 import ProfileAccountInfo from '../profileaccountbody/ProfileAccountInfo';
 
 interface ProfileAccountBodyProps {
@@ -146,55 +136,67 @@ const ProfileAccountBodyLayout: React.FC<ProfileAccountBodyProps> = ({
                         <ProfilePostContent key={k}>
                           <ProfilePostContainer
                             onClick={() => {
-                              if (
-                                window.innerWidth > MEDIA_MOBILE_MAX_WIDTH_NUM
-                              ) {
-                                navigate(
-                                  generatePath(PROFILE_POST_LIST_PATH, {
-                                    user_id: v.username,
-                                    post_id: v.postId,
-                                  }),
-                                  {
-                                    state: { isDetailPopup: true },
-                                  },
-                                );
-                              } else {
-                                // 모바일 크기
-                                // url만 바뀌도록 변경
+                              // if (
+                              //   window.innerWidth > MEDIA_MOBILE_MAX_WIDTH_NUM
+                              // ) {
+                              //   navigate(
+                              //     generatePath(PROFILE_POST_LIST_PATH, {
+                              //       user_id: v.username,
+                              //       post_id: v.postId,
+                              //     }),
+                              //     {
+                              //       state: { isDetailPopup: true },
+                              //     },
+                              //   );
+                              // } else {
+                              //   // 모바일 크기
+                              //   // url만 바뀌도록 변경
 
-                                // 새로운 쿼리 파라미터 추가 또는 기존 파라미터 값 수정
-                                // const searchParams = new URLSearchParams(
-                                //   location.search,
-                                // );
-                                const searchParams = new URLSearchParams(
-                                  location.search,
-                                );
+                              //   // 새로운 쿼리 파라미터 추가 또는 기존 파라미터 값 수정
+                              //   // const searchParams = new URLSearchParams(
+                              //   //   location.search,
+                              //   // );
+                              //   const searchParams = new URLSearchParams(
+                              //     location.search,
+                              //   );
 
-                                searchParams.set(
-                                  POST_DETAIL_POPUP_PARAM,
-                                  TRUE_PARAM,
-                                );
-                                searchParams.set(
-                                  POST_DETAIL_POST_ID_PARAM,
-                                  v.postId,
-                                );
-                                searchParams.set(
-                                  POST_DETAIL_PROFILE_PARAM,
-                                  v.username,
-                                );
-                                searchParams.set(
-                                  PROFILE_POPUP_DISPLAY_PARAM,
-                                  FALSE_PARAM,
-                                );
+                              //   searchParams.set(
+                              //     POST_DETAIL_POPUP_PARAM,
+                              //     TRUE_PARAM,
+                              //   );
+                              //   searchParams.set(
+                              //     POST_DETAIL_POST_ID_PARAM,
+                              //     v.postId,
+                              //   );
+                              //   searchParams.set(
+                              //     POST_DETAIL_PROFILE_PARAM,
+                              //     v.username,
+                              //   );
+                              //   searchParams.set(
+                              //     PROFILE_POPUP_DISPLAY_PARAM,
+                              //     FALSE_PARAM,
+                              //   );
 
-                                // 새로운 쿼리 파라미터가 포함된 URL 생성
-                                const newSearch = searchParams.toString();
-                                const newPath = `${location.pathname}?${newSearch}`;
+                              //   // 새로운 쿼리 파라미터가 포함된 URL 생성
+                              //   const newSearch = searchParams.toString();
+                              //   const newPath = `${location.pathname}?${newSearch}`;
 
-                                navigate(newPath, {
-                                  state: { isDetailPopup: true },
-                                });
-                              }
+                              //   navigate(newPath, {
+                              //     state: { isDetailPopup: true },
+                              //   });
+                              // }
+
+                              // const data: RoutePushEventDateInterface = {
+                              //   isShowInitBottomNavBar: true,
+                              // };
+                              stackRouterPush(
+                                navigate,
+                                generatePath(PROFILE_POST_LIST_PATH, {
+                                  user_id: v.username,
+                                  post_id: v.postId,
+                                }),
+                                // data,
+                              );
                             }}
                           >
                             <ImageWrapper>
