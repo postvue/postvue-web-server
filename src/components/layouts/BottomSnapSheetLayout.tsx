@@ -466,6 +466,8 @@ const OverlayBackground = styled.div`
 const BottomSheetContainer = styled.div<{ $isRoundPopup: boolean }>`
   z-index: 1029;
   position: fixed;
+  right: 0;
+  left: 0;
   height: calc(100dvh + 100px);
   width: 100%;
   border-radius: ${(props) => (props.$isRoundPopup ? `20px 20px 0 0` : '0')};

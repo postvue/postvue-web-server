@@ -31,12 +31,17 @@ const SignupEmailPopup: React.FC<SignupEmailPopupProps> = ({
           onClose={onClose}
           isOpen={isOpen}
           heightNum={
-            660 +
-              parseFloat(
-                getComputedStyle(document.documentElement).getPropertyValue(
-                  '--safe-area-inset-bottom',
-                ),
-              ) || 0
+            // 660 +
+            //   parseFloat(
+            //     getComputedStyle(document.documentElement).getPropertyValue(
+            //       '--safe-area-inset-bottom',
+            //     ),
+            //   ) || 0
+            window.innerHeight >
+            theme.systemSize.appDisplaySize.minDeviceHeightNum
+              ? window.innerHeight * (5 / 6)
+              : window.innerHeight -
+                theme.systemSize.appDisplaySize.popupMinusNumByMinDeviceNum
           }
         >
           <SignupEmailPopupBody onOpen={onOpen} />

@@ -80,15 +80,21 @@ const SignupEmailPopupBody: React.FC<SignupEmailPOpupBodyProps> = ({
         setLoadingBySignupEmail(false);
       });
   };
+
   return (
     <SignupContainer>
       {/* <SignupEmailTitle>Feelog</SignupEmailTitle> */}
-      <SignupLogoWrap>
-        <SignupLogoSubWrap>
-          <FeelogLogo />
-        </SignupLogoSubWrap>
-      </SignupLogoWrap>
-      <SignupEmailSubTitle>Feelog</SignupEmailSubTitle>
+      {window.innerHeight > 600 && (
+        <>
+          <SignupLogoWrap>
+            <SignupLogoSubWrap>
+              <FeelogLogo />
+            </SignupLogoSubWrap>
+          </SignupLogoWrap>
+          <SignupEmailSubTitle>Feelog</SignupEmailSubTitle>
+        </>
+      )}
+
       <SignupEmailInputWrap>
         <SignupEmailInputSubWrap>
           <SignupEmailInput
@@ -154,8 +160,9 @@ const SignupEmailPopupBody: React.FC<SignupEmailPOpupBodyProps> = ({
 
 const SignupContainer = styled.div`
   display: flex;
-  height: calc(100% - 40px);
   flex-direction: column;
+  height: calc(100% - 40px);
+  display: flex;
 `;
 
 const SignupEmailSubTitle = styled.div`

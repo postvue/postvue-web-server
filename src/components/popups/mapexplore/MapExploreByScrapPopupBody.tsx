@@ -83,6 +83,8 @@ const MapExploreByScrapPopupBody: React.FC<MapExploreByScrapPopupBodyProps> = ({
     [
       { key: 'overflow', value: 'hidden' },
       { key: 'position', value: 'fixed' },
+      { key: 'left', value: '0' },
+      { key: 'right', value: '0' },
     ],
     initTime,
     undefined,
