@@ -33,6 +33,7 @@ interface MapExplorePostPopupProps {
   isLock?: boolean;
   isInitPos?: number;
   middelOverflow?: string;
+  ScrollRefObject?: React.RefObject<HTMLDivElement>;
 }
 
 const MapExplorePostPopup: React.FC<MapExplorePostPopupProps> = ({
@@ -48,6 +49,7 @@ const MapExplorePostPopup: React.FC<MapExplorePostPopupProps> = ({
   isLock = false,
   isInitPos = 1,
   middelOverflow = 'hidden',
+  ScrollRefObject,
 }) => {
   popupTopHeight =
     popupTopHeight +
@@ -60,7 +62,9 @@ const MapExplorePostPopup: React.FC<MapExplorePostPopupProps> = ({
 
   const height = window.innerHeight;
 
-  const ScrollRef = useRef<HTMLDivElement>(null);
+  const ScrollRef = ScrollRefObject
+    ? ScrollRefObject
+    : useRef<HTMLDivElement>(null);
 
   const popupMiddleHeight = height * popupMiddleRatio - popupTopHeight;
   const popupBottomHeight =

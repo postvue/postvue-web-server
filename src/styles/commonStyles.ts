@@ -8,6 +8,22 @@ export const hoverFilterBrigntnessStyle = css`
   }
 `;
 
+export const filterBrigntnessStyle09 = css`
+  cursor: pointer;
+  transition: filter 0.2s ease;
+  @media (hover: hover) {
+    &:hover {
+      filter: brightness(0.9);
+    }
+  }
+
+  @media (hover: none) {
+    &:active {
+      filter: brightness(0.9);
+    }
+  }
+`;
+
 export const filterBrigntnessStyle = css`
   @media (hover: hover) {
     &:hover {

@@ -15,7 +15,6 @@ import ShareButton from '../../buttton/ShareButton';
 interface PostReactionSingleElementProps {
   username: string;
   postId: string;
-  mainImageUrl: string;
   snsPost: PostRsp;
   onClickCloseVideo: () => void;
 }
@@ -23,11 +22,11 @@ interface PostReactionSingleElementProps {
 const PostReactionSingleElement: React.FC<PostReactionSingleElementProps> = ({
   username,
   postId,
-  mainImageUrl,
   snsPost,
   onClickCloseVideo,
 }) => {
   const { windowWidth } = useWindowSize();
+
   return (
     <>
       <ReactionContainer>
@@ -51,19 +50,23 @@ const PostReactionSingleElement: React.FC<PostReactionSingleElementProps> = ({
                 post_id: postId,
               })
             }
-            mainImageUrl={mainImageUrl}
+            snsPost={snsPost}
             title={snsPost.postTitle}
             description={snsPost.postBodyText}
             address={snsPost.location.address}
             onClickFunc={onClickCloseVideo}
           />
-          {!isEmptyObject(snsPost.location) && (
-            <PostMapExploreButton
-              latitude={snsPost.location.latitude}
-              longitude={snsPost.location.longitude}
-              onClickFunc={onClickCloseVideo}
-            />
-          )}
+          {!isEmptyObject(snsPost.location) &&
+            !(
+              snsPost.location.latitude === 0 &&
+              snsPost.location.longitude === 0
+            ) && (
+              <PostMapExploreButton
+                latitude={snsPost.location.latitude}
+                longitude={snsPost.location.longitude}
+                onClickFunc={onClickCloseVideo}
+              />
+            )}
         </HrtMsgShrReactionContainer>
         {postId && (
           <ClipButtonSingleFactory

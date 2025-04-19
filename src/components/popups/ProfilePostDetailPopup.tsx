@@ -1,4 +1,3 @@
-import RoundSquareCenterPopupLayout from 'components/layouts/RoundSquareCenterPopupLayout';
 import ProfilePostDetailBody from 'components/post/profilepost/ProfilePostDetailBody';
 import ProfilePostDetailPopupManager from 'components/post/profilepost/ProfilePostDetailPopupManager';
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
@@ -23,6 +22,10 @@ import {
 import { isPostReactionAtom } from 'states/PostReactionAtom';
 import theme from 'styles/theme';
 import ProfilePostDetailPopupLayout from './ProfilePostDetailPopupLayout';
+
+const RoundSquareCenterPopupLayout = React.lazy(
+  () => import('components/layouts/RoundSquareCenterPopupLayout'),
+);
 
 const ProfilePostDetailPopup: React.FC = () => {
   const goBackOrNavigate = useGoBackOrNavigate(location.pathname);
@@ -150,29 +153,6 @@ const ProfilePostDetailPopup: React.FC = () => {
   const ScrollRef = useRef<HTMLDivElement>(null);
 
   return (
-    // 구버전
-    // <PopupLayout
-    //   setIsPopup={setIsPostDetailInfoPopup}
-    //   popupWrapStyle={{ borderRadius: '0px' }}
-    //   popupOverLayContainerStyle={{ zIndex: '100' }}
-    //   hasTransparentOverLay={true}
-    // >
-    //   <ProfilePostDetailBody
-    //     postId={postDetailInfoPopup.postId}
-    //     snsPost={snsPost}
-    //     setSnsPost={setSnsPost}
-    //     isIntereset={isIntereset}
-    //     setIsInterest={setIsInterest}
-    //     replyMsg={replyMsg}
-    //     setReplyMsg={setReplyMsg}
-    //     windowWidthSize={MEDIA_MOBILE_MAX_WIDTH_NUM}
-    //     likeIconRef={likeIconRef}
-    //     likeCountRef={likeCountRef}
-    //     commentReplyCountRef={commentReplyCountRef}
-    //     postCommentTextareaRef={postCommentTextareaRef}
-    //   />
-    // </PopupLayout>
-
     <>
       {windowWidth >= MEDIA_MOBILE_MAX_WIDTH_NUM ? (
         <RoundSquareCenterPopupLayout
@@ -245,6 +225,7 @@ const ProfilePostDetailPopup: React.FC = () => {
             }}
             isErrorProfilePost={isErrorByProfilePost}
             searchType={postDetailInfoPopup.searchType}
+            scrollElement={ScrollRef.current || undefined}
           />
         </ProfilePostDetailPopupLayout>
       )}

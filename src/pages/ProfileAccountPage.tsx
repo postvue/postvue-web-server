@@ -1,6 +1,8 @@
 import PageHelmentInfoElement from 'components/PageHelmetInfoElement';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { useRecoilState } from 'recoil';
+import { initPageInfoAtom } from 'states/SystemConfigAtom';
 import BottomNavBar from '../components/BottomNavBar';
 import AppBaseTemplate from '../components/layouts/AppBaseTemplate';
 import ProfileAccountBody from '../components/profile/profileaccount/ProfileAccountBodyByPage';
@@ -10,6 +12,15 @@ const ProfileAccountPage: React.FC = () => {
   const param = useParams();
   const username = param.username || '';
 
+  const [initPageInfo, setInitPageInfo] = useRecoilState(initPageInfoAtom);
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        setInitPageInfo((prev) => ({ ...prev, isMyProfilePage: true }));
+      }, 200);
+    });
+  }, []);
+
   return (
     <>
       <PageHelmentInfoElement
@@ -18,15 +29,22 @@ const ProfileAccountPage: React.FC = () => {
         ogUrl={window.location.href}
         ogDescription={`프로필: ${username}`}
       />
-      <AppBaseTemplate>
-        {username && (
-          <>
-            <ProfileAccountHeader username={username} />
-            <ProfileAccountBody username={username} />
-          </>
-        )}
-        <BottomNavBar />
-      </AppBaseTemplate>
+      <div
+        style={{
+          opacity: initPageInfo.isMyProfilePage ? 1 : 0,
+          transition: `opacity 0.3s ease-in`,
+        }}
+      >
+        <AppBaseTemplate>
+          {username && (
+            <>
+              <ProfileAccountHeader username={username} />
+              <ProfileAccountBody username={username} />
+            </>
+          )}
+        </AppBaseTemplate>
+      </div>
+      <BottomNavBar />
     </>
   );
 };

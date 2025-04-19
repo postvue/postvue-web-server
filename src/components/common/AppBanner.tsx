@@ -23,11 +23,31 @@ const AppBanner: React.FC = () => {
   }, []);
 
   const handleClick = () => {
-    window.location.href = APP_SCHEME_LINK;
+    let didHide = false;
+    const ua = navigator.userAgent.toLowerCase();
 
-    setTimeout(() => {
-      window.location.href = FALLBACK_IOS_APPSTORE_LINK;
-    }, 1000);
+    const onVisibilityChange = () => {
+      if (document.hidden) {
+        didHide = true; // 앱이 열려 브라우저가 백그라운드로 간 것
+      }
+    };
+
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
+    const cleanUp = () => {
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    };
+
+    const fallbackOpen = (url: string) => {
+      setTimeout(() => {
+        if (!didHide) {
+          window.location.href = FALLBACK_IOS_APPSTORE_LINK;
+        }
+        cleanUp();
+      }, 1200);
+    };
+    window.location.href = APP_SCHEME_LINK;
+    fallbackOpen(APP_SCHEME_LINK);
   };
 
   if (!isVisible) return null;

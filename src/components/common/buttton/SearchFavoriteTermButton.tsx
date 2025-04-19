@@ -13,10 +13,7 @@ import { SEARCH_FAVORITE_LIST_PATH } from 'const/PathConst';
 import { POST_IMAGE_TYPE, POST_VIDEO_TYPE } from 'const/PostContentTypeConst';
 import { QUERY_STATE_SEARCH_POST_LIST } from 'const/QueryClientConst';
 import { PostRsp } from 'global/interface/post';
-import {
-  sendVibrationLightEvent,
-  stackRouterPush,
-} from 'global/util/reactnative/nativeRouter';
+import { sendVibrationLightEvent } from 'global/util/reactnative/nativeRouter';
 import { convertQueryTemplate } from 'global/util/TemplateUtil';
 import { QueryMutationSearchFavoriteTermList } from 'hook/queryhook/QueryMutationSearchFavoriteTerm';
 import { SearchPostQueryInterface } from 'hook/queryhook/QueryStateSearchPostListInfinite';
@@ -94,7 +91,8 @@ const SearchFavoriteTermButton: React.FC<SearchFavoriteTermButtonProps> = ({
             rightNode: (
               <PostScrapNotificationGoButton
                 onClick={() => {
-                  stackRouterPush(navigate, SEARCH_FAVORITE_LIST_PATH);
+                  // stackRouterPush(navigate, SEARCH_FAVORITE_LIST_PATH);
+                  navigate(SEARCH_FAVORITE_LIST_PATH);
                 }}
               >
                 보기

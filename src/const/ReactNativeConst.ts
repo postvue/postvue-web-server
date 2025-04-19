@@ -45,6 +45,8 @@ export const EVENT_DATA_REACTION_ACTIVE_POPUP_TYPE = 'ACTIVE_POPUP';
 export const EVENT_DATA_REACTION_DEACTIVE_POPUP_TYPE = 'DEACTIVE_POPUP';
 
 export const BRIDGE_EVENT_ROUTE_TYPE = 'ROUTER_EVENT';
+export const EVENT_DATA_WEB_BACK_TYPE = 'WEB_BACK';
+export const EVENT_DATA_WEB_PUSH_TYPE = 'WEB_PUSH';
 export const EVENT_DATA_ROUTE_BACK_TYPE = 'BACK';
 export const EVENT_DATA_ROUTE_PUSH_TYPE = 'PUSH';
 export const EVENT_DATA_ROUTE_NAVIGATE_TYPE = 'NAVIGATE';
@@ -56,6 +58,12 @@ export const EVENT_DATA_ROUTE_WITHDRAW_TYPE = 'WITHDRAW';
 export const EVENT_DATA_ROUTE_LOGIN_SUCCESS_TYPE = 'LOGIN_SUCCESS';
 export const EVENT_DATA_ROUTE_POP_TO_TOP_TYPE = 'POP_TO_TOP';
 export const EVENT_DATA_ROUTE_PREVIOUS_TAB_TYPE = 'PREVIOUS_TAB_TYPE';
+export const EVENT_DATA_ROUTE_AND_MOVE_URL_TYPE = 'ROUTE_MOVE_URL';
+
+export interface RouteAndMoveUrlInfoType {
+  screenStackName: string;
+  moveUrl: string;
+}
 
 export const BRIDGE_EVENT_REACTION_TYPE = 'REACTION_EVENT';
 export const EVENT_REACTION_VIBRATION_TYPE = 'REACTION_VIBRATION';
@@ -149,13 +157,15 @@ export const EXTERNAL_LINK_PAGE_NAME = 'EXTERNAL_LINK_PAGE_SCREEN';
 
 export const isMainTab = (): boolean => {
   const path = location.pathname;
-  return [
+
+  const exactMatchPaths = [
     HOME_PATH,
     EXPLORE_PATH,
     MESSAGE_INBOX_PATH,
     PROFILE_CLIP_LIST_PATH,
     PROFILE_SCRAP_LIST_PATH,
-    SEARCH_PATH,
     PROFILE_MY_ACCOUNT_ROUTE_PATH,
-  ].includes(path);
+  ];
+
+  return exactMatchPaths.includes(path) || path.startsWith(SEARCH_PATH);
 };

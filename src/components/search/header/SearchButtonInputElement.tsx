@@ -3,13 +3,8 @@ import { SEARCH_INPUT_PHARSE_TEXT } from 'const/SystemPhraseConst';
 import React from 'react';
 
 import { RECENTLY_SEARCH_WORD_LIST_LOCAL_STORAGE } from 'const/LocalStorageConst';
-import {
-  SEARCH_POST_PATH,
-  SEARCH_TAG_POST_PATH,
-  SEARCH_TAG_POST_ROUTE_PATH,
-} from 'const/PathConst';
+import { SEARCH_TAG_POST_ROUTE_PATH } from 'const/PathConst';
 import { RoutePushEventDateInterface } from 'const/ReactNativeConst';
-import { stackRouterPush } from 'global/util/reactnative/nativeRouter';
 import { useRef } from 'react';
 import { generatePath, useLocation, useNavigate } from 'react-router-dom';
 import { useRecoilState, useRecoilValue } from 'recoil';
@@ -137,23 +132,21 @@ const SearchButtonInputElement: React.FC<SearchButtonInputElementProps> = ({
       };
 
       if (startsWithHashTag(searchTempWord)) {
-        stackRouterPush(
-          navigate,
+        // stackRouterPush(
+        //   navigate,
+        //   generatePath(SEARCH_TAG_POST_ROUTE_PATH, {
+        //     search_word: removeHashTag(searchTempWord),
+        //   }),
+        //   data,
+        // );
+        navigate(
           generatePath(SEARCH_TAG_POST_ROUTE_PATH, {
             search_word: removeHashTag(searchTempWord),
           }),
-          data,
         );
       } else {
-        if (searchUrl === SEARCH_TAG_POST_PATH) {
-          stackRouterPush(
-            navigate,
-            `${SEARCH_POST_PATH}/${searchTempWord}`,
-            data,
-          );
-        } else {
-          stackRouterPush(navigate, `${searchUrl}/${searchTempWord}`, data);
-        }
+        // stackRouterPush(navigate, `${searchUrl}/${searchTempWord}`, data);
+        navigate(`${searchUrl}/${searchTempWord}`);
       }
     }
   };

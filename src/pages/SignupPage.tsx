@@ -16,6 +16,7 @@ import {
   signStepTransitionInfoAtom,
   signupStepNumAtom,
 } from 'states/SignupAtom';
+import { initPageInfoAtom } from 'states/SystemConfigAtom';
 import styled from 'styled-components';
 
 const SignupPage: React.FC = () => {
@@ -83,6 +84,15 @@ const SignupPage: React.FC = () => {
     { key: 'bottom', value: '0' },
   ]);
 
+  const [initPageInfo, setInitPageInfo] = useRecoilState(initPageInfoAtom);
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        setInitPageInfo((prev) => ({ ...prev, isSignupPage: true }));
+      }, 100);
+    });
+  }, []);
+
   return (
     <>
       {windowWidth >= MEDIA_MOBILE_MAX_WIDTH_NUM ? (
@@ -113,9 +123,16 @@ const SignupPage: React.FC = () => {
                 }))
               }
             >
-              <AppBaseTemplate isAppContainerTopMargin={false}>
-                <SignupBody />
-              </AppBaseTemplate>
+              <div
+                style={{
+                  opacity: initPageInfo.isSignupPage ? 1 : 0,
+                  transition: `opacity 0.3s ease-in`,
+                }}
+              >
+                <AppBaseTemplate isAppContainerTopMargin={false}>
+                  <SignupBody />
+                </AppBaseTemplate>
+              </div>
             </MotionWrapper>
           </AnimatePresence>
         </>

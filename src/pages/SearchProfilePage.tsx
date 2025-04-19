@@ -14,7 +14,9 @@ import PageHelmentInfoElement from 'components/PageHelmetInfoElement';
 import PostSearchFilterPopup from 'components/popups/search/PostSearchFilterPopup';
 import SearchProfileBody from 'components/search/body/SearchProfileBody';
 import { SEARCH_PROFILE_PATH } from 'const/PathConst';
-import { QueryStateSearchProfileUserListInfinite } from 'hook/queryhook/QueryStateSearchProfileUserListInfinite';
+import { handleMessageByRouteAndMoveUrl } from 'global/native/nativeHandleMessage';
+import { useMessageListener } from 'hook/customhook/useMessageListener';
+import { useNavigate } from 'react-router-dom';
 
 const SearchProfilePage: React.FC = () => {
   const isActiveSearchPostFilterPopup = useRecoilValue(
@@ -23,8 +25,13 @@ const SearchProfilePage: React.FC = () => {
 
   const searchWord = useRecoilValue(searchWordAtom);
 
-  const { refetch: refetchByProfileUserList } =
-    QueryStateSearchProfileUserListInfinite(searchWord, true);
+  const navigate = useNavigate();
+
+  useMessageListener((event) => {
+    handleMessageByRouteAndMoveUrl(event, (url: string) => {
+      navigate(url, { replace: true });
+    });
+  });
 
   return (
     <>

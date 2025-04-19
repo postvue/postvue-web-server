@@ -1,17 +1,17 @@
 import {
   EVENT_DATA_ROUTE_BACK_TYPE,
-  EVENT_DATA_ROUTE_NAVIGATE_TYPE,
   EVENT_DATA_ROUTE_POP_TO_TOP_TYPE,
   EVENT_DATA_ROUTE_PREVIOUS_TAB_TYPE,
   EVENT_DATA_ROUTE_PUSH_TYPE,
   EVENT_DATA_ROUTE_REPLACE_TYPE,
   EVENT_DATA_ROUTE_RESET_TYPE,
+  EVENT_DATA_WEB_BACK_TYPE,
+  EVENT_DATA_WEB_PUSH_TYPE,
 } from 'const/ReactNativeConst';
 import {
   navigateToMainTab,
   stackRouterBack,
   stackRouterNavigation,
-  stackRouterPush,
   stackRouterReplace,
   stackRouterResetAndPush,
   tabBackNavigation,
@@ -45,13 +45,16 @@ const AppLink: React.FC<
       style={style}
       className="app-link"
       onClick={() => {
-        if (type === EVENT_DATA_ROUTE_BACK_TYPE) {
+        if (type === EVENT_DATA_WEB_BACK_TYPE) {
+          navigate(-1);
+        } else if (type === EVENT_DATA_WEB_PUSH_TYPE) {
+          if (!to) return;
+          navigate(to);
+        } else if (type === EVENT_DATA_ROUTE_BACK_TYPE) {
           stackRouterBack(navigate);
         } else if (type === EVENT_DATA_ROUTE_PUSH_TYPE) {
           if (!to) return;
-          stackRouterPush(navigate, to);
-        } else if (type === EVENT_DATA_ROUTE_NAVIGATE_TYPE) {
-          if (!to) return;
+
           stackRouterNavigation(to);
         } else if (type === EVENT_DATA_ROUTE_REPLACE_TYPE) {
           if (!to) return;

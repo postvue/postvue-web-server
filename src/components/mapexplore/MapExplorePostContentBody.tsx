@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 import NoResultComponent from 'components/common/container/NoResultComponent';
-import SnsPostMasonryLayout from 'components/layouts/SnsPostMasonryLayout';
+import SnsPostVirtualMasonryLayout from 'components/layouts/virtual/masonry/SnsPostVirtualMasonryLayout';
 import { MAP_CONTENT_POST_TYPE, MapContentType } from 'const/MapExploreConst';
 import { convertDateToCurrentCountryISO } from 'global/util/DateTimeUtil';
 import MapPostListInfiniteScroll from 'hook/MapExplorePostListInfiniteScroll';
@@ -23,6 +23,7 @@ interface MapExploreBodyProps {
     isReplaced: boolean;
   };
   funcPrevButton?: () => void;
+  scrollElement?: Element;
 }
 
 const MapExplorePostContentBody: React.FC<MapExploreBodyProps> = ({
@@ -33,6 +34,7 @@ const MapExplorePostContentBody: React.FC<MapExploreBodyProps> = ({
   masonryLayoutNum,
   linkPopupInfo,
   funcPrevButton,
+  scrollElement,
 }) => {
   const mapSearchPostWord = useRecoilValue(mapSearchPostWordAtom);
   const mapDatePickerPopupInfo = useRecoilValue(mapDatePickerPopupInfoAtom);
@@ -77,7 +79,41 @@ const MapExplorePostContentBody: React.FC<MapExploreBodyProps> = ({
         <>
           {postMapPost && postMapPost?.pages.flatMap((v) => v).length > 0 ? (
             <>
-              <SnsPostMasonryLayout
+              <SnsPostVirtualMasonryLayout
+                // SnsPostMasonryLayoutStyle={MapSnsPostLayoutStyle}
+                snsPostList={postMapPost?.pages.flatMap((v) =>
+                  v.map((value) => value),
+                )}
+                // fixNum={masonryLayoutNum}
+                linkPopupInfo={linkPopupInfo}
+                actionFunc={funcPrevButton}
+                searchType={'distance'}
+                scrollElement={scrollElement}
+                inViewElement={
+                  <MapPostListInfiniteScroll
+                    searchWord={mapSearchPostWord}
+                    latitude={latitude}
+                    longitude={longitude}
+                    startDate={
+                      mapDatePickerPopupInfo.dateInfo.startDate
+                        ? convertDateToCurrentCountryISO(
+                            mapDatePickerPopupInfo.dateInfo.startDate,
+                          )
+                        : null
+                    }
+                    isActive={mapContentType === MAP_CONTENT_POST_TYPE}
+                    endDate={
+                      mapDatePickerPopupInfo.dateInfo.endDate
+                        ? convertDateToCurrentCountryISO(
+                            mapDatePickerPopupInfo.dateInfo.endDate,
+                          )
+                        : null
+                    }
+                  />
+                }
+              />
+
+              {/* <SnsPostMasonryLayout
                 SnsPostMasonryLayoutStyle={MapSnsPostLayoutStyle}
                 snsPostList={postMapPost?.pages.flatMap((v) =>
                   v.map((value) => value),
@@ -106,7 +142,7 @@ const MapExplorePostContentBody: React.FC<MapExploreBodyProps> = ({
                       )
                     : null
                 }
-              />
+              /> */}
             </>
           ) : (
             <NoResultComponent

@@ -1,6 +1,5 @@
 import React from 'react';
 
-import SnsPostMasonryLayout from 'components/layouts/SnsPostMasonryLayout';
 import FollowForMeListInfiniteScroll from 'hook/FollowForMeListInfiniteScroll';
 import {
   FollowForMeListQueryInterface,
@@ -8,6 +7,7 @@ import {
 } from 'hook/queryhook/QueryStateFollowForMeListInfinite';
 
 import { queryClient } from 'App';
+import SnsPostVirtualMasonryLayout from 'components/layouts/virtual/masonry/SnsPostVirtualMasonryLayout';
 import PullToRefreshComponent from 'components/PullToRefreshComponent';
 import { INIT_CURSOR_ID } from 'const/PageConfigConst';
 import { QUERY_STATE_FOLLOW_FOR_ME_LIST } from 'const/QueryClientConst';
@@ -15,7 +15,11 @@ import { getFollowForMeListByParam } from 'services/post/home/getFollowForMeList
 import styled from 'styled-components';
 import HomeFollowSubBody from './body/HomeFollowSubBody';
 
-const HomeFolowBody: React.FC = () => {
+interface HomeFollowBodyProps {
+  scrollElement?: Element | undefined;
+}
+
+const HomeFolowBody: React.FC<HomeFollowBodyProps> = ({ scrollElement }) => {
   const {
     data: followForMeList,
     isFetched: isFetchedByFollowForMe,
@@ -44,12 +48,19 @@ const HomeFolowBody: React.FC = () => {
                 followForMeList.pages.flatMap((value) => value.snsPostRspList)
                   .length > 0 ? (
                   <>
-                    <SnsPostMasonryLayout
+                    {/* <SnsPostMasonryLayout
                       snsPostList={followForMeList?.pages.flatMap((v) =>
                         v.snsPostRspList.map((value) => value),
                       )}
                     />
-                    <FollowForMeListInfiniteScroll />
+                    <FollowForMeListInfiniteScroll /> */}
+                    <SnsPostVirtualMasonryLayout
+                      snsPostList={followForMeList?.pages.flatMap((v) =>
+                        v.snsPostRspList.map((value) => value),
+                      )}
+                      inViewElement={<FollowForMeListInfiniteScroll />}
+                      scrollElement={scrollElement}
+                    />
                   </>
                 ) : (
                   <HomeFollowSubBody />

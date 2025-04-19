@@ -42,10 +42,16 @@ const HomeHeaderByAppBanner: React.FC = () => {
   // });
   // }, []);
 
+  const isMobile = (): boolean => {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent,
+    );
+  };
+
   return (
     <>
       {/* <HomeHeaderContainerWrap> */}
-      <AppBanner />
+      {isMobile() && <AppBanner />}
       <HeaderLayout
         HeaderLayoutStyle={{
           backdropFilter: 'blur(10px)',
