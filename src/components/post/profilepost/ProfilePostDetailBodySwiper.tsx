@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useState } from 'react';
+import React, { Suspense, useState } from 'react';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 
 import styled from 'styled-components';
@@ -25,13 +25,13 @@ import { PostRsp } from 'global/interface/post';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 
-const initTimer = 500;
+// const initTimer = 500;
 
-const isMobile = (): boolean => {
-  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-    navigator.userAgent,
-  );
-};
+// const isMobile = (): boolean => {
+//   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+//     navigator.userAgent,
+//   );
+// };
 
 // const PostVideoContentElementV3 = React.lazy(
 //   () =>
@@ -139,118 +139,103 @@ const ProfilePostDetailBodySwiper: React.FC<ProfilePostDetailBodyProps> = ({
     }));
   };
 
-  const [init, setInit] = useState<boolean>(false);
-  useEffect(() => {
-    setTimeout(() => {
-      setInit(true);
-    }, initTimer);
-  }, []);
-
   return (
     <>
       <PostImageWrap style={PostImageWrapStyle}>
-        {init ? (
-          <StyledSwiper
-            spaceBetween={20}
-            pagination={true}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-            loop={snsPost.postContents.length > 1}
-            modules={[Pagination, Navigation, FreeMode, Navigation, Thumbs]}
-          >
-            {snsPost?.postContents.length > 1 &&
-              snsPost?.postContents.map((value, index) => {
-                return (
-                  <SwiperSlide
-                    key={index}
-                    onClick={() => {
-                      setPostContentZoomPopupInfo((prev) => ({
+        <StyledSwiper
+          spaceBetween={20}
+          pagination={true}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          loop={snsPost.postContents.length > 1}
+          modules={[Pagination, Navigation, FreeMode, Navigation, Thumbs]}
+        >
+          {snsPost?.postContents.length > 1 &&
+            snsPost?.postContents.map((value, index) => {
+              return (
+                <SwiperSlide
+                  key={index}
+                  onClick={() => {
+                    setPostContentZoomPopupInfo((prev) => ({
+                      ...prev,
+                      isActive: true,
+                      initIndex: index,
+                      postContents: snsPost.postContents,
+                    }));
+                  }}
+                >
+                  {value.postContentType === POST_IMAGE_TYPE && (
+                    <PostImgWrap>
+                      <PostImgDiv src={value.content} />
+                    </PostImgWrap>
+                  )}
+                </SwiperSlide>
+              );
+            })}
+          {snsPost?.postContents.length == 1 && (
+            <PostContentFrame
+              onClick={() => {
+                if (
+                  snsPost?.postContents[0].postContentType === POST_VIDEO_TYPE
+                )
+                  return;
+                setPostContentZoomPopupInfo((prev) => ({
+                  ...prev,
+                  isActive: true,
+                  initIndex: 0,
+                  postContents: snsPost.postContents,
+                }));
+              }}
+            >
+              {snsPost?.postContents[0].postContentType === POST_IMAGE_TYPE && (
+                <PostImgBySingle src={snsPost?.postContents[0].content} />
+              )}
+
+              {snsPost?.postContents[0].postContentType === POST_VIDEO_TYPE && (
+                <Suspense
+                  fallback={
+                    <Skeleton height={400} style={{ borderRadius: '20px' }} />
+                  }
+                >
+                  <PostVideoContentElementV3
+                    postId={postId}
+                    videoSrc={snsPost?.postContents[0].content}
+                    posterImg={snsPost?.postContents[0].previewImg}
+                    isUploaded={snsPost?.postContents[0].isUploaded}
+                    isClose={postExternelEventInfo.isClosePost}
+                    onClose={() => {
+                      setPostExternelEventInfo((prev) => ({
                         ...prev,
-                        isActive: true,
-                        initIndex: index,
-                        postContents: snsPost.postContents,
+                        isClosePost: false,
                       }));
                     }}
-                  >
-                    {value.postContentType === POST_IMAGE_TYPE && (
-                      <PostImgWrap>
-                        <PostImgDiv src={value.content} />
-                      </PostImgWrap>
-                    )}
-                  </SwiperSlide>
-                );
-              })}
-            {snsPost?.postContents.length == 1 && (
-              <PostContentFrame
-                onClick={() => {
-                  if (
-                    snsPost?.postContents[0].postContentType === POST_VIDEO_TYPE
-                  )
-                    return;
-                  setPostContentZoomPopupInfo((prev) => ({
-                    ...prev,
-                    isActive: true,
-                    initIndex: 0,
-                    postContents: snsPost.postContents,
-                  }));
-                }}
-              >
-                {snsPost?.postContents[0].postContentType ===
-                  POST_IMAGE_TYPE && (
-                  <PostImgBySingle src={snsPost?.postContents[0].content} />
-                )}
-
-                {snsPost?.postContents[0].postContentType ===
-                  POST_VIDEO_TYPE && (
-                  <Suspense
-                    fallback={
-                      <Skeleton height={400} style={{ borderRadius: '20px' }} />
+                    actionPopupTopScrollByMoveSeekBar={(isActive: boolean) => {
+                      setPostExternelEventInfo((prev) => ({
+                        ...prev,
+                        isActiveSideScroll: isActive,
+                      }));
+                    }}
+                    PostVideoStyle={
+                      windowWidthSize < MEDIA_MOBILE_MAX_WIDTH_NUM
+                        ? {
+                            borderRadius: `${PostContentRadis} ${PostContentRadis} 0 0`,
+                          }
+                        : {}
                     }
-                  >
-                    <PostVideoContentElementV3
-                      postId={postId}
-                      videoSrc={snsPost?.postContents[0].content}
-                      posterImg={snsPost?.postContents[0].previewImg}
-                      isUploaded={snsPost?.postContents[0].isUploaded}
-                      isClose={postExternelEventInfo.isClosePost}
-                      onClose={() => {
-                        setPostExternelEventInfo((prev) => ({
-                          ...prev,
-                          isClosePost: false,
-                        }));
-                      }}
-                      actionPopupTopScrollByMoveSeekBar={(
-                        isActive: boolean,
-                      ) => {
-                        setPostExternelEventInfo((prev) => ({
-                          ...prev,
-                          isActiveSideScroll: isActive,
-                        }));
-                      }}
-                      PostVideoStyle={
-                        windowWidthSize < MEDIA_MOBILE_MAX_WIDTH_NUM
-                          ? {
-                              borderRadius: `${PostContentRadis} ${PostContentRadis} 0 0`,
-                            }
-                          : {}
-                      }
-                      PostVideoPosterImgStyle={
-                        windowWidthSize < MEDIA_MOBILE_MAX_WIDTH_NUM
-                          ? {
-                              borderRadius: `${PostContentRadis} ${PostContentRadis} 0 0`,
-                            }
-                          : { borderRadius: `${PostContentRadis}` }
-                      }
-                    />
-                  </Suspense>
-                )}
-              </PostContentFrame>
-            )}
-          </StyledSwiper>
-        ) : (
-          <Skeleton height={400} style={{ borderRadius: '20px' }} />
-        )}
+                    PostVideoPosterImgStyle={
+                      windowWidthSize < MEDIA_MOBILE_MAX_WIDTH_NUM
+                        ? {
+                            borderRadius: `${PostContentRadis} ${PostContentRadis} 0 0`,
+                          }
+                        : { borderRadius: `${PostContentRadis}` }
+                    }
+                  />
+                </Suspense>
+              )}
+            </PostContentFrame>
+          )}
+        </StyledSwiper>
       </PostImageWrap>
     </>
   );
