@@ -27,6 +27,8 @@ import { SETTING_AFTER_DELETE_ACCOUNT_MAIN_MOVE_PHASE_TEXT } from 'const/SystemP
 import { isApp } from 'global/util/reactnative/nativeRouter';
 import { useSnsNotificationHookByIndexedDb } from 'hook/db/useSnsNotifcationHookByIndexedDb';
 import { useNavigate } from 'react-router-dom';
+import { useRecoilState } from 'recoil';
+import { initPageInfoAtom } from 'states/SystemConfigAtom';
 import { hoverComponentStyle } from 'styles/commonStyles';
 import theme from 'styles/theme';
 
@@ -44,7 +46,13 @@ const LoginPage: React.FC = () => {
   }
 
   const [isWithdraw, setIsWithdraw] = useState<boolean | null>(null);
+  const [initPageInfo, setInitPageInfo] = useRecoilState(initPageInfoAtom);
   useEffect(() => {
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        setInitPageInfo((prev) => ({ ...prev, isLoginPage: true }));
+      }, 100);
+    });
     const searchParams = new URLSearchParams(location.search);
 
     if (searchParams.has(IS_WITHDRAW_QUERY_PARAM)) {
@@ -114,7 +122,15 @@ const LoginPage: React.FC = () => {
               {/* <AccountDeleteCheckTitle>
                 ㅠㅠ 너무 아쉬워요..
               </AccountDeleteCheckTitle> */}
-              <LoginPageLogoWrap>
+              <LoginPageLogoWrap
+                style={{
+                  paddingTop: 'env(safe-area-inset-top)',
+                  position: 'fixed',
+                  left: '50%',
+                  top: '40%',
+                  transform: 'translate(-50%, -50%)',
+                }}
+              >
                 <LoginPageLogoIconWrap>
                   <LoginPageLogoIconSubWrap>
                     <FeelogMobileLogo />
@@ -148,26 +164,32 @@ const LoginPage: React.FC = () => {
         <>
           {isView && (
             <>
-              <LoginPageContainer>
+              <LoginPageContainer
+                style={{
+                  opacity: initPageInfo.isLoginPage ? 1 : 0,
+                  transition: `opacity 0.3s ease-in`,
+                }}
+              >
                 {!isApp() && (
                   <LoginCancelButtonIconWrap onClick={clickDeleteBtn}>
                     <LoginCancelButtonIcon />
                   </LoginCancelButtonIconWrap>
                 )}
-                <LoginPageLogoWrap>
-                  <LoginPageLogoIconWrap>
-                    <LoginPageLogoIconSubWrap>
-                      <FeelogMobileLogo />
-                    </LoginPageLogoIconSubWrap>
-                  </LoginPageLogoIconWrap>
-                  <LoginPageLogoTitleWrap>
-                    <LoginPageLogoTitle>
-                      {/* {LOGIN_TITLE_PHASE_TEXT} */}
-                      Feelog
-                    </LoginPageLogoTitle>
-                  </LoginPageLogoTitleWrap>
-                </LoginPageLogoWrap>
+
                 <LoginPageBodyContainer>
+                  <LoginPageLogoWrap>
+                    <LoginPageLogoIconWrap>
+                      <LoginPageLogoIconSubWrap>
+                        <FeelogMobileLogo />
+                      </LoginPageLogoIconSubWrap>
+                    </LoginPageLogoIconWrap>
+                    <LoginPageLogoTitleWrap>
+                      <LoginPageLogoTitle>
+                        {/* {LOGIN_TITLE_PHASE_TEXT} */}
+                        Feelog
+                      </LoginPageLogoTitle>
+                    </LoginPageLogoTitleWrap>
+                  </LoginPageLogoWrap>
                   <KakaoLoginButton />
                   <NaverLoginButton />
 
@@ -224,11 +246,10 @@ const LoginPageContainer = styled.div`
 `;
 
 const LoginPageLogoWrap = styled.div`
-  padding-top: env(safe-area-inset-top);
-  position: fixed;
-  left: 50%;
-  top: 40%;
-  transform: translate(-50%, -50%);
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  padding-bottom: min(calc(100dvh - 600px), 100px);
   width: 100%;
 `;
 

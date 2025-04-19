@@ -1,6 +1,7 @@
 import {
-  SIGNUP_BIRTHDATE_GENDER_INPUT_STEP_VALUE,
+  SIGNUP_BIRTHDATE_INPUT_STEP_VALUE,
   SIGNUP_FAVORITE_TAG_INPUT_STEP_VALUE,
+  SIGNUP_GENDER_INPUT_STEP_VALUE,
   SIGNUP_NICKNAME_INPUT_STEP_VALUE,
   SIGNUP_TERM_OF_SERVICE_STEP_VALUE,
   SIGNUP_USERNAME_INPUT_STEP_VALUE,
@@ -12,8 +13,9 @@ import React from 'react';
 import { useRecoilValue } from 'recoil';
 import { signupStepNumAtom } from 'states/SignupAtom';
 import styled from 'styled-components';
-import SignupBirthdateGenderStep from './signstep/SignupBirthdateGenderStep';
+import SignupBirthdateStep from './signstep/SignupBirthdateStep';
 import SignupFavoriteTagStep from './signstep/SignupFavoriteTagStep';
+import SignupGenderStep from './signstep/SignupGenderStep';
 import SignupNicknameStep from './signstep/SignupNicknameStep';
 import SignupTermOfServiceStep from './signstep/SignupTermOfServiceStep';
 import SignupUsernameStep from './signstep/SignupUsernameStep';
@@ -51,8 +53,10 @@ const SignupBody: React.FC = () => {
     switch (signupStepNum) {
       case SIGNUP_NICKNAME_INPUT_STEP_VALUE:
         return <SignupNicknameStep />;
-      case SIGNUP_BIRTHDATE_GENDER_INPUT_STEP_VALUE:
-        return <SignupBirthdateGenderStep />;
+      case SIGNUP_BIRTHDATE_INPUT_STEP_VALUE:
+        return <SignupBirthdateStep />;
+      case SIGNUP_GENDER_INPUT_STEP_VALUE:
+        return <SignupGenderStep />;
       case SIGNUP_USERNAME_INPUT_STEP_VALUE:
         return <SignupUsernameStep />;
       case SIGNUP_FAVORITE_TAG_INPUT_STEP_VALUE:

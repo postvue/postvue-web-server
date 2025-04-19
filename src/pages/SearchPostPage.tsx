@@ -1,6 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
-import SearchPostBody from 'components/search/body/SearchPostBody';
 import SearchHeader from 'components/search/header/SearchHeader';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { SEARCH_PATH } from 'services/appApiPath';
@@ -16,8 +15,13 @@ import AppBaseTemplate from '../components/layouts/AppBaseTemplate';
 import SearchFavoriteTermButton from 'components/common/buttton/SearchFavoriteTermButton';
 import PageHelmentInfoElement from 'components/PageHelmetInfoElement';
 import PostSearchFilterPopup from 'components/popups/search/PostSearchFilterPopup';
+import SearchSubPostBody from 'components/search/body/SearchPostSubBody';
 import { SEARCH_POST_PATH } from 'const/PathConst';
+import { handleMessageByRouteAndMoveUrl } from 'global/native/nativeHandleMessage';
+import { useMessageListener } from 'hook/customhook/useMessageListener';
+import useObjectScrollY from 'hook/customhook/useWindowScrollY';
 import { QueryStateSearchTermInfo } from 'hook/queryhook/QueryStateSearchTermInfo';
+import { useNavigate } from 'react-router-dom';
 
 const SearchPostPage: React.FC = () => {
   const [isSearchInputActive, setIsSearchInputActive] = useRecoilState(
@@ -34,6 +38,31 @@ const SearchPostPage: React.FC = () => {
 
   const { data: searchTermInfo } = QueryStateSearchTermInfo(searchWord);
 
+  const { scrollInfos, scrollRemove } = useObjectScrollY({
+    path: location.pathname,
+  });
+
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      setTimeout(
+        () => {
+          window.scrollTo({ top: scrollInfos });
+
+          scrollRemove();
+        },
+        15 * Math.floor(Math.log(scrollInfos)),
+      );
+    });
+  }, [location.pathname]);
+
+  const navigate = useNavigate();
+
+  useMessageListener((event) => {
+    handleMessageByRouteAndMoveUrl(event, (url: string) => {
+      navigate(url, { replace: true });
+    });
+  });
+
   return (
     <>
       <PageHelmentInfoElement
@@ -43,13 +72,15 @@ const SearchPostPage: React.FC = () => {
         ogDescription={searchWord}
       />
       <AppBaseTemplate
+        isScrollByAppContainer={false}
+        isScrollSave={false}
         hasSearchInputModule={false}
         isDisplayFavoriteTerm={false}
         SideContainerStyle={{
           position: 'sticky',
           top: '0px',
           overflow: 'scroll',
-          overscrollBehavior: 'none',
+          // overscrollBehavior: 'none',
           height: '100dvh',
         }}
         SideSearchBodyWrapStyle={{ top: '10px' }}
@@ -72,7 +103,7 @@ const SearchPostPage: React.FC = () => {
           }
         />
 
-        <SearchPostBody />
+        <SearchSubPostBody />
 
         <BottomNavBar />
         {isActiveSearchPostFilterPopup && (

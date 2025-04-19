@@ -49,7 +49,7 @@ const PostComposeSelectPopupBody: React.FC<PostComposeSelectPopupBodyProps> = ({
   return (
     <>
       <PostComposePopupContainer>
-        <PostComposeTitle>포스트 게시</PostComposeTitle>
+        <PostComposeTitle>기록 하기</PostComposeTitle>
         <PostComposePopupWrap>
           <PostComposeCreateTypeWrap
             onClick={() => {
@@ -89,7 +89,7 @@ const PostComposeSelectPopupBody: React.FC<PostComposeSelectPopupBodyProps> = ({
               }
             }}
           >
-            사이트
+            링크
           </PostComposeCreateTypeWrap>
         </PostComposePopupWrap>
         {isActivePostComposeSelectPopup && <MyAccountSettingInfoState />}

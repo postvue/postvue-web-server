@@ -1,18 +1,21 @@
 import React, { useEffect } from 'react';
 
-import { useRecoilValue, useResetRecoilState } from 'recoil';
-import AppBaseTemplate from '../components/layouts/AppBaseTemplate';
+import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil';
 import SearchBody from '../components/search/body/SearchBody';
 
 import BottomNavBar from 'components/BottomNavBar';
+import AppBaseTemplate from 'components/layouts/AppBaseTemplate';
 import PullToRefreshComponent from 'components/PullToRefreshComponent';
 import SearchHeader from 'components/search/header/SearchHeader';
 import { EVENT_DATA_ROUTE_PREVIOUS_TAB_TYPE } from 'const/ReactNativeConst';
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
+import { handleMessageByRouteAndMoveUrl } from 'global/native/nativeHandleMessage';
+import { useMessageListener } from 'hook/customhook/useMessageListener';
 import useWindowSize from 'hook/customhook/useWindowSize';
 import { QueryStateRecommTagList } from 'hook/queryhook/QueryStateRecommTagList';
 import { QueryStateSearchFavoriteTermPreviewList } from 'hook/queryhook/QueryStateSearchFavoritePreviewTermList';
 import { useNavigate } from 'react-router-dom';
+import { initPageInfoAtom } from 'states/SystemConfigAtom';
 import { HOME_PATH, SEARCH_POST_PATH } from '../const/PathConst';
 import {
   isSearchInputActiveAtom,
@@ -55,32 +58,55 @@ const SearchPage: React.FC = () => {
 
   const { refetch: refetchByRecomMTagList } = QueryStateRecommTagList();
 
-  return (
-    <AppBaseTemplate>
-      <SearchHeader
-        backToUrl={HOME_PATH}
-        searchUrl={SEARCH_POST_PATH}
-        prevNavigateType={EVENT_DATA_ROUTE_PREVIOUS_TAB_TYPE}
-      />
-      {!isSearchInputActive && (
-        <>
-          {windowWidth < MEDIA_MOBILE_MAX_WIDTH_NUM ? (
-            <PullToRefreshComponent
-              onRefresh={async () => {
-                refetchByFavoriteTermList();
-                refetchByRecomMTagList();
-              }}
-            >
-              <SearchBody />
-            </PullToRefreshComponent>
-          ) : (
-            <SearchBody />
-          )}
-        </>
-      )}
+  const [initPageInfo, setInitPageInfo] = useRecoilState(initPageInfoAtom);
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        setInitPageInfo((prev) => ({ ...prev, isSearchPage: true }));
+      }, 100);
+    });
+  }, []);
 
+  useMessageListener((event) => {
+    handleMessageByRouteAndMoveUrl(event, (url: string) => {
+      navigate(url, { replace: true });
+    });
+  });
+
+  return (
+    <>
+      <div
+        style={{
+          opacity: initPageInfo.isSearchPage ? 1 : 0,
+          transition: `opacity 0.3s ease-in`,
+        }}
+      >
+        <AppBaseTemplate>
+          <SearchHeader
+            backToUrl={HOME_PATH}
+            searchUrl={SEARCH_POST_PATH}
+            prevNavigateType={EVENT_DATA_ROUTE_PREVIOUS_TAB_TYPE}
+          />
+          {!isSearchInputActive && (
+            <>
+              {windowWidth < MEDIA_MOBILE_MAX_WIDTH_NUM ? (
+                <PullToRefreshComponent
+                  onRefresh={async () => {
+                    refetchByFavoriteTermList();
+                    refetchByRecomMTagList();
+                  }}
+                >
+                  <SearchBody />
+                </PullToRefreshComponent>
+              ) : (
+                <SearchBody />
+              )}
+            </>
+          )}
+        </AppBaseTemplate>
+      </div>
       <BottomNavBar />
-    </AppBaseTemplate>
+    </>
   );
 };
 

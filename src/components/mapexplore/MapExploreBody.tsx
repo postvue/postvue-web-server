@@ -29,6 +29,8 @@ interface MapExploreBodyProps {
     isReplaced: boolean;
   };
   funcPrevButton?: () => void;
+  scrollElement?: Element;
+  scrollRef?: React.RefObject<HTMLDivElement>;
 }
 
 const MapExploreBody: React.FC<MapExploreBodyProps> = ({
@@ -41,6 +43,8 @@ const MapExploreBody: React.FC<MapExploreBodyProps> = ({
   masonryLayoutNum,
   linkPopupInfo,
   funcPrevButton,
+  scrollElement,
+  scrollRef,
 }) => {
   const mapContentType = useRecoilValue(mapContentTypeAtom);
 
@@ -49,7 +53,7 @@ const MapExploreBody: React.FC<MapExploreBodyProps> = ({
   const isActiveMyMap = useRecoilValue(isActiveMyMapAtom);
 
   return (
-    <MapExloreBodyContainer style={mapExploreBodyStyle}>
+    <MapExloreBodyContainer style={mapExploreBodyStyle} ref={scrollRef}>
       {!isActiveMyMap && (
         <>
           <div
@@ -68,6 +72,7 @@ const MapExploreBody: React.FC<MapExploreBodyProps> = ({
                 masonryLayoutNum={masonryLayoutNum}
                 linkPopupInfo={linkPopupInfo}
                 funcPrevButton={funcPrevButton}
+                scrollElement={scrollElement}
               />
             )}
             {mapContentType === MAP_CONTENT_POST_TYPE && (
@@ -79,6 +84,7 @@ const MapExploreBody: React.FC<MapExploreBodyProps> = ({
                 masonryLayoutNum={masonryLayoutNum}
                 linkPopupInfo={linkPopupInfo}
                 funcPrevButton={funcPrevButton}
+                scrollElement={scrollElement}
               />
             )}
           </div>
@@ -89,6 +95,7 @@ const MapExploreBody: React.FC<MapExploreBodyProps> = ({
             masonryLayoutNum={masonryLayoutNum}
             linkPopupInfo={linkPopupInfo}
             funcPrevButton={funcPrevButton}
+            scrollElement={scrollElement}
           />
         </>
       )}
@@ -99,6 +106,7 @@ const MapExploreBody: React.FC<MapExploreBodyProps> = ({
           masonryLayoutNum={masonryLayoutNum}
           linkPopupInfo={linkPopupInfo}
           funcPrevButton={funcPrevButton}
+          scrollElement={scrollElement}
         />
       )}
     </MapExloreBodyContainer>

@@ -1,6 +1,6 @@
 import { animated, config, useSpring } from '@react-spring/web';
 import { useDrag } from '@use-gesture/react';
-import { OVERFLOW_HIDDEN, POSITION_FIXED } from 'const/AttributeConst';
+import { OVERFLOW_HIDDEN } from 'const/AttributeConst';
 import { MEDIA_MOBILE_MAX_WIDTH } from 'const/SystemAttrConst';
 import React, { useEffect, useRef, useState } from 'react';
 import { useRecoilValue } from 'recoil';
@@ -30,7 +30,7 @@ const ProfilePostDetailPopupLayout: React.FC<ProfilePostDetailPopupProps> = ({
   touchHeaderHeightNum = 50,
   isExternalCloseFunc,
   isActiveExternalPopup,
-  bottomSheetCloseOffsetThreshold = 50,
+  bottomSheetCloseOffsetThreshold = 30,
   bottomSheetCloseAccelerThreshold = 1.2,
   isProcessingSideScroll,
   prevOnClose,
@@ -48,11 +48,12 @@ const ProfilePostDetailPopupLayout: React.FC<ProfilePostDetailPopupProps> = ({
   const [{ sheetY }] = useSpring(() => ({ sheetY: height }));
 
   const [startY, setStartY] = useState<number>(0);
-  const [move, setMove] = useState<number | null>(null);
-
-  const [scrollY, setScrollY] = useState<number>(0);
 
   const [isScrollTop, setIsScrollTop] = useState<boolean>(false);
+
+  const [prevBodyProps, setPrevBodyProps] = useState<Map<string, string>>(
+    new Map(),
+  );
   const [bindInfo, setBindInfo] = useState<{
     oy: number;
     dy: number;
@@ -69,17 +70,34 @@ const ProfilePostDetailPopupLayout: React.FC<ProfilePostDetailPopupProps> = ({
     canceled: false,
   });
 
-  const [prevY, setPrevY] = useState<number | null>(null); // 이전 위치
-  const [prevTime, setPrevTime] = useState<number | null>(null); // 이전 시간
-  const [prevVelocity, setPrevVelocity] = useState<number | null>(null); // 이전 속도
-  const ACCELERATION_THRESHOLD = 0.5; // 임계값 설정
-  const [accelerationHistory, setAccelerationHistory] = useState<number[]>([]);
+  const moveRef = useRef<number | null>(null);
+  const prevYRef = useRef<number | null>(null);
+  const prevTimeRef = useRef<number | null>(null);
+  const prevVelocityRef = useRef<number | null>(null);
+  const accelerationHistoryRef = useRef<number[]>([]);
 
-  const open = ({ canceled }: { canceled: boolean }) => {
+  const ACCELERATION_THRESHOLD = 0.5; // 임계값 설정
+
+  const open = ({
+    canceled,
+    onRestFunc = undefined,
+  }: {
+    canceled: boolean;
+    onRestFunc?: () => void;
+  }) => {
     api.start({
       y: 0,
       immediate: false,
       config: canceled ? config.wobbly : config.default,
+      // config: {
+      //   tension: 180, // 낮은 tension으로 빠르게 멈추게
+      //   friction: 25,
+      //   mass: 1,
+      //   // clamp: true,
+      // },
+      onRest: () => {
+        if (onRestFunc) onRestFunc();
+      },
     });
   };
 
@@ -91,12 +109,25 @@ const ProfilePostDetailPopupLayout: React.FC<ProfilePostDetailPopupProps> = ({
       y: height,
       immediate: false,
       config: { tension: 300, friction: 15, mass: 5, clamp: true },
+      // config: {
+      //   tension: 180, // 낮은 tension으로 빠르게 멈추게
+      //   friction: 20,
+      //   mass: 1,
+      //   clamp: true,
+      // },
       onRest: () => {
+        isFixedByDevice(false);
         onClose();
       },
     });
-
-    funcRemoveParentFix();
+    // api.start({
+    //   y: height,
+    //   immediate: false,
+    //   config: { tension: 300, friction: 15, mass: 5, clamp: true },
+    //   onRest: () => {
+    //     onClose();
+    //   },
+    // });
   };
 
   const binds = (
@@ -128,32 +159,32 @@ const ProfilePostDetailPopupLayout: React.FC<ProfilePostDetailPopupProps> = ({
     }
   };
 
-  const scrollBarbind = useDrag(
-    ({
-      last,
-      velocity: [, vy],
-      direction: [, dy],
-      offset: [, oy],
-      canceled,
-    }) => {
-      const clampedY = Math.max(0, Math.min(oy, height)); // 위치 클램핑
-      if (last) {
-        // 드래그 종료 시 스냅 동작
-        oy > height * 0.4 || (vy > 1.2 && dy > 0)
-          ? close()
-          : open({ canceled: !!canceled });
-      } else {
-        // 드래그 중 실시간 위치 업데이트
-        api.start({ y: clampedY, immediate: true });
-      }
-    },
-    {
-      from: () => [0, y.get()],
-      filterTaps: true,
-      bounds: { top: 0 },
-      rubberband: true,
-    },
-  );
+  // const scrollBarbind = useDrag(
+  //   ({
+  //     last,
+  //     velocity: [, vy],
+  //     direction: [, dy],
+  //     offset: [, oy],
+  //     canceled,
+  //   }) => {
+  //     const clampedY = Math.max(0, Math.min(oy, height)); // 위치 클램핑
+  //     if (last) {
+  //       // 드래그 종료 시 스냅 동작
+  //       oy > height * 0.4 || (vy > 1.2 && dy > 0)
+  //         ? close()
+  //         : open({ canceled: !!canceled });
+  //     } else {
+  //       // 드래그 중 실시간 위치 업데이트
+  //       api.start({ y: clampedY, immediate: true });
+  //     }
+  //   },
+  //   {
+  //     from: () => [0, y.get()],
+  //     filterTaps: true,
+  //     bounds: { top: 0 },
+  //     rubberband: true,
+  //   },
+  // );
 
   const sheetBind = useDrag(
     ({
@@ -206,104 +237,96 @@ const ProfilePostDetailPopupLayout: React.FC<ProfilePostDetailPopupProps> = ({
   };
 
   const isRemoveFixRef = useRef<boolean>(false);
-  const funcRemoveParentFix = () => {
-    if (isRemoveFixRef.current) return;
 
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const isFixedByDevice = (isFixed: boolean) => {
+    // iPhone 또는 iOS인지 확인
     const userAgent = navigator.userAgent;
 
-    // iPhone 또는 iOS인지 확인
-    if (!/iPhone|iPad|iPod/.test(userAgent)) {
-      document.body.style.overflow = 'auto';
-      document.body.style.position = 'static';
-      document.documentElement.style.touchAction = 'auto';
-      document.documentElement.style.overscrollBehavior = 'auto';
-      document.body.style.top = '';
-      document.body.style.left = '';
-      document.body.style.right = '';
-      document.body.style.width = '';
-      window.scrollTo({ top: scrollY });
-    } else {
-      unlock([], { useGlobalLockState: true });
-    }
+    if (!isFixed && isRemoveFixRef.current) return;
 
-    // document.documentElement.style.touchAction = '';
-    // if (!isHiddenOverflow) {
-    //   document.body.style.overflow = '';
-    // }
+    const BODY_PARAM = 'body';
+    const HTML_PARAM = 'html';
+    const JOINT_PARAM = '_';
+    const OVERFLOW_PARAM = 'overflow';
+    const TOUCH_ACTION_PARAM = 'touch-action';
+    const OVERFLOWSCROLL_BEHAVIOR_PARAM = 'overflowscroll-behavior';
 
-    // document.body.style.touchAction = '';
-    // document.documentElement.style.overscrollBehavior = '';
-
-    // document.body.style.overscrollBehavior = '';
-    // document.body.style.top = '';
-    // document.body.style.left = '';
-    // document.body.style.right = '';
-
-    // if (!isFixedPostion) {
-    //   document.body.style.position = '';
-    // }
-    isRemoveFixRef.current = true;
-  };
-
-  useEffect(() => {
-    if (isOpen) {
-      open({ canceled: false });
-
+    if (/iPhone|iPad|iPod/.test(userAgent)) {
       if (
         !ScrollRef.current ||
         !BottomSheetContainerRef.current ||
         !BottomSheetPopupRef.current
       )
         return;
-
-      // iPhone 또는 iOS인지 확인
-      const userAgent = navigator.userAgent;
-
-      if (!/iPhone|iPad|iPod/.test(userAgent)) {
-        const y = window.scrollY;
-
-        document.body.style.overflow = OVERFLOW_HIDDEN;
-        document.body.style.position = POSITION_FIXED;
-        document.documentElement.style.touchAction = 'none';
-        document.documentElement.style.overscrollBehavior = 'none';
-        document.body.style.width = '100%';
-        // document.body.style.top = `-${y}px`;
-        document.body.style.left = '0px';
-        document.body.style.right = '0px';
-
-        setScrollY(y);
-      } else {
+      if (isFixed) {
         lock([
           ScrollRef.current,
           BottomSheetContainerRef.current,
           BottomSheetPopupRef.current,
         ]);
+      } else {
+        isRemoveFixRef.current = true;
+        unlock([], { useGlobalLockState: true });
+      }
+    } else {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
       }
 
-      // isFixedPostion = document.body.style.position === POSITION_FIXED;
-      // isHiddenOverflow = document.body.style.overflow === OVERFLOW_HIDDEN;
+      if (isFixed) {
+        timerRef.current = setTimeout(() => {
+          const y = window.scrollY;
+          const props_ = new Map<string, string>();
+          props_.set(
+            BODY_PARAM + JOINT_PARAM + OVERFLOW_PARAM,
+            document.body.style.overflow,
+          );
+          props_.set(
+            HTML_PARAM + JOINT_PARAM + TOUCH_ACTION_PARAM,
+            document.documentElement.style.touchAction,
+          );
+          props_.set(
+            HTML_PARAM + JOINT_PARAM + OVERFLOWSCROLL_BEHAVIOR_PARAM,
+            document.documentElement.style.overscrollBehavior,
+          );
 
-      // document.documentElement.style.touchAction = 'none';
-      // if (!isHiddenOverflow) {
-      //   document.body.style.overflow = OVERFLOW_HIDDEN;
-      // }
+          setPrevBodyProps(props_);
 
-      // document.body.style.touchAction = 'none';
-      // document.documentElement.style.overscrollBehavior = 'none';
+          document.body.style.overflow = OVERFLOW_HIDDEN;
+          document.documentElement.style.touchAction = 'none';
+          document.documentElement.style.overscrollBehavior = 'none';
+        }, 100);
+      } else {
+        isRemoveFixRef.current = true;
 
-      // document.body.style.overscrollBehavior = 'none';
-      // setScrollY(window.scrollY);
-      // setOpacityForPreventFlicker(0);
+        timerRef.current = setTimeout(() => {
+          document.body.style.overflow =
+            prevBodyProps.get(BODY_PARAM + JOINT_PARAM + OVERFLOW_PARAM) ||
+            'auto';
+          document.documentElement.style.touchAction =
+            prevBodyProps.get(HTML_PARAM + JOINT_PARAM + TOUCH_ACTION_PARAM) ||
+            'auto';
+          document.documentElement.style.overscrollBehavior =
+            prevBodyProps.get(
+              HTML_PARAM + JOINT_PARAM + OVERFLOWSCROLL_BEHAVIOR_PARAM,
+            ) || 'auto';
+        }, 100);
+      }
+    }
+  };
 
-      // document.body.style.top = `-${window.scrollY}px`;
-      // document.body.style.left = '0px';
-      // document.body.style.right = '0px';
-
-      // if (!isFixedPostion) {
-      //   document.body.style.position = 'fixed';
-      // }
-
-      // setOpacityForPreventFlicker(null);
+  useEffect(() => {
+    if (isOpen) {
+      requestAnimationFrame(() => {
+        open({
+          canceled: false,
+          onRestFunc: () => {
+            isFixedByDevice(true);
+          },
+        });
+      });
     }
   }, [isOpen]);
 
@@ -314,7 +337,7 @@ const ProfilePostDetailPopupLayout: React.FC<ProfilePostDetailPopupProps> = ({
 
   useEffect(() => {
     return () => {
-      funcRemoveParentFix();
+      isFixedByDevice(false);
     };
   }, []);
 
@@ -339,18 +362,6 @@ const ProfilePostDetailPopupLayout: React.FC<ProfilePostDetailPopupProps> = ({
           },
         }}
       >
-        {/* <PopupScrollContainer
-          as={animated.div}
-          $bottomSheetHeightNum={touchHeaderHeightNum}
-          {...scrollBarbind()}
-        >
-          <PopupScrollBar>
-            <PopupScrollBarArea>
-              <PopupScrollStickBar />
-            </PopupScrollBarArea>
-          </PopupScrollBar>
-        </PopupScrollContainer> */}
-
         <BottomSheetWrap
           ref={ScrollRef}
           $heightNum={height}
@@ -365,31 +376,25 @@ const ProfilePostDetailPopupLayout: React.FC<ProfilePostDetailPopupProps> = ({
             const currentY = e.touches[0].clientY; // 현재 위치
             const currentTime = Date.now();
 
-            if (prevY !== null && prevTime !== null) {
-              const deltaY = currentY - prevY; // 위치 변화량
-              const deltaTime = currentTime - prevTime; // 시간 변화량 (초 단위)
+            if (prevYRef.current !== null && prevTimeRef.current !== null) {
+              const deltaY = currentY - prevYRef.current;
+              const deltaTime = currentTime - prevTimeRef.current;
 
               const velocity = deltaY / deltaTime; // 현재 속도 (m/s)
 
-              if (prevVelocity !== null) {
+              if (prevVelocityRef.current !== null) {
                 const acceleration = Math.abs(
-                  (velocity - prevVelocity) / deltaTime,
-                ); // 가속도 (m/s²)
+                  (velocity - prevVelocityRef.current) / deltaTime,
+                );
                 if (Math.abs(acceleration) > ACCELERATION_THRESHOLD) {
-                  setAccelerationHistory((prev) => {
-                    const updatedHistory = [
-                      ...prev,
-                      Math.abs(acceleration),
-                    ].slice(-5);
-                    const averageAcceleration =
-                      updatedHistory.reduce((a, b) => a + b, 0) /
-                      updatedHistory.length;
-
-                    return updatedHistory;
-                  });
+                  const updated = [
+                    ...accelerationHistoryRef.current,
+                    Math.abs(acceleration),
+                  ].slice(-5);
+                  accelerationHistoryRef.current = updated;
                 }
               }
-              setPrevVelocity(velocity); // 속도 갱신
+              prevVelocityRef.current = velocity;
             }
 
             const scrollMove = currentY - startY;
@@ -416,9 +421,9 @@ const ProfilePostDetailPopupLayout: React.FC<ProfilePostDetailPopupProps> = ({
               }
             }
 
-            setPrevY(currentY); // 위치 갱신
-            setPrevTime(currentTime); // 시간 갱신
-            setMove(scrollMove);
+            prevYRef.current = currentY;
+            prevTimeRef.current = currentTime;
+            moveRef.current = scrollMove;
           }}
           onTouchEnd={() => {
             if (
@@ -428,23 +433,26 @@ const ProfilePostDetailPopupLayout: React.FC<ProfilePostDetailPopupProps> = ({
               ScrollRef.current.style.overflowY = 'scroll';
             }
 
-            if (!move) return;
+            if (moveRef.current == null) return;
+
+            const maxAcceleration = Math.max(...accelerationHistoryRef.current);
 
             binds(
               isScrollTop,
-              move,
+              moveRef.current,
               bindInfo.dy,
-              Math.max(...accelerationHistory),
+              maxAcceleration,
               true,
               bindInfo.cancel,
               bindInfo.canceled,
             );
 
-            setPrevY(null);
-            setPrevTime(null);
-            setPrevVelocity(null);
-            setMove(null);
-            setAccelerationHistory([]);
+            // 리셋
+            moveRef.current = null;
+            prevYRef.current = null;
+            prevTimeRef.current = null;
+            prevVelocityRef.current = null;
+            accelerationHistoryRef.current = [];
           }}
         >
           {children}
@@ -461,7 +469,7 @@ const BottomSheetLayoutConatiner = styled.div`
 `;
 
 const OverlayBackground = styled.div`
-  height: 100vh;
+  height: 100dvh;
   position: fixed;
   overflow: hidden;
   z-index: 990;
@@ -478,7 +486,8 @@ const BottomSheetContainer = styled.div`
   height: calc(100vh);
   width: 100%;
 
-  will-change: auto;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
   user-select: none;
   overscroll-behavior: none;
 
@@ -496,38 +505,38 @@ const BottomSheetWrap = styled.div<{ $heightNum: number }>`
   touch-action: auto;
 `;
 
-const PopupScrollContainer = styled.div<{ $bottomSheetHeightNum: number }>`
-  position: absolute;
-
-  height: ${(props) => props.$bottomSheetHeightNum}px;
-  width: calc(100% - 100px);
-  left: 50%;
-  transform: translate(-50%, 0);
-  z-index: 1000;
-  display: flex;
-`;
-
-const PopupScrollBar = styled.div`
-  border-radius: 3px;
-  display: flex;
-  margin: 0 auto 0 auto;
-`;
-
-const PopupScrollBarArea = styled.div`
-  padding: 7px 18px 70px 18px;
-  height: 4px;
-  width: 50px;
-  border-radius: 3px;
-`;
-
-const PopupScrollStickBar = styled.div`
-  background-color: ${({ theme }) => theme.grey.Grey2};
-  height: 100%;
-  border-radius: 5px;
-`;
-
-const BottomSheetHeader = styled.div``;
-
-const BottomSheetBottomWrap = styled.div``;
-
 export default ProfilePostDetailPopupLayout;
+
+// const PopupScrollContainer = styled.div<{ $bottomSheetHeightNum: number }>`
+//   position: absolute;
+
+//   height: ${(props) => props.$bottomSheetHeightNum}px;
+//   width: calc(100% - 100px);
+//   left: 50%;
+//   transform: translate(-50%, 0);
+//   z-index: 1000;
+//   display: flex;
+// `;
+
+// const PopupScrollBar = styled.div`
+//   border-radius: 3px;
+//   display: flex;
+//   margin: 0 auto 0 auto;
+// `;
+
+// const PopupScrollBarArea = styled.div`
+//   padding: 7px 18px 70px 18px;
+//   height: 4px;
+//   width: 50px;
+//   border-radius: 3px;
+// `;
+
+// const PopupScrollStickBar = styled.div`
+//   background-color: ${({ theme }) => theme.grey.Grey2};
+//   height: 100%;
+//   border-radius: 5px;
+// `;
+
+// const BottomSheetHeader = styled.div``;
+
+// const BottomSheetBottomWrap = styled.div``;

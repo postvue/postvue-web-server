@@ -94,6 +94,8 @@ const ProfilePostPage: React.FC = () => {
     navigate(-1);
   };
 
+  const appContainerRefObject = useRef<HTMLDivElement>(null);
+
   return (
     <>
       <PageHelmentInfoElement
@@ -120,6 +122,7 @@ const ProfilePostPage: React.FC = () => {
         }}
         isScrollSave={false}
         fixedScrollPos={0}
+        appContainerRefObject={appContainerRefObject}
         slideBarNode={
           <>
             {postId && (
@@ -167,6 +170,7 @@ const ProfilePostPage: React.FC = () => {
             windowWidthSize={windowWidth}
             funcPrevCloseButton={funcPrevCloseButton}
             isErrorProfilePost={isErrorByProfilePost}
+            scrollElement={appContainerRefObject.current || undefined}
             ProfilePostWrapStyle={
               windowWidth > MEDIA_MOBILE_MAX_WIDTH_NUM
                 ? { paddingTop: '10px' }

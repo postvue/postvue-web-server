@@ -1,6 +1,6 @@
 import BottomNavBar from 'components/BottomNavBar';
 import AppBaseTemplate from 'components/layouts/AppBaseTemplate';
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
 import AppleMapElement from 'components/mapexplore/body/AppleMapElement';
@@ -23,7 +23,12 @@ import {
 import {
   MAP_CONTENT_LOCATION_TYPE,
   MAP_CONTENT_POST_TYPE,
+  MAP_EXPLORE_IS_SHARE_PARAM,
+  MAP_EXPLORE_LATITUDE_PARAM,
+  MAP_EXPLORE_LONGITUDE_PARAM,
+  MAP_EXPLORE_SEARCH_WORD_PARAM,
 } from 'const/MapExploreConst';
+import { TRUE_PARAM } from 'const/QueryParamConst';
 import {
   BRIDGE_CALENDAR_EVENT_TYPE,
   BridgeMsgInterface,
@@ -35,6 +40,7 @@ import {
   MEDIA_MOBILE_MAX_WIDTH_NUM,
 } from 'const/SystemAttrConst';
 import { MAP_EXPLORE_SELECT_LOCATION_PHARSE_TEXT } from 'const/SystemPhraseConst';
+import { MAP_EXPLORE_ALL_TAB_PARAM } from 'const/TabConfigConst';
 import { EXPLORE_TAB_NAME } from 'const/TabConst';
 import {
   convertDate,
@@ -54,14 +60,16 @@ import {
   isActiveMyMapAtom,
   isMapDatePickerPopupAtom,
   isMapDateRangePickerPopupAtom,
+  isMapSearchInputActiveAtom,
   mapContentTypeAtom,
   mapDatePickerPopupInfoAtom,
   mapExploreFilterTabAtom,
   mapLoactionAtom,
   mapMoveLocationAtom,
   mapSearchPostWordAtom,
+  mapSearchTempWordAtom,
 } from 'states/MapExploreAtom';
-import { isLoadingPopupAtom } from 'states/SystemConfigAtom';
+import { initPageInfoAtom, isLoadingPopupAtom } from 'states/SystemConfigAtom';
 import theme from 'styles/theme';
 
 const MapExplorePage: React.FC = () => {
@@ -127,11 +135,6 @@ const MapExplorePage: React.FC = () => {
       isMoved: true,
     }));
 
-    // saveInitGeoPosition({
-    //   latitude: roundedLatitude,
-    //   longitude: roundedLongitude,
-    //   isMoveCenter: false,
-    // });
     debouncedGetSearchQuery(JSON.stringify(roundedData));
   };
 
@@ -152,6 +155,7 @@ const MapExplorePage: React.FC = () => {
   };
 
   const { windowWidth } = useWindowSize();
+  const searchParams = new URLSearchParams(location.search);
 
   useEffect(() => {
     if (windowWidth < MEDIA_MOBILE_MAX_WIDTH_NUM) {
@@ -160,44 +164,81 @@ const MapExplorePage: React.FC = () => {
       document.body.style.width = '100%';
     }
 
-    getUnifiedPosition(
-      {
-        actionFunc: (position) => {
-          setMapLocation({
-            latitude: position.latitude,
-            longitude: position.longitude,
-            isMoveCenter: true,
-          });
-          getPosInfoByGis(position.latitude, position.longitude).then((v) => {
-            setMapMoveLoation((prev) => ({
-              ...prev,
-              regionInfo: {
-                city: v.city,
-                continent: v.continent,
-                continentCode: v.continentCode,
-                countryCode: v.countryCode,
-                countryName: v.countryName,
-                locality: v.locality,
-              },
-            }));
+    const searchWord = searchParams.get(MAP_EXPLORE_SEARCH_WORD_PARAM);
+    if (
+      searchParams.get(MAP_EXPLORE_IS_SHARE_PARAM) === TRUE_PARAM &&
+      searchWord
+    ) {
+      const latString = searchParams.get(MAP_EXPLORE_LATITUDE_PARAM);
+      const lonString = searchParams.get(MAP_EXPLORE_LONGITUDE_PARAM);
 
-            setMapLocation((prev) => ({
-              ...prev,
-              regionInfo: {
-                city: v.city,
-                continent: v.continent,
-                continentCode: v.continentCode,
-                countryCode: v.countryCode,
-                countryName: v.countryName,
-                locality: v.locality,
-              },
-            }));
-          });
+      const lat = latString ? Number(latString) : null;
+      const lon = lonString ? Number(lonString) : null;
+
+      const isPos = lat !== null && lon !== null;
+
+      if (isPos) {
+        onClickMapPostButton(searchWord, {
+          latitude: lat,
+          longitude: lon,
+          isMoveCenter: true,
+        });
+      } else {
+        getUnifiedPosition(
+          {
+            actionFunc: (position) => {
+              onClickMapPostButton(searchWord, {
+                latitude: position.latitude,
+                longitude: position.longitude,
+                isMoveCenter: true,
+              });
+            },
+            isAlertError: false,
+          },
+          false,
+        );
+      }
+    } else {
+      getUnifiedPosition(
+        {
+          actionFunc: (position) => {
+            setMapLocation({
+              latitude: position.latitude,
+              longitude: position.longitude,
+              isMoveCenter: true,
+            });
+
+            getPosInfoByGis(position.latitude, position.longitude).then((v) => {
+              setMapMoveLoation((prev) => ({
+                ...prev,
+                regionInfo: {
+                  city: v.city,
+                  continent: v.continent,
+                  continentCode: v.continentCode,
+                  countryCode: v.countryCode,
+                  countryName: v.countryName,
+                  locality: v.locality,
+                },
+              }));
+
+              setMapLocation((prev) => ({
+                ...prev,
+                regionInfo: {
+                  city: v.city,
+                  continent: v.continent,
+                  continentCode: v.continentCode,
+                  countryCode: v.countryCode,
+                  countryName: v.countryName,
+                  locality: v.locality,
+                },
+              }));
+            });
+          },
+          isAlertError: false,
         },
-        isAlertError: false,
-      },
-      false,
-    );
+        false,
+      );
+    }
 
     return () => {
       if (windowWidth < MEDIA_MOBILE_MAX_WIDTH_NUM) {
@@ -238,7 +279,9 @@ const MapExplorePage: React.FC = () => {
       : null,
   );
 
-  const mapSearchPostWord = useRecoilValue(mapSearchPostWordAtom);
+  const [mapSearchPostWord, setMapSearchPostWord] = useRecoilState(
+    mapSearchPostWordAtom,
+  );
 
   const { data: postMapPost } = QueryStatePostMapPostInfinite(
     mapSearchPostWord,
@@ -255,7 +298,7 @@ const MapExplorePage: React.FC = () => {
       : null,
   );
 
-  const [isActiveMyMap, setIsActiveMyMap] = useRecoilState(isActiveMyMapAtom);
+  const isActiveMyMap = useRecoilValue(isActiveMyMapAtom);
 
   const { data: mapMyPostList } = QueryStateMapMyPostList(isActiveMyMap);
 
@@ -276,6 +319,32 @@ const MapExplorePage: React.FC = () => {
     mapDatePickerPopupInfoAtom,
   );
 
+  const setMapContentType = useSetRecoilState(mapContentTypeAtom);
+  const setMapLoaction = useSetRecoilState(mapLoactionAtom);
+
+  const setMapSearchTempWord = useSetRecoilState(mapSearchTempWordAtom);
+  const setMapExploreFilterTab = useSetRecoilState(mapExploreFilterTabAtom);
+  const setIsMapSearchInputActive = useSetRecoilState(
+    isMapSearchInputActiveAtom,
+  );
+
+  const onClickMapPostButton = (
+    postSearchQuery: string,
+    posData: { latitude: number; longitude: number; isMoveCenter: boolean },
+  ) => {
+    setIsMapSearchInputActive(false);
+    setMapExploreFilterTab(MAP_EXPLORE_ALL_TAB_PARAM);
+    setMapSearchPostWord(postSearchQuery);
+    setCurrentSearchQuery(postSearchQuery);
+    setMapContentType(MAP_CONTENT_POST_TYPE);
+    setMapLoaction({
+      latitude: posData.latitude,
+      longitude: posData.longitude,
+      isMoveCenter: posData.isMoveCenter,
+    });
+    setMapSearchTempWord('');
+  };
+
   const handleCalendarMessage = (event: MessageEvent) => {
     try {
       const nativeEvent: BridgeMsgInterface = JSON.parse(event.data);
@@ -294,12 +363,22 @@ const MapExplorePage: React.FC = () => {
         });
       }
     } catch (error) {
-      console.error('Failed to parse message:', event.data);
+      console.log('Failed to parse message:', event.data);
     }
   };
 
   useMessageListener(handleCalendarMessage);
 
+  const [initPageInfo, setInitPageInfo] = useRecoilState(initPageInfoAtom);
+  useEffect(() => {
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        setInitPageInfo((prev) => ({ ...prev, isMapPage: true }));
+      }, 100);
+    });
+  }, []);
+
+  const ScrollRef = useRef<HTMLDivElement>(null);
   return (
     <>
       <PageHelmentInfoElement
@@ -308,135 +387,130 @@ const MapExplorePage: React.FC = () => {
         ogUrl={window.location.href}
         ogDescription={`${APP_SERVICE_NAME} 서비스: ${EXPLORE_TAB_NAME}`}
       />
-      <AppBaseTemplate
-        hasSearchBodyModule={false}
-        hasSearchInputModule={false}
-        isAppContainerTopMargin={false}
-        isAppInsetTopMargin={false}
-        isScrollByAppContainer={false}
-        SideContainerStyle={{
-          zIndex: 1000,
+      <div
+        style={{
+          opacity: initPageInfo.isMapPage ? 1 : 0,
+          transition: `opacity 0.3s ease-in`,
         }}
-        slideBarNode={
-          <>
-            <MapExploreBody
-              MapSnsPostLayoutStyle={{ paddingTop: '15px' }}
-              latitude={mapLocation.latitude}
-              longitude={mapLocation.longitude}
-              mapExploreBodyStyle={{
-                overflow: OVERFLOW_SCROLL,
-                height: `100%`,
-                borderRadius: '20px',
-              }}
-              masonryLayoutNum={2}
-              linkPopupInfo={{
-                isLinkPopup: true,
-                isReplaced: false,
-              }}
-            />
-          </>
-        }
-        AppBaseStlye={{ position: 'relative' }}
-        AppHeaderNode={
-          isMapDateRangePickerPopup && (
-            <MapDateRangePickerPopup
-              onClose={() => {
-                setIsMapDateRangePickerPopup(false);
-              }}
-              DateRangePickerContainerStyle={{
-                marginTop: `${theme.systemSize.header.heightNumber + 20}px`,
-              }}
-            />
-          )
-        }
       >
-        <MapExplorePageContainer>
-          <MapExploreHeader
-            MapFullMargin={MapFullMargin}
-            address={
-              currentSearchQuery || MAP_EXPLORE_SELECT_LOCATION_PHARSE_TEXT
-            }
-            SearchButtonInputLayoutActiveStyle={
-              windowWidth <= MEDIA_MOBILE_MAX_WIDTH_NUM
-                ? {
-                    backgroundColor: theme.grey.Grey2,
-                  }
-                : {
-                    backgroundColor: 'white',
-                    boxShadow: '0px 2px 4px 0px rgba(0, 0, 0, 0.25)',
-                  }
-            }
-            SearchButtonInputLayoutNotActiveStyle={{
-              backgroundColor: theme.mainColor.White,
-              boxShadow: '0px 2px 4px 0px rgba(0, 0, 0, 0.25)',
-            }}
-          />
-
-          <MapExploreWrap>
-            <AppleMapElement
-              mapPost={
-                isActiveMyMap
-                  ? mapMyPostList
-                  : mapContentType === MAP_CONTENT_LOCATION_TYPE
-                    ? postMapLocation
-                    : postMapPost
-              }
-              // isRefresh={
-              //   isActiveMyMap
-              //     ? mapMyPostList
-              //       ? mapMyPostList.pages.length <= 1
-              //       : false
-              //     : mapContentType === MAP_CONTENT_LOCATION_TYPE
-              //       ? postMapLocation
-              //         ? postMapLocation.pages.length <= 1
-              //         : false
-              //       : postMapPost
-              //         ? postMapPost.pages.length <= 1
-              //         : false
-              // }
-              // onSetMapMoveLocation={onSetMapMoveLocation}
-              // scrollEndEventFunc={scrollEndEventFunc}
-            />
-            {windowWidth > MEDIA_MOBILE_MAX_WIDTH_NUM && (
-              <GeoCurrentPositionButtonWrap>
-                <GeoCurrentPositionButton
-                  buttonSize={GeoCurrentButtonSize}
-                  GeoCurrentButtonStyle={{ position: 'static' }}
-                />
-              </GeoCurrentPositionButtonWrap>
-            )}
-            {windowWidth > MEDIA_MOBILE_MAX_WIDTH_NUM && (
-              <GeoPositionRefreshButton
-                actionFuncToRefresh={() => {
-                  setCurrentSearchQuery('');
-                }}
-                GeoPositionRefreshButtonStyle={{
-                  position: 'absolute',
-                  left: '50%',
-                  transform: 'translate(-50%, 0)',
-                  bottom: `${GeoCurrentButtonSize / 2}px`,
-                }}
-              />
-            )}
-          </MapExploreWrap>
-          {windowWidth <= MEDIA_MOBILE_MAX_WIDTH_NUM && (
-            <MapExplorePostPopup>
+        <AppBaseTemplate
+          hasSearchBodyModule={false}
+          hasSearchInputModule={false}
+          isAppContainerTopMargin={false}
+          isAppInsetTopMargin={false}
+          isScrollByAppContainer={false}
+          SideContainerStyle={{
+            zIndex: 1000,
+          }}
+          slideBarNode={
+            <>
               <MapExploreBody
+                MapSnsPostLayoutStyle={{ paddingTop: '15px' }}
                 latitude={mapLocation.latitude}
                 longitude={mapLocation.longitude}
+                mapExploreBodyStyle={{
+                  overflow: OVERFLOW_SCROLL,
+                  height: `100%`,
+                  borderRadius: '20px',
+                }}
+                scrollRef={ScrollRef}
+                masonryLayoutNum={2}
+                linkPopupInfo={{
+                  isLinkPopup: true,
+                  isReplaced: false,
+                }}
+                scrollElement={ScrollRef.current || undefined}
               />
-            </MapExplorePostPopup>
+            </>
+          }
+          AppBaseStlye={{ position: 'relative' }}
+          AppHeaderNode={
+            isMapDateRangePickerPopup && (
+              <MapDateRangePickerPopup
+                onClose={() => {
+                  setIsMapDateRangePickerPopup(false);
+                }}
+                DateRangePickerContainerStyle={{
+                  marginTop: `${theme.systemSize.header.heightNumber + 20}px`,
+                }}
+              />
+            )
+          }
+        >
+          <MapExplorePageContainer>
+            <MapExploreHeader
+              MapFullMargin={MapFullMargin}
+              address={
+                currentSearchQuery || MAP_EXPLORE_SELECT_LOCATION_PHARSE_TEXT
+              }
+              SearchButtonInputLayoutActiveStyle={
+                windowWidth <= MEDIA_MOBILE_MAX_WIDTH_NUM
+                  ? {
+                      backgroundColor: theme.grey.Grey2,
+                    }
+                  : {
+                      backgroundColor: 'white',
+                      boxShadow: '0px 2px 4px 0px rgba(0, 0, 0, 0.25)',
+                    }
+              }
+              SearchButtonInputLayoutNotActiveStyle={{
+                backgroundColor: theme.mainColor.White,
+                boxShadow: '0px 2px 4px 0px rgba(0, 0, 0, 0.25)',
+              }}
+              onClickMapPostButton={onClickMapPostButton}
+            />
+
+            <MapExploreWrap>
+              <AppleMapElement
+                mapPost={
+                  isActiveMyMap
+                    ? mapMyPostList
+                    : mapContentType === MAP_CONTENT_LOCATION_TYPE
+                      ? postMapLocation
+                      : postMapPost
+                }
+              />
+              {windowWidth > MEDIA_MOBILE_MAX_WIDTH_NUM && (
+                <GeoCurrentPositionButtonWrap>
+                  <GeoCurrentPositionButton
+                    buttonSize={GeoCurrentButtonSize}
+                    GeoCurrentButtonStyle={{ position: 'static' }}
+                  />
+                </GeoCurrentPositionButtonWrap>
+              )}
+              {windowWidth > MEDIA_MOBILE_MAX_WIDTH_NUM && (
+                <GeoPositionRefreshButton
+                  actionFuncToRefresh={() => {
+                    setCurrentSearchQuery('');
+                  }}
+                  GeoPositionRefreshButtonStyle={{
+                    position: 'absolute',
+                    left: '50%',
+                    transform: 'translate(-50%, 0)',
+                    bottom: `${GeoCurrentButtonSize / 2}px`,
+                  }}
+                />
+              )}
+            </MapExploreWrap>
+            {windowWidth <= MEDIA_MOBILE_MAX_WIDTH_NUM && (
+              <MapExplorePostPopup ScrollRefObject={ScrollRef}>
+                <MapExploreBody
+                  latitude={mapLocation.latitude}
+                  longitude={mapLocation.longitude}
+                  scrollElement={ScrollRef.current || undefined}
+                />
+              </MapExplorePostPopup>
+            )}
+          </MapExplorePageContainer>
+
+          {isMapDatePickerPopup && <MapDatePickerPopup />}
+
+          {isLoadingPopup && (
+            <LoadingPopup LoadingPopupStyle={{ background: 'transparent' }} />
           )}
-        </MapExplorePageContainer>
-
-        <BottomNavBar />
-
-        {isMapDatePickerPopup && <MapDatePickerPopup />}
-
-        {isLoadingPopup && (
-          <LoadingPopup LoadingPopupStyle={{ background: 'transparent' }} />
-        )}
-      </AppBaseTemplate>
+        </AppBaseTemplate>
+      </div>
+      <BottomNavBar />
     </>
   );
 };

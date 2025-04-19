@@ -60,6 +60,16 @@ export const slideLeftToRight = keyframes`
   }
 `;
 
+export const slideZeroToLeft = keyframes`
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-20%);
+     opacity: 0;
+  }
+`;
+
 export const animationStyle = {
   slideUp,
   slideDown,
@@ -67,4 +77,5 @@ export const animationStyle = {
   slideLeft,
   slideLeftToRight,
   slideRightToLeft,
+  slideZeroToLeft,
 };

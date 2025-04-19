@@ -1,5 +1,5 @@
 import FloatingActionButtonLayout from 'components/layouts/FloatingActionButtonLayout';
-import SnsPostMasonryLayout from 'components/layouts/SnsPostMasonryLayout';
+import SnsPostVirtualMasonryLayout from 'components/layouts/virtual/masonry/SnsPostVirtualMasonryLayout';
 import { PROFILE_EDIT_SCRAP_ROUTE_PATH, SEARCH_PATH } from 'const/PathConst';
 import { SEARCH_PAGE_NAME } from 'const/ReactNativeConst';
 import { convertDifferenceDateTimeByString } from 'global/util/DateTimeUtil';
@@ -71,7 +71,18 @@ const ProfileScrapBody: React.FC<ProfileScrapBodyProps> = ({
               )}
             </ProfileScrapTitleEditWrap>
 
-            {!isErrorByScrapInfo && profileScrap?.pages && (
+            {!isErrorByScrapInfo && profileScrap?.pages && scrapId && (
+              <SnsPostVirtualMasonryLayout
+                snsPostList={profileScrap.pages.flatMap(
+                  (value) => value.snsPostRspList,
+                )}
+                actionFunc={actionFunc}
+                scrapId={scrapId}
+                inViewElement={<ProfileScrapInfiniteScroll scrapId={scrapId} />}
+              />
+            )}
+
+            {/* {!isErrorByScrapInfo && profileScrap?.pages && (
               <SnsPostMasonryLayout
                 snsPostList={profileScrap.pages.flatMap(
                   (value) => value.snsPostRspList,
@@ -80,6 +91,14 @@ const ProfileScrapBody: React.FC<ProfileScrapBodyProps> = ({
                 scrapId={scrapId}
               />
             )}
+            {scrapInfo && scrapId && (
+              <>
+                {scrapInfo.scrapName !== '' && (
+                  <ProfileScrapInfiniteScroll scrapId={scrapId} />
+                )}
+              </>
+            )} */}
+
             {isErrorByScrapInfo && (
               <PrivateScrapTitle>비어있는 스크랩입니다.</PrivateScrapTitle>
             )}
@@ -99,13 +118,6 @@ const ProfileScrapBody: React.FC<ProfileScrapBodyProps> = ({
                 </>
               )}
 
-            {scrapInfo && scrapId && (
-              <>
-                {scrapInfo.scrapName !== '' && (
-                  <ProfileScrapInfiniteScroll scrapId={scrapId} />
-                )}
-              </>
-            )}
             {/* </ProfileScrapBodyWrap> */}
           </ProfileScrapBodyContainer>
           {scrapInfo.isMe && isEdit && (

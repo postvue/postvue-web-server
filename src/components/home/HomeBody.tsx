@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useRecoilState } from 'recoil';
 
 import { homeTabInfoAtom } from '../../states/HomePageAtom';
@@ -24,6 +24,7 @@ const HomeBody: React.FC = () => {
     }));
   }, [mainTabInfo.scrollInfo.isActive]);
 
+  const slideRefs = useRef<HTMLDivElement[]>([]);
   return (
     <>
       {isApp() ? (
@@ -35,6 +36,7 @@ const HomeBody: React.FC = () => {
               activeTabId: index,
             }));
           }}
+          externalRefs={slideRefs}
           scrollToInfo={
             mainTabInfo.scrollInfo.isActive
               ? {
@@ -44,8 +46,14 @@ const HomeBody: React.FC = () => {
               : undefined
           }
           childrenList={[
-            <HomeTasteBody key={TASTE_FOR_ME_TAB_ID} />,
-            <HomeFolowBody key={FOLLOW_FOR_ME_TAB_ID} />,
+            <HomeTasteBody
+              key={TASTE_FOR_ME_TAB_ID}
+              scrollElement={slideRefs.current[0]}
+            />,
+            <HomeFolowBody
+              key={FOLLOW_FOR_ME_TAB_ID}
+              scrollElement={slideRefs.current[1]}
+            />,
           ]}
         />
       ) : (
