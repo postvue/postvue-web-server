@@ -215,7 +215,7 @@ const ProfileScrapImgListAppSubWrap = styled.div`
   display: grid;
   border-radius: 20px;
   padding: 10px;
-  box-shadow: rgba(0, 0, 0, 0.1) 0px 8px 20px 1px;
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 2px 10px 0px;
 
   gap: 5px;
   grid-template-columns: repeat(2, 1fr); /* 열 2개 */
