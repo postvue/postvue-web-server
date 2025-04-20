@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import { PROFILE_LIST_PATH } from '../const/PathConst';
 import { POST_IMAGE_TYPE } from '../const/PostContentTypeConst';
 import { getHiddenPostIdList } from '../global/util/HiddenPostIdListUtil';
-import { postRspAtom } from '../states/PostAtom';
+import { activeMakeScrapPopupInfoAtom, postRspAtom } from '../states/PostAtom';
 import { postReactionTabIdAtom } from '../states/PostReactionAtom';
 import theme from '../styles/theme';
 
@@ -15,6 +15,9 @@ import 'swiper/css/pagination';
 
 import BottomNavBar from 'components/BottomNavBar';
 import PageHelmentInfoElement from 'components/PageHelmetInfoElement';
+import BlockUserPopup from 'components/popups/BlockUserPopup';
+import MakeScrapPopup from 'components/popups/makescrap/MakeScrapPopup';
+import ScrapViewPopup from 'components/popups/profilescrap/ScrapViewPopup';
 import ToastPopup from 'components/popups/ToastMsgPopup';
 import ProfilePostDetailBody from 'components/post/profilepost/ProfilePostDetailBody';
 import ProfilePostDetailPopupManager from 'components/post/profilepost/ProfilePostDetailPopupManager';
@@ -30,6 +33,10 @@ import {
 import { getRandomImage } from 'global/util/ShareUtil';
 import useWindowSize from 'hook/customhook/useWindowSize';
 import { QueryStateProfilePost } from 'hook/queryhook/QueryStateProfilePost';
+import {
+  activeProfileBlockPopupInfoAtom,
+  activeScrapViewPopupInfoAtom,
+} from 'states/ProfileAtom';
 import { initPageInfoAtom } from 'states/SystemConfigAtom';
 
 const PostReactionPopupHeader = React.lazy(
@@ -140,6 +147,12 @@ const ProfilePostPage: React.FC = () => {
       resetSnsPost();
     };
   }, []);
+
+  const activeScrapViewPopupInfo = useRecoilValue(activeScrapViewPopupInfoAtom);
+  const activeProfileBlockInfo = useRecoilValue(
+    activeProfileBlockPopupInfoAtom,
+  );
+  const activeMakeScrapPopupInfo = useRecoilValue(activeMakeScrapPopupInfoAtom);
 
   return (
     <>
@@ -280,6 +293,12 @@ const ProfilePostPage: React.FC = () => {
       {isApp() && (
         <>
           <ToastPopup />
+          {activeScrapViewPopupInfo.isActive &&
+            activeScrapViewPopupInfo.snsPost && (
+              <ScrapViewPopup snsPost={activeScrapViewPopupInfo.snsPost} />
+            )}
+          {activeProfileBlockInfo.isActive && <BlockUserPopup />}
+          {activeMakeScrapPopupInfo.isActive && <MakeScrapPopup />}
         </>
       )}
     </>
