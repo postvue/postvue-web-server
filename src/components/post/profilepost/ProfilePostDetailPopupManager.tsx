@@ -2,6 +2,7 @@ import ErrorMsgPopup from 'components/popups/ErrorMsgPopup';
 import LoadingPopup from 'components/popups/LoadingPopup';
 import MapExploreByProfilePostPopup from 'components/popups/mapexplore/MapExploreByProfilePostPopup';
 import PostCommentThreadPopup from 'components/popups/postcommentthreadpopup/PostCommentThreadPopup';
+import PostReactionCommentSettingPopup from 'components/popups/postreactionpopup/PostReactionCommentSettingPopup';
 import PostReactionPopup from 'components/popups/postreactionpopup/PostReactionPopup';
 import PostCommentComplaintPopup from 'components/popups/profilepost/PostCommentComplaintPopup';
 import PostComplaintPopup from 'components/popups/profilepost/PostComplaintPopup';
@@ -19,6 +20,7 @@ import {
   activePostComplaintPopupAtom,
   activePostMapGuideSelectPopupInfoAtom,
   activePostSelectMapContentPopupInfoAtom,
+  commentSettingPopupInfoAtom,
   isActivePostDeletePopupAtom,
   isSettingPopupAtom,
 } from 'states/PostAtom';
@@ -103,6 +105,8 @@ const ProfilePostDetailPopupManager: React.FC<
     activePostMapGuideSelectPopupInfoAtom,
   );
 
+  const commentSettingPopupInfo = useRecoilValue(commentSettingPopupInfoAtom);
+
   return (
     <>
       {/* 게시물 설정 팝업 */}
@@ -174,6 +178,8 @@ const ProfilePostDetailPopupManager: React.FC<
       {activePostMapGuideSelectPopupInfo.isActive && (
         <PostMapGuideSelectPopup />
       )}
+
+      {commentSettingPopupInfo.isActive && <PostReactionCommentSettingPopup />}
 
       {isError && (
         <ErrorMsgPopup

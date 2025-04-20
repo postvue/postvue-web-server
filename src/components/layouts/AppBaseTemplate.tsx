@@ -9,7 +9,6 @@ import PostComposeSelectPopup from 'components/popups/postcompose/PostComposeSel
 import PostComposeBySourceUrlPopup from 'components/popups/postcompose/postcomposesourceurlpopup/PostComposeBySourceUrlPopup';
 import PostComposeVideoPopup from 'components/popups/postcompose/PostComposeVideoPopup';
 import PostEditPopup from 'components/popups/postedit/PostEditPopup';
-import PostReactionCommentSettingPopup from 'components/popups/postreactionpopup/PostReactionCommentSettingPopup';
 import ProfileAccountComplaintPopup from 'components/popups/profileaccount/ProfileAccountComplaintPopup';
 import ProfileOtherAccountPopup from 'components/popups/profileaccount/ProfileOtherAccountPopup';
 import ProfileDetailPopup from 'components/popups/ProfileDetailPopup';
@@ -35,7 +34,6 @@ import {
   activeMakeScrapPopupInfoAtom,
   activePostComplaintCompletePopupAtom,
   activePostDotSettingInfoAtom,
-  commentSettingPopupInfoAtom,
   isPostDetailInfoPopupAtom,
   postDetailInfoPopupAtom,
 } from 'states/PostAtom';
@@ -168,7 +166,6 @@ const AppBaseTemplate: React.FC<AppBaseTemplate> = ({
   const isActiveProfileScarpTargetAudPopup = useRecoilValue(
     isActiveProfileScarpTargetAudPopupAtom,
   );
-  const commentSettingPopupInfo = useRecoilValue(commentSettingPopupInfoAtom);
 
   const activeProfileBlockInfo = useRecoilValue(
     activeProfileBlockPopupInfoAtom,
@@ -343,9 +340,6 @@ const AppBaseTemplate: React.FC<AppBaseTemplate> = ({
         {activeMakeScrapPopupInfo.isActive && <MakeScrapPopup />}
         {isActiveProfileScarpTargetAudPopup && (
           <ProfileScrapTargetAudiencePopup />
-        )}
-        {commentSettingPopupInfo.isActive && (
-          <PostReactionCommentSettingPopup />
         )}
 
         {activeProfileAccountPopupInfo.isActive && <ProfileOtherAccountPopup />}
