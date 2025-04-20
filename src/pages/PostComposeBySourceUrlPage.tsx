@@ -58,8 +58,7 @@ const PostComposeBySourceUrlPage: React.FC = () => {
           postComposeSearchInput={postComposeSearchInput}
           setPostComposeSearchInput={setPostComposeSearchInput}
           HeaderStyle={{
-            position: 'fixed',
-            top: `env(safe-area-inset-top)`,
+            paddingTop: `env(safe-area-inset-top)`,
             zIndex: 100,
           }}
         />
