@@ -18,14 +18,16 @@ import styled from 'styled-components';
 interface ProfileVerifyPasswordBodyProps {
   password: string;
   checkPassword: string;
+  ContainerStyle?: React.CSSProperties;
 }
 
 const ProfileVerifyPasswordBody: React.FC<ProfileVerifyPasswordBodyProps> = ({
   password,
   checkPassword,
+  ContainerStyle,
 }) => {
   return (
-    <PasswordValidContainer>
+    <PasswordValidContainer style={ContainerStyle}>
       <PasswordValidCheckWrap>
         {checkLengthByPassword(password) ? (
           <PasswordValidCheckIcon />
