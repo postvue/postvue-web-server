@@ -227,6 +227,7 @@ const BottomSheetContainer = styled.div`
   height: calc(100dvh + 100px);
   width: 100%;
   border-radius: 20px 20px 0 0;
+  margin: 0 auto;
   background: #fff;
   touch-action: none;
 `;

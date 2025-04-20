@@ -8,11 +8,15 @@ import { QueryStateMapMyPostList } from 'hook/queryhook/QueryStateMapMyPostList'
 interface MapExploreBodyProps {
   isActiveMyMap: boolean;
   MapSnsPostLayoutStyle?: React.CSSProperties;
-  masonryLayoutNum?: number;
+  masonryLayoutInfo?: {
+    masonryLayoutNum: number;
+    masonryWidth: number;
+  };
   linkPopupInfo?: {
     isLinkPopup: boolean;
     isReplaced: boolean;
   };
+
   funcPrevButton?: () => void;
   scrollElement?: Element;
 }
@@ -20,7 +24,7 @@ interface MapExploreBodyProps {
 const MapExploreMyPostBody: React.FC<MapExploreBodyProps> = ({
   isActiveMyMap,
   MapSnsPostLayoutStyle,
-  masonryLayoutNum,
+  masonryLayoutInfo,
   linkPopupInfo,
   funcPrevButton,
   scrollElement,
@@ -38,7 +42,8 @@ const MapExploreMyPostBody: React.FC<MapExploreBodyProps> = ({
             <SnsPostVirtualMasonryLayout
               // SnsPostMasonryLayoutStyle={MapSnsPostLayoutStyle}
               snsPostList={mapMyPostList.pages.flatMap((v) => v)}
-              // fixNum={masonryLayoutNum}
+              columnNum={masonryLayoutInfo?.masonryLayoutNum}
+              masonryWidth={masonryLayoutInfo?.masonryWidth}
               linkPopupInfo={linkPopupInfo}
               actionFunc={funcPrevButton}
               searchType={'distance'}

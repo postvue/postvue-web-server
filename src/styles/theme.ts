@@ -108,6 +108,7 @@ const systemSize = {
     popupMinusNumByMinDeviceNum: popupMinusNumByMinDevice,
     bothSidePadding: '20px',
     bottomButtonMargin: '40px',
+    sideBarNum: 400,
   },
   bottomNavBar: {
     heightNum: 55,

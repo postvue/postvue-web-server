@@ -1,6 +1,5 @@
 import BottomSheetLayout from 'components/layouts/BottomSheetLayout';
 import RoundSquareCenterPopupLayout from 'components/layouts/RoundSquareCenterPopupLayout';
-import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
 import useWindowSize from 'hook/customhook/useWindowSize';
 import React, { useState } from 'react';
 import { useRecoilState, useRecoilValue, useResetRecoilState } from 'recoil';
@@ -16,6 +15,7 @@ import {
   activePostDotSettingInfoAtom,
   isActiveDeleteClipByScrapPopupAtom,
 } from 'states/PostAtom';
+import theme from 'styles/theme';
 import ConfirmPopup from '../ConfirmPopup';
 import PostSettingPopupBody from './PostSettingPopupBody';
 
@@ -61,7 +61,7 @@ const PostSettingPopup: React.FC = () => {
 
   return (
     <>
-      {windowWidth <= MEDIA_MOBILE_MAX_WIDTH_NUM ? (
+      {windowWidth <= theme.systemSize.appDisplaySize.maxWidthNum ? (
         <BottomSheetLayout
           isOpen={activePostDotSettingInfo.isActive}
           onClose={() => resetActivePostDotSettingInfo()}

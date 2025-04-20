@@ -22,7 +22,10 @@ interface MapExploreBodyProps {
   distance?: number;
   MapSnsPostLayoutStyle?: React.CSSProperties;
   MapExploreInfiniteScrollStyle?: React.CSSProperties;
-  masonryLayoutNum?: number;
+  masonryLayoutInfo?: {
+    masonryLayoutNum: number;
+    masonryWidth: number;
+  };
   linkPopupInfo?: {
     isLinkPopup: boolean;
     isReplaced: boolean;
@@ -38,7 +41,7 @@ const MapExploreLocationContentBody: React.FC<MapExploreBodyProps> = ({
   distance,
   MapSnsPostLayoutStyle,
   MapExploreInfiniteScrollStyle,
-  masonryLayoutNum,
+  masonryLayoutInfo,
   linkPopupInfo,
   funcPrevButton,
   scrollElement,
@@ -93,6 +96,8 @@ const MapExploreLocationContentBody: React.FC<MapExploreBodyProps> = ({
                 snsPostList={postMapLocation?.pages.flatMap((v) =>
                   v.map((value) => value),
                 )}
+                columnNum={masonryLayoutInfo?.masonryLayoutNum}
+                masonryWidth={masonryLayoutInfo?.masonryWidth}
                 linkPopupInfo={linkPopupInfo}
                 actionFunc={funcPrevButton}
                 searchType={'distance'}

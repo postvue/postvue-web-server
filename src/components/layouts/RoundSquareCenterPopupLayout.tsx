@@ -13,6 +13,7 @@ interface RoundSquarePopupLayoutProps {
   onClose: () => void;
   hasTransparentOverLay?: boolean;
   hasFixedActive?: boolean;
+  ScrollRef?: React.RefObject<HTMLDivElement>;
 }
 
 const RoundSquareCenterPopupLayout: React.FC<RoundSquarePopupLayoutProps> = ({
@@ -25,6 +26,7 @@ const RoundSquareCenterPopupLayout: React.FC<RoundSquarePopupLayoutProps> = ({
   onClose,
   hasTransparentOverLay = false,
   hasFixedActive = true,
+  ScrollRef,
 }) => {
   useEffect(() => {
     if (!hasFixedActive) return;
@@ -59,7 +61,7 @@ const RoundSquareCenterPopupLayout: React.FC<RoundSquarePopupLayoutProps> = ({
             e.stopPropagation();
           }}
         >
-          <PopupContentWrap style={popupContentWrapStyle}>
+          <PopupContentWrap style={popupContentWrapStyle} ref={ScrollRef}>
             {React.isValidElement(children)
               ? React.cloneElement(children as ReactElement, {
                   setIsDragging, // 자식 컴포넌트에 드래그 상태 전달

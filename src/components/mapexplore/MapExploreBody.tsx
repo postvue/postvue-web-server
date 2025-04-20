@@ -23,7 +23,10 @@ interface MapExploreBodyProps {
   mapExploreBodyStyle?: React.CSSProperties;
   MapSnsPostLayoutStyle?: React.CSSProperties;
   MapExploreInfiniteScrollStyle?: React.CSSProperties;
-  masonryLayoutNum?: number;
+  masonryLayoutInfo?: {
+    masonryLayoutNum: number;
+    masonryWidth: number;
+  };
   linkPopupInfo?: {
     isLinkPopup: boolean;
     isReplaced: boolean;
@@ -40,7 +43,7 @@ const MapExploreBody: React.FC<MapExploreBodyProps> = ({
   mapExploreBodyStyle,
   MapSnsPostLayoutStyle,
   MapExploreInfiniteScrollStyle,
-  masonryLayoutNum,
+  masonryLayoutInfo,
   linkPopupInfo,
   funcPrevButton,
   scrollElement,
@@ -69,7 +72,7 @@ const MapExploreBody: React.FC<MapExploreBodyProps> = ({
                 distance={distance}
                 MapSnsPostLayoutStyle={MapSnsPostLayoutStyle}
                 MapExploreInfiniteScrollStyle={MapExploreInfiniteScrollStyle}
-                masonryLayoutNum={masonryLayoutNum}
+                masonryLayoutInfo={masonryLayoutInfo}
                 linkPopupInfo={linkPopupInfo}
                 funcPrevButton={funcPrevButton}
                 scrollElement={scrollElement}
@@ -81,7 +84,7 @@ const MapExploreBody: React.FC<MapExploreBodyProps> = ({
                 latitude={latitude}
                 longitude={longitude}
                 MapSnsPostLayoutStyle={MapSnsPostLayoutStyle}
-                masonryLayoutNum={masonryLayoutNum}
+                masonryLayoutInfo={masonryLayoutInfo}
                 linkPopupInfo={linkPopupInfo}
                 funcPrevButton={funcPrevButton}
                 scrollElement={scrollElement}
@@ -92,7 +95,7 @@ const MapExploreBody: React.FC<MapExploreBodyProps> = ({
             mapClusterPostListInfo={mapClusterPostListInfo}
             MapSnsPostLayoutStyle={MapSnsPostLayoutStyle}
             MapExploreInfiniteScrollStyle={MapExploreInfiniteScrollStyle}
-            masonryLayoutNum={masonryLayoutNum}
+            masonryLayoutInfo={masonryLayoutInfo}
             linkPopupInfo={linkPopupInfo}
             funcPrevButton={funcPrevButton}
             scrollElement={scrollElement}
@@ -103,7 +106,7 @@ const MapExploreBody: React.FC<MapExploreBodyProps> = ({
         <MapExploreMyPostBody
           isActiveMyMap={isActiveMyMap}
           MapSnsPostLayoutStyle={MapSnsPostLayoutStyle}
-          masonryLayoutNum={masonryLayoutNum}
+          masonryLayoutInfo={masonryLayoutInfo}
           linkPopupInfo={linkPopupInfo}
           funcPrevButton={funcPrevButton}
           scrollElement={scrollElement}

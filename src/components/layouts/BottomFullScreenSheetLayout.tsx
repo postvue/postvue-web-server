@@ -201,6 +201,7 @@ const BottomSheetContainer = styled.div`
   z-index: 1590;
   max-width: ${({ theme }) => theme.systemSize.appDisplaySize.maxWidth};
   position: fixed;
+  margin: 0 auto;
   top: 0;
   right: 0;
   left: 0;
