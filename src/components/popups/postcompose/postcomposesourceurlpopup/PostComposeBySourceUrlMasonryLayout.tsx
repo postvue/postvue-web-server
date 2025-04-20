@@ -1,12 +1,17 @@
 import LongPressToResizeButton from 'components/common/buttton/LongPressToResizeButton';
-import { POST_IMAGE_TYPE, POST_VIDEO_TYPE } from 'const/PostContentTypeConst';
+import { POST_IMAGE_TYPE } from 'const/PostContentTypeConst';
 import { isValidString } from 'global/util/ValidUtil';
 import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { MasonryPostRsp } from '../../../../global/interface/post';
+import {
+  MasonryPostRsp,
+  PostUploadContent,
+} from '../../../../global/interface/post';
 
+import { ReactComponent as ScrapSelectIcon } from 'assets/images/icon/svg/scrap/ScrapSelectIcon.svg';
 interface PostComposeBySourceUrlMasonryLayoutProps {
   snsPostUrlList: MasonryPostRsp[];
+  uploadResourceList: PostUploadContent[];
   actionFuncByRef: (value: HTMLImageElement | HTMLVideoElement) => void;
   longPressToResizeNum?: number;
   MasonryContainerStyle?: React.CSSProperties;
@@ -16,6 +21,7 @@ const PostComposeBySourceUrlMasonryLayout: React.FC<
   PostComposeBySourceUrlMasonryLayoutProps
 > = ({
   snsPostUrlList,
+  uploadResourceList,
   actionFuncByRef,
   longPressToResizeNum,
   MasonryContainerStyle,
@@ -72,19 +78,30 @@ const PostComposeBySourceUrlMasonryLayout: React.FC<
                     $hasAddress={isValidString(v.location.address)}
                   >
                     {v.postContentType === POST_IMAGE_TYPE && (
-                      <PostContentImg
-                        src={v.postContent}
-                        onLoad={PostComposeBySourceUrlMasonryLayout}
-                        ref={(el) => (imageRefs.current[index] = el)}
-                        onClick={() => {
-                          const imageRef = imageRefs.current[index];
-                          if (!imageRef) return;
+                      <>
+                        <PostContentImg
+                          src={v.postContent}
+                          onLoad={PostComposeBySourceUrlMasonryLayout}
+                          ref={(el) => (imageRefs.current[index] = el)}
+                          onClick={() => {
+                            const imageRef = imageRefs.current[index];
+                            if (!imageRef) return;
 
-                          actionFuncByRef(imageRef);
-                        }}
-                      />
+                            actionFuncByRef(imageRef);
+                          }}
+                        />
+                        {uploadResourceList.some(
+                          (v_) => v_.contentUrl === v.postContent,
+                        ) && (
+                          <ActiveSelecteScrapdWrap>
+                            <ActiveSelecteScrapIconWrap>
+                              <ScrapSelectIcon />
+                            </ActiveSelecteScrapIconWrap>
+                          </ActiveSelecteScrapdWrap>
+                        )}
+                      </>
                     )}
-                    {v.postContentType === POST_VIDEO_TYPE && (
+                    {/* {v.postContentType === POST_VIDEO_TYPE && (
                       <PostContentVideo
                         autoPlay
                         muted
@@ -101,7 +118,7 @@ const PostComposeBySourceUrlMasonryLayout: React.FC<
                           }
                         }}
                       />
-                    )}
+                    )} */}
                   </PostImgAddressWrap>
                 </LongPressToResizeButton>
               </PostWrap>
@@ -158,38 +175,51 @@ const PostContentImg = styled.img`
   background-color: hsl(0, 0%, 97%);
 `;
 
-const PostContentVideo = styled.video`
-  width: 100%;
-  height: auto;
-  object-fit: contain;
-  border-radius: 22px;
-  vertical-align: bottom;
-`;
+// const PostContentVideo = styled.video`
+//   width: 100%;
+//   height: auto;
+//   object-fit: contain;
+//   border-radius: 22px;
+//   vertical-align: bottom;
+// `;
 
-const PostAddressWrap = styled.div`
+// const PostAddressWrap = styled.div`
+//   position: absolute;
+//   bottom: 0px;
+//   width: 100%;
+//   z-index: 10;
+// `;
+
+// const PostAddressSubWrap = styled.div`
+//   display: flex;
+//   gap: 2px;
+//   padding: 0 0 9px 8px;
+// `;
+
+// const PostAddress = styled.div`
+//   font: ${({ theme }) => theme.fontSizes.BoxText};
+//   color: ${({ theme }) => theme.mainColor.White};
+
+//   white-space: nowrap;
+//   overflow: hidden;
+//   text-overflow: ellipsis;
+// `;
+
+// const LocationSmallIconWrap = styled.div`
+//   display: flex;
+//   margin: auto 0px;
+// `;
+
+const ActiveSelecteScrapdWrap = styled.div`
+  display: flex;
+  animation: 0.4s cubic-bezier(0.4, 0, 0, 1.5) 0s 1 normal scale-and-fadein;
   position: absolute;
   bottom: 0px;
-  width: 100%;
-  z-index: 10;
+  right: 0px;
+  padding: 10px;
 `;
 
-const PostAddressSubWrap = styled.div`
-  display: flex;
-  gap: 2px;
-  padding: 0 0 9px 8px;
-`;
-
-const PostAddress = styled.div`
-  font: ${({ theme }) => theme.fontSizes.BoxText};
-  color: ${({ theme }) => theme.mainColor.White};
-
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-`;
-
-const LocationSmallIconWrap = styled.div`
-  display: flex;
+const ActiveSelecteScrapIconWrap = styled.div`
   margin: auto 0px;
 `;
 

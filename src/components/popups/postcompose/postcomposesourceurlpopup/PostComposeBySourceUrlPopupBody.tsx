@@ -6,6 +6,7 @@ import { POST_COMPOSEUPLOAD_MAX_NUM } from 'const/PostComposeConst';
 import { POST_IMAGE_TYPE } from 'const/PostContentTypeConst';
 import { MEDIA_MOBILE_MAX_WIDTH } from 'const/SystemAttrConst';
 import { MasonryPostRsp } from 'global/interface/post';
+import { sendVibrationLightEvent } from 'global/util/reactnative/nativeRouter';
 import { QueryStatePostResourceDocImageList } from 'hook/queryhook/QueryStatePostResourceDocImageList';
 import React, { useEffect, useRef, useState } from 'react';
 import { useRecoilState } from 'recoil';
@@ -49,7 +50,7 @@ const PostComposeBySourceUrlPopupBody: React.FC<
     const borderStyle = `${theme.mainColor.White} 0px 0px 0px 0px, ${theme.mainColor.Blue} 0px 0px 0px 3px`;
     if (isActive) {
       ref.classList.remove(ACTIVE_CLASS_NAME);
-      ref.style.boxShadow = '';
+      // ref.style.boxShadow = '';
 
       setUploadResourceList((prev) =>
         prev.filter((value) => value.contentUrl !== ref.src),
@@ -57,7 +58,9 @@ const PostComposeBySourceUrlPopupBody: React.FC<
     } else {
       if (uploadResourceList.length >= POST_COMPOSEUPLOAD_MAX_NUM) return;
       ref.classList.add(ACTIVE_CLASS_NAME);
-      ref.style.boxShadow = borderStyle;
+      // ref.style.boxShadow = borderStyle;
+
+      sendVibrationLightEvent();
 
       setUploadResourceList((prev) => [
         ...prev,
@@ -118,6 +121,7 @@ const PostComposeBySourceUrlPopupBody: React.FC<
                 <PostComposeBySourceUrlMasonryLayout
                   MasonryContainerStyle={{ marginTop: '10px' }}
                   longPressToResizeNum={0.98}
+                  uploadResourceList={uploadResourceList}
                   snsPostUrlList={postComposeBySourceUrlList.map((v) => {
                     const homePostRsp: MasonryPostRsp = {
                       postId: '',
