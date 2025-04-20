@@ -73,17 +73,22 @@ const ProfileScrapBody: React.FC<ProfileScrapBodyProps> = ({
               )}
             </ProfileScrapTitleEditWrap>
 
-            {!isErrorByScrapInfo && profileScrap?.pages && scrapId && (
-              <SnsPostVirtualMasonryLayout
-                snsPostList={profileScrap.pages.flatMap(
-                  (value) => value.snsPostRspList,
-                )}
-                actionFunc={actionFunc}
-                scrapId={scrapId}
-                inViewElement={<ProfileScrapInfiniteScroll scrapId={scrapId} />}
-                navTimer={NAV_TIMER}
-              />
-            )}
+            {!isErrorByScrapInfo &&
+              profileScrap &&
+              profileScrap?.pages.flatMap((v) => v.snsPostRspList).length > 0 &&
+              scrapId && (
+                <SnsPostVirtualMasonryLayout
+                  snsPostList={profileScrap.pages.flatMap(
+                    (value) => value.snsPostRspList,
+                  )}
+                  actionFunc={actionFunc}
+                  scrapId={scrapId}
+                  inViewElement={
+                    <ProfileScrapInfiniteScroll scrapId={scrapId} />
+                  }
+                  navTimer={NAV_TIMER}
+                />
+              )}
 
             {/* {!isErrorByScrapInfo && profileScrap?.pages && (
               <SnsPostMasonryLayout

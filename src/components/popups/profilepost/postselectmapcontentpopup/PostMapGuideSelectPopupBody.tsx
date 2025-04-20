@@ -3,6 +3,7 @@ import { ReactComponent as GoogleMapGuideIcon } from 'assets/images/icon/svg/exp
 import { ReactComponent as KakaoMapGuideIcon } from 'assets/images/icon/svg/explore/mapguide/KakaoMapGuideIcon.svg';
 import { ReactComponent as NaverMapGuideIcon } from 'assets/images/icon/svg/explore/mapguide/NaverMapGuideIcon.svg';
 import LongPressToResizeButton from 'components/common/buttton/LongPressToResizeButton';
+import { isApp } from 'global/util/reactnative/nativeRouter';
 import React from 'react';
 import styled from 'styled-components';
 import { filterBrigntnessStyle09 } from 'styles/commonStyles';
@@ -73,8 +74,12 @@ const PostMapGuideSelectPopupBody: React.FC<
       const kakaoApp = `kakaomap://route?ep=${lat},${lng}&by=CAR`;
       // const kakaoWeb = `https://map.kakao.com/link/to/${label},${lat},${lng}`;
       if (mobile) {
-        cleanUp();
         window.location.href = kakaoApp;
+        if (!isApp()) {
+          fallbackWarn('Kakao 맵이 설치되어있지 않습니다.');
+        } else {
+          cleanUp();
+        }
       } else {
         cleanUp();
         alert('Kakao 맵이 설치되어있지 않습니다.');
@@ -86,7 +91,11 @@ const PostMapGuideSelectPopupBody: React.FC<
       // const naverWeb = `https://map.naver.com/v5/directions/-/-/${lng},${lat},${label}`;
       if (mobile) {
         window.location.href = naverApp;
-        fallbackWarn('Naver 맵이 설치되어있지 않습니다.');
+        if (!isApp()) {
+          fallbackWarn('Naver 맵이 설치되어있지 않습니다.');
+        } else {
+          cleanUp();
+        }
       } else {
         cleanUp();
         alert('Naver 맵이 설치되어있지 않습니다.');

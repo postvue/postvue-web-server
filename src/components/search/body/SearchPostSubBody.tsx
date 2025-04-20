@@ -90,6 +90,7 @@ const SearchSubPostBody: React.FC = () => {
                         page.snsPostRspList.map((v) => v),
                       )}
                       searchType={'recomm'}
+                      prevUrl={location.pathname}
                       inViewElement={
                         <SearchPostPopularListInfiniteScroll
                           searchQueryAndFilterKey={searchQueryAndFilterKey}
@@ -137,6 +138,7 @@ const SearchSubPostBody: React.FC = () => {
                         (page) => page.snsPostRspList.map((v) => v),
                       )}
                       searchType={'live'}
+                      prevUrl={location.pathname}
                       inViewElement={
                         <SearchPostRecentlyListInfiniteScroll
                           searchQueryAndFilterKey={searchQueryAndFilterKey}
@@ -186,6 +188,7 @@ const SearchSubPostBody: React.FC = () => {
                           page.snsPostRspList.map((v) => v),
                         )}
                         searchType={'distance'}
+                        prevUrl={location.pathname}
                         inViewElement={
                           <SearchPostNearListInfiniteScroll
                             searchQueryAndFilterKey={searchQueryAndFilterKey}

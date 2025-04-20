@@ -9,8 +9,12 @@ import {
   SEARCH_PAGE_NAME,
   SEARCH_PAGE_STACK_NAME,
 } from 'const/ReactNativeConst';
-import { navigateToTabWithUrl } from 'global/util/reactnative/nativeRouter';
+import {
+  navigateToMainTab,
+  navigateToTabWithUrl,
+} from 'global/util/reactnative/nativeRouter';
 import { isValidString } from 'global/util/ValidUtil';
+import { SEARCH_PATH } from 'services/appApiPath';
 import { convertDifferenceDateTimeByString } from '../../../../global/util/DateTimeUtil';
 
 interface PostTextContentProps {
@@ -20,6 +24,7 @@ interface PostTextContentProps {
   tags: string[];
   bodyTextMaxLines?: number;
   isExpandedBodyText?: boolean;
+  prevUrl?: string;
 }
 
 const PostTextContent: React.FC<PostTextContentProps> = ({
@@ -29,6 +34,7 @@ const PostTextContent: React.FC<PostTextContentProps> = ({
   tags,
   bodyTextMaxLines = 2,
   isExpandedBodyText = false,
+  prevUrl,
 }) => {
   const [isExpanded, setIsExpanded] = useState<boolean>(isExpandedBodyText);
   const [isTruncated, setIsTruncated] = useState<boolean>(false);
@@ -100,12 +106,22 @@ const PostTextContent: React.FC<PostTextContentProps> = ({
                 moveUrl: `${SEARCH_POST_PATH}/${v}`,
                 screenStackName: SEARCH_PAGE_STACK_NAME,
               };
-              navigateToTabWithUrl(
-                navigate,
-                SEARCH_PAGE_NAME,
-                `${SEARCH_POST_PATH}/${v}`,
-                JSON.stringify(param),
-              );
+
+              if (prevUrl && prevUrl.startsWith(SEARCH_PATH)) {
+                navigateToMainTab(
+                  navigate,
+                  SEARCH_PAGE_NAME,
+                  `${SEARCH_POST_PATH}/${v}`,
+                  JSON.stringify(param),
+                );
+              } else {
+                navigateToTabWithUrl(
+                  navigate,
+                  SEARCH_PAGE_NAME,
+                  `${SEARCH_POST_PATH}/${v}`,
+                  JSON.stringify(param),
+                );
+              }
             }}
             key={i}
           >

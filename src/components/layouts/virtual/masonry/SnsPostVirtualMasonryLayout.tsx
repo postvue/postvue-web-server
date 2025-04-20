@@ -5,6 +5,8 @@ import SnsPostVirtualImagePreviewElement from 'components/common/posts/element/S
 import { PROFILE_POST_LIST_PATH } from 'const/PathConst';
 import { POST_RELATION_SEARCH_TYPE } from 'const/PostConst';
 import { POST_IMAGE_TYPE } from 'const/PostContentTypeConst';
+import { PREV_URL_PARAM } from 'const/QueryParamConst';
+import { RoutePushEventDateInterface } from 'const/ReactNativeConst';
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
 import { MasonryPostRsp, PostRsp } from 'global/interface/post';
 import { stackRouterPush } from 'global/util/reactnative/nativeRouter';
@@ -29,7 +31,9 @@ interface SnsPostVirtualMasonryLayoutProps {
     isLinkPopup: boolean;
     isReplaced: boolean;
   };
+  isStackRoute?: boolean;
   searchType?: POST_RELATION_SEARCH_TYPE;
+  prevUrl?: string;
   hasMore?: boolean;
   loadMore?: () => void;
   scrollElement?: Element;
@@ -53,6 +57,8 @@ const SnsPostVirtualMasonryLayout: React.FC<
     isReplaced: false,
   },
   searchType,
+  isStackRoute = true,
+  prevUrl,
   hasMore = false,
   loadMore,
   scrollElement,
@@ -147,18 +153,21 @@ const SnsPostVirtualMasonryLayout: React.FC<
     //     },
     //   );
     // }
-    // const data: RoutePushEventDateInterface = {
-    //   isShowInitBottomNavBar: true,
-    // };
+    const data: RoutePushEventDateInterface = {
+      isShowInitBottomNavBar: true,
+    };
 
-    stackRouterPush(
-      navigate,
+    const pathUrl =
       generatePath(PROFILE_POST_LIST_PATH, {
         user_id: post.username,
         post_id: post.postId,
-      }),
-      // data,
-    );
+      }) + (prevUrl ? `?${PREV_URL_PARAM}=${prevUrl}` : '');
+
+    if (isStackRoute) {
+      stackRouterPush(navigate, pathUrl, data);
+    } else {
+      navigate(pathUrl);
+    }
 
     if (actionFunc) {
       actionFunc();

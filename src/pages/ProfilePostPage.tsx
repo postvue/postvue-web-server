@@ -13,6 +13,7 @@ import theme from '../styles/theme';
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
 import 'swiper/css/pagination';
 
+import BottomNavBar from 'components/BottomNavBar';
 import PageHelmentInfoElement from 'components/PageHelmetInfoElement';
 import ToastPopup from 'components/popups/ToastMsgPopup';
 import ProfilePostDetailBody from 'components/post/profilepost/ProfilePostDetailBody';
@@ -113,6 +114,7 @@ const ProfilePostPage: React.FC = () => {
     } else {
       navigate(-1);
     }
+    // navigate(-1);
   };
 
   const appContainerRefObject = useRef<HTMLDivElement>(null);
@@ -180,7 +182,7 @@ const ProfilePostPage: React.FC = () => {
               />
             )}
           </ProfilePostByMobileContainer>
-          {/* <BottomNavBar /> */}
+          <BottomNavBar />
         </>
       ) : (
         <Suspense fallback={<></>}>

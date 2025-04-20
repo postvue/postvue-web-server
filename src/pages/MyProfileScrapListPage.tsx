@@ -1,5 +1,7 @@
 import ViewPagerLayout from 'components/layouts/ViewPagerLayout';
 import PageHelmentInfoElement from 'components/PageHelmetInfoElement';
+import MakeScrapPopup from 'components/popups/makescrap/MakeScrapPopup';
+import ProfileScrapTargetAudiencePopup from 'components/popups/ProfileScrapTargetAudiencePopup';
 import ProfileClipListBody from 'components/profile/ProfileClipListBody';
 import ProfileMakeScrapFloatingButton from 'components/profile/ProfileMakeScrapFloatingButton';
 import { APP_SERVICE_NAME } from 'const/AppInfoConst';
@@ -9,17 +11,26 @@ import {
   PROFILE_SCRAP_TAB_ID,
 } from 'const/TabConfigConst';
 import { SCRAP_TAB_NAME } from 'const/TabConst';
-import { isApp } from 'global/util/reactnative/nativeRouter';
+import { isApp, sendInitEvent } from 'global/util/reactnative/nativeRouter';
 import useWindowSize from 'hook/customhook/useWindowSize';
 import { QueryStateProfileScrapList } from 'hook/queryhook/QueryStateProfileScrapList';
-import React, { useEffect, useRef } from 'react';
-import { useRecoilState } from 'recoil';
-import { scrapTabInfoAtom } from 'states/ProfileAtom';
+import React, { Suspense, useEffect, useRef } from 'react';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import { activeMakeScrapPopupInfoAtom } from 'states/PostAtom';
+import {
+  isActiveProfileScarpTargetAudPopupAtom,
+  scrapTabInfoAtom,
+} from 'states/ProfileAtom';
 import { initPageInfoAtom } from 'states/SystemConfigAtom';
+import theme from 'styles/theme';
 import BottomNavBar from '../components/BottomNavBar';
-import AppBaseTemplate from '../components/layouts/AppBaseTemplate';
 import ProfileClipScrapHeader from '../components/profile/ProfileClipScrapHeader';
 import ProfileScrapListBody from '../components/profile/ProfileScrapListBody';
+
+const AppBaseTemplate = React.lazy(
+  () => import('../components/layouts/AppBaseTemplate'),
+);
+
 const MyProfileScrapListPage: React.FC = () => {
   const [scrapTabInfo, setScrapTabInfo] = useRecoilState(scrapTabInfoAtom);
 
@@ -38,6 +49,9 @@ const MyProfileScrapListPage: React.FC = () => {
   const { windowWidth } = useWindowSize();
   const [initPageInfo, setInitPageInfo] = useRecoilState(initPageInfoAtom);
   useEffect(() => {
+    setTimeout(() => {
+      sendInitEvent();
+    }, 100);
     requestAnimationFrame(() => {
       setTimeout(() => {
         setInitPageInfo((prev) => ({ ...prev, isMyProfileScrapPage: true }));
@@ -46,6 +60,11 @@ const MyProfileScrapListPage: React.FC = () => {
   }, []);
 
   const slideRefs = useRef<HTMLDivElement[]>([]);
+
+  const activeMakeScrapPopupInfo = useRecoilValue(activeMakeScrapPopupInfoAtom);
+  const isActiveProfileScarpTargetAudPopup = useRecoilValue(
+    isActiveProfileScarpTargetAudPopupAtom,
+  );
 
   return (
     <>
@@ -61,26 +80,14 @@ const MyProfileScrapListPage: React.FC = () => {
           transition: `opacity 0.3s ease-in`,
         }}
       >
-        <AppBaseTemplate
-          AppBaseStlye={{ position: 'relative' }}
-          AppBottomNode={
-            windowWidth >= MEDIA_MOBILE_MAX_WIDTH_NUM && (
-              <ProfileMakeScrapFloatingButton
-                isShow={
-                  (isFetchedByProfileScrapList &&
-                    scrapTabInfo.activeTabId === PROFILE_SCRAP_TAB_ID &&
-                    profileScrapList &&
-                    profileScrapList?.pages.flatMap((v) => v).length > 0) ||
-                  false
-                }
-                FloatingActionButtonLayoutStyle={{ position: 'absolute' }}
-              />
-            )
-          }
-        >
-          <ProfileClipScrapHeader />
+        {isApp() ? (
+          <div
+            style={{
+              marginTop: `calc(${theme.systemSize.header.height} + env(safe-area-inset-top))`,
+            }}
+          >
+            <ProfileClipScrapHeader />
 
-          {isApp() ? (
             <ViewPagerLayout
               index={scrapTabInfo.activeTabId}
               actionSilde={(index) => {
@@ -103,16 +110,41 @@ const MyProfileScrapListPage: React.FC = () => {
                 <ProfileScrapListBody key={PROFILE_SCRAP_TAB_ID} />,
               ]}
             />
-          ) : (
-            <>
-              {scrapTabInfo.activeTabId === PROFILE_CLIP_TAB_ID ? (
-                <ProfileClipListBody />
-              ) : (
-                <ProfileScrapListBody />
-              )}
-            </>
-          )}
-        </AppBaseTemplate>
+            {activeMakeScrapPopupInfo.isActive && <MakeScrapPopup />}
+            {isActiveProfileScarpTargetAudPopup && (
+              <ProfileScrapTargetAudiencePopup />
+            )}
+          </div>
+        ) : (
+          <Suspense>
+            <AppBaseTemplate
+              AppBaseStlye={{ position: 'relative' }}
+              AppBottomNode={
+                windowWidth >= MEDIA_MOBILE_MAX_WIDTH_NUM && (
+                  <ProfileMakeScrapFloatingButton
+                    isShow={
+                      (isFetchedByProfileScrapList &&
+                        scrapTabInfo.activeTabId === PROFILE_SCRAP_TAB_ID &&
+                        profileScrapList &&
+                        profileScrapList?.pages.flatMap((v) => v).length > 0) ||
+                      false
+                    }
+                    FloatingActionButtonLayoutStyle={{ position: 'absolute' }}
+                  />
+                )
+              }
+            >
+              <ProfileClipScrapHeader />
+              <>
+                {scrapTabInfo.activeTabId === PROFILE_CLIP_TAB_ID ? (
+                  <ProfileClipListBody />
+                ) : (
+                  <ProfileScrapListBody />
+                )}
+              </>
+            </AppBaseTemplate>
+          </Suspense>
+        )}
       </div>
       <BottomNavBar />
     </>

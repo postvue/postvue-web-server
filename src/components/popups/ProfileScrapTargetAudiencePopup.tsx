@@ -32,17 +32,6 @@ const ProfileScrapTargetAudiencePopup: React.FC = () => {
   return (
     <>
       {windowWidth <= MEDIA_MOBILE_MAX_WIDTH_NUM ? (
-        // <PopupLayout
-        //   setIsPopup={setIsActiveProfileScarpTargetAudPopup}
-        //   isTouchScrollBar={true}
-        //   popupWrapStyle={popupWrapStyle}
-        //   hasFixedActive={false}
-        // >
-        //   <ProfileScrapTargetAudiencePopupBody
-        //     targetAudValue={targetAudValue}
-        //     setTargetAudValue={setTargetAudValue}
-        //   />
-        // </PopupLayout>
         <BottomSheetLayout
           isOpen={isActiveProfileScarpTargetAudPopup}
           onClose={() => setIsActiveProfileScarpTargetAudPopup(false)}
