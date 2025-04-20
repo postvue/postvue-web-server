@@ -77,6 +77,8 @@ const BottomFullScreenSheetLayout: React.FC<
   };
 
   const isFixBody = () => {
+    if (!isFixed) return;
+
     if (!BottomFullScreenSheetRef.current || !BottomScrollSheetRef.current)
       return;
 
