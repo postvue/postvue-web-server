@@ -169,6 +169,7 @@ const ProfilePostDetailPopup: React.FC = () => {
             padding: 0,
             marginTop: '10px',
           }}
+          ScrollRef={ScrollRef}
         >
           <ProfilePostDetailBody
             postId={postDetailInfoPopup.postId}
@@ -187,6 +188,7 @@ const ProfilePostDetailPopup: React.FC = () => {
               isReplaced: true,
             }}
             isErrorProfilePost={isErrorByProfilePost}
+            scrollElement={ScrollRef.current || undefined}
           />
         </RoundSquareCenterPopupLayout>
       ) : (

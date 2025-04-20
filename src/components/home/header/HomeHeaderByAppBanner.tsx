@@ -3,10 +3,12 @@ import AppBanner from 'components/common/AppBanner';
 import TabStickBar from 'components/common/container/TabStickBar';
 import HeaderLayout from 'components/layouts/HeaderLayout';
 import { MEDIA_MOBILE_MAX_WIDTH } from 'const/SystemAttrConst';
+import useWindowSize from 'hook/customhook/useWindowSize';
 import React from 'react';
 import { useRecoilState } from 'recoil';
 import { homeTabInfoAtom } from 'states/HomePageAtom';
 import styled from 'styled-components';
+import theme from 'styles/theme';
 import { ACTIVE_CLASS_NAME } from '../../../const/ClassNameConst';
 import {
   FOLLOW_FOR_ME_TAB_ID,
@@ -47,11 +49,15 @@ const HomeHeaderByAppBanner: React.FC = () => {
       navigator.userAgent,
     );
   };
+  const { windowWidth } = useWindowSize();
 
   return (
     <>
       {/* <HomeHeaderContainerWrap> */}
-      {isMobile() && <AppBanner />}
+      {isMobile() &&
+        windowWidth <= theme.systemSize.appDisplaySize.maxWidthNum && (
+          <AppBanner />
+        )}
       <HeaderLayout
         HeaderLayoutStyle={{
           backdropFilter: 'blur(10px)',

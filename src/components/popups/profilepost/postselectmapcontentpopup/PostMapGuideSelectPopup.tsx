@@ -1,11 +1,11 @@
 import BottomSheetLayout from 'components/layouts/BottomSheetLayout';
 import RoundSquareCenterPopupLayout from 'components/layouts/RoundSquareCenterPopupLayout';
-import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
 import useWindowSize from 'hook/customhook/useWindowSize';
 import React, { useState } from 'react';
 import { useRecoilValue, useResetRecoilState } from 'recoil';
 
 import { activePostMapGuideSelectPopupInfoAtom } from 'states/PostAtom';
+import theme from 'styles/theme';
 import PostMapGuideSelectPopupBody from './PostMapGuideSelectPopupBody';
 
 const PostMapGuideSelectPopup: React.FC = () => {
@@ -23,7 +23,7 @@ const PostMapGuideSelectPopup: React.FC = () => {
 
   return (
     <>
-      {windowWidth <= MEDIA_MOBILE_MAX_WIDTH_NUM ? (
+      {windowWidth <= theme.systemSize.appDisplaySize.maxWidthNum ? (
         <BottomSheetLayout
           isOpen={activePostMapGuideSelectPopupInfo.isActive}
           onClose={() => resetActivePostMapGuideSelectPopupInfo()}
@@ -54,7 +54,7 @@ const PostMapGuideSelectPopup: React.FC = () => {
             <RoundSquareCenterPopupLayout
               onClose={() => resetActivePostMapGuideSelectPopupInfo()}
               popupOverLayContainerStyle={{ zIndex: '2000' }}
-              popupWrapStyle={{ height: '300px', width: '300px' }}
+              popupWrapStyle={{ height: '180px', width: '300px' }}
             >
               {activePostMapGuideSelectPopupInfo.latitude &&
                 activePostMapGuideSelectPopupInfo.longitude && (

@@ -114,7 +114,7 @@ const AppBaseTemplate: React.FC<AppBaseTemplate> = ({
   appContainerTopMargin = theme.systemSize.header.height,
   isAppInsetTopMargin = true,
   appRef,
-  sideWidth = 400,
+  sideWidth = theme.systemSize.appDisplaySize.sideBarNum,
   headerWidth = 400,
   appContainerWidth = theme.systemSize.appDisplaySize.widthByPcNum,
   isScrollByAppContainer = true,

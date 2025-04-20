@@ -32,7 +32,7 @@ interface AppBaseTemplateSideBar {
   isTransparentSearchButton?: boolean;
   isScrollByAppContainer: boolean;
   isDisplayFavoriteTerm?: boolean;
-  sideWidth?: number;
+  sideWidth: number;
 }
 
 const AppBaseTemplateSideBar: React.FC<AppBaseTemplateSideBar> = ({
@@ -47,7 +47,7 @@ const AppBaseTemplateSideBar: React.FC<AppBaseTemplateSideBar> = ({
   isTransparentSearchButton = false,
   isDisplayFavoriteTerm = true,
   isScrollByAppContainer,
-  sideWidth = 400,
+  sideWidth,
 }) => {
   const searchWord = useRecoilValue(searchWordAtom);
 

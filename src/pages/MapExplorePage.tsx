@@ -414,7 +414,10 @@ const MapExplorePage: React.FC = () => {
                   borderRadius: '20px',
                 }}
                 scrollRef={ScrollRef}
-                masonryLayoutNum={2}
+                masonryLayoutInfo={{
+                  masonryLayoutNum: 2,
+                  masonryWidth: theme.systemSize.appDisplaySize.sideBarNum,
+                }}
                 linkPopupInfo={{
                   isLinkPopup: true,
                   isReplaced: false,

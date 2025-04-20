@@ -2,7 +2,10 @@ import ViewPagerLayout from 'components/layouts/ViewPagerLayout';
 import PageHelmentInfoElement from 'components/PageHelmetInfoElement';
 import MakeScrapPopup from 'components/popups/makescrap/MakeScrapPopup';
 import PostComposeSelectPopup from 'components/popups/postcompose/PostComposeSelectPopup';
+import PostSettingPopup from 'components/popups/profilepost/PostSettingPopup';
+import ScrapViewPopup from 'components/popups/profilescrap/ScrapViewPopup';
 import ProfileScrapTargetAudiencePopup from 'components/popups/ProfileScrapTargetAudiencePopup';
+import ToastPopup from 'components/popups/ToastMsgPopup';
 import ProfileClipListBody from 'components/profile/ProfileClipListBody';
 import ProfileMakeScrapFloatingButton from 'components/profile/ProfileMakeScrapFloatingButton';
 import { APP_SERVICE_NAME } from 'const/AppInfoConst';
@@ -17,9 +20,13 @@ import useWindowSize from 'hook/customhook/useWindowSize';
 import { QueryStateProfileScrapList } from 'hook/queryhook/QueryStateProfileScrapList';
 import React, { Suspense, useEffect, useRef } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
-import { activeMakeScrapPopupInfoAtom } from 'states/PostAtom';
+import {
+  activeMakeScrapPopupInfoAtom,
+  activePostDotSettingInfoAtom,
+} from 'states/PostAtom';
 import { isActivPostComposeSelectPopupAtom } from 'states/PostComposeAtom';
 import {
+  activeScrapViewPopupInfoAtom,
   isActiveProfileScarpTargetAudPopupAtom,
   scrapTabInfoAtom,
 } from 'states/ProfileAtom';
@@ -70,6 +77,8 @@ const MyProfileScrapListPage: React.FC = () => {
   const isActivePostComposeSelectPopup = useRecoilValue(
     isActivPostComposeSelectPopupAtom,
   );
+  const activePostDotSettingInfo = useRecoilValue(activePostDotSettingInfoAtom);
+  const activeScrapViewPopupInfo = useRecoilValue(activeScrapViewPopupInfoAtom);
 
   return (
     <>
@@ -120,6 +129,12 @@ const MyProfileScrapListPage: React.FC = () => {
               <ProfileScrapTargetAudiencePopup />
             )}
             {isActivePostComposeSelectPopup && <PostComposeSelectPopup />}
+            {activePostDotSettingInfo.isActive && <PostSettingPopup />}
+            {activeScrapViewPopupInfo.isActive &&
+              activeScrapViewPopupInfo.snsPost && (
+                <ScrapViewPopup snsPost={activeScrapViewPopupInfo.snsPost} />
+              )}
+            <ToastPopup />
           </div>
         ) : (
           <Suspense>

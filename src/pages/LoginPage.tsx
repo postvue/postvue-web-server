@@ -25,6 +25,7 @@ import { QUERY_STATE_NOTIFICATION_MSG } from 'const/QueryClientConst';
 import { MAX_DELETED_USER_RETENTION_DAY } from 'const/SignupConst';
 import { SETTING_AFTER_DELETE_ACCOUNT_MAIN_MOVE_PHASE_TEXT } from 'const/SystemPhraseConst';
 import { isApp } from 'global/util/reactnative/nativeRouter';
+import useWindowSize from 'hook/customhook/useWindowSize';
 import { useSnsNotificationHookByIndexedDb } from 'hook/db/useSnsNotifcationHookByIndexedDb';
 import { useNavigate } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
@@ -107,6 +108,8 @@ const LoginPage: React.FC = () => {
     setIsActiveSignupEmailPopup(false);
   };
 
+  const { windowHeight } = useWindowSize();
+
   return (
     <>
       <PageHelmentInfoElement
@@ -123,6 +126,7 @@ const LoginPage: React.FC = () => {
                 ㅠㅠ 너무 아쉬워요..
               </AccountDeleteCheckTitle> */}
               <LoginPageLogoWrap
+                $height={Math.floor(windowHeight / 2)}
                 style={{
                   paddingTop: 'env(safe-area-inset-top)',
                   position: 'fixed',
@@ -177,7 +181,7 @@ const LoginPage: React.FC = () => {
                 )}
 
                 <LoginPageBodyContainer>
-                  <LoginPageLogoWrap>
+                  <LoginPageLogoWrap $height={Math.floor(windowHeight / 2)}>
                     <LoginPageLogoIconWrap>
                       <LoginPageLogoIconSubWrap>
                         <FeelogMobileLogo />
@@ -245,11 +249,14 @@ const LoginPageContainer = styled.div`
   height: 100%;
 `;
 
-const LoginPageLogoWrap = styled.div`
+const LoginPageLogoWrap = styled.div<{ $height: number }>`
   display: flex;
   justify-content: center;
   flex-direction: column;
-  padding-bottom: min(calc(100dvh - 600px), 100px);
+  padding-bottom: min(
+    calc(100dvh - 600px),
+    max(${(props) => props.$height - 350}px, 0px)
+  );
   width: 100%;
 `;
 

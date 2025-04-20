@@ -17,7 +17,10 @@ interface MapExploreBodyProps {
   latitude: number;
   longitude: number;
   MapSnsPostLayoutStyle?: React.CSSProperties;
-  masonryLayoutNum?: number;
+  masonryLayoutInfo?: {
+    masonryLayoutNum: number;
+    masonryWidth: number;
+  };
   linkPopupInfo?: {
     isLinkPopup: boolean;
     isReplaced: boolean;
@@ -31,7 +34,7 @@ const MapExplorePostContentBody: React.FC<MapExploreBodyProps> = ({
   longitude,
   mapContentType,
   MapSnsPostLayoutStyle,
-  masonryLayoutNum,
+  masonryLayoutInfo,
   linkPopupInfo,
   funcPrevButton,
   scrollElement,
@@ -84,7 +87,8 @@ const MapExplorePostContentBody: React.FC<MapExploreBodyProps> = ({
                 snsPostList={postMapPost?.pages.flatMap((v) =>
                   v.map((value) => value),
                 )}
-                // fixNum={masonryLayoutNum}
+                columnNum={masonryLayoutInfo?.masonryLayoutNum}
+                masonryWidth={masonryLayoutInfo?.masonryWidth}
                 linkPopupInfo={linkPopupInfo}
                 actionFunc={funcPrevButton}
                 searchType={'distance'}

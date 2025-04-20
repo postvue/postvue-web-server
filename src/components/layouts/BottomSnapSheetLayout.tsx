@@ -469,6 +469,7 @@ const BottomSheetContainer = styled.div<{ $isRoundPopup: boolean }>`
   right: 0;
   left: 0;
   height: calc(100dvh + 100px);
+  margin: 0 auto;
   width: 100%;
   border-radius: ${(props) => (props.$isRoundPopup ? `20px 20px 0 0` : '0')};
   background: #fff;
