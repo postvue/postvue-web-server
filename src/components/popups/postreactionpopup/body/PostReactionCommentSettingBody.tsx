@@ -27,6 +27,7 @@ const PostReactionCommentSettingBody: React.FC<
 
     deletePostCommentQuery.mutateAsync({ commentId }).finally(() => {
       setIsLoadingPopup(false);
+      onClose();
     });
   };
 
