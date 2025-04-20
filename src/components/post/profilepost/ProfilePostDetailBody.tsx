@@ -50,6 +50,7 @@ import { default as SnsPostVirtualMasonryLayout } from 'components/layouts/virtu
 import ProfilePostSettingBody from 'components/post/ProfilePostSettingBody';
 import { POST_RELATION_SEARCH_TYPE } from 'const/PostConst';
 import {
+  PREV_URL_PARAM,
   PROFILE_POPUP_PARAM,
   PROFILE_POPUP_USERNAME_PARAM,
   TRUE_PARAM,
@@ -211,6 +212,7 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
 
   useEffect(() => {
     if (isValidString(postId)) {
+      window.scrollTo({ top: 0 });
       if (windowWidthSize > MEDIA_MOBILE_MAX_WIDTH_NUM) {
         setIsPopupRendered(true);
       } else {
@@ -232,6 +234,9 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
   const resetPostExternelEventInfo = useResetRecoilState(
     postExternelEventInfoAtom,
   );
+
+  const queryParams = new URLSearchParams(location.search);
+  const prevUrl = queryParams.get(PREV_URL_PARAM);
 
   return (
     <>
@@ -391,6 +396,7 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
                   postedAt={snsPost.postedAt}
                   tags={snsPost.tags}
                   isExpandedBodyText={false}
+                  prevUrl={prevUrl || undefined}
                 />
               </PostContentContainer>
             </ProfilePostWrap>
@@ -460,12 +466,14 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
                           linkPopupInfo={linkPopupInfo}
                           searchType={searchType}
                           scrollElement={scrollElement}
+                          prevUrl={prevUrl || undefined}
                           inViewElement={
                             <PostRelationListInfiniteScroll
                               postId={postId}
                               searchType={searchType}
                             />
                           }
+                          isStackRoute={false}
                           masonryWidth={masonryWidth}
                           columnNum={fixNum}
                         />
@@ -495,6 +503,7 @@ const ProfilePostDetailBody: React.FC<ProfilePostDetailBodyProps> = ({
                         .flatMap((value) => value.snsPostRspList)
                         .filter((value) => value.postId !== postId)}
                       linkPopupInfo={linkPopupInfo}
+                      isStackRoute={false}
                       scrollElement={scrollElement}
                       inViewElement={
                         <ProfileAccountPostListInfiniteScroll

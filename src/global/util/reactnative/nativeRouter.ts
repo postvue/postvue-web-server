@@ -466,9 +466,15 @@ export const navigateToMainTab = (
   navigate: NavigateFunction,
   screenName: string,
   url: string,
+  param?: string,
 ): void => {
   if (isApp()) {
-    sendRouterEvent(EVENT_DATA_ROUTE_POP_TO_TOP_TYPE, screenName);
+    sendRouterEvent(
+      EVENT_DATA_ROUTE_POP_TO_TOP_TYPE,
+      screenName,
+      undefined,
+      param,
+    );
   } else {
     navigate(url); // React Router의 navigate 사용
   }

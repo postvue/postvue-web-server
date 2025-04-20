@@ -28,6 +28,8 @@ export const PROFILE_POPUP_PARAM = 'profilePopup';
 export const PROFILE_POPUP_USERNAME_PARAM = 'username';
 export const PROFILE_POPUP_DISPLAY_PARAM = 'profileDisplay';
 
+export const PREV_URL_PARAM = 'prevUrl';
+
 export const TRUE_PARAM = 'true';
 export const FALSE_PARAM = 'false';
 

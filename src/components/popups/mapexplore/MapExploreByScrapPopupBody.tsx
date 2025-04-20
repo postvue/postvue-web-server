@@ -92,6 +92,7 @@ const MapExploreByScrapPopupBody: React.FC<MapExploreByScrapPopupBodyProps> = ({
   );
 
   const actionFunc = () => {
+    if (isApp()) return;
     funcPrevButton();
   };
 
