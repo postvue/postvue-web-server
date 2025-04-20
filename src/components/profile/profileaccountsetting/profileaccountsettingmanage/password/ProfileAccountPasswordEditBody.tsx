@@ -110,6 +110,7 @@ const ProfileAccountPasswordEditBody: React.FC = () => {
         <ProfileVerifyPasswordBody
           password={password}
           checkPassword={checkPassword}
+          ContainerStyle={{ paddingLeft: '20px' }}
         />
 
         {isClickButton && unauthorizedErrorInfo.isUnauthorizedError && (
