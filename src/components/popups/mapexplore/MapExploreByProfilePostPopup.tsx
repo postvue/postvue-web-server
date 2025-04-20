@@ -56,7 +56,7 @@ const MapExploreByProfilePostPopup: React.FC<MapExploreByProfilePostPpoup> = ({
           isOpen={isMapExplorePopup}
           onClose={() => setIsMapExplorePopup(false)}
           isExternalCloseFunc={isExternalCloseFunc}
-          isFixed={false}
+          // isFixed={false}
           // isImmediate={true}
         >
           <MapExploreByProfilePostPopupBody
