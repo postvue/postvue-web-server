@@ -1,6 +1,7 @@
 import ViewPagerLayout from 'components/layouts/ViewPagerLayout';
 import PageHelmentInfoElement from 'components/PageHelmetInfoElement';
 import MakeScrapPopup from 'components/popups/makescrap/MakeScrapPopup';
+import PostComposeSelectPopup from 'components/popups/postcompose/PostComposeSelectPopup';
 import ProfileScrapTargetAudiencePopup from 'components/popups/ProfileScrapTargetAudiencePopup';
 import ProfileClipListBody from 'components/profile/ProfileClipListBody';
 import ProfileMakeScrapFloatingButton from 'components/profile/ProfileMakeScrapFloatingButton';
@@ -17,6 +18,7 @@ import { QueryStateProfileScrapList } from 'hook/queryhook/QueryStateProfileScra
 import React, { Suspense, useEffect, useRef } from 'react';
 import { useRecoilState, useRecoilValue } from 'recoil';
 import { activeMakeScrapPopupInfoAtom } from 'states/PostAtom';
+import { isActivPostComposeSelectPopupAtom } from 'states/PostComposeAtom';
 import {
   isActiveProfileScarpTargetAudPopupAtom,
   scrapTabInfoAtom,
@@ -64,6 +66,9 @@ const MyProfileScrapListPage: React.FC = () => {
   const activeMakeScrapPopupInfo = useRecoilValue(activeMakeScrapPopupInfoAtom);
   const isActiveProfileScarpTargetAudPopup = useRecoilValue(
     isActiveProfileScarpTargetAudPopupAtom,
+  );
+  const isActivePostComposeSelectPopup = useRecoilValue(
+    isActivPostComposeSelectPopupAtom,
   );
 
   return (
@@ -114,6 +119,7 @@ const MyProfileScrapListPage: React.FC = () => {
             {isActiveProfileScarpTargetAudPopup && (
               <ProfileScrapTargetAudiencePopup />
             )}
+            {isActivePostComposeSelectPopup && <PostComposeSelectPopup />}
           </div>
         ) : (
           <Suspense>
