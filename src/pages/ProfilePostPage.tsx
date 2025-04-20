@@ -6,7 +6,11 @@ import styled from 'styled-components';
 import { PROFILE_LIST_PATH } from '../const/PathConst';
 import { POST_IMAGE_TYPE } from '../const/PostContentTypeConst';
 import { getHiddenPostIdList } from '../global/util/HiddenPostIdListUtil';
-import { activeMakeScrapPopupInfoAtom, postRspAtom } from '../states/PostAtom';
+import {
+  activeMakeScrapPopupInfoAtom,
+  activePostComplaintCompletePopupAtom,
+  postRspAtom,
+} from '../states/PostAtom';
 import { postReactionTabIdAtom } from '../states/PostReactionAtom';
 import theme from '../styles/theme';
 
@@ -17,7 +21,10 @@ import BottomNavBar from 'components/BottomNavBar';
 import PageHelmentInfoElement from 'components/PageHelmetInfoElement';
 import BlockUserPopup from 'components/popups/BlockUserPopup';
 import MakeScrapPopup from 'components/popups/makescrap/MakeScrapPopup';
+import PostComposeSelectPopup from 'components/popups/postcompose/PostComposeSelectPopup';
+import ComplaintCompletePopup from 'components/popups/profilepost/ComplaintCompletePopup';
 import ScrapViewPopup from 'components/popups/profilescrap/ScrapViewPopup';
+import ProfileScrapTargetAudiencePopup from 'components/popups/ProfileScrapTargetAudiencePopup';
 import ToastPopup from 'components/popups/ToastMsgPopup';
 import ProfilePostDetailBody from 'components/post/profilepost/ProfilePostDetailBody';
 import ProfilePostDetailPopupManager from 'components/post/profilepost/ProfilePostDetailPopupManager';
@@ -33,9 +40,11 @@ import {
 import { getRandomImage } from 'global/util/ShareUtil';
 import useWindowSize from 'hook/customhook/useWindowSize';
 import { QueryStateProfilePost } from 'hook/queryhook/QueryStateProfilePost';
+import { isActivPostComposeSelectPopupAtom } from 'states/PostComposeAtom';
 import {
   activeProfileBlockPopupInfoAtom,
   activeScrapViewPopupInfoAtom,
+  isActiveProfileScarpTargetAudPopupAtom,
 } from 'states/ProfileAtom';
 import { initPageInfoAtom } from 'states/SystemConfigAtom';
 
@@ -153,6 +162,15 @@ const ProfilePostPage: React.FC = () => {
     activeProfileBlockPopupInfoAtom,
   );
   const activeMakeScrapPopupInfo = useRecoilValue(activeMakeScrapPopupInfoAtom);
+  const isActiveProfileScarpTargetAudPopup = useRecoilValue(
+    isActiveProfileScarpTargetAudPopupAtom,
+  );
+  const isActivePostComposeSelectPopup = useRecoilValue(
+    isActivPostComposeSelectPopupAtom,
+  );
+  const activePostComplaintCompletePopup = useRecoilValue(
+    activePostComplaintCompletePopupAtom,
+  );
 
   return (
     <>
@@ -299,6 +317,18 @@ const ProfilePostPage: React.FC = () => {
             )}
           {activeProfileBlockInfo.isActive && <BlockUserPopup />}
           {activeMakeScrapPopupInfo.isActive && <MakeScrapPopup />}
+          {isActiveProfileScarpTargetAudPopup && (
+            <ProfileScrapTargetAudiencePopup />
+          )}
+          {isActivePostComposeSelectPopup && <PostComposeSelectPopup />}
+          {activePostComplaintCompletePopup.isActive && (
+            <ComplaintCompletePopup
+              userInfo={{
+                userId: activePostComplaintCompletePopup.userId,
+                username: activePostComplaintCompletePopup.username,
+              }}
+            />
+          )}
         </>
       )}
     </>
