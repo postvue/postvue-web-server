@@ -501,6 +501,10 @@ const MapExplorePage: React.FC = () => {
                   latitude={mapLocation.latitude}
                   longitude={mapLocation.longitude}
                   scrollElement={ScrollRef.current || undefined}
+                  linkPopupInfo={{
+                    isLinkPopup: true,
+                    isReplaced: false,
+                  }}
                 />
               </MapExplorePostPopup>
             )}
