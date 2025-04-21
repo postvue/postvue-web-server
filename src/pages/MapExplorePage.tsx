@@ -48,6 +48,7 @@ import {
 } from 'global/util/DateTimeUtil';
 import { getRoundedNumber } from 'global/util/MathUtil';
 import { getPosInfoByGis, getUnifiedPosition } from 'global/util/PositionUtil';
+import { isApp } from 'global/util/reactnative/nativeRouter';
 import { getSearchQueryByDebounce } from 'global/util/SearchUtil';
 import { useMessageListener } from 'hook/customhook/useMessageListener';
 import useWindowSize from 'hook/customhook/useWindowSize';
@@ -501,10 +502,14 @@ const MapExplorePage: React.FC = () => {
                   latitude={mapLocation.latitude}
                   longitude={mapLocation.longitude}
                   scrollElement={ScrollRef.current || undefined}
-                  linkPopupInfo={{
-                    isLinkPopup: true,
-                    isReplaced: false,
-                  }}
+                  linkPopupInfo={
+                    isApp()
+                      ? undefined
+                      : {
+                          isLinkPopup: true,
+                          isReplaced: false,
+                        }
+                  }
                 />
               </MapExplorePostPopup>
             )}
