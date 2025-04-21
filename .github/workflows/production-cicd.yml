@@ -39,6 +39,7 @@ jobs:
           echo "REACT_APP_APPLE_SOCIAL_SERVICE_CLIENT_ID=${{ secrets.REACT_APP_APPLE_SOCIAL_SERVICE_CLIENT_ID }}" >> .env
           echo "REACT_APP_APPLE_SOCIAL_LOGIN_REDIRCT_URL=${{ secrets.REACT_APP_APPLE_SOCIAL_LOGIN_REDIRCT_URL }}" >> .env
           echo "REACT_APP_GOOGLE_SOCIAL_OAUTH_CLIENT_ID=${{ secrets.REACT_APP_GOOGLE_SOCIAL_OAUTH_CLIENT_ID }}" >> .env
+          echo "REACT_APP_GA_ID=${{ secrets.REACT_APP_GA_ID }}" >> .env
 
       - name: Debug .env file
         run: cat .env
