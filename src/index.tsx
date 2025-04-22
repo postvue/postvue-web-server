@@ -1,4 +1,5 @@
 /* eslint-disable react/react-in-jsx-scope */
+import { isApp } from 'global/util/reactnative/nativeRouter';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
@@ -15,7 +16,9 @@ if (container.hasChildNodes()) {
   root.render(<App />);
 }
 
-const GA_ID = process.env.REACT_APP_GA_ID;
+const GA_ID = isApp()
+  ? process.env.REACT_APP_GA_APP_ID
+  : process.env.REACT_APP_GA_ID;
 
 if (process.env.NODE_ENV === 'production' && GA_ID) {
   const script1 = document.createElement('script');
