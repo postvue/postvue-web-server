@@ -1,4 +1,5 @@
 import { ReactComponent as DeleteSearchInputIcon } from 'assets/images/icon/svg/DeleteSearchInputIcon.svg';
+import { SERACH_INPUT_ID } from 'const/IdNameConst';
 import useAutoBlur from 'hook/customhook/useAutoBlur';
 import React, { useRef } from 'react';
 import styled from 'styled-components';
@@ -51,6 +52,7 @@ const SearchButtonInput: React.FC<SearchButtonInputProps> = ({
         value={value}
         onFocus={onSearchInputOnFocus}
         ref={searchInputProcessRef}
+        id={SERACH_INPUT_ID}
       />
       {onClickDelete !== undefined && (
         <>

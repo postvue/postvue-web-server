@@ -1,10 +1,14 @@
 import SearchButtonInput from 'components/common/input/SearchButtonInput';
-import { SEARCH_INPUT_PHARSE_TEXT } from 'const/SystemPhraseConst';
+import {
+  SEARCH_INPUT_PROFILE_PHARSE_TEXT,
+  SEARCH_INPUT_SCRAP_PHARSE_TEXT,
+} from 'const/SystemPhraseConst';
 import React from 'react';
 
 import { RECENTLY_SEARCH_WORD_LIST_LOCAL_STORAGE } from 'const/LocalStorageConst';
 import { SEARCH_TAG_POST_ROUTE_PATH } from 'const/PathConst';
 import { RoutePushEventDateInterface } from 'const/ReactNativeConst';
+import { SEARCH_PAGE_PROFILE_TAB_ID } from 'const/TabConfigConst';
 import { useRef } from 'react';
 import { generatePath, useLocation, useNavigate } from 'react-router-dom';
 import { useRecoilState, useRecoilValue } from 'recoil';
@@ -15,11 +19,11 @@ import {
   startsWithHashTag,
 } from '../../../global/util/SearchUtil';
 import { isValidString } from '../../../global/util/ValidUtil';
-import { getSearchQuery } from '../../../services/search/getSearchQuery';
 import {
   isSearchInputActiveAtom,
-  searchQueryRelationHashMapAtom,
+  searchTabInfoAtom,
   searchTempWordAtom,
+  searchTempWordQueryAtom,
   searchWordAtom,
 } from '../../../states/SearchPostAtom';
 
@@ -52,8 +56,9 @@ const SearchButtonInputElement: React.FC<SearchButtonInputElementProps> = ({
   const [searchTempWord, setSearchTempWord] =
     useRecoilState(searchTempWordAtom);
 
-  const [searchQueryRelationHashMap, setSearchQueryRelationHashMap] =
-    useRecoilState(searchQueryRelationHashMapAtom);
+  const [searchTempWordQuery, setSearchTempWordQuery] = useRecoilState(
+    searchTempWordQueryAtom,
+  );
 
   // 검색 입력 focus 관련 상태 관리
   const [isSearchInputActive, setIsSearchInputActive] = useRecoilState(
@@ -74,19 +79,10 @@ const SearchButtonInputElement: React.FC<SearchButtonInputElementProps> = ({
 
   const debouncedGetSearchQuery = getSearchQueryByDebounce(
     (word: string) => {
-      if (!searchQueryRelationHashMap.get(word)) {
-        getSearchQuery(word)
-          .then((value) => {
-            const tempSearchQueryRelationHashMap = new Map(
-              searchQueryRelationHashMap,
-            );
-            tempSearchQueryRelationHashMap.set(word, value);
-            setSearchQueryRelationHashMap(tempSearchQueryRelationHashMap);
-          })
-          .finally(() => setLoading(false));
-      }
+      setSearchTempWordQuery(word);
+      setLoading(false);
     },
-    [searchQueryRelationHashMap],
+    [searchTempWordQuery],
   );
 
   // const debouncedGetSearchQuery = useCallback(
@@ -114,9 +110,7 @@ const SearchButtonInputElement: React.FC<SearchButtonInputElementProps> = ({
     }
 
     setSearchTempWord(word);
-    if (searchQueryRelationHashMap.get(word)) {
-      setLoading(false);
-    }
+
     if (!isValidString(word)) {
       setLoading(false);
       isEmptyTermFunc();
@@ -160,9 +154,15 @@ const SearchButtonInputElement: React.FC<SearchButtonInputElementProps> = ({
     }
   };
 
+  const searchTabInfo = useRecoilValue(searchTabInfoAtom);
+
   return (
     <SearchButtonInput
-      placeholder={SEARCH_INPUT_PHARSE_TEXT}
+      placeholder={
+        searchTabInfo.tabId === SEARCH_PAGE_PROFILE_TAB_ID
+          ? SEARCH_INPUT_PROFILE_PHARSE_TEXT
+          : SEARCH_INPUT_SCRAP_PHARSE_TEXT
+      }
       onSearchInputChange={handleChange}
       onSearchInputKeyDown={handleKeyPress}
       value={searchTempWord}

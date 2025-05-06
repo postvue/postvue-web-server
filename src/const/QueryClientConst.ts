@@ -113,3 +113,7 @@ export const QUERY_STATE_TASTE_FOR_ME_LIST = 'tasteForMeList';
 
 // 태그 추천
 export const QUERY_STATE_RECOMM_TAG_LIST = 'recommTagList';
+
+// 추천
+export const QUERY_STATE_RECOMM_FOLLOW_LIST = 'recommFollowList';
+export const QUERY_STATE_RECOMM_SCRAP_LIST = 'recommScrapList';

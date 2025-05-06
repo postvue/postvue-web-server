@@ -133,6 +133,7 @@ export const MAP_EXPLORE_DAILY_TAB_NAME = '일상';
 export const MAP_EXPLORE_DAILY_TAB_ID = 6;
 export const MAP_EXPLORE_DAILY_TAB_PARAM: MapExploreTabType = 'daily';
 
+// 탐색 페이지: 검색 내 탭
 export const MAP_EXPLORE_SEARCH_TASTE_TAB_NAME = '추천';
 export const MAP_EXPLORE_SEARCH_RECOMM_TAB_ID = 1;
 
@@ -148,3 +149,13 @@ export const PROFILE_CLIP_TAB_ID = 0;
 
 export const PROFILE_SCRAP_TAB_NAME = '스크랩';
 export const PROFILE_SCRAP_TAB_ID = 1;
+
+// 검색 페이지: 검색 탭
+// export const SEARCH_PAGE_POST_TAB_NAME = '게시물';
+// export const SEARCH_PAGE_POST_TAB_ID = 1;
+
+export const SEARCH_PAGE_PROFILE_TAB_NAME = '프로필';
+export const SEARCH_PAGE_PROFILE_TAB_ID = 2;
+
+export const SEARCH_PAGE_SCRAP_TAB_NAME = '스크랩';
+export const SEARCH_PAGE_SCRAP_TAB_ID = 3;

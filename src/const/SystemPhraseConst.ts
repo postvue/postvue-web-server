@@ -4,6 +4,16 @@ export const PROFILE_URL_CLIP_BOARD_TEXT = '게시물 복사';
 export const CLIP_BOARD_COPY_TEXT = '복사됨';
 export const FOLLOW_BUTTON_TEXT = '팔로우';
 export const SEARCH_INPUT_PHARSE_TEXT = '관심있는 단어나 태그를 검색해보세요.';
+export const SEARCH_INPUT_POST_PHARSE_TEXT =
+  '관심있는 단어나 태그를 검색해보세요.';
+export const SEARCH_INPUT_PROFILE_PHARSE_TEXT =
+  '누군가를 검색해 팔로우 해보세요';
+export const SEARCH_INPUT_SCRAP_PHARSE_TEXT =
+  '사람들이 수집한 스크랩을 검색해보세요';
+export const SEARCH_SUGGEST_POST_PHARSE_TEXT = '현재 뜨고 있는 게시물이에요';
+export const SEARCH_SUGGEST_PROFILE_PHARSE_TEXT = '이런 사람들은 어떤가요?';
+export const SEARCH_SUGGEST_SCRAP_PHARSE_TEXT =
+  '사람들이 수집한 스크랩 확인해보실래요?';
 export const MESSAGE_SEARCH_INPUT_PHARSE_TEXT = '사용자 검색';
 
 // 스크랩
@@ -50,3 +60,8 @@ export const MAP_EXPLORE_SELECT_LOCATION_PHARSE_TEXT =
 export const API_SUCCESS_PHARSE_TEXT = '결과가 없습니다.';
 
 export const FAVORITE_TERM_TITLE = '즐겨찾는 검색어';
+
+export const HOME_RECOMM_FOLLOW_MAIN_TITLE =
+  '아직 팔로잉하고 있는 계정이 없어요';
+
+export const HOME_RECOMM_FOLLOW_SUB_TITLE = ' 관심있는 계정을 팔로우 해보세요.';

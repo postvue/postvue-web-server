@@ -1,4 +1,5 @@
 import {
+  SEARCH_PAGE_PROFILE_TAB_ID,
   SEARCH_POST_POPULAR_QUERY_PARAM,
   SearchPostFilterTabType,
 } from 'const/TabConfigConst';
@@ -41,6 +42,11 @@ export const searchWordAtom = atom<string>({
 
 export const searchTempWordAtom = atom<string>({
   key: 'searcTemphWord',
+  default: INIT_EMPTY_STRING_VALUE,
+});
+
+export const searchTempWordQueryAtom = atom<string>({
+  key: 'searcTempQueryhWord',
   default: INIT_EMPTY_STRING_VALUE,
 });
 
@@ -99,5 +105,16 @@ export const currentPositionSearchPostAtom = atom<{
   default: {
     latitude: undefined,
     longitude: undefined,
+  },
+});
+
+export interface SearchTabInfo {
+  tabId: number;
+}
+
+export const searchTabInfoAtom = atom<SearchTabInfo>({
+  key: 'searchTabInfo',
+  default: {
+    tabId: SEARCH_PAGE_PROFILE_TAB_ID,
   },
 });

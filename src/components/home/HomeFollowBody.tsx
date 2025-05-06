@@ -11,6 +11,10 @@ import SnsPostVirtualMasonryLayout from 'components/layouts/virtual/masonry/SnsP
 import PullToRefreshComponent from 'components/PullToRefreshComponent';
 import { INIT_CURSOR_ID } from 'const/PageConfigConst';
 import { QUERY_STATE_FOLLOW_FOR_ME_LIST } from 'const/QueryClientConst';
+import {
+  HOME_RECOMM_FOLLOW_MAIN_TITLE,
+  HOME_RECOMM_FOLLOW_SUB_TITLE,
+} from 'const/SystemPhraseConst';
 import { getFollowForMeListByParam } from 'services/post/home/getFollowForMeList';
 import styled from 'styled-components';
 import HomeFollowSubBody from './body/HomeFollowSubBody';
@@ -63,7 +67,10 @@ const HomeFolowBody: React.FC<HomeFollowBodyProps> = ({ scrollElement }) => {
                     />
                   </>
                 ) : (
-                  <HomeFollowSubBody />
+                  <HomeFollowSubBody
+                    mainTitle={HOME_RECOMM_FOLLOW_MAIN_TITLE}
+                    subTitle={HOME_RECOMM_FOLLOW_SUB_TITLE}
+                  />
                 )}
               </>
             )}
