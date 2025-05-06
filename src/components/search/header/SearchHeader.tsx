@@ -45,6 +45,7 @@ import HeaderLayout from '../../layouts/HeaderLayout';
 import SearchButtonInputElement from './SearchButtonInputElement';
 
 import LoadingComponent from 'components/common/container/LoadingComponent';
+import { SERACH_INPUT_ID } from 'const/IdNameConst';
 import { SEARCH_TAG_POST_PATH } from 'const/PathConst';
 import { EVENT_DATA_WEB_BACK_TYPE } from 'const/ReactNativeConst';
 import useOutsideClick from 'hook/customhook/useOutsideClick';
@@ -249,6 +250,19 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
     setIsSearchInputActive(false);
   });
 
+  useEffect(() => {
+    const input = document.getElementById(SERACH_INPUT_ID);
+    if (input) {
+      input.addEventListener('focus', () => {
+        setTimeout(() => {
+          input.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 500); // iOS에서 딜레이 필요
+      });
+    }
+  }, []);
+
+  // useAutoBlur();
+
   return (
     <>
       <div
@@ -283,6 +297,11 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
                       style={PrevStyle}
                       to={backToUrl}
                       type={prevNavigateType}
+                      onAdditionalFunc={() => {
+                        setTimeout(() => {
+                          onClickCancelSearchInput();
+                        }, 50);
+                      }}
                     />
                   </PrevButtonWrap>
                 )}
@@ -311,6 +330,7 @@ const SearchHeader: React.FC<SearchHeaderProps> = ({
           <SearchSuggestBody
             suggestBodyRef={suggestBodyRef}
             SearchSuggestBodyContiainerStyle={SearchSuggestBodyContiainerStyle}
+            loading={loading}
           />
         )}
       </div>

@@ -15,6 +15,7 @@ interface PrevBtnProps {
   type?: string;
   screenName?: string;
   style?: React.CSSProperties;
+  onAdditionalFunc?: () => void;
 }
 
 const PrevButton: React.FC<PrevBtnProps> = ({
@@ -22,6 +23,7 @@ const PrevButton: React.FC<PrevBtnProps> = ({
   type = EVENT_DATA_ROUTE_BACK_TYPE,
   screenName,
   style,
+  onAdditionalFunc,
 }) => {
   return (
     <AppLink
@@ -29,6 +31,7 @@ const PrevButton: React.FC<PrevBtnProps> = ({
       to={to}
       type={type}
       style={style || PrevStyle}
+      onAdditionalFunc={onAdditionalFunc}
     >
       <PrevButtonWrap>
         <PrevButtonIcon />

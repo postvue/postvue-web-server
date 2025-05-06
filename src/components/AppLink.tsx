@@ -34,11 +34,12 @@ interface AppLinkProps {
   screenName?: string;
   to?: string;
   style?: React.CSSProperties;
+  onAdditionalFunc?: () => void;
 }
 
 const AppLink: React.FC<
   AppLinkProps & React.RefAttributes<HTMLAnchorElement>
-> = ({ screenName, to, children, type, style }) => {
+> = ({ screenName, to, children, type, style, onAdditionalFunc }) => {
   const navigate = useNavigate();
   return (
     <AppContainer
@@ -67,6 +68,10 @@ const AppLink: React.FC<
           navigateToMainTab(navigate, screenName, to);
         } else if (type === EVENT_DATA_ROUTE_PREVIOUS_TAB_TYPE) {
           tabBackNavigation(navigate);
+        }
+
+        if (onAdditionalFunc) {
+          onAdditionalFunc();
         }
       }}
     >

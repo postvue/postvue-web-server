@@ -10,12 +10,15 @@ import SearchHeader from 'components/search/header/SearchHeader';
 import { EVENT_DATA_ROUTE_PREVIOUS_TAB_TYPE } from 'const/ReactNativeConst';
 import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
 import { handleMessageByRouteAndMoveUrl } from 'global/native/nativeHandleMessage';
+import { isApp, sendInitEvent } from 'global/util/reactnative/nativeRouter';
+import useBodyAdaptProps from 'hook/customhook/useBodyAdaptProps';
 import { useMessageListener } from 'hook/customhook/useMessageListener';
 import useWindowSize from 'hook/customhook/useWindowSize';
 import { QueryStateRecommTagList } from 'hook/queryhook/QueryStateRecommTagList';
 import { QueryStateSearchFavoriteTermPreviewList } from 'hook/queryhook/QueryStateSearchFavoritePreviewTermList';
 import { useNavigate } from 'react-router-dom';
 import { initPageInfoAtom } from 'states/SystemConfigAtom';
+import theme from 'styles/theme';
 import { HOME_PATH, SEARCH_POST_PATH } from '../const/PathConst';
 import {
   isSearchInputActiveAtom,
@@ -62,6 +65,7 @@ const SearchPage: React.FC = () => {
   useEffect(() => {
     requestAnimationFrame(() => {
       setTimeout(() => {
+        sendInitEvent();
         setInitPageInfo((prev) => ({ ...prev, isSearchPage: true }));
       }, 100);
     });
@@ -73,6 +77,10 @@ const SearchPage: React.FC = () => {
     });
   });
 
+  useBodyAdaptProps([
+    { key: 'overflow', value: 'hidden' },
+    { key: 'touch-action', value: 'none' },
+  ]);
   return (
     <>
       <div
@@ -81,15 +89,33 @@ const SearchPage: React.FC = () => {
           transition: `opacity 0.3s ease-in`,
         }}
       >
-        <AppBaseTemplate>
-          <SearchHeader
-            backToUrl={HOME_PATH}
-            searchUrl={SEARCH_POST_PATH}
-            prevNavigateType={EVENT_DATA_ROUTE_PREVIOUS_TAB_TYPE}
-          />
-          {!isSearchInputActive && (
-            <>
-              {windowWidth < MEDIA_MOBILE_MAX_WIDTH_NUM ? (
+        {isApp() ? (
+          <>
+            <SearchHeader
+              backToUrl={HOME_PATH}
+              searchUrl={SEARCH_POST_PATH}
+              prevNavigateType={EVENT_DATA_ROUTE_PREVIOUS_TAB_TYPE}
+            />
+            <div
+              style={{
+                overflow: 'scroll',
+                height: `calc(100dvh - ${
+                  theme.systemSize.header.heightNumber +
+                    parseFloat(
+                      getComputedStyle(
+                        document.documentElement,
+                      ).getPropertyValue('--safe-area-inset-bottom'),
+                    ) +
+                    parseFloat(
+                      getComputedStyle(
+                        document.documentElement,
+                      ).getPropertyValue('--safe-area-inset-top'),
+                    ) || 0
+                }px)`,
+                marginTop: `calc(${theme.systemSize.header.height} + env(safe-area-inset-top))`,
+              }}
+            >
+              {!isSearchInputActive && (
                 <PullToRefreshComponent
                   onRefresh={async () => {
                     refetchByFavoriteTermList();
@@ -98,12 +124,19 @@ const SearchPage: React.FC = () => {
                 >
                   <SearchBody />
                 </PullToRefreshComponent>
-              ) : (
-                <SearchBody />
               )}
-            </>
-          )}
-        </AppBaseTemplate>
+            </div>
+          </>
+        ) : (
+          <AppBaseTemplate>
+            <SearchHeader
+              backToUrl={HOME_PATH}
+              searchUrl={SEARCH_POST_PATH}
+              prevNavigateType={EVENT_DATA_ROUTE_PREVIOUS_TAB_TYPE}
+            />
+            {!isSearchInputActive && <SearchBody />}
+          </AppBaseTemplate>
+        )}
       </div>
       <BottomNavBar />
     </>

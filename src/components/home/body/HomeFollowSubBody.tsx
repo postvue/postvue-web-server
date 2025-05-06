@@ -1,139 +1,152 @@
-import {
-  POST_DETAIL_POPUP_PARAM,
-  POST_DETAIL_POST_ID_PARAM,
-  POST_DETAIL_PROFILE_PARAM,
-  TRUE_PARAM,
-} from 'const/QueryParamConst';
 import { RoutePushEventDateInterface } from 'const/ReactNativeConst';
-import { MEDIA_MOBILE_MAX_WIDTH_NUM } from 'const/SystemAttrConst';
+import { onFuncRoutePostDetail } from 'global/util/PostUtil';
 import { stackRouterPush } from 'global/util/reactnative/nativeRouter';
-import React, { useEffect, useState } from 'react';
+import { QueryStateRecommFollowListInfinite } from 'hook/queryhook/QueryStateRecommFollowListnfinite';
+import RecommFollowListListInfiniteScroll from 'hook/RecommFollowListInfiniteScroll';
+import React from 'react';
 import { generatePath, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { filterBrigntnessStyle } from 'styles/commonStyles';
-import {
-  PROFILE_ACCOUNT_ROUTE_PATH,
-  PROFILE_POST_LIST_PATH,
-} from '../../../const/PathConst';
-import { RecommFollowInfo } from '../../../global/interface/recomm';
-import { getRecommFollowList } from '../../../services/recomm/getRecommFollowList';
+import { PROFILE_ACCOUNT_ROUTE_PATH } from '../../../const/PathConst';
 import theme from '../../../styles/theme';
 import FollowButton from '../../common/buttton/FollowButton';
 
-const HomeFollowSubBody: React.FC = () => {
-  const [recommFollowList, setRecommFollowList] = useState<RecommFollowInfo[]>(
-    [],
-  );
+interface HomeFollowSubBodyProps {
+  mainTitle?: string;
+  subTitle?: string;
+}
 
-  useEffect(() => {
-    getRecommFollowList().then((value) => setRecommFollowList(value));
-  }, []);
+const HomeFollowSubBody: React.FC<HomeFollowSubBodyProps> = ({
+  mainTitle,
+  subTitle,
+}) => {
+  const { data: recommFollowList } = QueryStateRecommFollowListInfinite();
 
   const navigate = useNavigate();
   return (
     <HomeFollowSubBodyContainer>
       <HomeFollowSubTitleWrap>
-        <HomeFollowSubscribeMainTitle>
-          아직 팔로잉하고 있는 계정이 없어요
-        </HomeFollowSubscribeMainTitle>
-        <HomeFollowSubscribeSubTitle>
-          관심있는 계정을 팔로우 해보세요.
-        </HomeFollowSubscribeSubTitle>
+        {mainTitle && (
+          <HomeFollowSubscribeMainTitle>
+            {mainTitle}
+          </HomeFollowSubscribeMainTitle>
+        )}
+        {subTitle && (
+          <HomeFollowSubscribeSubTitle>{subTitle}</HomeFollowSubscribeSubTitle>
+        )}
       </HomeFollowSubTitleWrap>
-      {recommFollowList.map((value, index) => {
-        return (
-          <RecommFollowInfoWrap key={index}>
-            <RecommFollowProfileInfo>
-              <RecommFollowProfileInfoWrap>
-                <RecommFollowProfileImg src={value.profilePath} />
-                <div
-                  onClick={() => {
-                    const path = generatePath(PROFILE_ACCOUNT_ROUTE_PATH, {
-                      username: value.username,
-                    });
-                    const data: RoutePushEventDateInterface = {
-                      isShowInitBottomNavBar: true,
-                    };
+      {recommFollowList &&
+        recommFollowList.pages
+          .flatMap((v) => v)
+          .map((value, index) => {
+            return (
+              <RecommFollowInfoWrap key={index}>
+                <RecommFollowProfileInfo>
+                  <RecommFollowProfileInfoWrap>
+                    <RecommFollowProfileImg src={value.profilePath} />
+                    <div
+                      onClick={() => {
+                        const path = generatePath(PROFILE_ACCOUNT_ROUTE_PATH, {
+                          username: value.username,
+                        });
+                        const data: RoutePushEventDateInterface = {
+                          isShowInitBottomNavBar: true,
+                        };
 
-                    stackRouterPush(navigate, path, data);
-                  }}
-                >
-                  <FollowUsernameNumberWrap>
-                    <RecommFollowUsername>
-                      {value.username}
-                    </RecommFollowUsername>
-                    <RecommFollowWrap>
-                      <RecommFollowFollowingNum>
-                        <RecommFollowFollowingTitle>
-                          팔로잉
-                        </RecommFollowFollowingTitle>{' '}
-                        {value.followingNum}
-                      </RecommFollowFollowingNum>
-                      <RecommFollowFollowerNum>
-                        <RecommFollowFollowerTitle>
-                          팔로워
-                        </RecommFollowFollowerTitle>{' '}
-                        {value.followerNum}
-                      </RecommFollowFollowerNum>
-                    </RecommFollowWrap>
-                  </FollowUsernameNumberWrap>
-                </div>
-              </RecommFollowProfileInfoWrap>
-              <FollowButton
-                fontSize={theme.fontSizes.Subhead3}
-                userId={value.followId}
-                username={value.username}
-                isFollow={false}
-              />
-            </RecommFollowProfileInfo>
-            <MyProfileScrapImgListWrap>
-              {value.postPreviewImgUrlList.slice(0, 3).map((image, k) => (
-                <MyProfileScrapImgWrap
-                  key={k}
-                  onClick={() => {
-                    if (window.innerWidth > MEDIA_MOBILE_MAX_WIDTH_NUM) {
-                      // 데스크탑 크기
-                      // url로 이동
+                        stackRouterPush(navigate, path, data);
+                      }}
+                    >
+                      <FollowUsernameNumberWrap>
+                        <RecommFollowUsername>
+                          {value.username}
+                        </RecommFollowUsername>
+                        <RecommFollowWrap>
+                          <RecommFollowFollowingNum>
+                            <RecommFollowFollowingTitle>
+                              팔로잉
+                            </RecommFollowFollowingTitle>{' '}
+                            {value.followingNum}
+                          </RecommFollowFollowingNum>
+                          <RecommFollowFollowerNum>
+                            <RecommFollowFollowerTitle>
+                              팔로워
+                            </RecommFollowFollowerTitle>{' '}
+                            {value.followerNum}
+                          </RecommFollowFollowerNum>
+                        </RecommFollowWrap>
+                      </FollowUsernameNumberWrap>
+                    </div>
+                  </RecommFollowProfileInfoWrap>
+                  <FollowButton
+                    fontSize={theme.fontSizes.Subhead3}
+                    userId={value.followId}
+                    username={value.username}
+                    isFollow={false}
+                  />
+                </RecommFollowProfileInfo>
+                <MyProfileScrapImgListWrap>
+                  {value.postPreviewImgUrlList.slice(0, 3).map((image, k) => (
+                    <MyProfileScrapImgContainer key={k}>
+                      <MyProfileScrapImgWrap
+                        onClick={() => {
+                          onFuncRoutePostDetail({
+                            navigate: navigate,
+                            postId: image.postId,
+                            username: value.username,
+                          });
+                          // if (window.innerWidth > MEDIA_MOBILE_MAX_WIDTH_NUM) {
+                          //   // 데스크탑 크기
+                          //   // url로 이동
 
-                      navigate(
-                        generatePath(PROFILE_POST_LIST_PATH, {
-                          user_id: value.username,
-                          post_id: image.postId,
-                        }),
-                        {
-                          state: { isDetailPopup: true },
-                        },
-                      );
-                    } else {
-                      // 모바일 크기
-                      // url만 바뀌도록 변경
-                      // 새로운 쿼리 파라미터 추가 또는 기존 파라미터 값 수정
-                      const searchParams = new URLSearchParams(location.search);
+                          //   navigate(
+                          //     generatePath(PROFILE_POST_LIST_PATH, {
+                          //       user_id: value.username,
+                          //       post_id: image.postId,
+                          //     }),
+                          //     {
+                          //       state: { isDetailPopup: true },
+                          //     },
+                          //   );
+                          // } else {
+                          //   // 모바일 크기
+                          //   // url만 바뀌도록 변경
+                          //   // 새로운 쿼리 파라미터 추가 또는 기존 파라미터 값 수정
+                          //   const searchParams = new URLSearchParams(
+                          //     location.search,
+                          //   );
 
-                      searchParams.set(POST_DETAIL_POPUP_PARAM, TRUE_PARAM);
-                      searchParams.set(POST_DETAIL_POST_ID_PARAM, image.postId);
-                      searchParams.set(
-                        POST_DETAIL_PROFILE_PARAM,
-                        value.username,
-                      );
+                          //   searchParams.set(
+                          //     POST_DETAIL_POPUP_PARAM,
+                          //     TRUE_PARAM,
+                          //   );
+                          //   searchParams.set(
+                          //     POST_DETAIL_POST_ID_PARAM,
+                          //     image.postId,
+                          //   );
+                          //   searchParams.set(
+                          //     POST_DETAIL_PROFILE_PARAM,
+                          //     value.username,
+                          //   );
 
-                      // 새로운 쿼리 파라미터가 포함된 URL 생성
-                      const newSearch = searchParams.toString();
-                      const newPath = `${location.pathname}?${newSearch}`;
+                          //   // 새로운 쿼리 파라미터가 포함된 URL 생성
+                          //   const newSearch = searchParams.toString();
+                          //   const newPath = `${location.pathname}?${newSearch}`;
 
-                      navigate(newPath, {
-                        state: { isDetailPopup: true },
-                      });
-                    }
-                  }}
-                >
-                  <MyProfileScrapImg src={image.content} />
-                </MyProfileScrapImgWrap>
-              ))}
-            </MyProfileScrapImgListWrap>
-          </RecommFollowInfoWrap>
-        );
-      })}
+                          //   navigate(newPath, {
+                          //     state: { isDetailPopup: true },
+                          //   });
+                          // }
+                        }}
+                      >
+                        <MyProfileScrapImg src={image.content} />
+                      </MyProfileScrapImgWrap>
+                    </MyProfileScrapImgContainer>
+                  ))}
+                </MyProfileScrapImgListWrap>
+              </RecommFollowInfoWrap>
+            );
+          })}
+      <RecommFollowListListInfiniteScroll />
     </HomeFollowSubBodyContainer>
   );
 };
@@ -145,7 +158,7 @@ const HomeFollowSubBodyContainer = styled.div`
 `;
 
 const HomeFollowSubTitleWrap = styled.div`
-  padding-bottom: 35px;
+  padding-bottom: 25px;
   gap: 5px;
   display: flex;
   flex-flow: column;
@@ -214,21 +227,24 @@ const MyProfileScrapImgListWrap = styled.div`
   overflow-x: auto;
   white-space: nowrap;
 
-  & {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-  &::-webkit-scrollbar {
-    display: none;
-  }
+  // & {
+  //   -ms-overflow-style: none;
+  //   scrollbar-width: none;
+  // }
+  // &::-webkit-scrollbar {
+  //   display: none;
+  // }
+`;
+
+const MyProfileScrapImgContainer = styled.div`
+  width: 32%;
+  flex: 0 0 auto;
+  position: relative;
+  ${filterBrigntnessStyle}
 `;
 
 const MyProfileScrapImgWrap = styled.div`
-  // width: 40%;
-  // width: 30%;
   width: 100%;
-  // flex: 0 0 auto;
-  ${filterBrigntnessStyle}
   cursor: pointer;
 `;
 

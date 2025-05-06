@@ -1,12 +1,7 @@
-import { ReactComponent as LeftScrollXButtonIcon } from 'assets/images/icon/svg/scrollx/LeftScrollXButton35x35Icon.svg';
-import { ReactComponent as RightScrollXButtonIcon } from 'assets/images/icon/svg/scrollx/RightScrollXButton35x35Icon.svg';
 import { POST_IMAGE_TYPE, POST_VIDEO_TYPE } from 'const/PostContentTypeConst';
 import { ProfileThumbnailScrapList } from 'global/interface/profile';
-import { isApp } from 'global/util/reactnative/nativeRouter';
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
-import theme from 'styles/theme';
-import ScrollXMoveButtonContainer from '../buttton/ScrollXMoveButtonContainer';
 import ProfileScrapThumbnailListViewText from './ProfileScrapThumbnailListViewText';
 
 export interface ScrapThumnailInfo {
@@ -30,161 +25,235 @@ const ProfileScrapThumbnailListView: React.FC<
     [profileThumbnailScrapList],
   );
   return (
-    <>
-      {isApp() ? (
-        <ProfileScrapAppListContainer>
-          {profileThumbnailScrapList.map((v, i) => (
-            <ProfileScraApppWrap
-              key={i}
-              onClick={() => {
-                onButtonEvent({
-                  scrapId: v.scrapId,
-                  scrapName: v.scrapName,
-                });
-              }}
-            >
-              <>
-                {v.postScrapPreviewList.length > 0 ? (
-                  <ProfileScrapImgListAppWrap>
-                    <ProfileScrapImgListAppSubWrap>
-                      {[...v.postScrapPreviewList]
-                        .reverse()
-                        .slice(0, 4)
-                        .map((value, k) => (
-                          <ProfileScrapAppImgWrap key={k}>
-                            {value.postThumbnailContentType ===
-                              POST_IMAGE_TYPE && (
-                              <ProfileScrapImgByApp
-                                src={value.postThumbnailContent}
-                              />
-                            )}
-                            {value.postThumbnailContentType ===
-                              POST_VIDEO_TYPE && (
-                              <PostContentVideo
-                                autoPlay
-                                muted
-                                loop
-                                playsInline
-                                src={value.postThumbnailContent}
-                              ></PostContentVideo>
-                            )}
-                          </ProfileScrapAppImgWrap>
-                        ))}
-                      {Array.from(
-                        {
-                          length: Math.max(
-                            4 - [...v.postScrapPreviewList].length,
-                            0,
-                          ),
-                        },
-                        (_, index) => (
-                          <ProfileScrapImgByAppMock key={index} />
-                        ),
-                      )}
-                    </ProfileScrapImgListAppSubWrap>
-                  </ProfileScrapImgListAppWrap>
-                ) : (
-                  <ProfileScrapImgListAppWrap>
-                    <ProfileScrapImgListAppSubWrap>
-                      {Array.from(
-                        {
-                          length: 4,
-                        },
-                        (_, index) => (
-                          <ProfileScrapImgByAppMock key={index} />
-                        ),
-                      )}
-                    </ProfileScrapImgListAppSubWrap>
-                  </ProfileScrapImgListAppWrap>
-                )}
-              </>
+    <ProfileScrapAppListContainer>
+      {profileThumbnailScrapList.map((v, i) => (
+        <ProfileScraApppWrap
+          key={i}
+          onClick={() => {
+            onButtonEvent({
+              scrapId: v.scrapId,
+              scrapName: v.scrapName,
+            });
+          }}
+        >
+          <>
+            {v.postScrapPreviewList.length > 0 ? (
+              <ProfileScrapImgListAppWrap>
+                <ProfileScrapImgListAppSubWrap>
+                  {[...v.postScrapPreviewList]
+                    .reverse()
+                    .slice(0, 4)
+                    .map((value, k) => (
+                      <ProfileScrapAppImgWrap key={k}>
+                        {value.postThumbnailContentType === POST_IMAGE_TYPE && (
+                          <ProfileScrapImgByApp
+                            src={value.postThumbnailContent}
+                          />
+                        )}
+                        {value.postThumbnailContentType === POST_VIDEO_TYPE && (
+                          <PostContentVideo
+                            autoPlay
+                            muted
+                            loop
+                            playsInline
+                            src={value.postThumbnailContent}
+                          ></PostContentVideo>
+                        )}
+                      </ProfileScrapAppImgWrap>
+                    ))}
+                  {Array.from(
+                    {
+                      length: Math.max(
+                        4 - [...v.postScrapPreviewList].length,
+                        0,
+                      ),
+                    },
+                    (_, index) => (
+                      <ProfileScrapImgByAppMock key={index} />
+                    ),
+                  )}
+                </ProfileScrapImgListAppSubWrap>
+              </ProfileScrapImgListAppWrap>
+            ) : (
+              <ProfileScrapImgListAppWrap>
+                <ProfileScrapImgListAppSubWrap>
+                  {Array.from(
+                    {
+                      length: 4,
+                    },
+                    (_, index) => (
+                      <ProfileScrapImgByAppMock key={index} />
+                    ),
+                  )}
+                </ProfileScrapImgListAppSubWrap>
+              </ProfileScrapImgListAppWrap>
+            )}
+          </>
 
-              <ProfileScrapThumbnailListViewText
-                isAddMove={isAddMove}
-                scrapIdList={scrapIdList}
-                scrapTumnail={v}
-                TextContainerStyle={{ paddingLeft: 10 }}
-              />
-            </ProfileScraApppWrap>
-          ))}
-        </ProfileScrapAppListContainer>
-      ) : (
-        <>
-          {profileThumbnailScrapList.map((v, i) => (
-            <ProfileScrapWrap
-              key={i}
-              onClick={() => {
-                onButtonEvent({
-                  scrapId: v.scrapId,
-                  scrapName: v.scrapName,
-                });
-              }}
-            >
-              <>
-                {v.postScrapPreviewList.length > 0 ? (
-                  <ScrollXMoveButtonContainer
-                    scrollContainerRef={containerRefs[i]}
-                    leftMoveNum={300}
-                    LeftScrollXButtonStyle={{ left: '-20px' }}
-                    RightScrollXButtonStyle={{ right: '-20px' }}
-                    ScrollLeftIcon={<LeftScrollXButtonIcon />}
-                    ScrollRightIcon={<RightScrollXButtonIcon />}
-                  >
-                    <ProfileScrapImgListWrap ref={containerRefs[i]}>
-                      {[...v.postScrapPreviewList].reverse().map((value, k) => (
-                        <ProfileScrapImgWrap key={k}>
-                          {value.postThumbnailContentType ===
-                            POST_IMAGE_TYPE && (
-                            <ProfileScrapImg src={value.postThumbnailContent} />
-                          )}
-                          {value.postThumbnailContentType ===
-                            POST_VIDEO_TYPE && (
-                            <PostContentVideo
-                              autoPlay
-                              muted
-                              loop
-                              playsInline
-                              src={value.postThumbnailContent}
-                            ></PostContentVideo>
-                          )}
-                        </ProfileScrapImgWrap>
-                      ))}
-                    </ProfileScrapImgListWrap>
-                  </ScrollXMoveButtonContainer>
-                ) : (
-                  <ProfileScrapImgListWrap>
-                    <ProfileScrapImgWrap>
-                      <ProfileScrapImg
-                        src={''}
-                        style={{ backgroundColor: theme.grey.Grey1 }}
-                      />
-                    </ProfileScrapImgWrap>
-                    <ProfileScrapImgWrap>
-                      <ProfileScrapImg
-                        src={''}
-                        style={{ backgroundColor: theme.grey.Grey1 }}
-                      />
-                    </ProfileScrapImgWrap>
-                    <ProfileScrapImgWrap>
-                      <ProfileScrapImg
-                        src={''}
-                        style={{ backgroundColor: theme.grey.Grey1 }}
-                      />
-                    </ProfileScrapImgWrap>
-                  </ProfileScrapImgListWrap>
-                )}
-              </>
+          <ProfileScrapThumbnailListViewText
+            isAddMove={isAddMove}
+            scrapIdList={scrapIdList}
+            scrapTumnail={v}
+            TextContainerStyle={{ paddingLeft: 10 }}
+          />
+        </ProfileScraApppWrap>
+      ))}
+    </ProfileScrapAppListContainer>
+    // <>
+    //   {isApp() ? (
+    //     <ProfileScrapAppListContainer>
+    //       {profileThumbnailScrapList.map((v, i) => (
+    //         <ProfileScraApppWrap
+    //           key={i}
+    //           onClick={() => {
+    //             onButtonEvent({
+    //               scrapId: v.scrapId,
+    //               scrapName: v.scrapName,
+    //             });
+    //           }}
+    //         >
+    //           <>
+    //             {v.postScrapPreviewList.length > 0 ? (
+    //               <ProfileScrapImgListAppWrap>
+    //                 <ProfileScrapImgListAppSubWrap>
+    //                   {[...v.postScrapPreviewList]
+    //                     .reverse()
+    //                     .slice(0, 4)
+    //                     .map((value, k) => (
+    //                       <ProfileScrapAppImgWrap key={k}>
+    //                         {value.postThumbnailContentType ===
+    //                           POST_IMAGE_TYPE && (
+    //                           <ProfileScrapImgByApp
+    //                             src={value.postThumbnailContent}
+    //                           />
+    //                         )}
+    //                         {value.postThumbnailContentType ===
+    //                           POST_VIDEO_TYPE && (
+    //                           <PostContentVideo
+    //                             autoPlay
+    //                             muted
+    //                             loop
+    //                             playsInline
+    //                             src={value.postThumbnailContent}
+    //                           ></PostContentVideo>
+    //                         )}
+    //                       </ProfileScrapAppImgWrap>
+    //                     ))}
+    //                   {Array.from(
+    //                     {
+    //                       length: Math.max(
+    //                         4 - [...v.postScrapPreviewList].length,
+    //                         0,
+    //                       ),
+    //                     },
+    //                     (_, index) => (
+    //                       <ProfileScrapImgByAppMock key={index} />
+    //                     ),
+    //                   )}
+    //                 </ProfileScrapImgListAppSubWrap>
+    //               </ProfileScrapImgListAppWrap>
+    //             ) : (
+    //               <ProfileScrapImgListAppWrap>
+    //                 <ProfileScrapImgListAppSubWrap>
+    //                   {Array.from(
+    //                     {
+    //                       length: 4,
+    //                     },
+    //                     (_, index) => (
+    //                       <ProfileScrapImgByAppMock key={index} />
+    //                     ),
+    //                   )}
+    //                 </ProfileScrapImgListAppSubWrap>
+    //               </ProfileScrapImgListAppWrap>
+    //             )}
+    //           </>
 
-              <ProfileScrapThumbnailListViewText
-                isAddMove={isAddMove}
-                scrapIdList={scrapIdList}
-                scrapTumnail={v}
-              />
-            </ProfileScrapWrap>
-          ))}
-        </>
-      )}
-    </>
+    //           <ProfileScrapThumbnailListViewText
+    //             isAddMove={isAddMove}
+    //             scrapIdList={scrapIdList}
+    //             scrapTumnail={v}
+    //             TextContainerStyle={{ paddingLeft: 10 }}
+    //           />
+    //         </ProfileScraApppWrap>
+    //       ))}
+    //     </ProfileScrapAppListContainer>
+    //   ) : (
+    //     <>
+    //       {profileThumbnailScrapList.map((v, i) => (
+    //         <ProfileScrapWrap
+    //           key={i}
+    //           onClick={() => {
+    //             onButtonEvent({
+    //               scrapId: v.scrapId,
+    //               scrapName: v.scrapName,
+    //             });
+    //           }}
+    //         >
+    //           <>
+    //             {v.postScrapPreviewList.length > 0 ? (
+    //               <ScrollXMoveButtonContainer
+    //                 scrollContainerRef={containerRefs[i]}
+    //                 leftMoveNum={300}
+    //                 LeftScrollXButtonStyle={{ left: '-20px' }}
+    //                 RightScrollXButtonStyle={{ right: '-20px' }}
+    //                 ScrollLeftIcon={<LeftScrollXButtonIcon />}
+    //                 ScrollRightIcon={<RightScrollXButtonIcon />}
+    //               >
+    //                 <ProfileScrapImgListWrap ref={containerRefs[i]}>
+    //                   {[...v.postScrapPreviewList].reverse().map((value, k) => (
+    //                     <ProfileScrapImgWrap key={k}>
+    //                       {value.postThumbnailContentType ===
+    //                         POST_IMAGE_TYPE && (
+    //                         <ProfileScrapImg src={value.postThumbnailContent} />
+    //                       )}
+    //                       {value.postThumbnailContentType ===
+    //                         POST_VIDEO_TYPE && (
+    //                         <PostContentVideo
+    //                           autoPlay
+    //                           muted
+    //                           loop
+    //                           playsInline
+    //                           src={value.postThumbnailContent}
+    //                         ></PostContentVideo>
+    //                       )}
+    //                     </ProfileScrapImgWrap>
+    //                   ))}
+    //                 </ProfileScrapImgListWrap>
+    //               </ScrollXMoveButtonContainer>
+    //             ) : (
+    //               <ProfileScrapImgListWrap>
+    //                 <ProfileScrapImgWrap>
+    //                   <ProfileScrapImg
+    //                     src={''}
+    //                     style={{ backgroundColor: theme.grey.Grey1 }}
+    //                   />
+    //                 </ProfileScrapImgWrap>
+    //                 <ProfileScrapImgWrap>
+    //                   <ProfileScrapImg
+    //                     src={''}
+    //                     style={{ backgroundColor: theme.grey.Grey1 }}
+    //                   />
+    //                 </ProfileScrapImgWrap>
+    //                 <ProfileScrapImgWrap>
+    //                   <ProfileScrapImg
+    //                     src={''}
+    //                     style={{ backgroundColor: theme.grey.Grey1 }}
+    //                   />
+    //                 </ProfileScrapImgWrap>
+    //               </ProfileScrapImgListWrap>
+    //             )}
+    //           </>
+
+    //           <ProfileScrapThumbnailListViewText
+    //             isAddMove={isAddMove}
+    //             scrapIdList={scrapIdList}
+    //             scrapTumnail={v}
+    //           />
+    //         </ProfileScrapWrap>
+    //       ))}
+    //     </>
+    //   )}
+    // </>
   );
 };
 

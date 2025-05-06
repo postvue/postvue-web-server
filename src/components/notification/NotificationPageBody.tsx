@@ -18,6 +18,7 @@ import { RoutePushEventDateInterface } from 'const/ReactNativeConst';
 import { MEDIA_MOBILE_MAX_WIDTH } from 'const/SystemAttrConst';
 import { SnsNotification } from 'global/db/db';
 import { convertDiffrenceDateTime } from 'global/util/DateTimeUtil';
+import { onFuncRoutePostDetail } from 'global/util/PostUtil';
 import { stackRouterPush } from 'global/util/reactnative/nativeRouter';
 import { useSnsNotificationHookByIndexedDb } from 'hook/db/useSnsNotifcationHookByIndexedDb';
 import React, { useEffect } from 'react';
@@ -86,39 +87,29 @@ const NotificationPageBody: React.FC = () => {
   // };
   // }, [notificationHashMapString]);
 
-  const onClickNotificationMsg = (notificationMsg: SnsNotification) => {
-    // 새로운 쿼리 파라미터 추가 또는 기존 파라미터 값 수정
+  const moveToPostDetailPopup = (notificationMsg: SnsNotification) => {
     const searchParams = new URLSearchParams(location.search);
+    searchParams.set(POST_DETAIL_POPUP_PARAM, TRUE_PARAM);
+    searchParams.set(POST_DETAIL_POST_ID_PARAM, notificationMsg.postId);
+    searchParams.set(POST_DETAIL_PROFILE_PARAM, notificationMsg.userId);
 
+    navigate(`${location.pathname}?${searchParams.toString()}`, {
+      replace: false,
+      state: { isDetailPopup: true },
+    });
+  };
+
+  const onClickNotificationMsg = (notificationMsg: SnsNotification) => {
     switch (notificationMsg.notificationType) {
       case POST_LIKE_NOTIFICATION_TYPE:
-        searchParams.set(POST_DETAIL_POPUP_PARAM, TRUE_PARAM);
-        searchParams.set(POST_DETAIL_POST_ID_PARAM, notificationMsg.postId);
-        searchParams.set(POST_DETAIL_PROFILE_PARAM, notificationMsg.userId);
-
-        // 새로운 쿼리 파라미터가 포함된 URL 생성
-        navigate(`${location.pathname}?${searchParams.toString()}`, {
-          replace: false,
-          state: { isDetailPopup: true },
-        });
-        break;
       case POST_CLIP_NOTIFICATION_TYPE:
-        searchParams.set(POST_DETAIL_POPUP_PARAM, TRUE_PARAM);
-        searchParams.set(POST_DETAIL_POST_ID_PARAM, notificationMsg.postId);
-        searchParams.set(POST_DETAIL_PROFILE_PARAM, notificationMsg.userId);
-        navigate(`${location.pathname}?${searchParams.toString()}`, {
-          replace: false,
-          state: { isDetailPopup: true },
-        });
-        break;
       case POST_COMMENT_NOTIFICATION_TYPE:
-        searchParams.set(POST_DETAIL_POPUP_PARAM, TRUE_PARAM);
-        searchParams.set(POST_DETAIL_POST_ID_PARAM, notificationMsg.postId);
-        searchParams.set(POST_DETAIL_PROFILE_PARAM, notificationMsg.userId);
-        navigate(`${location.pathname}?${searchParams.toString()}`, {
-          replace: false,
-          state: { isDetailPopup: true },
+        onFuncRoutePostDetail({
+          navigate,
+          postId: notificationMsg.postId,
+          username: notificationMsg.userId,
         });
+        // moveToPostDetailPopup(notificationMsg);
         break;
       case USER_FOLLOWER_NOTIFICATION_TYPE:
         stackRouterPush(
@@ -126,9 +117,7 @@ const NotificationPageBody: React.FC = () => {
           generatePath(PROFILE_ACCOUNT_ROUTE_PATH, {
             username: notificationMsg.notificationUsername,
           }),
-          {
-            isShowInitBottomNavBar: true,
-          } as RoutePushEventDateInterface,
+          { isShowInitBottomNavBar: true } as RoutePushEventDateInterface,
         );
         break;
       default:
