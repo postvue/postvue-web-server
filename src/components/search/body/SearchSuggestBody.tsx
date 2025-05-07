@@ -13,6 +13,7 @@ import {
   SEARCH_PAGE_SCRAP_TAB_ID,
   SEARCH_PAGE_SCRAP_TAB_NAME,
 } from 'const/TabConfigConst';
+import { isMobile } from 'global/util/SystemUtil';
 import { QueryStateFollowForMeListInfinite } from 'hook/queryhook/QueryStateFollowForMeListInfinite';
 import React, { useEffect, useRef, useState } from 'react';
 import { generatePath, useNavigate } from 'react-router-dom';
@@ -204,19 +205,21 @@ const SearchSuggestBody: React.FC<SearchSuggestBodyProps> = ({
       ref={suggestBodyRef}
     >
       <div>
-        <SearchTypeTabContainer $showHeader={showHeader}>
-          {searchTabList.map((v, i) => (
-            <SearchTypeTabItemWrap
-              key={i}
-              onClick={() => {
-                setSearchTabInfo((prev) => ({ ...prev, tabId: v.tabId }));
-              }}
-            >
-              <SearchTypeTabItem>{v.tabName}</SearchTypeTabItem>
-              {v.tabId === searchTabInfo.tabId && <TabStickBarComponent />}
-            </SearchTypeTabItemWrap>
-          ))}
-        </SearchTypeTabContainer>
+        {isMobile() && (
+          <SearchTypeTabContainer $showHeader={showHeader}>
+            {searchTabList.map((v, i) => (
+              <SearchTypeTabItemWrap
+                key={i}
+                onClick={() => {
+                  setSearchTabInfo((prev) => ({ ...prev, tabId: v.tabId }));
+                }}
+              >
+                <SearchTypeTabItem>{v.tabName}</SearchTypeTabItem>
+                {v.tabId === searchTabInfo.tabId && <TabStickBarComponent />}
+              </SearchTypeTabItemWrap>
+            ))}
+          </SearchTypeTabContainer>
+        )}
         <SearchRecentWordContainer style={SearchSuggestBodyWrapStyle}>
           {!isValidString(searchTempWord) ? (
             <>
@@ -264,17 +267,21 @@ const SearchSuggestBody: React.FC<SearchSuggestBodyProps> = ({
                 </>
               )}
 
-              {searchTabInfo.tabId === SEARCH_PAGE_PROFILE_TAB_ID ? (
-                <HomeFollowSubBody
-                  mainTitle={SEARCH_SUGGEST_PROFILE_PHARSE_TEXT}
-                  subTitle={HOME_RECOMM_FOLLOW_SUB_TITLE}
-                />
-              ) : (
+              {isMobile() && (
                 <>
-                  <NotSuggestTitle>
-                    {SEARCH_SUGGEST_SCRAP_PHARSE_TEXT}
-                  </NotSuggestTitle>
-                  <RecommScrapBody />
+                  {searchTabInfo.tabId === SEARCH_PAGE_PROFILE_TAB_ID ? (
+                    <HomeFollowSubBody
+                      mainTitle={SEARCH_SUGGEST_PROFILE_PHARSE_TEXT}
+                      subTitle={HOME_RECOMM_FOLLOW_SUB_TITLE}
+                    />
+                  ) : (
+                    <>
+                      <NotSuggestTitle>
+                        {SEARCH_SUGGEST_SCRAP_PHARSE_TEXT}
+                      </NotSuggestTitle>
+                      <RecommScrapBody />
+                    </>
+                  )}
                 </>
               )}
             </>

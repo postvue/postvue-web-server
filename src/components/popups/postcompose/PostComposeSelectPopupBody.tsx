@@ -1,3 +1,6 @@
+import { ReactComponent as PostComposeImageIcon } from 'assets/images/icon/svg/post/compose/PostComposeImageIcon.svg';
+import { ReactComponent as PostComposeLinkIcon } from 'assets/images/icon/svg/post/compose/PostComposeLinkIcon.svg';
+import { ReactComponent as PostComposeVideoIcon } from 'assets/images/icon/svg/post/compose/PostComposeVideoIcon.svg';
 import MyAccountSettingInfoState from 'components/common/state/MyAccountSettingInfoState';
 import {
   POST_COMPOSE_PATH,
@@ -18,6 +21,7 @@ import {
   isNotSupportVideoConfirmPopupAtom,
 } from 'states/PostComposeAtom';
 import styled from 'styled-components';
+import PopupBodyTemplate from '../PopupBodyTemplate';
 
 interface PostComposeSelectPopupBodyProps {
   onClose: () => void;
@@ -49,49 +53,51 @@ const PostComposeSelectPopupBody: React.FC<PostComposeSelectPopupBodyProps> = ({
   return (
     <>
       <PostComposePopupContainer>
-        <PostComposeTitle>기록 하기</PostComposeTitle>
-        <PostComposePopupWrap>
-          <PostComposeCreateTypeWrap
-            onClick={() => {
-              onClose();
-              if (windowWidth >= MEDIA_MOBILE_MAX_WIDTH_NUM) {
-                setIsActivPostComposePopup(true);
-              } else {
-                stackRouterPush(navigate, POST_COMPOSE_PATH);
-              }
-            }}
-          >
-            사진
-          </PostComposeCreateTypeWrap>
-          <PostComposeCreateTypeWrap
-            onClick={() => {
-              onClose();
-              if (windowWidth >= MEDIA_MOBILE_MAX_WIDTH_NUM) {
-                setIsActivPostVideoComposePopup(true);
-              } else {
-                if (isApp()) {
-                  stackRouterPush(navigate, POST_VIDEO_COMPOSE_PATH);
+        <PopupBodyTemplate
+          elementList={[
+            {
+              title: '사진',
+              Icon: PostComposeImageIcon,
+              onFunc: () => {
+                onClose();
+                if (windowWidth >= MEDIA_MOBILE_MAX_WIDTH_NUM) {
+                  setIsActivPostComposePopup(true);
                 } else {
-                  setIsNotSupportVideoConfirmPopup(true);
+                  stackRouterPush(navigate, POST_COMPOSE_PATH);
                 }
-              }
-            }}
-          >
-            영상
-          </PostComposeCreateTypeWrap>
-          <PostComposeCreateTypeWrap
-            onClick={() => {
-              onClose();
-              if (isApp()) {
-                stackRouterPush(navigate, POST_COMPOSE_SOURCE_URL_PATH);
-              } else {
-                setIsActivePostComposeBySourceUrlPopup(true);
-              }
-            }}
-          >
-            링크
-          </PostComposeCreateTypeWrap>
-        </PostComposePopupWrap>
+              },
+            },
+            {
+              title: '영상',
+              Icon: PostComposeVideoIcon,
+              onFunc: () => {
+                onClose();
+                if (windowWidth >= MEDIA_MOBILE_MAX_WIDTH_NUM) {
+                  setIsActivPostVideoComposePopup(true);
+                } else {
+                  if (isApp()) {
+                    stackRouterPush(navigate, POST_VIDEO_COMPOSE_PATH);
+                  } else {
+                    setIsNotSupportVideoConfirmPopup(true);
+                  }
+                }
+              },
+            },
+            {
+              title: '링크',
+              Icon: PostComposeLinkIcon,
+              onFunc: () => {
+                onClose();
+                if (isApp()) {
+                  stackRouterPush(navigate, POST_COMPOSE_SOURCE_URL_PATH);
+                } else {
+                  setIsActivePostComposeBySourceUrlPopup(true);
+                }
+              },
+            },
+          ]}
+        />
+
         {isActivePostComposeSelectPopup && <MyAccountSettingInfoState />}
       </PostComposePopupContainer>
     </>
@@ -113,7 +119,7 @@ const PostComposePopupWrap = styled.div`
 const PostComposeTitle = styled.div`
   font: ${({ theme }) => theme.fontSizes.Headline1};
   text-align: center;
-  padding: 0px 0 41px 0;
+  padding: 0px 0 20px 0;
 `;
 
 const PostComposeCreateTypeWrap = styled.div`

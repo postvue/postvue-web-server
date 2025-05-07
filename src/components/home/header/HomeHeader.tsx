@@ -1,4 +1,3 @@
-import { ReactComponent as FeelogLogo } from 'assets/images/icon/svg/logo/FeelogLogo.svg';
 import TabStickBar from 'components/common/container/TabStickBar';
 import HeaderLayout from 'components/layouts/HeaderLayout';
 import { MEDIA_MOBILE_MAX_WIDTH } from 'const/SystemAttrConst';
@@ -47,13 +46,14 @@ const HomeHeader: React.FC = () => {
         HeaderLayoutStyle={{
           backdropFilter: 'blur(10px)',
           WebkitBackdropFilter: 'blur(10px)',
+          height: '50px',
           backgroundColor: 'rgba(255,255,255,0.95)',
         }}
       >
         <HomeHeaderContainer>
           <AppLogoWrap>
             {/* <FeelogLogo /> */}
-            <FeelogLogo />
+            {/* <FeelogLogo /> */}
           </AppLogoWrap>
 
           <HomeTabContainer>
@@ -113,6 +113,7 @@ const TabItem = styled.div`
 
   @media (max-width: ${MEDIA_MOBILE_MAX_WIDTH}) {
     font: ${({ theme }) => theme.fontSizes.Subhead3};
+    font-size: 15px;
   }
 
   @media (min-width: ${MEDIA_MOBILE_MAX_WIDTH}) {

@@ -3,6 +3,7 @@ import AppBanner from 'components/common/AppBanner';
 import TabStickBar from 'components/common/container/TabStickBar';
 import HeaderLayout from 'components/layouts/HeaderLayout';
 import { MEDIA_MOBILE_MAX_WIDTH } from 'const/SystemAttrConst';
+import { isMobile } from 'global/util/SystemUtil';
 import useWindowSize from 'hook/customhook/useWindowSize';
 import React from 'react';
 import { useRecoilState } from 'recoil';
@@ -44,11 +45,6 @@ const HomeHeaderByAppBanner: React.FC = () => {
   // });
   // }, []);
 
-  const isMobile = (): boolean => {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-      navigator.userAgent,
-    );
-  };
   const { windowWidth } = useWindowSize();
 
   return (
