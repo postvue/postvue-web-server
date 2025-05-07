@@ -151,6 +151,7 @@ const ProfileCategoryWrap = styled.div`
 
 const ProfileClipButton = styled.div`
   font: ${({ theme }) => theme.fontSizes.Subhead3};
+  font-size: 15px;
   color: ${({ theme }) => theme.grey.Grey4};
   cursor: pointer;
   &.active {
