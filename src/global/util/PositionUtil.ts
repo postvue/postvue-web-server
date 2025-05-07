@@ -105,17 +105,20 @@ const getCurrentPosition = (
   }
 };
 
+let watchId: number | null = null;
 const fetchPosition = (
   actionFunc: (position: { latitude: number; longitude: number }) => void,
   isAlertError?: boolean,
   onClose?: () => void,
 ): void => {
-  navigator.geolocation.getCurrentPosition(
+  watchId = navigator.geolocation.watchPosition(
     (position) => {
-      actionFunc({
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude,
-      });
+      actionFunc(position.coords);
+
+      if (watchId !== null) {
+        navigator.geolocation.clearWatch(watchId); // 최초 한번만 얻고 중지
+        watchId = null;
+      }
     },
     (error) => {
       if (onClose) {
@@ -125,7 +128,27 @@ const fetchPosition = (
         alert('위치 정보를 가져오는 데 실패했습니다.' + error.message);
       }
     },
+    {
+      enableHighAccuracy: true, // 고정밀 GPS 요청
+      maximumAge: Infinity,
+    },
   );
+  // navigator.geolocation.getCurrentPosition(
+  //   (position) => {
+  //     actionFunc({
+  //       latitude: position.coords.latitude,
+  //       longitude: position.coords.longitude,
+  //     });
+  //   },
+  //   (error) => {
+  //     if (onClose) {
+  //       onClose();
+  //     }
+  //     if ((isAlertError === undefined && true) || isAlertError) {
+  //       alert('위치 정보를 가져오는 데 실패했습니다.' + error.message);
+  //     }
+  //   },
+  // );
 };
 
 // export const getCurrentPositionAsync = async (): Promise<{
