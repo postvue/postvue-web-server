@@ -1,4 +1,4 @@
-import { ReactComponent as PostComposeNavIcon } from 'assets/images/icon/svg/navbar/PostComposeNavIcon.svg';
+import { ReactComponent as PostComposeNavIcon } from 'assets/images/icon/svg/navbar/PostComposeNavIconV2.svg';
 import React from 'react';
 import { useSetRecoilState } from 'recoil';
 import { isActivPostComposeSelectPopupAtom } from 'states/PostComposeAtom';
@@ -27,7 +27,7 @@ const PostComposeButton: React.FC = () => {
 const PostComposeButtonContainer = styled.div`
   width: 45px;
   height: 45px;
-  background-color: ${({ theme }) => theme.mainColor.Blue};
+  // background-color: ${({ theme }) => theme.mainColor.Blue};
   border-radius: 30px;
   margin: auto auto;
   display: flex;

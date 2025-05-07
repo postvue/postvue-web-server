@@ -141,7 +141,7 @@ const ProfilePostPage: React.FC = () => {
     if (isApp()) {
       setTimeout(() => {
         sendInitEvent();
-      }, 50);
+      }, 0);
       requestAnimationFrame(() => {
         setTimeout(() => {
           setInitPageInfo((prev) => ({

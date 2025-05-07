@@ -19,15 +19,15 @@ import {
 } from '../const/PathConst';
 import PostComposeButton from './common/buttton/PostComposeButton';
 
-import { ReactComponent as HomeTabActiveIcon } from 'assets/images/icon/svg/navbar/HomeTabActiveIcon.svg';
+import { ReactComponent as HomeTabActiveIcon } from 'assets/images/icon/svg/navbar/HomeTabActiveIconV2.svg';
 import { ReactComponent as HomeTabNotActiveIcon } from 'assets/images/icon/svg/navbar/HomeTabNotActiveIcon.svg';
-import { ReactComponent as MapTabActiveIcon } from 'assets/images/icon/svg/navbar/MapTabActiveIcon.svg';
+import { ReactComponent as MapTabActiveIcon } from 'assets/images/icon/svg/navbar/MapTabActiveIconV2.svg';
 import { ReactComponent as MapTabNotActiveIcon } from 'assets/images/icon/svg/navbar/MapTabNotActiveIcon.svg';
-import { ReactComponent as ProfileTabActiveIcon } from 'assets/images/icon/svg/navbar/ProfileTabActiveIcon.svg';
-import { ReactComponent as ProfileTabActiveIconByUnread } from 'assets/images/icon/svg/navbar/ProfileTabActiveIconByUnread.svg';
+import { ReactComponent as ProfileTabActiveIconByUnread } from 'assets/images/icon/svg/navbar/ProfileTabActiveIconByUnreadV2.svg';
+import { ReactComponent as ProfileTabActiveIcon } from 'assets/images/icon/svg/navbar/ProfileTabActiveIconV2.svg';
 import { ReactComponent as ProfileTabNotActiveIcon } from 'assets/images/icon/svg/navbar/ProfileTabNotActiveIcon.svg';
 import { ReactComponent as ProfileTabNotActiveIconByUnread } from 'assets/images/icon/svg/navbar/ProfileTabNotActiveIconByUnread.svg';
-import { ReactComponent as ScrapTabActiveIcon } from 'assets/images/icon/svg/navbar/ScrapTabActiveIcon.svg';
+import { ReactComponent as ScrapTabActiveIcon } from 'assets/images/icon/svg/navbar/ScrapTabActiveIconV2.svg';
 import { ReactComponent as ScrapTabNotActiveIcon } from 'assets/images/icon/svg/navbar/ScrapTabNotActiveIcon.svg';
 import {
   HOME_PAGE_NAME,
@@ -37,7 +37,6 @@ import {
   SCRAP_PAGE_NAME,
 } from 'const/ReactNativeConst';
 import { MEDIA_MOBILE_MAX_WIDTH } from 'const/SystemAttrConst';
-import { EXPLORE_TAB_NAME, FEED_TAB_NAME } from 'const/TabConst';
 import { isUserLoggedIn } from 'global/util/AuthUtil';
 import { fetchTasteForMeByNotChannel } from 'global/util/channel/static/fetchTasteForMeByNotChannel';
 import {
@@ -110,14 +109,14 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({
             <TabWrap>
               <TabSubWrap>
                 <MapTabActiveIcon />
-                <ActiveTabText>{EXPLORE_TAB_NAME}</ActiveTabText>
+                {/* <ActiveTabText>{EXPLORE_TAB_NAME}</ActiveTabText> */}
               </TabSubWrap>
             </TabWrap>
           ) : (
             <TabWrap>
               <TabSubWrap>
                 <MapTabNotActiveIcon />
-                <TabText>{EXPLORE_TAB_NAME}</TabText>
+                {/* <TabText>{EXPLORE_TAB_NAME}</TabText> */}
               </TabSubWrap>
             </TabWrap>
           )}
@@ -153,21 +152,21 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({
             <TabWrap>
               <TabSubWrap>
                 <HomeTabActiveIcon />
-                <ActiveTabText>{FEED_TAB_NAME}</ActiveTabText>
+                {/* <ActiveTabText>{FEED_TAB_NAME}</ActiveTabText> */}
               </TabSubWrap>
             </TabWrap>
           ) : (
             <TabWrap>
               <TabSubWrap>
                 <HomeTabNotActiveIcon />
-                <TabText>{FEED_TAB_NAME}</TabText>
+                {/* <TabText>{FEED_TAB_NAME}</TabText> */}
               </TabSubWrap>
             </TabWrap>
           )}
         </StyleActiveTab>
         <StyleActiveTab>
           <TabWrap>
-            <TabSubWrap style={{ height: '45px' }}>
+            <TabSubWrap style={{ height: '4px' }}>
               <PostComposeButton />
             </TabSubWrap>
           </TabWrap>
@@ -265,14 +264,15 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({
             <TabWrap>
               <TabSubWrap>
                 <ScrapTabActiveIcon />
-                <ActiveTabText>스크랩</ActiveTabText>
+
+                {/* <ActiveTabText>스크랩</ActiveTabText> */}
               </TabSubWrap>
             </TabWrap>
           ) : (
             <TabWrap>
               <TabSubWrap>
                 <ScrapTabNotActiveIcon />
-                <TabText>스크랩</TabText>
+                {/* <TabText>스크랩</TabText> */}
               </TabSubWrap>
             </TabWrap>
           )}
@@ -308,7 +308,7 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({
                 ) : (
                   <ProfileTabActiveIcon />
                 )}
-                <ActiveTabText>프로필</ActiveTabText>
+                {/* <ActiveTabText>프로필</ActiveTabText> */}
               </TabSubWrap>
             </TabWrap>
           ) : (
@@ -319,7 +319,7 @@ const BottomNavBar: React.FC<BottomNavBarProps> = ({
                 ) : (
                   <ProfileTabNotActiveIcon />
                 )}
-                <TabText>프로필</TabText>
+                {/* <TabText>프로필</TabText> */}
               </TabSubWrap>
             </TabWrap>
           )}
@@ -338,9 +338,11 @@ const BottomNavBarContainer = styled.div`
   right: 0;
   width: 100%;
   margin: 0px auto;
-  height: 55px;
+  height: 50px;
   background-color: white;
-  border-top: 1px solid ${({ theme }) => theme.grey.Grey2};
+  // border-top: 1px solid ${({ theme }) => theme.grey.Grey2};
+  border-radius: 15px 15px 0 0;
+  box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.05);
 
   display: flex;
   justify-content: space-around;
@@ -384,7 +386,6 @@ const TabSubWrap = styled.div`
   flex-direction: column;
   text-decoration: none;
   justify-content: center;
-  height: 55px;
 `;
 const TabText = styled.span`
   // padding-top: 5px;

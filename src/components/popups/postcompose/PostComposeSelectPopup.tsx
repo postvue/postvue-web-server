@@ -29,7 +29,7 @@ const PostComposeSelectPopup: React.FC = () => {
             setIsActivePostComposeSelectPopup(false);
           }}
           heightNum={
-            270 +
+            220 +
               parseFloat(
                 getComputedStyle(document.documentElement).getPropertyValue(
                   '--safe-area-inset-bottom',
